@@ -2,6 +2,20 @@ using UnityEngine;
 
 public class FFlashLight : MonoBehaviour ,IInteractable
 {
+
+
+
+    //Obsolete for now
+
+
+    //Trash. Replaced. For now
+
+
+
+
+
+
+
     [SerializeField] GameObject heldVersionPrefab;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
