@@ -56,7 +56,8 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             ActivateSelectedSlot(0);
-        }if (Input.GetKeyDown(KeyCode.Alpha2))
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             ActivateSelectedSlot(1);
         }
