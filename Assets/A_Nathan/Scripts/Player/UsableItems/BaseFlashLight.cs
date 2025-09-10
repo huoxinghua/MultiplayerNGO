@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class BaseFlashLight : MonoBehaviour , IHeldItem , IInteractable
+public class BaseFlashLight : MonoBehaviour //, IHeldItem , IInteractable
 {
     public GameObject playerWithItem;
     
-
+    //currently not in use. Been improved. A lot
 
     ///Implement a charge system. Ideas to show to stand out. display a bar or battery life somehow --- Light flickers as the battery gets lower without much indication of the percent --- No charge --- combo of the first 2?
 //when toggled on, must inform the held visual version to shine. Or even better, have the object this is attached to do the lighting, and when dropped, still shine. This will add to immersion and fun moments   

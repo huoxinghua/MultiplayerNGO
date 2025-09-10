@@ -6,7 +6,8 @@ public class FlashView : MonoBehaviour , IView
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
-
+    [SerializeField] private GameObject heldVisual;
+    GameObject currentVisual;
     public void SetLightEnabled(bool on)
     {
         flashlightLight.enabled = on;
@@ -16,7 +17,16 @@ public class FlashView : MonoBehaviour , IView
     {
         meshRenderer.enabled = visible;
     }
-
+    public void DisplayHeld(Transform position)
+    {
+        currentVisual = Instantiate(heldVisual, position);
+        currentVisual.transform.parent = position;
+    }
+    public void DestroyHeldVisual()
+    {
+        if (currentVisual == null) return;
+        Destroy(currentVisual);
+    }
     public void SetPhysicsEnabled(bool enabled)
     {
         rb.isKinematic = !enabled;

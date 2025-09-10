@@ -41,6 +41,7 @@ public class Inventory : MonoBehaviour
         if (heldItems[slotIndex] != null )
         {
             currentItem = heldItems[slotIndex];
+            
         }
         }
     public void Update()
@@ -76,7 +77,22 @@ public class Inventory : MonoBehaviour
     }
     public void ActivateSelectedSlot(int index)
     {
+        if (heldItems[currentSlot] != null) 
+        {
+            if (heldItems[currentSlot].GetComponent<IHeldItem>() != null)
+            {
+                heldItems[currentSlot].GetComponent<IHeldItem>().SwapOff();
+            }
+        }
+      
         currentSlot = index;
+        if (heldItems[index] != null)
+        {
+            if (heldItems[currentSlot].GetComponent<IHeldItem>() != null)
+            {
+                heldItems[currentSlot].GetComponent<IHeldItem>().SwapTo();
+            }
+        }
         EquipItem(heldItems[currentSlot], currentSlot);
     }
   
@@ -95,7 +111,9 @@ public class Inventory : MonoBehaviour
         if (currentSlot != -1)
         {
             heldItems[currentSlot]?.GetComponent<IHeldItem>()?.Drop();
+            heldItems[currentSlot]?.GetComponent<IHeldItem>()?.SwapOff();
             heldItems[currentSlot] = null;
+            currentItem = null;
         }
     }
         private void ClearHand()
@@ -112,8 +130,9 @@ public class Inventory : MonoBehaviour
         {
             if (currentSlot >= 0 && heldItems[currentSlot] == null)
             {
-                EquipItem(itemPrefab, currentSlot);
             heldItems[currentSlot] = itemPrefab;
+            EquipItem(itemPrefab, currentSlot);
+            Debug.Log("Should be");
                 return true;
             }
 

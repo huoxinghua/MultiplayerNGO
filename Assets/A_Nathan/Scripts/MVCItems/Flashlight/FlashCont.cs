@@ -20,29 +20,57 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
         if (inventory != null && inventory.PickUpItem(gameObject))
         {
             model.SetOwner(interactingPlayer);
+           
             Pickup();
+            if (inventory.currentItem == this.gameObject)
+            {
+                Debug.Log("This is current item");
+                SwapTo();
+            }
+            else
+            {
+                SwapOff();
+            }
         }
     }
 
     public void Use()
     {
-        if (!model.HasOwner) return;
+        if (!model.HasOwner || !model.IsInHand) return;
 
         model.Toggle();
         view.SetLightEnabled(model.IsOn);
         Debug.Log("Flashlight toggled: " + model.IsOn);
     }
-
-    public void Drop()
+    public void SwapOff()
     {
+
+       
         if (!model.HasOwner) return;
 
-        Transform dropPoint = model.Owner.transform.GetChild(4); // or some drop reference
-        view.MoveToPosition(dropPoint.position);
+        //probably a swap animation here?
 
+        view.DestroyHeldVisual();
+        model.InHand(false);
+    }
+    public void SwapTo()
+    {
+        if (!model.HasOwner) return;
+        //probably a swap animation here?
+        Debug.Log("here");
+        view.DisplayHeld(model.Owner.transform.GetChild(0).GetChild(0));
+        model.InHand(true);
+    }
+    public void Drop()
+    {
+        if (!model.HasOwner || !model.IsInHand) return;
+
+        Transform dropPoint = model.Owner.transform.GetChild(3); // or some drop reference
+        view.MoveToPosition(dropPoint.position);
+        view.DestroyHeldVisual();
         view.SetVisible(true);
         view.SetPhysicsEnabled(true);
-        view.SetLightEnabled(false); // turn off when dropped
+     //   view.SetLightEnabled(false); // turn off when dropped. maybe. Might be funnier if they can stay on
 
         model.ClearOwner();
     }
@@ -51,7 +79,8 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     {
         view.SetVisible(false);
         view.SetPhysicsEnabled(false);
-        transform.parent = model.Owner.transform.GetChild(3);
+        view.DisplayHeld(model.Owner.transform.GetChild(0).GetChild(0));
+        transform.parent = model.Owner.transform.GetChild(0).GetChild(0);
         transform.localPosition = new Vector3(0,0,0);
         transform.localRotation = Quaternion.Euler(0,0,0);
     }
