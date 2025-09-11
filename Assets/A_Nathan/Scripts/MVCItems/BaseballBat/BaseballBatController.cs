@@ -1,18 +1,18 @@
 using UnityEngine;
 
-public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
+public class BaseballBatController : MonoBehaviour ,IHeldItem,IInteractable
 {
-    private FlashModel model;
+    private BaseballBatModel model;
     private IView view;
 
     private void Awake()
     {
-        model = new FlashModel();
+        model = new BaseballBatModel();
         view = GetComponent<IView>();
     }
     public void Start()
     {
-        view.SetLightEnabled(model.IsOn);
+      
     }
     public void OnInteract(GameObject interactingPlayer)
     {
@@ -20,7 +20,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
         if (inventory != null && inventory.PickUpItem(gameObject))
         {
             model.SetOwner(interactingPlayer);
-           
+
             Pickup();
             if (inventory.currentItem == this.gameObject)
             {
@@ -36,14 +36,11 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     public void Use()
     {
         if (!model.HasOwner || !model.IsInHand) return;
-
-        model.Toggle();
-        view.SetLightEnabled(model.IsOn);
     }
     public void SwapOff()
     {
 
-       
+
         if (!model.HasOwner && view.GetCurrentVisual() == null) return;
 
         //probably a swap animation here?
@@ -54,7 +51,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     public void SwapTo()
     {
         if (!model.HasOwner && view.GetCurrentVisual() != null) return;
-        //probably a swap animation here
+        //probably a swap animation here?
         view.DisplayHeld(model.Owner.transform.GetChild(0).GetChild(0));
         model.InHand(true);
     }
@@ -67,7 +64,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
         view.DestroyHeldVisual();
         view.SetVisible(true);
         view.SetPhysicsEnabled(true);
-     //   view.SetLightEnabled(false); // turn off when dropped. maybe. Might be funnier if they can stay on
+        //   view.SetLightEnabled(false); // turn off when dropped. maybe. Might be funnier if they can stay on
 
         model.ClearOwner();
     }
@@ -78,7 +75,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
         view.SetPhysicsEnabled(false);
         view.DisplayHeld(model.Owner.transform.GetChild(0).GetChild(0));
         transform.parent = model.Owner.transform.GetChild(0).GetChild(0);
-        transform.localPosition = new Vector3(0,0,0);
-        transform.localRotation = Quaternion.Euler(0,0,0);
+        transform.localPosition = new Vector3(0, 0, 0);
+        transform.localRotation = Quaternion.Euler(0, 0, 0);
     }
 }
