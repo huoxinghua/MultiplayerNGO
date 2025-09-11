@@ -41,7 +41,11 @@ public class Inventory : MonoBehaviour
         if (heldItems[slotIndex] != null )
         {
             currentItem = heldItems[slotIndex];
-            
+
+        }
+        else
+        {
+            currentItem = null;
         }
         }
     public void Update()

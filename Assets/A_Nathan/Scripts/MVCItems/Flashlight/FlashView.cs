@@ -7,18 +7,22 @@ public class FlashView : MonoBehaviour , IView
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
     [SerializeField] private GameObject heldVisual;
-    GameObject currentVisual;
+    public GameObject currentVisual;
     public void SetLightEnabled(bool on)
     {
         flashlightLight.enabled = on;
     }
-
+    public GameObject GetCurrentVisual()
+    {
+        return currentVisual;
+    }
     public void SetVisible(bool visible)
     {
         meshRenderer.enabled = visible;
     }
     public void DisplayHeld(Transform position)
     {
+        if (currentVisual != null) return;
         currentVisual = Instantiate(heldVisual, position);
         currentVisual.transform.parent = position;
     }

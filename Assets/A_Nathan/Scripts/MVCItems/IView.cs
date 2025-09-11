@@ -2,6 +2,7 @@ using UnityEngine;
 
 public interface IView
 {
+    GameObject GetCurrentVisual();
     void SetVisible(bool visible);
     void SetPhysicsEnabled(bool enabled);
     void MoveToPosition(Vector3 position);

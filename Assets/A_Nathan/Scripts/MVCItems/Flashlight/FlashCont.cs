@@ -46,7 +46,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     {
 
        
-        if (!model.HasOwner) return;
+        if (!model.HasOwner && view.GetCurrentVisual() == null) return;
 
         //probably a swap animation here?
 
@@ -55,7 +55,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     }
     public void SwapTo()
     {
-        if (!model.HasOwner) return;
+        if (!model.HasOwner && view.GetCurrentVisual() != null) return;
         //probably a swap animation here?
         Debug.Log("here");
         view.DisplayHeld(model.Owner.transform.GetChild(0).GetChild(0));
