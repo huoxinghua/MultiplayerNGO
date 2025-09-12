@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,7 +12,7 @@ public class PlayerInputManager : MonoBehaviour
     public event Action OnShootInput;
     public event Action OnChangeWeaponInput;
     public event Action OnSprintInput;
-
+    public event Action CancelHold;
 
     public Vector2 LookInput { get; private set; }
     private void Awake()
