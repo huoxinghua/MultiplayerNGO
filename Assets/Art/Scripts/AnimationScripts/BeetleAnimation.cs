@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BeetleAnimation : BaseAnimation
+public class BeetleAnimation : MovementAnimation
 {
     
 }
