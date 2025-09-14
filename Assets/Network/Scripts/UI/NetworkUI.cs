@@ -4,6 +4,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
+
 namespace Project.Network.UI.SteamTransport
 {
     public class NetworkUI : MonoBehaviour
@@ -46,7 +47,7 @@ namespace Project.Network.UI.SteamTransport
             */
 
 
-
+/*
             if (hostButton != null)
             {
                 hostButton.onClick.AddListener(() =>
@@ -71,9 +72,9 @@ namespace Project.Network.UI.SteamTransport
                         Debug.LogError("StartHost() FAILED");
                     }
                 });
-            }
+            }*/
 
-            if (serverButton != null)
+       /*     if (serverButton != null)
             {
                 serverButton.onClick.AddListener(() =>
                 {
@@ -82,8 +83,8 @@ namespace Project.Network.UI.SteamTransport
                         NetworkManager.Singleton.StartServer();
                     }
                 });
-            }
-
+            }*/
+/*
             if (clientButton != null)
             {
                 clientButton.onClick.AddListener(() =>
@@ -109,7 +110,7 @@ namespace Project.Network.UI.SteamTransport
 
                     }
                 });
-            }
+            }*/
         }
         public void QuitGame()
         {

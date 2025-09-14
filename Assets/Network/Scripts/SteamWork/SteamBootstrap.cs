@@ -1,14 +1,14 @@
 using Steamworks;
 using TMPro;
 using UnityEngine;
+
 namespace Project.Network.SteamWork
-{ 
+{
     public class SteamBootstrap : MonoBehaviour
     {
         private bool ok;
         void Awake()
         {
-            Debug.Log("[Steam] Awake: preparing initialization");
             try
             {
                 ok = SteamAPI.Init();
@@ -35,12 +35,16 @@ namespace Project.Network.SteamWork
 
         void Update()
         {
-            if (ok) SteamAPI.RunCallbacks();
+            if (SteamManager.Initialized)
+            {
+                SteamAPI.RunCallbacks();
+                
+            }
 
             if (ok && Input.GetKeyDown(KeyCode.F1))
             {
                 SteamFriends.ActivateGameOverlay("Friends");
-                Debug.Log("[Steam] Tried to open Overlay (Shift+Tab should also work)");
+               
             }
         }
 
