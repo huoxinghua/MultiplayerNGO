@@ -9,8 +9,8 @@ public class BeetleMove : MonoBehaviour
     [SerializeField] Transform beetleTransform;
     [SerializeField] Vector3 PointToMoveTo;
     [SerializeField] float stopDistance;
-
-
+    bool _followingPlayer = false;
+    Transform playerToFollow;
     BeetleState _beetleState;
     //temp var
     bool doMove = false;
@@ -49,6 +49,23 @@ public class BeetleMove : MonoBehaviour
     {
         MoveToPosition(beetleTransform.position);
     }
+    public void OnFollowPlayer()
+    {
+        _followingPlayer = true;
+    }
+    public void SetPlayerToFollow(Transform player)
+    {
+        playerToFollow = player;
+    }
+    public void OnStopFollow()
+    {
+        _followingPlayer = false;
+        playerToFollow = null;
+    }
+    public void SetDestinationToPlayer()
+    {
+        agent.SetDestination(playerToFollow.position);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -60,10 +77,12 @@ public class BeetleMove : MonoBehaviour
                _beetleState.TransitionToState(BeetleStates.Idle);
             }
         } 
-        
-        /*if (doMove)
+    }
+    public void FixedUpdate()
+    {
+        if(_followingPlayer)
         {
-            MoveToPosition();
-        }*/
+            SetDestinationToPlayer();
+        }
     }
 }

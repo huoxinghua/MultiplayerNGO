@@ -13,6 +13,8 @@ public class BeetleLineOfSight : MonoBehaviour
     [SerializeField] float fieldOfViewCheckFrequency;
     [SerializeField] LayerMask viewCastLayerMask;
     [SerializeField] BeetleHealth beetleHealthScript;
+    [SerializeField] BeetleState _beetleState;
+    [SerializeField] BeetleMove _beetleMove;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -67,6 +69,11 @@ public class BeetleLineOfSight : MonoBehaviour
                 }
                 else
                 {
+                    if (!_beetleState.GetFollowCooldown())
+                    {
+                        _beetleMove.SetPlayerToFollow(player.transform);
+                        _beetleState.TransitionToState(BeetleStates.FollowPlayer);
+                    }
                     //player is friendly. Follow
                 }                // Player is visible, engage!
             }

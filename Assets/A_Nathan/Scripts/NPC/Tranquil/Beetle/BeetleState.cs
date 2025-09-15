@@ -1,10 +1,12 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 public enum BeetleStates
 {
     Idle,
     MovePosition,
-    RunAway
+    RunAway,
+    FollowPlayer
 }
 public class BeetleState : MonoBehaviour
 {
@@ -12,6 +14,10 @@ public class BeetleState : MonoBehaviour
     BeetleMove beetleMoveScript;
     [SerializeField] float _minIdleTime;
     [SerializeField] float _maxIdleTime;
+    [SerializeField] float _minFollowTime;
+    [SerializeField] float _maxFollowTime;
+    [SerializeField] float _followCooldown;
+    bool _onFollowCooldown;
     public void Awake()
     {
        // _currentState = BeetleStates.MovePosition;
@@ -45,13 +51,36 @@ public class BeetleState : MonoBehaviour
                 beetleMoveScript.MoveToPosition(beetleMoveScript.GetNextPosition());
                 break;
             case BeetleStates.RunAway:
+                StopCoroutine(FollowTime());
+                StopCoroutine(IdleTime());
                 Debug.Log("Start To Run");
                 break;
             case BeetleStates.Idle:
                 beetleMoveScript.StartIdle();
                 StartCoroutine(IdleTime());
                 break;
+            case BeetleStates.FollowPlayer:
+                StartCoroutine(FollowTime());
+                break;
         }
+    }
+    IEnumerator FollowCooldown()
+    {
+        yield return new WaitForSeconds(_followCooldown);
+        _onFollowCooldown = false;
+    }
+    IEnumerator FollowTime()
+    {
+        _onFollowCooldown = true;
+        beetleMoveScript.OnFollowPlayer();
+        yield return new WaitForSeconds(Random.Range(_minFollowTime, _maxFollowTime));
+        beetleMoveScript.OnStopFollow();
+        TransitionToState(BeetleStates.MovePosition);
+        StartCoroutine(FollowCooldown());
+    }
+    public bool GetFollowCooldown()
+    {
+        return _onFollowCooldown;
     }
     IEnumerator IdleTime()
     {
