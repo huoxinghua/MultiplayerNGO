@@ -11,7 +11,7 @@ public class MovementAnimation : MonoBehaviour
         if (anim == null) Debug.Log("Animator not found on" + gameObject.name);
     }
 
-    public virtual void OnIdleRandom(float currentIdleTime)
+    public virtual void OnIdleRandom(float currentIdleTime, float idleStart)
     {
         if(idleIndex == 0)
         {
@@ -24,7 +24,7 @@ public class MovementAnimation : MonoBehaviour
             if (isIdle)
             {
                 anim.SetFloat("idleSlot", Random.Range(0, idleIndex));
-                if (currentIdleTime > 4)
+                if (currentIdleTime > idleStart)
                 {
                     anim.SetTrigger("RandomIdle");
                 }
