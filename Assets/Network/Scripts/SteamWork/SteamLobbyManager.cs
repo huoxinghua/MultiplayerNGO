@@ -2,6 +2,7 @@ using Netcode.Transports;
 using Steamworks;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Project.Network.SteamWork
 {
@@ -15,6 +16,7 @@ namespace Project.Network.SteamWork
 
         void Start()
         {
+            Debug.Log("SteamLobbyManager start");
             if (!SteamManager.Initialized) return;
 
             lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
@@ -30,9 +32,29 @@ namespace Project.Network.SteamWork
         }
         public void CreateLobby()
         {
+            Debug.Log("Creat Lobby");
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
         }
-
+        public void ClickHostPublic()
+        {
+            if (SteamManager.Initialized)
+            {
+                SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 4);
+                Debug.Log("[SteamLobbyManager] Creating PUBLIC lobby...");
+            }
+            else
+            {
+                Debug.LogError("Steam is not initialized!");
+            }
+        }
+        public void ClickJoinFriendButton()
+        {
+            if (SteamManager.Initialized)
+            {
+                SteamFriends.ActivateGameOverlay("Friends");
+                Debug.Log("Opened Steam Friends Overlay to join a friend");
+            }
+        }
         private void OnLobbyCreated(LobbyCreated_t callback)
         {
             if (callback.m_eResult == EResult.k_EResultOK)
@@ -54,6 +76,10 @@ namespace Project.Network.SteamWork
             bool ok = NetworkManager.Singleton.StartHost();
             Debug.Log("StartHost() returned = " + ok);
 
+            if (ok)
+            {
+                NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
+            }
 
             if (ok)
             {
