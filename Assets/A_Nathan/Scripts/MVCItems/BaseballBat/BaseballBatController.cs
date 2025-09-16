@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class BaseballBatController : MonoBehaviour ,IHeldItem,IInteractable
@@ -5,6 +6,10 @@ public class BaseballBatController : MonoBehaviour ,IHeldItem,IInteractable
     private BaseballBatModel model;
     private IView view;
 
+    //temp till animations
+    Coroutine _attackCoroutine;
+    bool _canHit;
+    [SerializeField] float _attackCooldown;
     private void Awake()
     {
         model = new BaseballBatModel();
@@ -53,17 +58,37 @@ void PerformMeleeAttack()
         LayerMask enemyLayer = LayerMask.GetMask("Enemy");
 
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward * model.GetAttackRange() * 0.5f, model.GetAttackRadius(), enemyLayer);
-
+        if(hitEnemies.Length > 0 )
+        {
+            //play hit sound??
+        }
         foreach (Collider enemy in hitEnemies)
         {
+            enemy.gameObject.GetComponent<IHitable>()?.OnHit(model.Owner, model.GetDamage(),model.GetKnockoutPower());
             Debug.Log(enemy.gameObject.name);
           //  enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage);
         }
     }
+    void TryAttack()
+    {
+        if (_attackCoroutine == null)
+            _attackCoroutine = StartCoroutine(HitRoutine());
+    }
+
+    IEnumerator HitRoutine()
+    {
+        _canHit = false;
+        yield return new WaitForSeconds(0.2f);
+        PerformMeleeAttack();
+        yield return new WaitForSeconds(_attackCooldown);
+        _canHit = true;
+        _attackCoroutine = null;
+    }
     public void Use()
     {
         if (!model.HasOwner || !model.IsInHand) return;
-       PerformMeleeAttack();
+        TryAttack();
+      // PerformMeleeAttack();
     }
     public void SwapOff()
     {
