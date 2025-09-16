@@ -7956,7 +7956,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8be627b43ab3a7449afc7714d7d73adb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  beetleSO: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
   hostilePlayers: []
+  beetleMove: {fileID: 2037211734}
+  beetleState: {fileID: 2037211735}
 --- !u!1 &2067998914
 GameObject:
   m_ObjectHideFlags: 0
@@ -8764,6 +8767,26 @@ PrefabInstance:
     - target: {fileID: 2543072347691870348, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
       propertyPath: m_Name
       value: Beetle
+      objectReference: {fileID: 0}
+    - target: {fileID: 2543072347691870348, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597846376604929865, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
+      propertyPath: fleeDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597846376604929865, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
+      propertyPath: _beetleLineOfSight
+      value: 
+      objectReference: {fileID: 2037211741}
+    - target: {fileID: 3597846376604929865, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
+      propertyPath: randomRunPointOffSet
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597846376604929865, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
+      propertyPath: hostileCheckFrequency
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3763881765681210332, guid: b050d4a3a98b38341b900cc32d8af57c, type: 3}
       propertyPath: _maxIdleTime

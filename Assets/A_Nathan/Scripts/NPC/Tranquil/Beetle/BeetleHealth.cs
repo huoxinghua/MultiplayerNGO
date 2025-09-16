@@ -1,14 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BeetleHealth : MonoBehaviour
+public class BeetleHealth : MonoBehaviour,IHitable
 {
     //add players who attacked to list
+
+    [SerializeField] BeetleSO beetleSO;
     public List<GameObject> hostilePlayers = new List<GameObject>();
+    [SerializeField] BeetleMove beetleMove;
+    [SerializeField] BeetleState beetleState;
+    float _maxHealth;
+    float _currentHealth;
+    float _maxConsciousness;
+    float _currentConsciousness;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        
+        _maxHealth = beetleSO.MaxHealth;
+        _currentHealth = _maxHealth;
+        _maxConsciousness = beetleSO.MaxConsciousness;
+        _currentConsciousness = _maxConsciousness;
     }
     public bool IsPlayerHostile(GameObject playerToCheck)
     {
@@ -21,6 +32,42 @@ public class BeetleHealth : MonoBehaviour
             }
         }
         return isHostile;
+    }
+    public void ChangeHealth(float healthChange)
+    {
+        _currentHealth += healthChange;
+        if (_currentHealth < 0)
+        {
+            OnDeath();
+        }
+    }
+    public void OnKnockOut()
+    {
+        //set state to KO. Ragdoll, disable movement
+    }
+    public void OnDeath()
+    {
+        //set state to Dead. Ragdoll, disable movement
+
+        //temp for kyle
+        Destroy(gameObject);
+    }
+    public void ChangeConsciousness(float consciousnessChange)
+    {
+        _currentConsciousness += consciousnessChange;
+        if(_currentConsciousness < 0)
+        {
+            OnKnockOut();
+        }
+    }
+    public void OnHit(GameObject attacker, float damage, float knockoutPower)
+    {
+        if(attacker.layer == 6) hostilePlayers.Add(attacker);
+        beetleMove.RunFromPlayer(attacker.transform);
+        beetleState.TransitionToState(BeetleStates.RunAway);
+        ChangeHealth(-damage);
+        ChangeConsciousness(-knockoutPower);
+     //   Debug.Log("Was hit");
     }
     // Update is called once per frame
     void Update()

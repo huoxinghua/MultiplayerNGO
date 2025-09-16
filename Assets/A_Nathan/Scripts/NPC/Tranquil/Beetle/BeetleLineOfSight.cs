@@ -62,10 +62,12 @@ public class BeetleLineOfSight : MonoBehaviour
         {
             if (InFOV(player) && HasLineOfSight(player))
             {
-                Debug.Log("Player Spotted");
+             //   Debug.Log("Player Spotted");
                 if(beetleHealthScript.IsPlayerHostile(player))
                 {
                     //player is hostile - RUN!
+                    _beetleMove.RunFromPlayer(player.transform);
+                    _beetleState.TransitionToState(BeetleStates.RunAway);
                 }
                 else
                 {
@@ -78,6 +80,18 @@ public class BeetleLineOfSight : MonoBehaviour
                 }                // Player is visible, engage!
             }
         }
+    }
+    public bool CheckForHostiles()
+    {
+        bool hasHostile = false;
+        foreach (var player in players)
+        {
+            if(beetleHealthScript.IsPlayerHostile(player) && HasLineOfSight(player))
+            {
+                hasHostile = true;
+            }
+        }
+        return hasHostile;
     }
     IEnumerator PeriodicCheckFOV()
     {
@@ -101,7 +115,7 @@ public class BeetleLineOfSight : MonoBehaviour
     private bool HasLineOfSight(GameObject player)
     {
         Vector3 dirToTarget = ((player.transform.position + new Vector3(0,0.5f,0)) - transform.position).normalized;
-        Debug.DrawRay(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget * viewDistance, Color.red, 1f);
+      //  Debug.DrawRay(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget * viewDistance, Color.red, 1f);
         if (Physics.Raycast(transform.position + new Vector3(0,eyeOffset,0), dirToTarget, out RaycastHit hit, viewDistance,~viewCastLayerMask))
         {
             if (hit.transform.gameObject == player)

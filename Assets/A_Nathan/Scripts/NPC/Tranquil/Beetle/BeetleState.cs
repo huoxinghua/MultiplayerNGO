@@ -18,6 +18,7 @@ public class BeetleState : MonoBehaviour
     [SerializeField] float _maxFollowTime;
     [SerializeField] float _followCooldown;
     bool _onFollowCooldown;
+    bool _isFollowing;
     public void Awake()
     {
        // _currentState = BeetleStates.MovePosition;
@@ -52,7 +53,13 @@ public class BeetleState : MonoBehaviour
                 break;
             case BeetleStates.RunAway:
                 StopCoroutine(FollowTime());
+                if (_isFollowing)
+                {
+                    StartCoroutine(FollowCooldown());
+                    _isFollowing = false;
+                }
                 StopCoroutine(IdleTime());
+                beetleMoveScript.OnStopFollow();
                 Debug.Log("Start To Run");
                 break;
             case BeetleStates.Idle:
@@ -72,8 +79,10 @@ public class BeetleState : MonoBehaviour
     IEnumerator FollowTime()
     {
         _onFollowCooldown = true;
+        _isFollowing = true;
         beetleMoveScript.OnFollowPlayer();
         yield return new WaitForSeconds(Random.Range(_minFollowTime, _maxFollowTime));
+        _isFollowing = false;
         beetleMoveScript.OnStopFollow();
         TransitionToState(BeetleStates.MovePosition);
         StartCoroutine(FollowCooldown());

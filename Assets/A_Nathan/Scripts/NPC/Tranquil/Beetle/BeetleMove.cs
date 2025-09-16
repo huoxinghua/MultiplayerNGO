@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,8 +11,15 @@ public class BeetleMove : MonoBehaviour
     [SerializeField] Transform beetleTransform;
     [SerializeField] Vector3 PointToMoveTo;
     [SerializeField] float stopDistance;
+    [SerializeField] BeetleLineOfSight _beetleLineOfSight;
+    [SerializeField] float hostileCheckFrequency;
+    [SerializeField] float fleeDistance = 10f;
+    [SerializeField] float randomRunPointOffSet;
+   // [SerializeField] LayerMask navMeshLayerMask;
     bool _followingPlayer = false;
+    bool _runFromPlayer;
     Transform playerToFollow;
+    Transform currentHostilePlayer;
     BeetleState _beetleState;
     //temp var
     bool doMove = false;
@@ -39,6 +48,58 @@ public class BeetleMove : MonoBehaviour
             {
             return Vector3.zero;
             }
+    }
+  
+
+    public void RunAwayLogic(GameObject threat)
+    {
+        Vector3 directionAway = (transform.position - threat.transform.position).normalized;
+        Vector3 randomOffset = new Vector3(Random.Range(-randomRunPointOffSet, randomRunPointOffSet), 0, Random.Range(-randomRunPointOffSet, randomRunPointOffSet));
+        Vector3 rawFleePosition = transform.position + (directionAway * fleeDistance) + randomOffset;
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(rawFleePosition, out hit, fleeDistance * 2f, NavMesh.AllAreas))
+        {
+            GetComponent<NavMeshAgent>().SetDestination(hit.position);
+        }
+        else
+        {
+            Debug.Log("No valid NavMesh point found to flee to.");
+        }
+    }
+
+    public void RunFromPlayer(Transform playerToRunFrom)
+    {
+        currentHostilePlayer = playerToRunFrom;
+        _runFromPlayer = true;
+        StartCoroutine(PeriodicCheckHostiles());
+    }
+    public void OnStopRunning()
+    {
+        currentHostilePlayer = null;
+        _runFromPlayer = false;
+        _beetleState.TransitionToState(BeetleStates.Idle);
+        StopCoroutine(PeriodicCheckHostiles());
+    }
+    IEnumerator PeriodicCheckHostiles()
+    {
+        while(true)
+        {
+            CheckForHostilePlayers();
+            yield return new WaitForSeconds(hostileCheckFrequency);
+        }
+    }
+    public void CheckForHostilePlayers()
+    {
+        if (!_beetleLineOfSight.CheckForHostiles())
+        {
+            OnStopRunning();
+            //can stop running.
+        }
+        else
+        {
+            //keep running
+        }
     }
     public void MoveToPosition(Vector3 position)
     {
@@ -83,6 +144,10 @@ public class BeetleMove : MonoBehaviour
         if(_followingPlayer)
         {
             SetDestinationToPlayer();
+        }
+        if (_runFromPlayer)
+        {
+            RunAwayLogic(currentHostilePlayer.gameObject);
         }
     }
 }
