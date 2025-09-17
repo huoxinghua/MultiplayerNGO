@@ -62,11 +62,11 @@ namespace Project.Network.SteamWork
          
             SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
         }
-     /*   public void CreateLobby()
+        public void CreateFriendOnlyLobby()
         {
-            Debug.Log("Creat Lobby");
+            Debug.Log("Creat friend only Lobby");
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
-        }*/
+        }
         public void CreatePrivateLobby()
         {
             Debug.Log("Creat Lobby");
@@ -94,6 +94,14 @@ namespace Project.Network.SteamWork
                 SteamFriends.ActivateGameOverlay("Friends");
                 Debug.Log("Opened Steam Friends Overlay to join a friend");
             }
+        }
+        public void ClickSinglePlayerButton()
+        {
+            //here need switch steam transport to unity transport
+            //NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
+            //NetworkManager.Singleton.StartHost();
+            
+
         }
         private void OnLobbyCreated(LobbyCreated_t callback)
         {

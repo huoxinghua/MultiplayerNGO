@@ -9,10 +9,14 @@ namespace Project.Network.UI
     public class HostUIManager : MonoBehaviour
     {
         public static HostUIManager Instance;
+        [SerializeField] GameObject panelContainer;
+
+        [SerializeField] private GameObject multiplayerOption;
+        [SerializeField] private GameObject publicLobbyObj;
         [SerializeField] private GameObject hostOption;
-        [SerializeField] private GameObject publicOption;
+        [SerializeField] private GameObject publicLobbyCreate;
         private bool isOpen = false;
-        private bool ispublicOpen = false;
+       
         //room List
         [SerializeField] private GameObject lobbyItemPrefab;
         [SerializeField] private Transform lobbyListContainer;
@@ -22,50 +26,53 @@ namespace Project.Network.UI
 
         void Start()
         {
-            HideHostOption();
-            HidePublicOption();
-            lobbyList.SetActive(false);
             if (!SteamManager.Initialized) return;
-            img.SetActive(false);
-
+            HidePanels();
+ 
         }
+
+          private void Awake()
+        {
+            Instance = this;
+        }
+        private void HidePanels()
+        {
+            foreach(Transform child in panelContainer.transform)
+            {
+                child.gameObject.SetActive(false);
+            }
+            
+        }
+        public void ShowPublicLobbyCreate()
+        {
+            HidePanels();
+            publicLobbyCreate.SetActive(true);
+        }
+
+        public void ShowMultiplayerOption()
+        {
+            multiplayerOption.SetActive(true);
+        }
+        public void ShowHostOption()
+        {
+            HidePanels();
+            hostOption.SetActive(true);
+        }
+       
         private void ShowImage()
         {
             img.SetActive(true);
         }
-        private void Awake()
-        {
-            Instance = this;
-        }
-        public void ShowHostOption()
-        {
-            if (!isOpen)
-            {
-                hostOption.SetActive(true);
-                ShowImage();
-            }
-        }
+      
+     
         public void HideHostOption()
         {
 
-            hostOption.SetActive(false);
+            multiplayerOption.SetActive(false);
             isOpen = false;
         }
-        public void ShowPublicOption()
-        {
-            if (!ispublicOpen)
-            {
-                HideHostOption();
-                publicOption.SetActive(true);
-                ShowImage();
-            }
-        }
-        public void HidePublicOption()
-        {
-
-            publicOption.SetActive(false);
-
-        }
+        
+     
         public void ShowLobbyList()
         {
 
