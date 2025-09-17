@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -23,7 +24,20 @@ public class BeetleMove : MonoBehaviour
     BeetleState _beetleState;
     //temp var
     bool doMove = false;
-
+    public void OnDeath()
+    {
+        StopAllCoroutines();
+        agent.isStopped = true;
+        agent.ResetPath();
+        agent.enabled = false;
+    }
+    public void OnKnockout()
+    {
+        StopAllCoroutines();
+        agent.isStopped = true;
+        agent.ResetPath();
+        agent.enabled = false;
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Awake()
     {
@@ -36,7 +50,8 @@ public class BeetleMove : MonoBehaviour
     }
     public Vector3 GetNextPosition()
     {
-            Vector3 nextPos = Vector3.zero;
+      
+        Vector3 nextPos = Vector3.zero;
         
             Vector3 temp = new Vector3(Random.Range(MinWanderDistance,MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
        // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
@@ -130,8 +145,8 @@ public class BeetleMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
-        if(_beetleState.GetCurrentState() == BeetleStates.MovePosition)
+        if (_beetleState.IsEnemyDead() || _beetleState.IsEnemyKnockedout()) return;
+        if (_beetleState.GetCurrentState() == BeetleStates.MovePosition)
         {
             if (Vector3.Distance(beetleTransform.position, agent.destination) < stopDistance)
             {
@@ -141,7 +156,8 @@ public class BeetleMove : MonoBehaviour
     }
     public void FixedUpdate()
     {
-        if(_followingPlayer)
+        if (_beetleState.IsEnemyDead() || _beetleState.IsEnemyKnockedout()) return;
+        if (_followingPlayer)
         {
             SetDestinationToPlayer();
         }

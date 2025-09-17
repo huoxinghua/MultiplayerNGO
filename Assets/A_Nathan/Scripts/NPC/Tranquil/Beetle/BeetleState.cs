@@ -6,12 +6,15 @@ public enum BeetleStates
     Idle,
     MovePosition,
     RunAway,
-    FollowPlayer
+    FollowPlayer,
+    KnockedOut,
+    Dead
 }
 public class BeetleState : MonoBehaviour
 {
     BeetleStates _currentState;
     BeetleMove beetleMoveScript;
+    BeetleLineOfSight beetleLineOfSight;
     [SerializeField] float _minIdleTime;
     [SerializeField] float _maxIdleTime;
     [SerializeField] float _minFollowTime;
@@ -23,6 +26,7 @@ public class BeetleState : MonoBehaviour
     {
        // _currentState = BeetleStates.MovePosition;
         beetleMoveScript = GetComponent<BeetleMove>();
+        beetleLineOfSight = GetComponent<BeetleLineOfSight>();
     }
     void Start()
     {
@@ -39,7 +43,7 @@ public class BeetleState : MonoBehaviour
  
     public void TransitionToState(BeetleStates newState)
     {
-        if (_currentState == newState) return;
+        if (_currentState == newState || _currentState == BeetleStates.Dead) return;
 
         _currentState = newState;
         OnEnterState(newState);
@@ -69,7 +73,33 @@ public class BeetleState : MonoBehaviour
             case BeetleStates.FollowPlayer:
                 StartCoroutine(FollowTime());
                 break;
+            case BeetleStates.KnockedOut:
+                OnKnockOut();
+                break;
+            case BeetleStates.Dead:
+                OnDeath();
+                beetleMoveScript.OnDeath();
+                beetleLineOfSight.OnDeath();
+                break;
         }
+    }
+    public bool IsEnemyDead()
+    {
+        if (_currentState == BeetleStates.Dead) return true;
+        else return false;
+    }
+    public bool IsEnemyKnockedout()
+    {
+        if(_currentState == BeetleStates.KnockedOut)return true;
+        else return false;
+    }
+    void OnDeath()
+    {
+        StopAllCoroutines();
+    }
+    void OnKnockOut()
+    {
+        StopAllCoroutines();
     }
     IEnumerator FollowCooldown()
     {

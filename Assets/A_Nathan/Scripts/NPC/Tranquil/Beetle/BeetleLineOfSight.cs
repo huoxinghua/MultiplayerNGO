@@ -27,6 +27,14 @@ public class BeetleLineOfSight : MonoBehaviour
     {
         
     }
+    public void OnDeath()
+    {
+        StopAllCoroutines();
+    }
+    public void OnKnockout()
+    {
+        StopAllCoroutines();
+    }
     public void AddPlayerInProximity(GameObject playerToAdd)
     {
         bool playerAlreadyInList = false;
