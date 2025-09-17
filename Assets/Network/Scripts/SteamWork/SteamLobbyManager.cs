@@ -1,5 +1,8 @@
 using Netcode.Transports;
+using Project.Network.UI;
 using Steamworks;
+using System;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,9 +14,13 @@ namespace Project.Network.SteamWork
         protected Callback<LobbyCreated_t> lobbyCreated;
         protected Callback<LobbyEnter_t> lobbyEntered;
         protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
+        protected Callback<LobbyMatchList_t> lobbyList;
 
         private CSteamID currentLobbyId;
+        private ELobbyType lastLobbyType; 
+        [SerializeField] private TMP_InputField roomNameInput;
 
+        public static Action<string, CSteamID> OnLobbyFound; 
         void Start()
         {
             Debug.Log("SteamLobbyManager start");
@@ -22,7 +29,32 @@ namespace Project.Network.SteamWork
             lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
             lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
             gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
+            lobbyList = Callback<LobbyMatchList_t>.Create(OnLobbyListReceived);
         }
+
+        private void OnLobbyListReceived(LobbyMatchList_t param)
+        {
+
+            int count = (int)Mathf.Min(param.m_nLobbiesMatching, 5); 
+
+            for (int i = 0; i < count; i++)
+            {
+                CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(i);
+
+                string lobbyName = SteamMatchmaking.GetLobbyData(lobbyId, "name");
+                Debug.Log("Lobby: " + lobbyName + " ID: " + lobbyId);
+
+                OnLobbyFound?.Invoke(lobbyName, lobbyId);
+              
+            }
+        }
+        public void OnClickJoinCrewButton()
+        {
+            HostUIManager.Instance.ClearLobbyList(); 
+            SteamMatchmaking.RequestLobbyList();    
+            Debug.Log("Requesting lobby list...");
+        }
+      
         private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)
         {
             Debug.Log("[SteamLobbyManager] GameLobbyJoinRequested: " + callback.m_steamIDLobby);
@@ -30,15 +62,22 @@ namespace Project.Network.SteamWork
          
             SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
         }
-        public void CreateLobby()
+     /*   public void CreateLobby()
         {
             Debug.Log("Creat Lobby");
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
+        }*/
+        public void CreatePrivateLobby()
+        {
+            Debug.Log("Creat Lobby");
+            lastLobbyType = ELobbyType.k_ELobbyTypePrivate;
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 4);
         }
         public void ClickHostPublic()
         {
             if (SteamManager.Initialized)
             {
+                lastLobbyType = ELobbyType.k_ELobbyTypePublic;
                 SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 4);
                 Debug.Log("[SteamLobbyManager] Creating PUBLIC lobby...");
             }
@@ -47,6 +86,7 @@ namespace Project.Network.SteamWork
                 Debug.LogError("Steam is not initialized!");
             }
         }
+      
         public void ClickJoinFriendButton()
         {
             if (SteamManager.Initialized)
@@ -62,9 +102,24 @@ namespace Project.Network.SteamWork
                 currentLobbyId = new CSteamID(callback.m_ulSteamIDLobby);
                 Debug.Log("[SteamLobbyManager] OnLobbyCreated Lobby created: " + currentLobbyId);
 
-                SteamFriends.ActivateGameOverlay("Friends");
-                SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyId);
-                Debug.Log("ActivateGameOverlayInviteDialog" + currentLobbyId);
+                if (lastLobbyType == ELobbyType.k_ELobbyTypePublic)
+                {
+                    string roomName = "defaultRoom";
+                    if (roomNameInput != null && !string.IsNullOrEmpty(roomNameInput.text))
+                        roomName = roomNameInput.text;
+
+                    SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
+                    Debug.Log("[SteamLobbyManager] room: " + roomName+ "ID:"+ currentLobbyId);
+                    OnLobbyFound?.Invoke("roomName", currentLobbyId);
+                   
+                }
+                if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly || lastLobbyType == ELobbyType.k_ELobbyTypePrivate)
+                {
+                   // SteamFriends.ActivateGameOverlay("Friends");
+                    SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyId);
+                    Debug.Log("ActivateGameOverlayInviteDialog" + currentLobbyId);
+                }
+               
             }
             else
             {
