@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BeetleAnimation : MovementAnimation
+public class BeetleAnimation : EnemyAnimation
 {
     
 }
