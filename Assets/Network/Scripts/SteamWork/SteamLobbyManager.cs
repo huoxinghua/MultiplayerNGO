@@ -43,6 +43,8 @@ namespace Project.Network.SteamWork
 
                 string lobbyName = SteamMatchmaking.GetLobbyData(lobbyId, "name");
                 Debug.Log("Lobby: " + lobbyName + " ID: " + lobbyId);
+                if (string.IsNullOrEmpty(lobbyName))
+                    lobbyName = "Unnamed Lobby";
 
                 OnLobbyFound?.Invoke(lobbyName, lobbyId);
               
@@ -109,13 +111,13 @@ namespace Project.Network.SteamWork
             {
                 currentLobbyId = new CSteamID(callback.m_ulSteamIDLobby);
                 Debug.Log("[SteamLobbyManager] OnLobbyCreated Lobby created: " + currentLobbyId);
+                string roomName = "defaultRoom";
+
+                if (roomNameInput != null && !string.IsNullOrEmpty(roomNameInput.text))
+                    roomName = roomNameInput.text;
 
                 if (lastLobbyType == ELobbyType.k_ELobbyTypePublic)
                 {
-                    string roomName = "defaultRoom";
-                    if (roomNameInput != null && !string.IsNullOrEmpty(roomNameInput.text))
-                        roomName = roomNameInput.text;
-
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
                     Debug.Log("[SteamLobbyManager] room: " + roomName+ "ID:"+ currentLobbyId);
                     OnLobbyFound?.Invoke("roomName", currentLobbyId);

@@ -9,10 +9,10 @@ namespace Project.Network.UI
     public class HostUIManager : MonoBehaviour
     {
         public static HostUIManager Instance;
-        [SerializeField] GameObject panelContainer;
+        [SerializeField] private GameObject panelContainer;
 
         [SerializeField] private GameObject multiplayerOption;
-        [SerializeField] private GameObject publicLobbyObj;
+      //  [SerializeField] private GameObject publicLobbyObj;
         [SerializeField] private GameObject hostOption;
         [SerializeField] private GameObject publicLobbyCreate;
         private bool isOpen = false;
@@ -75,7 +75,7 @@ namespace Project.Network.UI
      
         public void ShowLobbyList()
         {
-
+            HidePanels();
             lobbyList.SetActive(true);
             ShowImage();
 
