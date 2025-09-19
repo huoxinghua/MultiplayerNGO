@@ -32,11 +32,38 @@ namespace Project.Network.SteamWork
             lobbyList = Callback<LobbyMatchList_t>.Create(OnLobbyListReceived);
         }
 
+        private void OnEnable()
+        {
+            if(HostUIManager.Instance!= null)
+            {
+                HostUIManager.Instance.OnPrivateLobbyCreate += CreatePrivateLobby;
+                HostUIManager.Instance.OnPublicLobbyCreate += CreateFriendOnlyLobby;
+            }
+            else
+            {
+                Debug.Log("HostUIManager Instance is null");
+            }
+
+            
+        }
+        private void OnDisable()
+        {
+            if (HostUIManager.Instance != null)
+            {
+                HostUIManager.Instance.OnPrivateLobbyCreate -= CreatePrivateLobby;
+                HostUIManager.Instance.OnPublicLobbyCreate -= CreateFriendOnlyLobby;
+            }
+            else
+            {
+                Debug.Log("HostUIManager Instance is null");
+            }
+
+        }
         private void OnLobbyListReceived(LobbyMatchList_t param)
         {
 
-            int count = (int)Mathf.Min(param.m_nLobbiesMatching, 5); 
-
+            // int count = (int)Mathf.Min(param.m_nLobbiesMatching, 5); 
+            int count = (int)param.m_nLobbiesMatching;
             for (int i = 0; i < count; i++)
             {
                 CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(i);
@@ -71,7 +98,7 @@ namespace Project.Network.SteamWork
         }
         public void CreatePrivateLobby()
         {
-            Debug.Log("Creat Lobby");
+            Debug.Log("Creat private Lobby");
             lastLobbyType = ELobbyType.k_ELobbyTypePrivate;
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 4);
         }

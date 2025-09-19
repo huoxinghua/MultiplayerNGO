@@ -1,3 +1,4 @@
+using System;
 using Project.Network.SteamWork;
 using Steamworks;
 using TMPro;
@@ -14,22 +15,30 @@ namespace Project.Network.UI
         [SerializeField] private GameObject multiplayerOption;
       //  [SerializeField] private GameObject publicLobbyObj;
         [SerializeField] private GameObject hostOption;
-        [SerializeField] private GameObject publicLobbyCreate;
+       // [SerializeField] private GameObject publicLobbyCreate;
         private bool isOpen = false;
-       
+    
         //room List
         [SerializeField] private GameObject lobbyItemPrefab;
         [SerializeField] private Transform lobbyListContainer;
         [SerializeField] private GameObject lobbyList;
         [SerializeField] private SteamLobbyManager lobbyManager;
         [SerializeField] private GameObject img;
+        public event Action OnPrivateLobbyCreate;
+        public event Action OnPublicLobbyCreate;
 
+       
+
+        [SerializeField] private Toggle createLobbyToggle;
         void Start()
         {
             if (!SteamManager.Initialized) return;
             HidePanels();
- 
+            isPrivatLobbySelected = createLobbyToggle.isOn;
+            createLobbyToggle.onValueChanged.AddListener(OnPrivateLobbyChanged);
+
         }
+        
 
           private void Awake()
         {
@@ -43,11 +52,11 @@ namespace Project.Network.UI
             }
             
         }
-        public void ShowPublicLobbyCreate()
-        {
-            HidePanels();
-            publicLobbyCreate.SetActive(true);
-        }
+        //public void ShowPublicLobbyCreate()
+        //{
+        //    HidePanels();
+        //    publicLobbyCreate.SetActive(true);
+        //}
 
         public void ShowMultiplayerOption()
         {
@@ -97,6 +106,33 @@ namespace Project.Network.UI
             foreach (Transform child in lobbyListContainer)
             {
                 Destroy(child.gameObject);
+            }
+        }
+        private bool isPrivatLobbySelected = false;
+
+        public void OnPrivateLobbyChanged(bool value)
+        {
+            Debug.Log("On private lobby changed");
+            isPrivatLobbySelected = value;
+
+        }
+
+        public void ClicÍkCreateLobby()
+        {
+            //check is the private toggle if check in or not
+            
+            if(isPrivatLobbySelected)
+            {
+                
+                OnPrivateLobbyCreate?.Invoke();
+                Debug.Log("create the private lobby");
+
+            }
+            else
+            {
+                OnPublicLobbyCreate?.Invoke();
+                Debug.Log("create the public lobby");
+
             }
         }
 
