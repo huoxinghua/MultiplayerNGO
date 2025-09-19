@@ -21,7 +21,8 @@ namespace Project.Network.UI
         //room List
         [SerializeField] private GameObject lobbyItemPrefab;
         [SerializeField] private Transform lobbyListContainer;
-        [SerializeField] private GameObject lobbyList;
+       // [SerializeField] private GameObject lobbyList;
+        [SerializeField] private GameObject Scrollview;
         [SerializeField] private SteamLobbyManager lobbyManager;
         [SerializeField] private GameObject img;
         public event Action OnPrivateLobbyCreate;
@@ -85,7 +86,8 @@ namespace Project.Network.UI
         public void ShowLobbyList()
         {
             HidePanels();
-            lobbyList.SetActive(true);
+            Scrollview.SetActive(true);
+        //    lobbyList.SetActive(true);
             ShowImage();
 
         }
