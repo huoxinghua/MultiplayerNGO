@@ -22,19 +22,9 @@ public abstract class BaseAnimation : MonoBehaviour
         if (anim == null) Debug.Log("Animator not found on" + gameObject.name);
     }
 
-    public virtual void PlayRandomIdle(float currentIdleTime, float idleStart)
-    {
-        if (idleIndex == 0) return;
-        if (anim.GetBool(hIsIdle) && currentIdleTime > idleStart)
-        {
-            anim.SetFloat(hIdleSlot, Random.Range(0, idleIndex));
-            anim.SetTrigger(hRandomIdle);
-        }
-    }
-
     public virtual void PlayWalk(float currentSpeed, float maxSpeed) => UpdateMovement(currentSpeed, maxSpeed, isRunning: false);
 
-    public virtual void PlayRun(float currentSpeed, float maxSpeed) => UpdateMovement(currentSpeed, maxSpeed, isRunning: false);
+    public virtual void PlayRun(float currentSpeed, float maxSpeed) => UpdateMovement(currentSpeed, maxSpeed, isRunning: true);
 
     protected void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
     {
@@ -48,8 +38,6 @@ public abstract class BaseAnimation : MonoBehaviour
 
     public abstract void PlayJump();
 
-    public abstract void PlayAlert();
-
-    public abstract void PlayCrouch();
-    public abstract void PlayInteract();
+    public virtual void PlayCrouch() { }
+    public virtual void PlayInteract() { }
 }
