@@ -17,8 +17,8 @@ namespace Project.Network.SteamWork
         protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
         protected Callback<LobbyMatchList_t> lobbyList;
 
-        private CSteamID currentLobbyId;
-        private ELobbyType lastLobbyType; 
+        public static CSteamID currentLobbyId;
+        public static ELobbyType lastLobbyType; 
         [SerializeField] private TMP_InputField roomNameInput;
         public static Action OnCreatePrivateLobby;
         public static Action OnCreatePublicLobby;
@@ -27,12 +27,12 @@ namespace Project.Network.SteamWork
         private void Awake()
         {
             Instance = this;
-            var objs = UnityEngine.Object.FindObjectsByType<NetworkManager>(FindObjectsSortMode.None);
-            if (objs.Length > 1)
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         void Start()
@@ -44,6 +44,8 @@ namespace Project.Network.SteamWork
             lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
             gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
             lobbyList = Callback<LobbyMatchList_t>.Create(OnLobbyListReceived);
+
+            Debug.Log("when gameplay scene start ID " + SteamLobbyManager.LastCreatedLobbyId + "Name:" + SteamLobbyManager.LastCreatedLobbyName);
         }
 
         private void OnEnable()
@@ -73,7 +75,7 @@ namespace Project.Network.SteamWork
                 Debug.Log("Lobby: " + lobbyName + " ID: " + lobbyId);
                 if (string.IsNullOrEmpty(lobbyName))
                     lobbyName = "Unnamed Lobby";
-
+              
                 OnLobbyFound?.Invoke(lobbyName, lobbyId);
               
             }
@@ -158,7 +160,7 @@ namespace Project.Network.SteamWork
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
                    
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "tag", "XHTest");
-                    Debug.Log("[SteamLobbyManager] room: " + roomName+ "ID:"+ currentLobbyId);
+                    Debug.Log("[SteamLobbyManager] room when create: " + roomName+ "ID:"+ currentLobbyId);
 
                     LastCreatedLobbyName = roomName;
                     LastCreatedLobbyId = currentLobbyId;
@@ -178,7 +180,7 @@ namespace Project.Network.SteamWork
                 Debug.LogError("[SteamLobbyManager] OnLobbyCreated Failed to create lobby");
                 return;
             }
-         //   LoadGamePlayScene();
+            LoadGamePlayScene();
 
 
             //   Debug.Log("StartHost() returned = " + ok);
@@ -195,7 +197,8 @@ namespace Project.Network.SteamWork
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
             { 
-            NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
+               NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
+
             }
         
             if (ok)
