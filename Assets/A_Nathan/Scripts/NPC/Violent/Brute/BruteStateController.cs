@@ -23,11 +23,20 @@ public class BruteStateController : MonoBehaviour
 {
     private BruteAttentionStates _currentBruteAttentionState;
     private BruteBehaviourStates _currentBruteBehaviour;
- 
+    [SerializeField] private GameObject _heartPrefab;
+    private GameObject _spawnedHeart;
+    [SerializeField] private BruteMovement _bruteMovementScript;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        HandleHeartSpawn();
+    }
+    public void HandleHeartSpawn()
+    {
+        _spawnedHeart = Instantiate(_heartPrefab, transform);
+        _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
+        _spawnedHeart.transform.SetParent(null);
+        _bruteMovementScript.SetHeartTransform(_spawnedHeart.transform);
     }
     public void TransitionToAttentionState(BruteAttentionStates newState)
     {
@@ -41,19 +50,19 @@ public class BruteStateController : MonoBehaviour
         switch (state)
         {
             case BruteAttentionStates.Unaware:
-                
+
                 break;
             case BruteAttentionStates.Alert:
-                
+
                 break;
             case BruteAttentionStates.Hurt:
-               
+
                 break;
             case BruteAttentionStates.Dead:
-                
+
                 break;
             case BruteAttentionStates.KnockedOut:
-                
+
                 break;
         }
     }
@@ -86,6 +95,6 @@ public class BruteStateController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
