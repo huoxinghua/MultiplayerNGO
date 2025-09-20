@@ -16,6 +16,7 @@ public class BeetleMove : MonoBehaviour
     [SerializeField] float hostileCheckFrequency;
     [SerializeField] float fleeDistance = 10f;
     [SerializeField] float randomRunPointOffSet;
+    [SerializeField] BeetleSO _beetleSO;
    // [SerializeField] LayerMask navMeshLayerMask;
     bool _followingPlayer = false;
     bool _runFromPlayer;
@@ -47,6 +48,7 @@ public class BeetleMove : MonoBehaviour
     {
        PointToMoveTo = GetNextPosition();
         doMove = true;
+        agent.speed = _beetleSO.WalkSpeed;
     }
     public Vector3 GetNextPosition()
     {
@@ -87,12 +89,14 @@ public class BeetleMove : MonoBehaviour
     {
         currentHostilePlayer = playerToRunFrom;
         _runFromPlayer = true;
+        agent.speed = _beetleSO.RunSpeed;
         StartCoroutine(PeriodicCheckHostiles());
     }
     public void OnStopRunning()
     {
         currentHostilePlayer = null;
         _runFromPlayer = false;
+        agent.speed = _beetleSO.WalkSpeed;
         _beetleState.TransitionToState(BeetleStates.Idle);
         StopCoroutine(PeriodicCheckHostiles());
     }

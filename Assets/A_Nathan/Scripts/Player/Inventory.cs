@@ -85,6 +85,7 @@ public class Inventory : MonoBehaviour
     }
     public void ActivateSelectedSlot(int index)
     {
+        if (currentSlot == index) return;
         if (twoHandedObject != null || twoHandedView != null) return;
         if (currentSlot >= 0 && heldItems[currentSlot] != null) 
         {
