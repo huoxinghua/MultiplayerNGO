@@ -25,10 +25,9 @@ namespace Project.Network.UI
         [SerializeField] private GameObject Scrollview;
         [SerializeField] private SteamLobbyManager lobbyManager;
         [SerializeField] private GameObject img;
-        public event Action OnPrivateLobbyCreate;
-        public event Action OnPublicLobbyCreate;
+     
 
-       
+
 
         [SerializeField] private Toggle createLobbyToggle;
         void Start()
@@ -85,9 +84,11 @@ namespace Project.Network.UI
      
         public void ShowLobbyList()
         {
+            Debug.Log("ShowLobbyList");
             HidePanels();
             Scrollview.SetActive(true);
-        //    lobbyList.SetActive(true);
+            SteamLobbyManager.OnGetLobbyList?.Invoke();
+          
             ShowImage();
 
         }
@@ -125,22 +126,22 @@ namespace Project.Network.UI
             
             if(isPrivatLobbySelected)
             {
-                
-                OnPrivateLobbyCreate?.Invoke();
+
+                SteamLobbyManager.OnCreatePrivateLobby?.Invoke();
                 Debug.Log("create the private lobby");
 
             }
             else
             {
-                OnPublicLobbyCreate?.Invoke();
+                SteamLobbyManager.OnCreatePublicLobby?.Invoke();
                 Debug.Log("create the public lobby");
-
+             
             }
         }
-
+    
         public void CreateLobbyButton(string lobbyName, CSteamID lobbyId)
         {
-            ShowLobbyList();
+            //ShowLobbyList();
 
             GameObject newItem = Instantiate(lobbyItemPrefab, lobbyListContainer);
 

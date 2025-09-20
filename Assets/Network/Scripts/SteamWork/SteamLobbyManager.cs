@@ -11,6 +11,7 @@ namespace Project.Network.SteamWork
 {
     public class SteamLobbyManager : MonoBehaviour
     {
+        public static SteamLobbyManager Instance;
         protected Callback<LobbyCreated_t> lobbyCreated;
         protected Callback<LobbyEnter_t> lobbyEntered;
         protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
@@ -19,8 +20,21 @@ namespace Project.Network.SteamWork
         private CSteamID currentLobbyId;
         private ELobbyType lastLobbyType; 
         [SerializeField] private TMP_InputField roomNameInput;
-
-        public static Action<string, CSteamID> OnLobbyFound; 
+        public static Action OnCreatePrivateLobby;
+        public static Action OnCreatePublicLobby;
+        public static Action OnGetLobbyList;
+        public static Action<string, CSteamID> OnLobbyFound;
+        private void Awake()
+        {
+            Instance = this;
+            var objs = UnityEngine.Object.FindObjectsByType<NetworkManager>(FindObjectsSortMode.None);
+            if (objs.Length > 1)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            DontDestroyOnLoad(gameObject);
+        }
         void Start()
         {
             Debug.Log("SteamLobbyManager start");
@@ -34,33 +48,20 @@ namespace Project.Network.SteamWork
 
         private void OnEnable()
         {
-            if(HostUIManager.Instance!= null)
-            {
-                HostUIManager.Instance.OnPrivateLobbyCreate += CreatePrivateLobby;
-                HostUIManager.Instance.OnPublicLobbyCreate += CreateFriendOnlyLobby;
-            }
-            else
-            {
-                Debug.Log("HostUIManager Instance is null");
-            }
-
-            
+            OnCreatePrivateLobby += CreatePrivateLobby;
+            OnCreatePublicLobby += ClickHostPublic;
+            OnGetLobbyList += GetLobbyList;
         }
+
         private void OnDisable()
         {
-            if (HostUIManager.Instance != null)
-            {
-                HostUIManager.Instance.OnPrivateLobbyCreate -= CreatePrivateLobby;
-                HostUIManager.Instance.OnPublicLobbyCreate -= CreateFriendOnlyLobby;
-            }
-            else
-            {
-                Debug.Log("HostUIManager Instance is null");
-            }
-
+            OnCreatePrivateLobby -= CreatePrivateLobby;
+            OnCreatePublicLobby -= ClickHostPublic;
+            OnGetLobbyList -= GetLobbyList;
         }
         private void OnLobbyListReceived(LobbyMatchList_t param)
         {
+            HostUIManager.Instance.ClearLobbyList();
 
             // int count = (int)Mathf.Min(param.m_nLobbiesMatching, 5); 
             int count = (int)param.m_nLobbiesMatching;
@@ -77,9 +78,16 @@ namespace Project.Network.SteamWork
               
             }
         }
+        private void GetLobbyList()
+        {
+            SteamMatchmaking.AddRequestLobbyListStringFilter("tag", "XHTest", ELobbyComparison.k_ELobbyComparisonEqual);
+            SteamMatchmaking.RequestLobbyList();
+            Debug.Log("GetLobbyList ...");
+        }
         public void OnClickJoinCrewButton()
         {
-            HostUIManager.Instance.ClearLobbyList(); 
+            HostUIManager.Instance.ClearLobbyList();
+           // SteamMatchmaking.AddRequestLobbyListStringFilter("tag", "XHTest", ELobbyComparison.k_ELobbyComparisonEqual); 
             SteamMatchmaking.RequestLobbyList();    
             Debug.Log("Requesting lobby list...");
         }
@@ -132,6 +140,8 @@ namespace Project.Network.SteamWork
             
 
         }
+        public static string LastCreatedLobbyName;
+        public static CSteamID LastCreatedLobbyId;
         private void OnLobbyCreated(LobbyCreated_t callback)
         {
             if (callback.m_eResult == EResult.k_EResultOK)
@@ -146,11 +156,16 @@ namespace Project.Network.SteamWork
                 if (lastLobbyType == ELobbyType.k_ELobbyTypePublic)
                 {
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
+                   
+                    SteamMatchmaking.SetLobbyData(currentLobbyId, "tag", "XHTest");
                     Debug.Log("[SteamLobbyManager] room: " + roomName+ "ID:"+ currentLobbyId);
-                    OnLobbyFound?.Invoke("roomName", currentLobbyId);
+
+                    LastCreatedLobbyName = roomName;
+                    LastCreatedLobbyId = currentLobbyId;
+                   // OnLobbyFound?.Invoke(roomName, currentLobbyId);
                    
                 }
-                if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly || lastLobbyType == ELobbyType.k_ELobbyTypePrivate)
+                if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly)
                 {
                    // SteamFriends.ActivateGameOverlay("Friends");
                     SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyId);
@@ -163,16 +178,26 @@ namespace Project.Network.SteamWork
                 Debug.LogError("[SteamLobbyManager] OnLobbyCreated Failed to create lobby");
                 return;
             }
+         //   LoadGamePlayScene();
 
 
+            //   Debug.Log("StartHost() returned = " + ok);
+            /*
+                        if (ok)
+                        {
+                           //
+                        }*/
+         
+        }
+        public void LoadGamePlayScene()
+        {
+            Debug.Log("LoadGamePlayScene");
             bool ok = NetworkManager.Singleton.StartHost();
-            Debug.Log("StartHost() returned = " + ok);
-
-            if (ok)
-            {
-                NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
+            if (NetworkManager.Singleton != null)
+            { 
+            NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
             }
-
+        
             if (ok)
             {
                 Debug.Log("Host actually started!");
@@ -191,7 +216,6 @@ namespace Project.Network.SteamWork
                 Debug.LogError("StartHost() FAILED");
             }
         }
-
         private void OnLobbyEntered(LobbyEnter_t callback)
         {
 
