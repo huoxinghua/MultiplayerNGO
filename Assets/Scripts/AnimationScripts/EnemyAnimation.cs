@@ -5,7 +5,7 @@ public abstract class EnemyAnimation : BaseAnimation
     public virtual void PlayRandomIdle(float currentIdleTime, float idleStart)
     {
         if (idleIndex == 0) return;
-        if (anim.GetBool(hIsIdle) && currentIdleTime > idleStart)
+        if (anim.GetFloat(hSpeed) < 0.01 && currentIdleTime > idleStart)
         {
             anim.SetFloat(hIdleSlot, Random.Range(0, idleIndex));
             anim.SetTrigger(hRandomIdle);
