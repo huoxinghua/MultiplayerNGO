@@ -1335,8 +1335,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1249062666}
   m_HandleRect: {fileID: 1249062665}
   m_Direction: 0
-  m_Value: -0.0009002548
-  m_Size: 0.9945534
+  m_Value: -0.0008087035
+  m_Size: 0.9945316
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1594,8 +1594,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 148461930}
   m_HandleRect: {fileID: 148461929}
   m_Direction: 2
-  m_Value: 1.0000075
-  m_Size: 0.6099928
+  m_Value: 1.000007
+  m_Size: 0.60997945
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4090,6 +4090,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1545880262
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1545880263}
+  - component: {fileID: 1545880264}
+  m_Layer: 0
+  m_Name: SteamBootstrap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1545880263
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545880262}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1545880264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545880262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bad799b694a4fa449206f646d7d8b97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1546986672
 GameObject:
   m_ObjectHideFlags: 0
@@ -5311,7 +5355,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -91.49911, y: 91.49911}
+  m_AnchoredPosition: {x: -91.49919, y: 91.499176}
   m_SizeDelta: {x: 184, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1907089401
@@ -6259,11 +6303,12 @@ SceneRoots:
   - {fileID: 659395371}
   - {fileID: 401931625}
   - {fileID: 2104400397}
-  - {fileID: 140991656}
+  - {fileID: 1545880263}
   - {fileID: 1757629072}
   - {fileID: 1633990572}
   - {fileID: 1379535427}
   - {fileID: 1314078757}
   - {fileID: 1524392863}
   - {fileID: 1684515542}
+  - {fileID: 140991656}
   - {fileID: 169376196}

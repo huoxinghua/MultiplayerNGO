@@ -52,11 +52,7 @@ namespace Project.Network.UI
             }
 
         }
-        //public void ShowPublicLobbyCreate()
-        //{
-        //    HidePanels();
-        //    publicLobbyCreate.SetActive(true);
-        //}
+
 
         public void ShowMultiplayerOption()
         {
@@ -84,24 +80,14 @@ namespace Project.Network.UI
 
         public void ShowLobbyList()
         {
-            Debug.Log("ShowLobbyList");
+            SteamLobbyManager.OnLobbyListRequest?.Invoke();
+           
             HidePanels();
             Scrollview.SetActive(true);
-            SteamLobbyManager.OnGetLobbyList?.Invoke();
-
             ShowImage();
-
+           
         }
 
-   /*     private void OnEnable()
-        {
-            SteamLobbyManager.OnLobbyFound += CreateLobbyButton;
-        }
-
-        private void OnDisable()
-        {
-            SteamLobbyManager.OnLobbyFound -= CreateLobbyButton;
-        }*/
 
         public void ClearLobbyList()
         {
@@ -111,7 +97,7 @@ namespace Project.Network.UI
                 Destroy(child.gameObject);
             }
         }
-    
+
 
         public void OnPrivateLobbyChanged(bool value)
         {
@@ -138,23 +124,28 @@ namespace Project.Network.UI
             }
         }
 
-        public void CreateLobbyButton(string lobbyName, CSteamID lobbyId)
+        public void GenerateLobbyList()
         {
-            //ShowLobbyList();
-
-            GameObject newItem = Instantiate(lobbyItemPrefab, lobbyListContainer);
-
-            TMP_Text text = newItem.GetComponentInChildren<TMP_Text>();
-            if (text != null) text.text = lobbyName;
-
-            Button joinButton = newItem.GetComponentInChildren<Button>();
-            if (joinButton != null)
+            Debug.Log("GenerateLobbyList:"+ SteamLobbyManager.lobbyLists.Count);
+            foreach (var kvp in SteamLobbyManager.lobbyLists)
             {
-                joinButton.onClick.AddListener(() =>
+                CSteamID lobbyId = kvp.Key;       // Lobby ? ID
+                string lobbyName = kvp.Value;
+
+                GameObject newItem = Instantiate(lobbyItemPrefab, lobbyListContainer);
+
+                TMP_Text text = newItem.GetComponentInChildren<TMP_Text>();
+                if (text != null) text.text = lobbyName;
+
+                Button joinButton = newItem.GetComponentInChildren<Button>();
+                if (joinButton != null)
                 {
-                    Debug.Log("join Lobby: " + lobbyId);
-                    SteamMatchmaking.JoinLobby(lobbyId);
-                });
+                    joinButton.onClick.AddListener(() =>
+                    {
+                        Debug.Log("join Lobby: " + lobbyId);
+                        SteamMatchmaking.JoinLobby(lobbyId);
+                    });
+                }
             }
         }
         public void QuitGame()

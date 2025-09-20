@@ -1,7 +1,9 @@
 using Netcode.Transports;
+using NUnit.Framework;
 using Project.Network.UI;
 using Steamworks;
 using System;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,10 +25,10 @@ namespace Project.Network.SteamWork
         public static Action OnCreateFriendOnlyLobby;
         public static Action OnCreatePublicLobby;
         public static Action OnGetLobbyList;
+        public static Action OnLobbyListRequest;
         public static Action<string, CSteamID> OnLobbyFound;
         private void Awake()
         {
-            Instance = this;
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
@@ -52,47 +54,54 @@ namespace Project.Network.SteamWork
         {
             OnCreateFriendOnlyLobby += CreateFriendOnlyLobby;
             OnCreatePublicLobby += ClickHostPublic;
-            OnGetLobbyList += GetLobbyList;
+            OnLobbyListRequest += GetLobbyList;
         }
 
         private void OnDisable()
         {
             OnCreateFriendOnlyLobby -= CreateFriendOnlyLobby;
             OnCreatePublicLobby -= ClickHostPublic;
-            OnGetLobbyList -= GetLobbyList;
+            OnLobbyListRequest -= GetLobbyList;
         }
-        private void OnLobbyListReceived(LobbyMatchList_t param)
+        public static Dictionary<CSteamID, string> lobbyLists = new Dictionary<CSteamID, string>();
+        public void OnLobbyListReceived(LobbyMatchList_t param)
         {
-            HostUIManager.Instance.ClearLobbyList();
-
-            // int count = (int)Mathf.Min(param.m_nLobbiesMatching, 5); 
+            lobbyLists.Clear();
             int count = (int)param.m_nLobbiesMatching;
             for (int i = 0; i < count; i++)
             {
                 CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(i);
-
                 string lobbyName = SteamMatchmaking.GetLobbyData(lobbyId, "name");
                 Debug.Log("Lobby: " + lobbyName + " ID: " + lobbyId);
                 if (string.IsNullOrEmpty(lobbyName))
-                    lobbyName = "Unnamed Lobby";
-              
-                OnLobbyFound?.Invoke(lobbyName, lobbyId);
-              
+                {
+                    //lobbyName = "Unnamed Lobby";
+                    Debug.Log("Skip lobby with no name, ID: " + lobbyId);
+                    continue;
+                }
+                    
+                if (!lobbyLists.ContainsKey(lobbyId) )
+                {
+                    lobbyLists.Add(lobbyId, lobbyName);
+                }
+             
+                else
+                {
+                    lobbyLists[lobbyId] = lobbyName; 
+                }
+                HostUIManager.Instance.GenerateLobbyList();
+
             }
+          
         }
         private void GetLobbyList()
         {
-            SteamMatchmaking.AddRequestLobbyListStringFilter("tag", "XHTest", ELobbyComparison.k_ELobbyComparisonEqual);
+           // SteamMatchmaking.AddRequestLobbyListStringFilter("tag", "XHTest", ELobbyComparison.k_ELobbyComparisonEqual);
             SteamMatchmaking.RequestLobbyList();
             Debug.Log("GetLobbyList ...");
         }
-        public void OnClickJoinCrewButton()
-        {
-            HostUIManager.Instance.ClearLobbyList();
-           // SteamMatchmaking.AddRequestLobbyListStringFilter("tag", "XHTest", ELobbyComparison.k_ELobbyComparisonEqual); 
-            SteamMatchmaking.RequestLobbyList();    
-            Debug.Log("Requesting lobby list...");
-        }
+
+        
       
         private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)
         {
@@ -149,6 +158,7 @@ namespace Project.Network.SteamWork
         public static CSteamID LastCreatedLobbyId;
         private void OnLobbyCreated(LobbyCreated_t callback)
         {
+
             if (callback.m_eResult == EResult.k_EResultOK)
             {
                 currentLobbyId = new CSteamID(callback.m_ulSteamIDLobby);
@@ -161,33 +171,32 @@ namespace Project.Network.SteamWork
                 if (lastLobbyType == ELobbyType.k_ELobbyTypePublic)
                 {
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
-                   
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "tag", "XHTest");
-                    Debug.Log("[SteamLobbyManager] room when create: " + roomName+ "ID:"+ currentLobbyId);
+                    Debug.Log("[SteamLobbyManager] room when create: " + roomName + "ID:" + currentLobbyId);
 
                     LastCreatedLobbyName = roomName;
                     LastCreatedLobbyId = currentLobbyId;
-                   // OnLobbyFound?.Invoke(roomName, currentLobbyId);
-                   
+                    GetLobbyList();
+
                 }
                 if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly)
                 {
-                   
+
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "tag", "XHTest");
                     SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyId);
                     Debug.Log("ActivateGameOverlayInviteDialog" + currentLobbyId);
-                    //SteamFriends.ActivateGameOverlay("Friends");
+                    SteamFriends.ActivateGameOverlay("Friends");
                 }
-               
+
             }
             else
             {
                 Debug.LogError("[SteamLobbyManager] OnLobbyCreated Failed to create lobby");
                 return;
             }
-            LoadGamePlayScene();
 
+            Invoke("LoadGamePlayScene",8f);
 
             //   Debug.Log("StartHost() returned = " + ok);
             /*
@@ -195,11 +204,11 @@ namespace Project.Network.SteamWork
                         {
                            //
                         }*/
-         
+
         }
         public void LoadGamePlayScene()
         {
-            Debug.Log("LoadGamePlayScene");
+           // Debug.Log("LoadGamePlayScene");
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
             {
