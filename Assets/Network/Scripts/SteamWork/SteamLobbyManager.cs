@@ -20,7 +20,7 @@ namespace Project.Network.SteamWork
         public static CSteamID currentLobbyId;
         public static ELobbyType lastLobbyType; 
         [SerializeField] private TMP_InputField roomNameInput;
-        public static Action OnCreatePrivateLobby;
+        public static Action OnCreateFriendOnlyLobby;
         public static Action OnCreatePublicLobby;
         public static Action OnGetLobbyList;
         public static Action<string, CSteamID> OnLobbyFound;
@@ -50,14 +50,14 @@ namespace Project.Network.SteamWork
 
         private void OnEnable()
         {
-            OnCreatePrivateLobby += CreatePrivateLobby;
+            OnCreateFriendOnlyLobby += CreateFriendOnlyLobby;
             OnCreatePublicLobby += ClickHostPublic;
             OnGetLobbyList += GetLobbyList;
         }
 
         private void OnDisable()
         {
-            OnCreatePrivateLobby -= CreatePrivateLobby;
+            OnCreateFriendOnlyLobby -= CreateFriendOnlyLobby;
             OnCreatePublicLobby -= ClickHostPublic;
             OnGetLobbyList -= GetLobbyList;
         }
@@ -103,21 +103,24 @@ namespace Project.Network.SteamWork
         }
         public void CreateFriendOnlyLobby()
         {
+          
             Debug.Log("Creat friend only Lobby");
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
+            lastLobbyType = ELobbyType.k_ELobbyTypeFriendsOnly;
         }
         public void CreatePrivateLobby()
         {
             Debug.Log("Creat private Lobby");
-            lastLobbyType = ELobbyType.k_ELobbyTypePrivate;
+        
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 4);
         }
         public void ClickHostPublic()
         {
             if (SteamManager.Initialized)
             {
-                lastLobbyType = ELobbyType.k_ELobbyTypePublic;
+               
                 SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 4);
+                lastLobbyType = ELobbyType.k_ELobbyTypePublic;
                 Debug.Log("[SteamLobbyManager] Creating PUBLIC lobby...");
             }
             else
@@ -169,9 +172,12 @@ namespace Project.Network.SteamWork
                 }
                 if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly)
                 {
-                   // SteamFriends.ActivateGameOverlay("Friends");
+                   
+                    SteamMatchmaking.SetLobbyData(currentLobbyId, "name", roomName);
+                    SteamMatchmaking.SetLobbyData(currentLobbyId, "tag", "XHTest");
                     SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyId);
                     Debug.Log("ActivateGameOverlayInviteDialog" + currentLobbyId);
+                    //SteamFriends.ActivateGameOverlay("Friends");
                 }
                
             }
@@ -196,11 +202,11 @@ namespace Project.Network.SteamWork
             Debug.Log("LoadGamePlayScene");
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
-            { 
-               NetworkManager.Singleton.SceneManager.LoadScene("NetWorkGymP2P", LoadSceneMode.Single);
+            {
+                 NetworkManager.Singleton.SceneManager.LoadScene("NetWorkLobby", LoadSceneMode.Single);
 
             }
-        
+
             if (ok)
             {
                 Debug.Log("Host actually started!");

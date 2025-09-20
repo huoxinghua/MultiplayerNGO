@@ -1,4 +1,3 @@
-using System;
 using Project.Network.SteamWork;
 using Steamworks;
 using TMPro;
@@ -13,19 +12,19 @@ namespace Project.Network.UI
         [SerializeField] private GameObject panelContainer;
 
         [SerializeField] private GameObject multiplayerOption;
-      //  [SerializeField] private GameObject publicLobbyObj;
+        //  [SerializeField] private GameObject publicLobbyObj;
         [SerializeField] private GameObject hostOption;
-       // [SerializeField] private GameObject publicLobbyCreate;
+        // [SerializeField] private GameObject publicLobbyCreate;
         private bool isOpen = false;
-    
+
         //room List
         [SerializeField] private GameObject lobbyItemPrefab;
         [SerializeField] private Transform lobbyListContainer;
-       // [SerializeField] private GameObject lobbyList;
+        // [SerializeField] private GameObject lobbyList;
         [SerializeField] private GameObject Scrollview;
         [SerializeField] private SteamLobbyManager lobbyManager;
         [SerializeField] private GameObject img;
-     
+        private bool isPrivatLobbySelected;
 
 
 
@@ -35,22 +34,23 @@ namespace Project.Network.UI
             if (!SteamManager.Initialized) return;
             HidePanels();
             isPrivatLobbySelected = createLobbyToggle.isOn;
+            Debug.Log("isPrivatLobbySelected:" + isPrivatLobbySelected);
             createLobbyToggle.onValueChanged.AddListener(OnPrivateLobbyChanged);
 
         }
-        
 
-          private void Awake()
+
+        private void Awake()
         {
             Instance = this;
         }
         private void HidePanels()
         {
-            foreach(Transform child in panelContainer.transform)
+            foreach (Transform child in panelContainer.transform)
             {
                 child.gameObject.SetActive(false);
             }
-            
+
         }
         //public void ShowPublicLobbyCreate()
         //{
@@ -67,33 +67,33 @@ namespace Project.Network.UI
             HidePanels();
             hostOption.SetActive(true);
         }
-       
+
         private void ShowImage()
         {
             img.SetActive(true);
         }
-      
-     
+
+
         public void HideHostOption()
         {
 
             multiplayerOption.SetActive(false);
             isOpen = false;
         }
-        
-     
+
+
         public void ShowLobbyList()
         {
             Debug.Log("ShowLobbyList");
             HidePanels();
             Scrollview.SetActive(true);
             SteamLobbyManager.OnGetLobbyList?.Invoke();
-          
+
             ShowImage();
 
         }
 
-        private void OnEnable()
+   /*     private void OnEnable()
         {
             SteamLobbyManager.OnLobbyFound += CreateLobbyButton;
         }
@@ -101,7 +101,7 @@ namespace Project.Network.UI
         private void OnDisable()
         {
             SteamLobbyManager.OnLobbyFound -= CreateLobbyButton;
-        }
+        }*/
 
         public void ClearLobbyList()
         {
@@ -111,7 +111,7 @@ namespace Project.Network.UI
                 Destroy(child.gameObject);
             }
         }
-        private bool isPrivatLobbySelected = false;
+    
 
         public void OnPrivateLobbyChanged(bool value)
         {
@@ -120,25 +120,24 @@ namespace Project.Network.UI
 
         }
 
-        public void ClicÍkCreateLobby()
+        public void ClickCreateLobby()
         {
             //check is the private toggle if check in or not
-            
-            if(isPrivatLobbySelected)
+            Debug.Log("isPrivatLobbySelected when click:" + isPrivatLobbySelected);
+            if (isPrivatLobbySelected)
             {
-
-                SteamLobbyManager.OnCreatePrivateLobby?.Invoke();
-                Debug.Log("create the private lobby");
+                SteamLobbyManager.OnCreateFriendOnlyLobby?.Invoke();
+                Debug.Log("create the friendOnly lobby");
 
             }
             else
             {
                 SteamLobbyManager.OnCreatePublicLobby?.Invoke();
                 Debug.Log("create the public lobby");
-             
+
             }
         }
-    
+
         public void CreateLobbyButton(string lobbyName, CSteamID lobbyId)
         {
             //ShowLobbyList();
