@@ -70,7 +70,18 @@ public class BeetleHealth : MonoBehaviour,IHitable
     }
     public void OnHit(GameObject attacker, float damage, float knockoutPower)
     {
-        if(attacker.layer == 6) hostilePlayers.Add(attacker);
+        if (attacker.layer == 6)
+        {
+            bool isInList = false;
+            foreach(var player in hostilePlayers)
+            {
+                if (player == attacker)
+                {
+                    isInList = true;
+                }
+            }
+            if (!isInList) hostilePlayers.Add(attacker);
+        }
         beetleMove.RunFromPlayer(attacker.transform);
         beetleState.TransitionToState(BeetleStates.RunAway);
         ChangeHealth(-damage);

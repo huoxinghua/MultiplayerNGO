@@ -4,5 +4,8 @@ public class BruteSO : BaseEnemySO
 {
     public float MinWanderDistance;
     public float MaxWanderDistance;
-
+    public float MinIdleTime;
+    public float MaxIdleTime;
+    public float HurtWalkSpeed;
+    public float AttackDistance;
 }

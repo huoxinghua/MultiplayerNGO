@@ -30,6 +30,8 @@ public class BruteStateController : MonoBehaviour
     void Start()
     {
         HandleHeartSpawn();
+        TransitionToAttentionState(BruteAttentionStates.Unaware);
+        TransitionToBehaviourState(BruteBehaviourStates.Wander);
     }
     public void HandleHeartSpawn()
     {
@@ -66,7 +68,10 @@ public class BruteStateController : MonoBehaviour
                 break;
         }
     }
-
+    public BruteAttentionStates GetAttentionState()
+    {
+        return _currentBruteAttentionState;
+    }
     public void TransitionToBehaviourState(BruteBehaviourStates newState)
     {
         if (_currentBruteBehaviour == newState || _currentBruteAttentionState == BruteAttentionStates.Dead) return;
@@ -79,10 +84,10 @@ public class BruteStateController : MonoBehaviour
         switch (state)
         {
             case BruteBehaviourStates.Idle:
-
+                _bruteMovementScript.OnStartIdle();
                 break;
             case BruteBehaviourStates.Wander:
-
+                _bruteMovementScript.OnStartWander();
                 break;
             case BruteBehaviourStates.Investigate:
 
@@ -91,6 +96,10 @@ public class BruteStateController : MonoBehaviour
 
                 break;
         }
+    }
+    public BruteBehaviourStates GetBehaviourState()
+    {
+        return _currentBruteBehaviour;
     }
     // Update is called once per frame
     void Update()
