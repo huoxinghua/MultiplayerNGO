@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -13,6 +14,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpStrength = 2f;
     private Rigidbody rb;
     [SerializeField] private float fallMultiplier = 4f;
+    //event
+    public static Action<GameObject> OnWalking;
+    public static Action<GameObject> OnRunning;
+    public static Action<GameObject> OnFalling;
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -56,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
         if(isSprinting)
         {
             currentSpeed =moveSpeed * sprintMultiplier;
+            OnRunning?.Invoke(gameObject);
         }
         else
         {
@@ -70,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
         {
           
             rb.AddForce(Vector3.down * fallMultiplier, ForceMode.Acceleration);
+            OnFalling?.Invoke(gameObject);
         }
     }
     Vector3 direction;
@@ -77,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
     {
         moveDirection = dir;
         isSprinting = spriting;
+        OnWalking?.Invoke(gameObject);
     }
     public void Jump()
     {
