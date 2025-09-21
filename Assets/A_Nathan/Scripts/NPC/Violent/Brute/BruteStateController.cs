@@ -26,6 +26,7 @@ public class BruteStateController : MonoBehaviour
     [SerializeField] private GameObject _heartPrefab;
     private GameObject _spawnedHeart;
     [SerializeField] private BruteMovement _bruteMovementScript;
+    public GameObject PlayerToChase;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -85,17 +86,24 @@ public class BruteStateController : MonoBehaviour
         {
             case BruteBehaviourStates.Idle:
                 _bruteMovementScript.OnStartIdle();
+                _bruteMovementScript.OnStopChase();
                 break;
             case BruteBehaviourStates.Wander:
                 _bruteMovementScript.OnStartWander();
+                _bruteMovementScript.OnStopChase();
                 break;
             case BruteBehaviourStates.Investigate:
-
+                _bruteMovementScript.OnStopChase();
                 break;
             case BruteBehaviourStates.Chase:
-
+                _bruteMovementScript.OnStartChase();
                 break;
         }
+    }
+    public void StartChasePlayer(GameObject playerToChase)
+    {
+        PlayerToChase = playerToChase;
+        TransitionToBehaviourState(BruteBehaviourStates.Chase);
     }
     public BruteBehaviourStates GetBehaviourState()
     {

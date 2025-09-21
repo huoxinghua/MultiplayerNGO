@@ -12,6 +12,7 @@ public class BruteMovement : MonoBehaviour
     private float _maxWanderDistance => bruteSO.MaxWanderDistance;
     private float _walkSpeed => bruteSO.WalkSpeed;
     private float _hurtWalkSpeed => bruteSO.HurtWalkSpeed;
+    private float _alertWalkSpeed => bruteSO.AlertWalkSpeed;
     private float _runSpeed => bruteSO.RunSpeed;
     private float _minIdleTime => bruteSO.MinIdleTime;
     private float _maxIdleTime => bruteSO.MaxIdleTime;
@@ -32,6 +33,7 @@ public class BruteMovement : MonoBehaviour
     public void OnEnterHurtState()
     {
         _heartTransform = null;
+        agent.speed = _hurtWalkSpeed;
     }
     public void OnEnterAlertState()
     {
@@ -40,6 +42,25 @@ public class BruteMovement : MonoBehaviour
     public void OnEnterUnawareState()
     {
 
+    }
+    public void OnStartChase()
+    {
+        agent.speed = _runSpeed;
+    }
+    public void OnStopChase()
+    {
+        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware)
+        {
+            agent.speed = _walkSpeed;
+        }
+        if(stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        {
+            agent.speed = _hurtWalkSpeed;
+        }
+        if(stateController.GetAttentionState() == BruteAttentionStates.Alert)
+        {
+            agent.speed = _alertWalkSpeed;
+        }
     }
     //get next wander position in unaware state
     public Vector3 GetNextPosition()
@@ -118,7 +139,6 @@ public class BruteMovement : MonoBehaviour
     {
         //agent.isStopped = true;
         float randTime = Random.Range(_minIdleTime, _maxIdleTime);
-        Debug.Log(randTime);
         yield return new WaitForSeconds(randTime);
         stateController.TransitionToBehaviourState(BruteBehaviourStates.Wander);
     }
@@ -132,5 +152,9 @@ public class BruteMovement : MonoBehaviour
                stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
             }
         } 
+        if(stateController.GetAttentionState() == BruteAttentionStates.Alert && stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
+        {
+            agent.SetDestination(stateController.PlayerToChase.transform.position);
+        }
     }
 }
