@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.Android;
 
 public class BeetleMove : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class BeetleMove : MonoBehaviour
     [SerializeField] float fleeDistance = 10f;
     [SerializeField] float randomRunPointOffSet;
     [SerializeField] BeetleSO _beetleSO;
+    [SerializeField] BeetleAnimation _beetleAnimation;
    // [SerializeField] LayerMask navMeshLayerMask;
     bool _followingPlayer = false;
     bool _runFromPlayer;
@@ -169,5 +171,22 @@ public class BeetleMove : MonoBehaviour
         {
             RunAwayLogic(currentHostilePlayer.gameObject);
         }
+        if (_beetleState.GetCurrentState() == BeetleStates.MovePosition && agent.velocity.magnitude >= 0.01f)
+        {
+            _beetleAnimation.PlayWalk(agent.velocity.magnitude, agent.speed);
+        }
+        if (_beetleState.GetCurrentState() == BeetleStates.Idle)
+        {
+            _beetleAnimation.PlayWalk(0, agent.speed);
+        }
+        if(_beetleState.GetCurrentState() == BeetleStates.RunAway && agent.velocity.magnitude >= 0.01f)
+        {
+            _beetleAnimation.PlayRun(agent.velocity.magnitude, agent.speed);
+        }
+        if(_beetleState.GetCurrentState() == BeetleStates.FollowPlayer && agent.velocity.magnitude >= 0.01f)
+        {
+            _beetleAnimation.PlayWalk(agent.velocity.magnitude,agent.speed);
+        }
+
     }
 }

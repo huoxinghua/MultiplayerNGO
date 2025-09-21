@@ -7,7 +7,6 @@ public class Ragdoll : MonoBehaviour
     [SerializeField] private Transform ragdollRoot;
     [SerializeField] private bool RagdollEneble = false;
 
-    //private NavMeshAgent agent;
     private Rigidbody[] jointRBs;
     private Collider[] jointColls;
     private Animator animator;
@@ -15,7 +14,6 @@ public class Ragdoll : MonoBehaviour
 
     private void Awake()
     {
-        //agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         animator.enabled = true;
 
@@ -32,7 +30,6 @@ public class Ragdoll : MonoBehaviour
     public void EnableRagdoll()
     {
         animator.enabled = false;
-        //agent.enabled = false;
 
         foreach(Collider joint in jointColls)
         {
@@ -61,7 +58,6 @@ public class Ragdoll : MonoBehaviour
     public void EnableAnimator()
     {
         animator.enabled = true;
-        //agent.enabled = true;
 
         foreach(Collider joint in jointColls)
         {

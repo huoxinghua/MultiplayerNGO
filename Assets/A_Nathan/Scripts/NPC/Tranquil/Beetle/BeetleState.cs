@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 public enum BeetleStates
 {
@@ -20,6 +21,8 @@ public class BeetleState : MonoBehaviour
     [SerializeField] float _minFollowTime;
     [SerializeField] float _maxFollowTime;
     [SerializeField] float _followCooldown;
+    [SerializeField] BeetleAnimation _beetleAnimation;
+    [SerializeField] Ragdoll _ragdollScript;
     bool _onFollowCooldown;
     bool _isFollowing;
     public void Awake()
@@ -96,10 +99,12 @@ public class BeetleState : MonoBehaviour
     void OnDeath()
     {
         StopAllCoroutines();
+        _ragdollScript.EnableRagdoll();
     }
     void OnKnockOut()
     {
         StopAllCoroutines();
+        _ragdollScript.EnableRagdoll();
     }
     IEnumerator FollowCooldown()
     {
@@ -123,9 +128,21 @@ public class BeetleState : MonoBehaviour
     }
     IEnumerator IdleTime()
     {
-        yield return new WaitForSeconds(Random.Range(_minIdleTime, _maxIdleTime));
+        float randTime = Random.Range(_minIdleTime, _maxIdleTime);
+        _beetleAnimation.PlayRandomIdle(0, 1);
+        Debug.Log(randTime);
+        float timeDelayAnim = Random.Range(1,randTime-4);
+
+        Debug.Log(timeDelayAnim);
+        yield return new WaitForSeconds(timeDelayAnim);
+        Debug.Log(randTime - timeDelayAnim);
+        randTime -= timeDelayAnim;
+        _beetleAnimation.PlayRandomIdle(1, 0);
+        Debug.Log(randTime);
+        yield return new WaitForSeconds(randTime);
         if(_currentState == BeetleStates.Idle)
         {
+            Debug.Log("StartMoving");
             TransitionToState(BeetleStates.MovePosition);
         }
     }

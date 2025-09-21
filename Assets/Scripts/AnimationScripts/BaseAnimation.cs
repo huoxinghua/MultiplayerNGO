@@ -33,10 +33,10 @@ public abstract class BaseAnimation : MonoBehaviour
 
     protected virtual void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
     {
-        if (!isRunning) StartCoroutine(SmoothWalkRun(1));
+        if (isRunning) StartCoroutine(SmoothWalkRun(1));
         else StartCoroutine(SmoothWalkRun(0));
         anim.SetFloat(hSpeed, currentSpeed / maxSpeed);
-        Debug.Log(isRunning);
+        //Debug.Log(isRunning);
     }
 
     public abstract void PlayAttack();
