@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -18,6 +19,11 @@ public class PlayerMovement : MonoBehaviour
     public static Action<GameObject> OnWalking;
     public static Action<GameObject> OnRunning;
     public static Action<GameObject> OnFalling;
+    [Header("Crouch")]
+    public static Action<GameObject> OnCrouching;
+    [SerializeField] private float standHeight = 1f;
+    [SerializeField] private float crouchHeight =0.5f;
+    private bool isCrouching = false;
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -34,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
         {
             inputManager.OnMoveInput += Move;
             inputManager.OnJumpInput += Jump;
+            inputManager.OnCrouchInput += Crouch;
         }
         else
         {
@@ -47,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
         {
             inputManager.OnMoveInput -= Move;
             inputManager.OnJumpInput -= Jump;
+            inputManager.OnCrouchInput -= Crouch;
         }
         else
         {
@@ -94,5 +102,24 @@ public class PlayerMovement : MonoBehaviour
             //Debug.Log("player jump");
         }
     }
+   
 
+    public void Crouch()
+    {
+        isCrouching = !isCrouching; 
+
+        Vector3 scale = transform.localScale;
+        if (isCrouching)
+        {
+            scale.y = crouchHeight;
+        }
+        else
+        {
+            scale.y = standHeight;
+        }
+      
+        transform.localScale = scale;
+
+        OnCrouching?.Invoke(gameObject);
+    }
 }

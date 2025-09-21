@@ -13,7 +13,7 @@ public class PlayerInputManager : MonoBehaviour
     public event Action OnChangeWeaponInput;
     public event Action OnSprintInput;
     public event Action CancelHold;
-
+    public event Action OnCrouchInput;
     public Vector2 LookInput { get; private set; }
     private void Awake()
     {
@@ -28,9 +28,13 @@ public class PlayerInputManager : MonoBehaviour
         inputActions.Player.Jump.canceled += HandleJump;
         inputActions.Player.Look.performed += HandleLook;
         inputActions.Player.Look.canceled += HandleLook;
-
+      
         inputActions.Player.Sprint.performed += HandleSprint;
         inputActions.Player.Sprint.canceled += HandleSprint;
+
+        inputActions.Player.Crouch.performed += HandleCrouch;
+    
+       
     }
     private void OnDisable()
     {
@@ -45,6 +49,9 @@ public class PlayerInputManager : MonoBehaviour
         inputActions.Player.Sprint.performed -= HandleSprint;
         inputActions.Player.Sprint.canceled -= HandleSprint;
 
+
+        inputActions.Player.Crouch.performed -= HandleCrouch;
+      
     }
     Vector2 moveInput;
     private void HandleMove(InputAction.CallbackContext context)
@@ -62,7 +69,11 @@ public class PlayerInputManager : MonoBehaviour
         }
         OnMoveInput?.Invoke(moveInput, true);
     }
+    private void HandleLook(InputAction.CallbackContext context)
+    {
 
+        OnLookInput?.Invoke(context.ReadValue<Vector2>());
+    }
     private void HandleJump(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -70,10 +81,9 @@ public class PlayerInputManager : MonoBehaviour
             OnJumpInput?.Invoke();
         }
     }
-    private void HandleLook(InputAction.CallbackContext context)
+    private void HandleCrouch(InputAction.CallbackContext context)
     {
-
-        OnLookInput?.Invoke(context.ReadValue<Vector2>());
+        OnCrouchInput?.Invoke();
     }
 
     private void HandleShoot(InputAction.CallbackContext context)
