@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FlashView : MonoBehaviour , IView
+public class FlashView : MonoBehaviour, IView
 {
     [SerializeField] private Light flashlightLight;
     [SerializeField] private MeshRenderer meshRenderer;
@@ -35,7 +35,7 @@ public class FlashView : MonoBehaviour , IView
     {
         rb.isKinematic = !enabled;
         col.enabled = enabled;
-        if(!enabled)
+        if (!enabled)
         {
             rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
             rb.interpolation = RigidbodyInterpolation.None;
