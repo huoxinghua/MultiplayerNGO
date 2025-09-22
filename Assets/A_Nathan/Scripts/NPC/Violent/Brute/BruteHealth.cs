@@ -26,7 +26,6 @@ public class BruteHealth : MonoBehaviour , IHitable
         }
         else if(_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
-            _stateController.TransitionToAttentionState(BruteAttentionStates.Alert);
             _stateController.StartChasePlayer(attackingPlayer);
         }
     }

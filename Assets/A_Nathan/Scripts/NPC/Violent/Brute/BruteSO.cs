@@ -9,4 +9,11 @@ public class BruteSO : BaseEnemySO
     public float MaxIdleTime;
     public float HurtWalkSpeed;
     public float AttackDistance;
+    public float WalkHearingDistance;
+    public float RunHearingDistance;
+    public float LandingHearingDistance;
+    public float InstantAggroDistance;
+    public float HearingCooldown;
+    public float LoseInterestTimeInvestigate;
+    public float LoseInterestTimeChase;
 }

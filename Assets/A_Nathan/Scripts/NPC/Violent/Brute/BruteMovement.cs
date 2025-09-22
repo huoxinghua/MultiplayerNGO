@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.Android;
 
 public class BruteMovement : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class BruteMovement : MonoBehaviour
     private float _minIdleTime => bruteSO.MinIdleTime;
     private float _maxIdleTime => bruteSO.MaxIdleTime;
     private float _stoppingDistance => bruteSO.StoppingDist;
+    private float _loseInterestTimeInvestigate => bruteSO.LoseInterestTimeInvestigate;
+    private float _timeSinceHeardPlayer = 0;
+    private float _loseInterestTimeChase => bruteSO.LoseInterestTimeChase;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Awake()
     {
@@ -46,6 +51,7 @@ public class BruteMovement : MonoBehaviour
     public void OnStartChase()
     {
         agent.speed = _runSpeed;
+        StopAllCoroutines();
     }
     public void OnStopChase()
     {
@@ -135,6 +141,7 @@ public class BruteMovement : MonoBehaviour
 
         return -1f; // Invalid path
     }
+    
     IEnumerator IdleTime()
     {
         //agent.isStopped = true;
@@ -142,19 +149,54 @@ public class BruteMovement : MonoBehaviour
         yield return new WaitForSeconds(randTime);
         stateController.TransitionToBehaviourState(BruteBehaviourStates.Wander);
     }
+
+    public void OnInvestigate(GameObject positionToInvestigate)
+    {
+        StopAllCoroutines();
+        agent.SetDestination(positionToInvestigate.transform.position);
+        agent.speed = _alertWalkSpeed;
+        _timeSinceHeardPlayer = 0;
+    }
+    public void OnHearInChase()
+    {
+        _timeSinceHeardPlayer = 0;
+    }
+    public void StopForAttack()
+    {
+        agent.velocity = Vector3.zero;
+    }
     // Update is called once per frame
     void Update()
     {
-        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware
+            || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
-            if(stateController.GetBehaviourState() == BruteBehaviourStates.Wander && Vector3.Distance(transform.position,agent.destination) < _stoppingDistance)
+            if(stateController.GetBehaviourState() == BruteBehaviourStates.Wander
+                && Vector3.Distance(transform.position,agent.destination) < _stoppingDistance)
             { 
                stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
             }
         } 
-        if(stateController.GetAttentionState() == BruteAttentionStates.Alert && stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
+        if(stateController.GetAttentionState() == BruteAttentionStates.Alert
+            && stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
         {
             agent.SetDestination(stateController.PlayerToChase.transform.position);
+        }
+        if(stateController.GetAttentionState() == BruteAttentionStates.Alert)
+        {
+            _timeSinceHeardPlayer += Time.deltaTime;
+            if(stateController.GetBehaviourState() == BruteBehaviourStates.Investigate
+                && _timeSinceHeardPlayer >= _loseInterestTimeInvestigate)
+            {
+                stateController.TransitionToAttentionState(BruteAttentionStates.Unaware);
+                stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
+            }
+            else if(stateController.GetBehaviourState() == BruteBehaviourStates.Chase
+                && _timeSinceHeardPlayer >= _loseInterestTimeChase)
+            {
+                stateController.TransitionToAttentionState(BruteAttentionStates.Unaware);
+                stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 //States handling what behaviour system to use
@@ -23,6 +24,7 @@ public class BruteStateController : MonoBehaviour
 {
     private BruteAttentionStates _currentBruteAttentionState;
     private BruteBehaviourStates _currentBruteBehaviour;
+    [SerializeField] float firstAlertDelayTime;
     [SerializeField] private GameObject _heartPrefab;
     private GameObject _spawnedHeart;
     [SerializeField] private BruteMovement _bruteMovementScript;
@@ -44,7 +46,7 @@ public class BruteStateController : MonoBehaviour
     public void TransitionToAttentionState(BruteAttentionStates newState)
     {
         if (_currentBruteAttentionState == newState || _currentBruteAttentionState == BruteAttentionStates.Dead) return;
-
+        if (_currentBruteAttentionState == BruteAttentionStates.Hurt && (newState == BruteAttentionStates.Unaware || newState == BruteAttentionStates.Alert)) return;
         _currentBruteAttentionState = newState;
         OnEnterAttentionState(_currentBruteAttentionState);
     }
@@ -76,7 +78,7 @@ public class BruteStateController : MonoBehaviour
     public void TransitionToBehaviourState(BruteBehaviourStates newState)
     {
         if (_currentBruteBehaviour == newState || _currentBruteAttentionState == BruteAttentionStates.Dead) return;
-
+        if (_currentBruteAttentionState == BruteAttentionStates.Hurt && (newState == BruteBehaviourStates.Investigate || newState == BruteBehaviourStates.Chase)) return;
         _currentBruteBehaviour = newState;
         OnEnterBehaviourState(_currentBruteBehaviour);
     }
@@ -100,9 +102,25 @@ public class BruteStateController : MonoBehaviour
                 break;
         }
     }
+    public void OnFirstAlert(GameObject player)
+    {
+        StartCoroutine(FirstAlertDelay(player));
+    }
+    IEnumerator FirstAlertDelay(GameObject player)
+    {
+        yield return new WaitForSeconds(firstAlertDelayTime);
+        TransitionToBehaviourState(BruteBehaviourStates.Investigate);
+        _bruteMovementScript.OnInvestigate(player);
+    }
+    public void OnSubsequentAlert(GameObject player)
+    {
+        TransitionToBehaviourState(BruteBehaviourStates.Investigate);
+        _bruteMovementScript.OnInvestigate(player);
+    }
     public void StartChasePlayer(GameObject playerToChase)
     {
         PlayerToChase = playerToChase;
+        TransitionToAttentionState(BruteAttentionStates.Alert);
         TransitionToBehaviourState(BruteBehaviourStates.Chase);
     }
     public BruteBehaviourStates GetBehaviourState()
