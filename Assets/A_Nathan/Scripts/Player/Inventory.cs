@@ -168,7 +168,7 @@ public class Inventory : MonoBehaviour
             {
             heldItems[currentSlot] = itemPrefab;
             EquipItem(itemPrefab, currentSlot);
-            Debug.Log("Should be");
+         //   Debug.Log("Should be");
                 return true;
             }
 

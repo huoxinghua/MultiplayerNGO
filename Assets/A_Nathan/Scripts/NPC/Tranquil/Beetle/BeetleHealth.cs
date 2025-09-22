@@ -9,7 +9,6 @@ public class BeetleHealth : MonoBehaviour,IHitable
     public List<GameObject> hostilePlayers = new List<GameObject>();
     [SerializeField] BeetleMove beetleMove;
     [SerializeField] BeetleState beetleState;
-    Rigidbody rb;
     float _maxHealth;
     float _currentHealth;
     float _maxConsciousness;
@@ -17,8 +16,6 @@ public class BeetleHealth : MonoBehaviour,IHitable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.isKinematic = true;
         _maxHealth = beetleSO.MaxHealth;
         _currentHealth = _maxHealth;
         _maxConsciousness = beetleSO.MaxConsciousness;
@@ -46,14 +43,10 @@ public class BeetleHealth : MonoBehaviour,IHitable
     }
     public void OnKnockOut()
     {
-        rb.isKinematic = false;
-        //set state to KO. Ragdoll, disable movement
         beetleState.TransitionToState(BeetleStates.KnockedOut);
     }
     public void OnDeath()
     {
-        //set state to Dead. Ragdoll, disable movement
-        rb.isKinematic = false;
         beetleState.TransitionToState(BeetleStates.Dead);
     }
     public void OnKnockout()
@@ -70,7 +63,18 @@ public class BeetleHealth : MonoBehaviour,IHitable
     }
     public void OnHit(GameObject attacker, float damage, float knockoutPower)
     {
-        if(attacker.layer == 6) hostilePlayers.Add(attacker);
+        if (attacker.layer == 6)
+        {
+            bool isInList = false;
+            foreach(var player in hostilePlayers)
+            {
+                if (player == attacker)
+                {
+                    isInList = true;
+                }
+            }
+            if (!isInList) hostilePlayers.Add(attacker);
+        }
         beetleMove.RunFromPlayer(attacker.transform);
         beetleState.TransitionToState(BeetleStates.RunAway);
         ChangeHealth(-damage);

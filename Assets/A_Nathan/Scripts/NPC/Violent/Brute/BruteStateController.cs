@@ -26,10 +26,13 @@ public class BruteStateController : MonoBehaviour
     [SerializeField] private GameObject _heartPrefab;
     private GameObject _spawnedHeart;
     [SerializeField] private BruteMovement _bruteMovementScript;
+    public GameObject PlayerToChase;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         HandleHeartSpawn();
+        TransitionToAttentionState(BruteAttentionStates.Unaware);
+        TransitionToBehaviourState(BruteBehaviourStates.Wander);
     }
     public void HandleHeartSpawn()
     {
@@ -66,7 +69,10 @@ public class BruteStateController : MonoBehaviour
                 break;
         }
     }
-
+    public BruteAttentionStates GetAttentionState()
+    {
+        return _currentBruteAttentionState;
+    }
     public void TransitionToBehaviourState(BruteBehaviourStates newState)
     {
         if (_currentBruteBehaviour == newState || _currentBruteAttentionState == BruteAttentionStates.Dead) return;
@@ -79,18 +85,29 @@ public class BruteStateController : MonoBehaviour
         switch (state)
         {
             case BruteBehaviourStates.Idle:
-
+                _bruteMovementScript.OnStartIdle();
+                _bruteMovementScript.OnStopChase();
                 break;
             case BruteBehaviourStates.Wander:
-
+                _bruteMovementScript.OnStartWander();
+                _bruteMovementScript.OnStopChase();
                 break;
             case BruteBehaviourStates.Investigate:
-
+                _bruteMovementScript.OnStopChase();
                 break;
             case BruteBehaviourStates.Chase:
-
+                _bruteMovementScript.OnStartChase();
                 break;
         }
+    }
+    public void StartChasePlayer(GameObject playerToChase)
+    {
+        PlayerToChase = playerToChase;
+        TransitionToBehaviourState(BruteBehaviourStates.Chase);
+    }
+    public BruteBehaviourStates GetBehaviourState()
+    {
+        return _currentBruteBehaviour;
     }
     // Update is called once per frame
     void Update()
