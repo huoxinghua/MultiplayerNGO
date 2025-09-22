@@ -196,7 +196,7 @@ namespace Project.Network.SteamWork
                 return;
             }
 
-            Invoke("LoadGamePlayScene",8f);
+            Invoke("LoadGamePlayScene",2f);
 
             //   Debug.Log("StartHost() returned = " + ok);
             /*
