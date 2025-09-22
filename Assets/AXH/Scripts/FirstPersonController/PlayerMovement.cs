@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -16,16 +17,30 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     [SerializeField] private float fallMultiplier = 4f;
     //event
-    public static Action<GameObject> OnWalking;
-    public static Action<GameObject> OnRunning;
-    public static Action<GameObject> OnFalling;
+    public Action<GameObject> OnWalking;
+    public Action<GameObject> OnRunning;
+    public Action<GameObject> OnFalling;
+    public Action<GameObject> OnLand;
     [Header("Crouch")]
-    public static Action<GameObject> OnCrouching;
+    public Action<GameObject> OnCrouching;
     [SerializeField] private float standHeight = 1f;
     [SerializeField] private float crouchHeight =0.5f;
     private bool isCrouching = false;
+
+    public static List<PlayerMovement> AllPlayers = new List<PlayerMovement>();
+    public static event Action<PlayerMovement> OnPlayerAdded;
+    public static event Action<PlayerMovement> OnPlayerRemoved;
+
+    void OnDestroy()
+    {
+        AllPlayers.Remove(this);
+        OnPlayerRemoved?.Invoke(this);
+    }
     private void Awake()
     {
+        if (!AllPlayers.Contains(this))
+            AllPlayers.Add(this);
+        OnPlayerAdded?.Invoke(this);
         rb = GetComponent<Rigidbody>();
         groundCheck = GetComponentInChildren<GroundCheck>();
         Cursor.lockState = CursorLockMode.Locked;
@@ -66,10 +81,17 @@ public class PlayerMovement : MonoBehaviour
         //move
         Vector3 velocity = rb.linearVelocity;
         var currentSpeed = moveSpeed;
-        if(isSprinting)
+        if (groundCheck.isGrounded && rb.linearVelocity.magnitude > 0.01f && isSprinting && !isCrouching)
         {
-            currentSpeed =moveSpeed * sprintMultiplier;
             OnRunning?.Invoke(gameObject);
+        }
+        else if(groundCheck.isGrounded &&rb.linearVelocity.magnitude > 0.01f && !isSprinting && !isCrouching)
+        {
+            OnWalking?.Invoke(gameObject);
+        }
+        if (isSprinting)
+        {
+            currentSpeed = moveSpeed * sprintMultiplier;
         }
         else
         {
@@ -87,12 +109,22 @@ public class PlayerMovement : MonoBehaviour
             OnFalling?.Invoke(gameObject);
         }
     }
+    public void Landed()
+    {
+        OnLand?.Invoke(gameObject);
+    }
     Vector3 direction;
     public void Move(Vector2 dir,bool spriting)
     {
         moveDirection = dir;
-        isSprinting = spriting;
-        OnWalking?.Invoke(gameObject);
+        if (!isCrouching)
+        {
+            isSprinting = spriting;
+        }
+        if (isCrouching)
+        {
+            isSprinting = false;
+        }
     }
     public void Jump()
     {

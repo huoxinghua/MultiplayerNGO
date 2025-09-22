@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class FlashModel
 {
-     public bool IsOn = false;
+    public bool IsOn = false;
     public bool IsInHand = false;
     public GameObject Owner;
 

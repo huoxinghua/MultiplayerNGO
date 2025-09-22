@@ -66,8 +66,11 @@ public class PlayerInputManager : MonoBehaviour
         if (context.performed)
         {
             isSprinting = true;
+        }else if(context.canceled)
+        {
+            isSprinting = false;
         }
-        OnMoveInput?.Invoke(moveInput, true);
+        OnMoveInput?.Invoke(moveInput, isSprinting);
     }
     private void HandleLook(InputAction.CallbackContext context)
     {
