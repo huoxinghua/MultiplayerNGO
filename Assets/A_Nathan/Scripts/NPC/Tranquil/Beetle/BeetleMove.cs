@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,6 +16,7 @@ public class BeetleMove : MonoBehaviour
     [SerializeField] float hostileCheckFrequency;
     [SerializeField] float fleeDistance = 10f;
     [SerializeField] float randomRunPointOffSet;
+    [SerializeField] BeetleSO _beetleSO;
    // [SerializeField] LayerMask navMeshLayerMask;
     bool _followingPlayer = false;
     bool _runFromPlayer;
@@ -23,7 +25,20 @@ public class BeetleMove : MonoBehaviour
     BeetleState _beetleState;
     //temp var
     bool doMove = false;
-
+    public void OnDeath()
+    {
+        StopAllCoroutines();
+        agent.isStopped = true;
+        agent.ResetPath();
+        agent.enabled = false;
+    }
+    public void OnKnockout()
+    {
+        StopAllCoroutines();
+        agent.isStopped = true;
+        agent.ResetPath();
+        agent.enabled = false;
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Awake()
     {
@@ -33,10 +48,12 @@ public class BeetleMove : MonoBehaviour
     {
        PointToMoveTo = GetNextPosition();
         doMove = true;
+        agent.speed = _beetleSO.WalkSpeed;
     }
     public Vector3 GetNextPosition()
     {
-            Vector3 nextPos = Vector3.zero;
+      
+        Vector3 nextPos = Vector3.zero;
         
             Vector3 temp = new Vector3(Random.Range(MinWanderDistance,MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
        // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
@@ -72,12 +89,14 @@ public class BeetleMove : MonoBehaviour
     {
         currentHostilePlayer = playerToRunFrom;
         _runFromPlayer = true;
+        agent.speed = _beetleSO.RunSpeed;
         StartCoroutine(PeriodicCheckHostiles());
     }
     public void OnStopRunning()
     {
         currentHostilePlayer = null;
         _runFromPlayer = false;
+        agent.speed = _beetleSO.WalkSpeed;
         _beetleState.TransitionToState(BeetleStates.Idle);
         StopCoroutine(PeriodicCheckHostiles());
     }
@@ -130,8 +149,8 @@ public class BeetleMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
-        if(_beetleState.GetCurrentState() == BeetleStates.MovePosition)
+        if (_beetleState.IsEnemyDead() || _beetleState.IsEnemyKnockedout()) return;
+        if (_beetleState.GetCurrentState() == BeetleStates.MovePosition)
         {
             if (Vector3.Distance(beetleTransform.position, agent.destination) < stopDistance)
             {
@@ -141,7 +160,8 @@ public class BeetleMove : MonoBehaviour
     }
     public void FixedUpdate()
     {
-        if(_followingPlayer)
+        if (_beetleState.IsEnemyDead() || _beetleState.IsEnemyKnockedout()) return;
+        if (_followingPlayer)
         {
             SetDestinationToPlayer();
         }

@@ -65,7 +65,7 @@ void PerformMeleeAttack()
         foreach (Collider enemy in hitEnemies)
         {
             enemy.gameObject.GetComponent<IHitable>()?.OnHit(model.Owner, model.GetDamage(),model.GetKnockoutPower());
-            Debug.Log(enemy.gameObject.name);
+           // Debug.Log(enemy.gameObject.name);
           //  enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage);
         }
     }
