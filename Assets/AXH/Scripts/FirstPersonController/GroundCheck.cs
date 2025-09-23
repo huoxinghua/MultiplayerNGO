@@ -4,6 +4,7 @@ using UnityEngine;
 public class GroundCheck : MonoBehaviour
 {
     [SerializeField] private float distanceThreshold = .15f;
+    [SerializeField] private PlayerMovement playerMovement;
     public bool isGrounded = true;
     public event Action Grounded;
     const float OriginOffset = .001f;
@@ -17,6 +18,7 @@ public class GroundCheck : MonoBehaviour
         if (isGroundedNow && !isGrounded)
         {
             Grounded?.Invoke();
+            playerMovement.Landed();
         }
         isGrounded = isGroundedNow;
         //OnDrawGizmosSelected();
