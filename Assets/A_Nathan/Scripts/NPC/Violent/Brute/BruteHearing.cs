@@ -83,6 +83,8 @@ public class BruteHearing : MonoBehaviour
         if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt || 
             _stateController.GetAttentionState() == BruteAttentionStates.Dead || 
             _stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
+
+
         if (Vector3.Distance(player.transform.position, transform.position) <= _instantAggroDistance)
         {
             _stateController.StartChasePlayer(player);

@@ -16,8 +16,8 @@ public class BruteAttack : MonoBehaviour
     public void OnAttack(GameObject playerAttacked)
     {
         _isOnCooldown = true;
-        AttemptAttack(playerAttacked);
-        StartCoroutine(AttackCooldown());
+        
+        StartCoroutine(AttackCooldown(playerAttacked));
     }
     public void AttemptAttack(GameObject playerAttacked)
     {
@@ -29,9 +29,11 @@ public class BruteAttack : MonoBehaviour
     }
 
     //temp coroutine until animation
-    IEnumerator AttackCooldown()
+    IEnumerator AttackCooldown(GameObject playerAttacked)
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
+        AttemptAttack(playerAttacked);
+        yield return new WaitForSeconds(1f);
         OnAnimationEnd();
     }
 

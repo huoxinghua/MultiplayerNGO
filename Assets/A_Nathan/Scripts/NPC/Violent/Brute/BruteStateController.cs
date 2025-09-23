@@ -26,6 +26,7 @@ public class BruteStateController : MonoBehaviour
     private BruteBehaviourStates _currentBruteBehaviour;
     [SerializeField] float firstAlertDelayTime;
     [SerializeField] private GameObject _heartPrefab;
+    [SerializeField] BruteHearing _bruteHearing;
     private GameObject _spawnedHeart;
     [SerializeField] private BruteMovement _bruteMovementScript;
     public GameObject PlayerToChase;
@@ -55,13 +56,13 @@ public class BruteStateController : MonoBehaviour
         switch (state)
         {
             case BruteAttentionStates.Unaware:
-
+                _bruteHearing.OnExitAlertState();
                 break;
             case BruteAttentionStates.Alert:
 
                 break;
             case BruteAttentionStates.Hurt:
-
+                _bruteHearing.OnExitAlertState();
                 break;
             case BruteAttentionStates.Dead:
 
