@@ -11,6 +11,8 @@ public class BruteHealth : MonoBehaviour , IHitable
     [SerializeField] BruteSO _bruteSO;
     [SerializeField] BruteStateController _stateController;
     [SerializeField] Ragdoll _ragdoll;
+    [SerializeField] GameObject _ragdolledObj;
+    [SerializeField] BruteDead _bruteDead;
     public void Awake()
     {
         _maxHealth = _bruteSO.MaxHealth;
@@ -44,6 +46,10 @@ public class BruteHealth : MonoBehaviour , IHitable
         //set state to KO. Ragdoll, disable movement
         _stateController.TransitionToAttentionState(BruteAttentionStates.KnockedOut);
         _ragdoll.EnableRagdoll();
+
+        _ragdolledObj.transform.SetParent(null);
+        Destroy(gameObject);
+        _bruteDead.enabled = true;
     }
     public void ChangeHealth(float healthChange)
     {
@@ -61,6 +67,9 @@ public class BruteHealth : MonoBehaviour , IHitable
         //rb.isKinematic = false;
         _stateController.TransitionToAttentionState(BruteAttentionStates.Dead);
         _ragdoll.EnableRagdoll();
+        _ragdolledObj.transform.SetParent(null);
+        Destroy(gameObject);
+        _bruteDead.enabled = true;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
