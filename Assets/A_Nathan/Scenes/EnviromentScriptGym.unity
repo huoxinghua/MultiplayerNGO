@@ -2918,7 +2918,7 @@ MonoBehaviour:
   _timeToHold: 3
   _brutePiecesPrefab: {fileID: 2942728960659905480, guid: 29cbee5a0f37b6b4f92a1b7c22cb36f6, type: 3}
   _destroy: {fileID: 1829955375}
-  heightOffset: 1
+  heightOffset: -0.7
 --- !u!4 &518195731 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5457678853577516425, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
@@ -3510,9 +3510,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -3949611999335462175, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3949611999335462175, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d0f8cc6c1015ba14e94c3e49345a6d14, type: 2}
+    - target: {fileID: -1254574504806736889, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
       propertyPath: m_Name
       value: SK_Brute
