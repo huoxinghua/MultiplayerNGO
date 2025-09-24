@@ -8,6 +8,9 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
     private IView view;
     private Dictionary<string, List<SampleData>> samplesContainer = new Dictionary<string, List<SampleData>>();
     private bool isGetSample = false;
+    private float detectDistance = 50f;
+   // [SerializeField] private LayerMask lm;
+
     private void Awake()
     {
         model = new SampleJarModel();
@@ -28,36 +31,46 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
     }
     public void Use()
     {
-        view.SetPhysicsEnabled(true);
         if (!model.HasOwner || !model.IsInHand) return;
         Debug.Log("use Sample jar");
         model.Toggle();
-
+        DetectSample();
     }
-    private void OnTriggerEnter(Collider other)
+  
+    private void DetectSample()
     {
-        Debug.Log(" sample jar trigger sth");
-        var sampleObj = other.GetComponent<ISampleable>();
-        if (sampleObj != null)
+        RaycastHit hit;
+        Debug.Log("DetectSample" );
+        if (Physics.Raycast(Camera.main.transform.position,Camera.main.transform.forward,out hit,detectDistance))
         {
-            Debug.Log(" sample jar trigger sample");
-            var currentSample = sampleObj.GetSample();
-            SaveSample(currentSample);
-            isGetSample = true;
-            Destroy(other.gameObject, 2f);
+            Debug.Log("DetectSample inside");
+            Debug.Log("hit" + hit.transform.ToString());
+            var sample = hit.transform.GetComponent<SampleObjTest>();
+            if (sample != null)
+            {
+                var currentSample = sample.GetSample();
+                SaveSample(currentSample);
+                isGetSample = true;
+            }
+            if(sample.gameObject != null)
+            {
+                Destroy(sample.gameObject);
+            }
+            
         }
+        
     }
   
     public void SaveSample(SampleSO value)
     {
-        Debug.Log("Save sample:"+ value.name);
+        Debug.Log("Save sample:"+ value.name+"money:" + value.GetRandomMoneyValue()+"research"+ value.GetRandomResearchValue());
         SampleData data = new SampleData(value.GetRandomResearchValue(),
         value.GetRandomMoneyValue());
-        if (!samplesContainer.ContainsKey(value.sampleType))
+        if (!samplesContainer.ContainsKey(value.SampleType))
         {
-            samplesContainer[value.sampleType] = new List<SampleData>();
+            samplesContainer[value.SampleType] = new List<SampleData>();
         }
-        samplesContainer[value.sampleType].Add(data);
+        samplesContainer[value.SampleType].Add(data);
         Debug.Log("sample container:"+ samplesContainer.Count);
     }
     public void OnInteract(GameObject interactingPlayer)
