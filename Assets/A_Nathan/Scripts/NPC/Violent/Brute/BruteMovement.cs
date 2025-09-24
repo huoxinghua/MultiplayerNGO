@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem.Android;
@@ -9,6 +10,8 @@ public class BruteMovement : MonoBehaviour
     [SerializeField] BruteSO bruteSO;
     [SerializeField] NavMeshAgent agent;
     [SerializeField] BruteStateController stateController;
+
+    [SerializeField] BruteAnimation _bruteAnimation;
     private float _minWanderDistance => bruteSO.MinWanderDistance;
     private float _maxWanderDistance => bruteSO.MaxWanderDistance;
     private float _walkSpeed => bruteSO.WalkSpeed;
@@ -21,7 +24,7 @@ public class BruteMovement : MonoBehaviour
     private float _loseInterestTimeInvestigate => bruteSO.LoseInterestTimeInvestigate;
     private float _timeSinceHeardPlayer = 0;
     private float _loseInterestTimeChase => bruteSO.LoseInterestTimeChase;
-
+    private float tempSpeedHold;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Awake()
     {
@@ -55,6 +58,7 @@ public class BruteMovement : MonoBehaviour
     }
     public void OnStopChase()
     {
+        Debug.Log("?");
         if(stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
             agent.speed = _walkSpeed;
@@ -101,6 +105,7 @@ public class BruteMovement : MonoBehaviour
     }
     public void OnStartIdle()
     {
+        agent.SetDestination(transform.position);
         StartCoroutine(IdleTime());
     }
     public void OnStartWander()
@@ -164,10 +169,27 @@ public class BruteMovement : MonoBehaviour
     public void StopForAttack()
     {
         agent.velocity = Vector3.zero;
+        tempSpeedHold = agent.speed;
+        agent.speed = 0;
+        Debug.Log("Stop");
+    }
+    public void ResumeAfterAttack()
+    {
+        Debug.Log("Resume");
+        agent.speed = tempSpeedHold;
+    }
+    public void OnDeathKO()
+    {
+        StopAllCoroutines();
+        agent.isStopped = true;
+        agent.ResetPath();
+        agent.enabled = false;
     }
     // Update is called once per frame
     void Update()
     {
+        if (stateController.GetAttentionState() == BruteAttentionStates.Dead) return;
+        if (stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
         if(stateController.GetAttentionState() == BruteAttentionStates.Unaware
             || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
@@ -198,5 +220,28 @@ public class BruteMovement : MonoBehaviour
                 stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
             }
         }
+
+
+        //animation stuff
+
+        if (stateController.GetAttentionState() == BruteAttentionStates.Alert)
+        {
+            if(stateController.GetBehaviourState() == BruteBehaviourStates.Investigate)
+            {
+                _bruteAnimation.PlayWalk(agent.velocity.magnitude, agent.speed);
+            }else if(stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
+            {
+                _bruteAnimation.PlayRun(agent.velocity.magnitude, agent.speed);
+            }
+           
+        }
+        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        {
+            _bruteAnimation.PlayWalk(agent.velocity.magnitude, agent.speed); ;
+        }
+
+
+
+
     }
 }
