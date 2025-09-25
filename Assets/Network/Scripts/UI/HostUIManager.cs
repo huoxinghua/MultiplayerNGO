@@ -1,5 +1,6 @@
 using Project.Network.SteamWork;
 using Steamworks;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -133,9 +134,17 @@ namespace Project.Network.UI
                 string lobbyName = kvp.Value;
 
                 GameObject newItem = Instantiate(lobbyItemPrefab, lobbyListContainer);
+                var lobbyItem = newItem.GetComponent<LobbyItemUI>();
+                if (SteamLobbyManager.Instance != null)
+                {
+                  
+                    lobbyItem.SetData(lobbyName, -1, lobbyId);
+                }
+               
+              
+               // TMP_Text text = newItem.GetComponentInChildren<TMP_Text>();
 
-                TMP_Text text = newItem.GetComponentInChildren<TMP_Text>();
-                if (text != null) text.text = lobbyName;
+               // if (text != null) text.text = lobbyName;
 
                 Button joinButton = newItem.GetComponentInChildren<Button>();
                 if (joinButton != null)
@@ -145,6 +154,19 @@ namespace Project.Network.UI
                         Debug.Log("join Lobby: " + lobbyId);
                         SteamMatchmaking.JoinLobby(lobbyId);
                     });
+                }
+            }
+        }
+
+        public void UpdateLobbyPing(CSteamID lobbyId, int ping)
+        {
+            foreach (Transform child in lobbyListContainer)
+            {
+                var item = child.GetComponent<LobbyItemUI>();
+                if (item != null && item.LobbyId == lobbyId)
+                {
+                    item.SetPing(ping);
+                    break;
                 }
             }
         }
@@ -165,6 +187,8 @@ namespace Project.Network.UI
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
         }
+
+       
     }
 
 }

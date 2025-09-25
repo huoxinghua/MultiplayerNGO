@@ -3,9 +3,11 @@ using NUnit.Framework;
 using Project.Network.UI;
 using Steamworks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,7 +20,7 @@ namespace Project.Network.SteamWork
         protected Callback<LobbyEnter_t> lobbyEntered;
         protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
         protected Callback<LobbyMatchList_t> lobbyList;
-
+        protected Callback<LobbyDataUpdate_t> lobbyDataUpdate;
         public static CSteamID currentLobbyId;
         public static ELobbyType lastLobbyType; 
         [SerializeField] private TMP_InputField roomNameInput;
@@ -46,8 +48,30 @@ namespace Project.Network.SteamWork
             lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
             gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
             lobbyList = Callback<LobbyMatchList_t>.Create(OnLobbyListReceived);
+            lobbyDataUpdate = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
 
             Debug.Log("when gameplay scene start ID " + SteamLobbyManager.LastCreatedLobbyId + "Name:" + SteamLobbyManager.LastCreatedLobbyName);
+        }
+        
+        private void OnLobbyDataUpdate(LobbyDataUpdate_t param)
+        {
+            CSteamID lobbyId = new CSteamID(param.m_ulSteamIDLobby);
+
+            string hostLocStr = SteamMatchmaking.GetLobbyData(lobbyId, "host_location");
+            Debug.Log("[Client] Got host_location from update: " + hostLocStr);
+
+            if (!string.IsNullOrEmpty(hostLocStr))
+            {
+                SteamNetworkPingLocation_t hostLoc;
+                if (SteamNetworkingUtils.ParsePingLocationString(hostLocStr, out hostLoc))
+                {
+                    int ping = SteamNetworkingUtils.EstimatePingTimeFromLocalHost(ref hostLoc);
+                    Debug.Log($"??????????????[Client] Ping to host after LobbyDataUpdate: {ping} ms");
+
+                   
+                    HostUIManager.Instance.UpdateLobbyPing(lobbyId, ping);
+                }
+            }
         }
 
         private void OnEnable()
@@ -89,10 +113,8 @@ namespace Project.Network.SteamWork
                 {
                     lobbyLists[lobbyId] = lobbyName; 
                 }
-                HostUIManager.Instance.GenerateLobbyList();
-
             }
-          
+            HostUIManager.Instance.GenerateLobbyList();
         }
         private void GetLobbyList()
         {
@@ -178,6 +200,14 @@ namespace Project.Network.SteamWork
                     LastCreatedLobbyId = currentLobbyId;
                     GetLobbyList();
 
+                    SteamNetworkPingLocation_t myLoc;
+                    SteamNetworkingUtils.GetLocalPingLocation(out myLoc);
+
+                    string locStr;
+                    SteamNetworkingUtils.ConvertPingLocationToString(ref myLoc, out locStr, 256);
+                    SteamMatchmaking.SetLobbyData(currentLobbyId, "host_location", locStr);
+
+                    Debug.Log($"%%%%%%%%%%%%%%%Lobby created! Host ping location: {locStr}");
                 }
                 if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly)
                 {
@@ -240,6 +270,9 @@ namespace Project.Network.SteamWork
             CSteamID lobbyId = new CSteamID(callback.m_ulSteamIDLobby);
             Debug.Log("[SteamLobbyManager] OnLobbyEntered Joined lobby: " + lobbyId);
 
+            //handle Ping
+          //  StartCoroutine(DelayedPing(lobbyId));
+
             CSteamID hostId = SteamMatchmaking.GetLobbyOwner(lobbyId);
             Debug.Log("[SteamLobbyManager] OnLobbyEntered Lobby host stream is: " + hostId);
 
@@ -268,6 +301,14 @@ namespace Project.Network.SteamWork
 
             }
         }
+
+/*        private IEnumerator DelayedPing(CSteamID lobbyId)
+        {
+            yield return new WaitForSeconds(1f); 
+            int ping = GetPing(lobbyId);
+            Debug.Log($"[SteamLobbyManager] Ping to host after delay: {ping} ms");
+        }*/
+
 
         public void InviteFriends()
         {
