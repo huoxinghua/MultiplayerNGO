@@ -93,28 +93,28 @@ public class PlayerInteractCast : MonoBehaviour
     public void AttemptInteract()
     {
         RaycastHit hit;
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+/*        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit[] hits = Physics.RaycastAll(ray, interactDist, ~0, QueryTriggerInteraction.Collide);
         foreach (var h in hits)
         {
             Debug.Log($"RaycastAll hit: {h.collider.name}, IsTrigger: {h.collider.isTrigger}");
         }
-
+*/
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
-            Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
-            if (hit.transform.gameObject.GetComponent<IInteractable>() != null)
+           // Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
+            if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
             {
-                if(hit.transform.gameObject.GetComponent<IInOutDoor>() != null)
+                if(hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
                 {
-                    IInOutDoor temp = hit.transform.gameObject.GetComponent<IInOutDoor>();
+                    IInOutDoor temp = hit.collider.transform.gameObject.GetComponent<IInOutDoor>();
                     inOutTransform = temp.UseDoor();
                     timeToInteract = temp.GetTimeToOpen();
                     isHolding = true;
                     startInteractPos = playerObj.transform.position;
                 }
                 lastInteracted = hit.transform.gameObject;
-                hit.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
+                hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
             }
             if(hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
             {

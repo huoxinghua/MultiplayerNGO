@@ -23,6 +23,8 @@ public class BeetleState : MonoBehaviour
     [SerializeField] float _followCooldown;
     [SerializeField] BeetleAnimation _beetleAnimation;
     [SerializeField] Ragdoll _ragdollScript;
+    [SerializeField] GameObject _beetleSkel;
+    [SerializeField] BeetleDead _beetleDead;
     bool _onFollowCooldown;
     bool _isFollowing;
     public void Awake()
@@ -100,11 +102,17 @@ public class BeetleState : MonoBehaviour
     {
         StopAllCoroutines();
         _ragdollScript.EnableRagdoll();
+        _beetleSkel.transform.parent = null;
+        _beetleDead.enabled = true;
+        Destroy(gameObject);
     }
     void OnKnockOut()
     {
         StopAllCoroutines();
         _ragdollScript.EnableRagdoll();
+        _beetleSkel.transform.parent = null;
+        _beetleDead.enabled = true;
+        Destroy(gameObject);
     }
     IEnumerator FollowCooldown()
     {
