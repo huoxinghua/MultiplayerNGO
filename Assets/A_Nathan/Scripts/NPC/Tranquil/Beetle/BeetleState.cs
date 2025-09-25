@@ -25,6 +25,8 @@ public class BeetleState : MonoBehaviour
     [SerializeField] Ragdoll _ragdollScript;
     [SerializeField] GameObject _beetleSkel;
     [SerializeField] BeetleDead _beetleDead;
+    [SerializeField] float _minNoiseTime;
+    [SerializeField] float _maxNoiseTime;
     bool _onFollowCooldown;
     bool _isFollowing;
     public void Awake()
@@ -62,6 +64,8 @@ public class BeetleState : MonoBehaviour
                 break;
             case BeetleStates.RunAway:
                 StopCoroutine(FollowTime());
+                StopCoroutine(RandomNoises());
+                AudioManager.Instance.PlayByKey3D("BeetleSqueak", transform.position);
                 if (_isFollowing)
                 {
                     StartCoroutine(FollowCooldown());
@@ -74,14 +78,18 @@ public class BeetleState : MonoBehaviour
             case BeetleStates.Idle:
                 beetleMoveScript.StartIdle();
                 StartCoroutine(IdleTime());
+                StartCoroutine(RandomNoises());
                 break;
             case BeetleStates.FollowPlayer:
                 StartCoroutine(FollowTime());
                 break;
             case BeetleStates.KnockedOut:
+                StopCoroutine(RandomNoises());
                 OnKnockOut();
                 break;
             case BeetleStates.Dead:
+
+                StopCoroutine(RandomNoises());
                 OnDeath();
                 beetleMoveScript.OnDeath();
                 beetleLineOfSight.OnDeath();
@@ -97,6 +105,27 @@ public class BeetleState : MonoBehaviour
     {
         if(_currentState == BeetleStates.KnockedOut)return true;
         else return false;
+    }
+    IEnumerator RandomNoises()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(Random.Range(_minNoiseTime,_maxNoiseTime));
+            int index = Random.Range(0, 3);
+            switch (index)
+            {
+                case 0:
+                    AudioManager.Instance.PlayByKey3D("BeetleBugNoise1", transform.position);
+                    break;
+                case 1:
+                    AudioManager.Instance.PlayByKey3D("BeetleBugNoise2", transform.position);
+                    break;
+                case 2:
+                    AudioManager.Instance.PlayByKey3D("BeetleBugNoise3", transform.position);
+                    break;
+
+            }
+        }
     }
     void OnDeath()
     {
