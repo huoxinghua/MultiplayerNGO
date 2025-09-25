@@ -78,9 +78,10 @@ void PerformMeleeAttack()
     IEnumerator HitRoutine()
     {
         _canHit = false;
-        yield return new WaitForSeconds(0.2f);
+        view.SetLightEnabled(true);
+        yield return new WaitForSeconds(_attackCooldown/2);
         PerformMeleeAttack();
-        yield return new WaitForSeconds(_attackCooldown);
+        yield return new WaitForSeconds(_attackCooldown/2);
         _canHit = true;
         _attackCoroutine = null;
     }

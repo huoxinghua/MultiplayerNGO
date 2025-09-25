@@ -19,7 +19,7 @@ public class BeetleDead : MonoBehaviour, IInteractable, ITwoHandItem
     }
     public void OnPickup()
     {
-        _beetleTransform.position = new Vector3(1000, -1000, 1000);
+       // _beetleTransform.position = new Vector3(1000, -1000, 1000);
         _renderer.enabled = false;
         //hide ragdoll, disable collision with ragdoll/corspse, move to location that wont affect player
     }
