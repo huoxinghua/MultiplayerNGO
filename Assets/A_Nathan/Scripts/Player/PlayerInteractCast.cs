@@ -21,6 +21,7 @@ public class PlayerInteractCast : MonoBehaviour
     bool castedInteract;
     Vector3 startInteractPos;
     [SerializeField] float releaseDistance;
+    [SerializeField] IHoldToInteract currentHold;
     //set up interact!!!
 
    // PlayerInputManager inputManager;
@@ -53,12 +54,14 @@ public class PlayerInteractCast : MonoBehaviour
         inOutTransform = null;
         timeToInteract = 0;
         timeInteracted = 0;
+        currentHold?.OnRelease(playerObj);
+        currentHold = null;
     }
     // Update is called once per frame
     void FixedUpdate()
     {
         RaycastHit hit;
-        if (Physics.Raycast(cameraTransform.position, transform.forward, out hit, interactDist, lM))
+        if (Physics.Raycast(cameraTransform.position, transform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
             if(hit.transform.gameObject.GetComponent<IInteractable>()!= null)
             {
@@ -90,20 +93,34 @@ public class PlayerInteractCast : MonoBehaviour
     public void AttemptInteract()
     {
         RaycastHit hit;
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM))
+/*        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+        RaycastHit[] hits = Physics.RaycastAll(ray, interactDist, ~0, QueryTriggerInteraction.Collide);
+        foreach (var h in hits)
         {
-            if (hit.transform.gameObject.GetComponent<IInteractable>() != null)
+            Debug.Log($"RaycastAll hit: {h.collider.name}, IsTrigger: {h.collider.isTrigger}");
+        }
+*/
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
+        {
+           // Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
+            if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
             {
-                if(hit.transform.gameObject.GetComponent<IInOutDoor>() != null)
+                if(hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
                 {
-                    IInOutDoor temp = hit.transform.gameObject.GetComponent<IInOutDoor>();
+                    IInOutDoor temp = hit.collider.transform.gameObject.GetComponent<IInOutDoor>();
                     inOutTransform = temp.UseDoor();
                     timeToInteract = temp.GetTimeToOpen();
                     isHolding = true;
                     startInteractPos = playerObj.transform.position;
                 }
                 lastInteracted = hit.transform.gameObject;
-                hit.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
+                hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
+            }
+            if(hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
+            {
+                Debug.Log("HitIshere>!<>!");
+                currentHold = hit.collider.transform.gameObject.GetComponent<IHoldToInteract>();
+                hit.collider.transform.gameObject.GetComponent<IHoldToInteract>().OnHold(playerObj);
             }
         }
     }

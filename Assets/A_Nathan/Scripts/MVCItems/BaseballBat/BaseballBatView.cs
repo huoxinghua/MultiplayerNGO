@@ -7,9 +7,12 @@ public class BaseballBatView : MonoBehaviour , IView
     [SerializeField] private Collider col;
     [SerializeField] private GameObject heldVisual;
     public GameObject currentVisual;
+    public Animator _currentAnimator;
     public void SetLightEnabled(bool on)
     {
-     //   flashlightLight.enabled = on;
+        //temporary NEEDS MAJOR REFACTOR
+        if(_currentAnimator != null)
+        _currentAnimator.SetTrigger("PlaySwing");
     }
     public GameObject GetCurrentVisual()
     {
@@ -24,11 +27,14 @@ public class BaseballBatView : MonoBehaviour , IView
         if (currentVisual != null) return;
         currentVisual = Instantiate(heldVisual, position);
         currentVisual.transform.parent = position;
+        _currentAnimator = currentVisual.GetComponentInChildren<Animator>();
     }
     public void DestroyHeldVisual()
     {
         if (currentVisual == null) return;
+        _currentAnimator = null;
         Destroy(currentVisual);
+        
     }
     public void SetPhysicsEnabled(bool enabled)
     {
