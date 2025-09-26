@@ -3,18 +3,18 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SampleSO", menuName = "Sample/SampleSO")]
 public class SampleSO : ScriptableObject
 {
-    public string sampleType;
+    [field: SerializeField] public string SampleType { get; private set; }
 
     [Header("Research Value Range")]
-    public float minResearchValue = 50f;
-    public float maxResearchValue = 75f;
+    public int minResearchValue = 50;
+    public int maxResearchValue = 75;
 
     [Header("Money Value Range")]
     public int minMoneyValue = 20;
     public int maxMoneyValue = 50;
 
    
-    public float GetRandomResearchValue()
+    public int GetRandomResearchValue()
     {
         return Random.Range(minResearchValue, maxResearchValue);
     }
