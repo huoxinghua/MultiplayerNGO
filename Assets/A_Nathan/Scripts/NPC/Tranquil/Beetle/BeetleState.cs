@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.ShaderGraph;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 public enum BeetleStates
@@ -85,14 +86,16 @@ public class BeetleState : MonoBehaviour
                 break;
             case BeetleStates.KnockedOut:
                 StopCoroutine(RandomNoises());
+                beetleMoveScript.OnKnockout();
                 OnKnockOut();
                 break;
             case BeetleStates.Dead:
 
                 StopCoroutine(RandomNoises());
-                OnDeath();
+               
                 beetleMoveScript.OnDeath();
                 beetleLineOfSight.OnDeath();
+                OnDeath();
                 break;
         }
     }
