@@ -28,7 +28,19 @@ public class BruteHearing : MonoBehaviour
             player.OnRunning += PlayerRunning;
         }
     }
-
+    private void OnDestroy()
+    {
+        PlayerMovement.OnPlayerAdded -= HandlePlayerAdded;
+        PlayerMovement.OnPlayerRemoved -= HandlePlayerRemoved;
+        //unsub from all existing players
+        foreach (var player in PlayerMovement.AllPlayers)
+        {
+            if (player != null)
+                player.OnWalking -= PlayerWalking;
+            player.OnLand -= PlayerLanded;
+            player.OnRunning -= PlayerRunning;
+        }
+    }
     void OnDisable()
     {
         PlayerMovement.OnPlayerAdded -= HandlePlayerAdded;
