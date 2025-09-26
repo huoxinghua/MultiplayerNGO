@@ -22,6 +22,8 @@ public class PlayerInteractCast : MonoBehaviour
     Vector3 startInteractPos;
     [SerializeField] float releaseDistance;
     [SerializeField] IHoldToInteract currentHold;
+    [SerializeField] GameObject pressEText;
+    [SerializeField] GameObject holdEText;
     //set up interact!!!
 
    // PlayerInputManager inputManager;
@@ -58,36 +60,42 @@ public class PlayerInteractCast : MonoBehaviour
         currentHold = null;
     }
     // Update is called once per frame
+    private GameObject currentTarget = null;
+    private IInteractable currentInteractable = null;
+    private IHoldInteract currentHoldInteract = null;
+
     void FixedUpdate()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(cameraTransform.position, transform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
-            if(hit.transform.gameObject.GetComponent<IInteractable>()!= null)
+            GameObject hitRoot = hit.collider.transform.gameObject;
+            Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
+            Debug.Log("Raycast hit: " + hit.transform.name);
+            // Only update cache if the target changes
+            if (hitRoot != currentTarget)
             {
-                castedInteract = true;
-                //Indicate to player that obj is interactable    
+                currentTarget = hitRoot;
+                currentInteractable = currentTarget.GetComponent<IInteractable>();
+                currentHoldInteract = currentTarget.GetComponent<IHoldInteract>();
             }
-            else
-            {
-                castedInteract = false;
-            }
-        }
 
-        if (isHolding)
+            bool hasInteractable = currentInteractable != null;
+            bool hasHoldInteract = currentHoldInteract != null;
+
+            // UI Logic
+            castedInteract = hasInteractable;
+            pressEText.SetActive(hasInteractable);
+            holdEText.SetActive(!hasInteractable && hasHoldInteract);
+        }
+        else
         {
-            if (!castedInteract || Vector3.Distance(playerObj.transform.position,startInteractPos) > releaseDistance)
-            {
-                ReleaseInteract();
-            }
-            timeInteracted += Time.deltaTime;
-            if (timeInteracted > timeToInteract&&inOutTransform != null)
-            {
-                
-                playerObj.transform.position = inOutTransform.position;
-                playerObj.transform.rotation = Quaternion.Euler(0,inOutTransform.rotation.eulerAngles.y,0);
-                ReleaseInteract();
-            }
+            // Raycast hit nothing, clear everything
+            currentTarget = null;
+            currentInteractable = null;
+            currentHoldInteract = null;
+            castedInteract = false;
+            pressEText.SetActive(false);
+            holdEText.SetActive(false);
         }
     }
     public void AttemptInteract()
