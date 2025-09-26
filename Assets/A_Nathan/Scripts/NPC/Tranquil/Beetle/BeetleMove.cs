@@ -61,7 +61,11 @@ public class BeetleMove : MonoBehaviour
        // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
             if(NavMesh.SamplePosition(beetleTransform.position + temp, out NavMeshHit hit, MaxWanderDistance * 3f,NavMesh.AllAreas))
             {
-                return hit.position;
+            if (GetPathLength(agent, hit.position) == -1)
+            {
+                return Vector3.zero;
+            }
+            return hit.position;
             }
             else
             {
@@ -109,6 +113,27 @@ public class BeetleMove : MonoBehaviour
             CheckForHostilePlayers();
             yield return new WaitForSeconds(hostileCheckFrequency);
         }
+    }
+
+    float GetPathLength(NavMeshAgent navAgent, Vector3 targetPosition)
+    {
+        NavMeshPath path = new NavMeshPath();
+        if (navAgent.CalculatePath(targetPosition, path))
+        {
+            float length = 0.0f;
+
+            if (path.corners.Length < 2)
+                return 0;
+
+            for (int i = 0; i < path.corners.Length - 1; i++)
+            {
+                length += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+            }
+
+            return length;
+        }
+
+        return -1f; // Invalid path
     }
     public void CheckForHostilePlayers()
     {
@@ -159,6 +184,16 @@ public class BeetleMove : MonoBehaviour
                _beetleState.TransitionToState(BeetleStates.Idle);
             }
         } 
+    }
+    public void OnWander()
+    {
+        Vector3 newPos = GetNextPosition();
+        if(newPos == Vector3.zero)
+        {
+            OnWander();
+            return;
+        }
+        MoveToPosition(newPos);
     }
     public void FixedUpdate()
     {

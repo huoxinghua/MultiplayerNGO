@@ -81,6 +81,10 @@ public class BruteMovement : MonoBehaviour
         // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
         if (NavMesh.SamplePosition(_heartTransform.position + temp, out NavMeshHit hit, _maxWanderDistance * 3f, NavMesh.AllAreas))
         {
+            if(GetPathLength(agent,hit.position) == -1)
+            {
+                return Vector3.zero;
+            }
             return hit.position;
         }
         else
@@ -96,6 +100,10 @@ public class BruteMovement : MonoBehaviour
         // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
         if (NavMesh.SamplePosition(transform.position + temp, out NavMeshHit hit, _maxWanderDistance * 3f, NavMesh.AllAreas))
         {
+            if (GetPathLength(agent, hit.position) == -1)
+            {
+                return Vector3.zero;
+            }
             return hit.position;
         }
         else
@@ -113,16 +121,28 @@ public class BruteMovement : MonoBehaviour
         
         if(stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
-            agent.SetDestination(GetNextPosition());
+            Vector3 newPos = GetNextPosition();
+            if (newPos == Vector3.zero)
+            {
+                OnStartWander();
+                return;
+            }
+            agent.SetDestination(newPos);
             agent.speed = _walkSpeed;
         }
         else if(stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
-            agent.SetDestination(GetNextHurtPosition());
+            Vector3 newPos = GetNextHurtPosition();
+            if(newPos == Vector3.zero)
+            {
+                OnStartWander();
+                return;
+            }
+            agent.SetDestination(newPos);
             agent.speed = _hurtWalkSpeed;
         }
      //get the actual walking distance. Must implement still
-        float pathLength = GetPathLength(agent, agent.destination);
+        //float pathLength = GetPathLength(agent, agent.destination);
         // agent.isStopped = false;
     }
     //Function to return the travel path of agent. Not the straight line dist

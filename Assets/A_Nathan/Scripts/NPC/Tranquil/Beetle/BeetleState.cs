@@ -61,7 +61,7 @@ public class BeetleState : MonoBehaviour
         switch (state)
         {
             case BeetleStates.MovePosition:
-                beetleMoveScript.MoveToPosition(beetleMoveScript.GetNextPosition());
+                beetleMoveScript.OnWander();
                 break;
             case BeetleStates.RunAway:
                 StopCoroutine(FollowTime());
