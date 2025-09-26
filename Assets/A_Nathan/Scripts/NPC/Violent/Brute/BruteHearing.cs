@@ -90,7 +90,7 @@ public class BruteHearing : MonoBehaviour
 
     void PlayerWalking(GameObject player)
     {
-        if(Vector3.Distance(player.transform.position, transform.position) <= _walkingHearDistance)
+        if (Vector3.Distance(player.transform.position, transform.position) <= _walkingHearDistance)
         {
             HeardPlayer(player);
         }
@@ -111,8 +111,8 @@ public class BruteHearing : MonoBehaviour
     }
     public void HeardPlayer(GameObject player)
     {
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt || 
-            _stateController.GetAttentionState() == BruteAttentionStates.Dead || 
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt ||
+            _stateController.GetAttentionState() == BruteAttentionStates.Dead ||
             _stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
 
 
@@ -122,8 +122,8 @@ public class BruteHearing : MonoBehaviour
         }
         if (_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
-            
-            if(_timesAlerted <= _maxTimesAlerted)
+
+            if (_timesAlerted <= _maxTimesAlerted)
             {
                 StartCoroutine(HearingCooldown());
                 _stateController.TransitionToAttentionState(BruteAttentionStates.Alert);
@@ -134,12 +134,12 @@ public class BruteHearing : MonoBehaviour
             {
                 _stateController.StartChasePlayer(player);
             }
-            
+
         }
-        if(_stateController.GetAttentionState() == BruteAttentionStates.Alert && !_isOnHearingCooldown && 
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && !_isOnHearingCooldown &&
             _stateController.GetBehaviourState() != BruteBehaviourStates.Chase)
         {
-           
+
             if (_timesAlerted <= _maxTimesAlerted)
             {
                 StartCoroutine(HearingCooldown());
@@ -151,7 +151,7 @@ public class BruteHearing : MonoBehaviour
                 _stateController.StartChasePlayer(player);
             }
         }
-        if(_stateController.GetAttentionState() == BruteAttentionStates.Alert && _stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && _stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
         {
             _bruteMovement.OnHearInChase();
         }

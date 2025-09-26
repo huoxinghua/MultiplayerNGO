@@ -1,4 +1,3 @@
-using System.Xml.Serialization;
 using UnityEngine;
 
 public class PlayerInteractCast : MonoBehaviour
@@ -11,7 +10,7 @@ public class PlayerInteractCast : MonoBehaviour
     Transform cameraTransform;
     [SerializeField]
     float interactDist;
-    [SerializeField] 
+    [SerializeField]
     LayerMask lM;
     GameObject lastInteracted;
     Transform inOutTransform;
@@ -26,11 +25,11 @@ public class PlayerInteractCast : MonoBehaviour
     [SerializeField] GameObject holdEText;
     //set up interact!!!
 
-   // PlayerInputManager inputManager;
+    // PlayerInputManager inputManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
     public void Update()
     {
@@ -46,12 +45,12 @@ public class PlayerInteractCast : MonoBehaviour
         {
             ReleaseInteract();
         }
-        
+
     }
 
     public void ReleaseInteract()
     {
-       // Debug.Log("Release");
+        // Debug.Log("Release");
         isHolding = false;
         inOutTransform = null;
         timeToInteract = 0;
@@ -101,19 +100,19 @@ public class PlayerInteractCast : MonoBehaviour
     public void AttemptInteract()
     {
         RaycastHit hit;
-/*        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        RaycastHit[] hits = Physics.RaycastAll(ray, interactDist, ~0, QueryTriggerInteraction.Collide);
-        foreach (var h in hits)
-        {
-            Debug.Log($"RaycastAll hit: {h.collider.name}, IsTrigger: {h.collider.isTrigger}");
-        }
-*/
+        /*        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+                RaycastHit[] hits = Physics.RaycastAll(ray, interactDist, ~0, QueryTriggerInteraction.Collide);
+                foreach (var h in hits)
+                {
+                    Debug.Log($"RaycastAll hit: {h.collider.name}, IsTrigger: {h.collider.isTrigger}");
+                }
+        */
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
-           // Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
+            // Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
             if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
             {
-                if(hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
+                if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
                 {
                     IInOutDoor temp = hit.collider.transform.gameObject.GetComponent<IInOutDoor>();
                     inOutTransform = temp.UseDoor();
@@ -124,7 +123,7 @@ public class PlayerInteractCast : MonoBehaviour
                 lastInteracted = hit.transform.gameObject;
                 hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
             }
-            if(hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
+            if (hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
             {
                 Debug.Log("HitIshere>!<>!");
                 currentHold = hit.collider.transform.gameObject.GetComponent<IHoldToInteract>();

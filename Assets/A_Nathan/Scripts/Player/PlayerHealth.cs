@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour, IPlayerHealth
 {
@@ -10,6 +11,8 @@ public class PlayerHealth : MonoBehaviour, IPlayerHealth
         _currentHealth -= damage;
         if ( _currentHealth < 0)
         {
+            //temp for now
+            SceneManager.LoadScene("LevelBlockOut");
             Debug.Log("Player is DEAD");
             //reload scene for prototype, handle proper multiplayer death logic later
         }

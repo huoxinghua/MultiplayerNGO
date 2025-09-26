@@ -1,8 +1,6 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.Android;
 
 public class BruteMovement : MonoBehaviour
 {
@@ -59,15 +57,15 @@ public class BruteMovement : MonoBehaviour
     public void OnStopChase()
     {
         Debug.Log("?");
-        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware)
+        if (stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
             agent.speed = _walkSpeed;
         }
-        if(stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        if (stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
             agent.speed = _hurtWalkSpeed;
         }
-        if(stateController.GetAttentionState() == BruteAttentionStates.Alert)
+        if (stateController.GetAttentionState() == BruteAttentionStates.Alert)
         {
             agent.speed = _alertWalkSpeed;
         }
@@ -81,7 +79,7 @@ public class BruteMovement : MonoBehaviour
         // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
         if (NavMesh.SamplePosition(_heartTransform.position + temp, out NavMeshHit hit, _maxWanderDistance * 3f, NavMesh.AllAreas))
         {
-            if(GetPathLength(agent,hit.position) == -1)
+            if (GetPathLength(agent, hit.position) == -1)
             {
                 return Vector3.zero;
             }
@@ -118,8 +116,8 @@ public class BruteMovement : MonoBehaviour
     }
     public void OnStartWander()
     {
-        
-        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware)
+
+        if (stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
             Vector3 newPos = GetNextPosition();
             if (newPos == Vector3.zero)
@@ -130,10 +128,10 @@ public class BruteMovement : MonoBehaviour
             agent.SetDestination(newPos);
             agent.speed = _walkSpeed;
         }
-        else if(stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        else if (stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
             Vector3 newPos = GetNextHurtPosition();
-            if(newPos == Vector3.zero)
+            if (newPos == Vector3.zero)
             {
                 OnStartWander();
                 return;
@@ -141,7 +139,7 @@ public class BruteMovement : MonoBehaviour
             agent.SetDestination(newPos);
             agent.speed = _hurtWalkSpeed;
         }
-     //get the actual walking distance. Must implement still
+        //get the actual walking distance. Must implement still
         //float pathLength = GetPathLength(agent, agent.destination);
         // agent.isStopped = false;
     }
@@ -166,7 +164,7 @@ public class BruteMovement : MonoBehaviour
 
         return -1f; // Invalid path
     }
-    
+
     IEnumerator IdleTime()
     {
         //agent.isStopped = true;
@@ -210,30 +208,30 @@ public class BruteMovement : MonoBehaviour
     {
         if (stateController.GetAttentionState() == BruteAttentionStates.Dead) return;
         if (stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
-        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware
+        if (stateController.GetAttentionState() == BruteAttentionStates.Unaware
             || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
-            if(stateController.GetBehaviourState() == BruteBehaviourStates.Wander
-                && Vector3.Distance(transform.position,agent.destination) < _stoppingDistance)
-            { 
-               stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
+            if (stateController.GetBehaviourState() == BruteBehaviourStates.Wander
+                && Vector3.Distance(transform.position, agent.destination) < _stoppingDistance)
+            {
+                stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
             }
-        } 
-        if(stateController.GetAttentionState() == BruteAttentionStates.Alert
+        }
+        if (stateController.GetAttentionState() == BruteAttentionStates.Alert
             && stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
         {
             agent.SetDestination(stateController.PlayerToChase.transform.position);
         }
-        if(stateController.GetAttentionState() == BruteAttentionStates.Alert)
+        if (stateController.GetAttentionState() == BruteAttentionStates.Alert)
         {
             _timeSinceHeardPlayer += Time.deltaTime;
-            if(stateController.GetBehaviourState() == BruteBehaviourStates.Investigate
+            if (stateController.GetBehaviourState() == BruteBehaviourStates.Investigate
                 && _timeSinceHeardPlayer >= _loseInterestTimeInvestigate)
             {
                 stateController.TransitionToAttentionState(BruteAttentionStates.Unaware);
                 stateController.TransitionToBehaviourState(BruteBehaviourStates.Idle);
             }
-            else if(stateController.GetBehaviourState() == BruteBehaviourStates.Chase
+            else if (stateController.GetBehaviourState() == BruteBehaviourStates.Chase
                 && _timeSinceHeardPlayer >= _loseInterestTimeChase)
             {
                 stateController.TransitionToAttentionState(BruteAttentionStates.Unaware);
@@ -246,16 +244,17 @@ public class BruteMovement : MonoBehaviour
 
         if (stateController.GetAttentionState() == BruteAttentionStates.Alert)
         {
-            if(stateController.GetBehaviourState() == BruteBehaviourStates.Investigate)
+            if (stateController.GetBehaviourState() == BruteBehaviourStates.Investigate)
             {
                 _bruteAnimation.PlayWalk(agent.velocity.magnitude, agent.speed);
-            }else if(stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
+            }
+            else if (stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
             {
                 _bruteAnimation.PlayRun(agent.velocity.magnitude, agent.speed);
             }
-           
+
         }
-        if(stateController.GetAttentionState() == BruteAttentionStates.Unaware || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        if (stateController.GetAttentionState() == BruteAttentionStates.Unaware || stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
             _bruteAnimation.PlayWalk(agent.velocity.magnitude, agent.speed); ;
         }

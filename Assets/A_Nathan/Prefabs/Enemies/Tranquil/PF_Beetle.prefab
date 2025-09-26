@@ -583,8 +583,8 @@ MonoBehaviour:
   _ragdollScript: {fileID: 7881758042718120484}
   _beetleSkel: {fileID: 1252242435170775826}
   _beetleDead: {fileID: 3560666103813700515}
-  _minNoiseTime: 6.72
-  _maxNoiseTime: 11.2
+  _minNoiseTime: 8
+  _maxNoiseTime: 15
 --- !u!114 &3145107186939372429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -604,7 +604,7 @@ MonoBehaviour:
   PointToMoveTo: {x: 0, y: 0, z: 0}
   stopDistance: 2.5
   _beetleLineOfSight: {fileID: 5763469505779543189}
-  hostileCheckFrequency: 10
+  hostileCheckFrequency: 5
   fleeDistance: 20
   randomRunPointOffSet: 4
   _beetleSO: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
@@ -659,11 +659,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d5dff39c1ae1ba4883207bae49b91c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldOfView: 90
-  viewDistance: 20
+  fieldOfView: 120
+  viewDistance: 30
   eyeOffset: 0.25
   players: []
-  fieldOfViewCheckFrequency: 1.5
+  fieldOfViewCheckFrequency: 4
   viewCastLayerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -736,7 +736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67d3fa83603ed8a4a83286af13997b42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _heldView: {fileID: 2340751277511060634, guid: f6c08f2940c72ac4ea79b256928baac2, type: 3}
+  _heldView: {fileID: 1413494595960936745, guid: c4009aae71d4c1c42aa398912957ce03, type: 3}
   _renderer: {fileID: 565238493127841915}
   _beetleTransform: {fileID: 1885613447529785768}
   _beetleSkele: {fileID: 1252242435170775826}
@@ -857,7 +857,7 @@ PrefabInstance:
     - target: {fileID: -7315654044913494472, guid: cff9519c43cd9d245a9260ed57ca9edc, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 0044de02681b37a4faebccc8a4ab8b0d, type: 2}
+      objectReference: {fileID: 2100000, guid: 6cfe743738a1939469d1bf914cb44c1f, type: 2}
     - target: {fileID: 919132149155446097, guid: cff9519c43cd9d245a9260ed57ca9edc, type: 3}
       propertyPath: m_Name
       value: SK_Beetle

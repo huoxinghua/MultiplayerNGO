@@ -1,5 +1,4 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -28,13 +27,13 @@ public class PlayerInputManager : MonoBehaviour
         inputActions.Player.Jump.canceled += HandleJump;
         inputActions.Player.Look.performed += HandleLook;
         inputActions.Player.Look.canceled += HandleLook;
-      
+
         inputActions.Player.Sprint.performed += HandleSprint;
         inputActions.Player.Sprint.canceled += HandleSprint;
 
         inputActions.Player.Crouch.performed += HandleCrouch;
-    
-       
+
+
     }
     private void OnDisable()
     {
@@ -51,7 +50,7 @@ public class PlayerInputManager : MonoBehaviour
 
 
         inputActions.Player.Crouch.performed -= HandleCrouch;
-      
+
     }
     Vector2 moveInput;
     private void HandleMove(InputAction.CallbackContext context)
@@ -66,7 +65,8 @@ public class PlayerInputManager : MonoBehaviour
         if (context.performed)
         {
             isSprinting = true;
-        }else if(context.canceled)
+        }
+        else if (context.canceled)
         {
             isSprinting = false;
         }

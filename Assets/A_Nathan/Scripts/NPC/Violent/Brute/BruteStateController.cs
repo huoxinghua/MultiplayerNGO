@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 //States handling what behaviour system to use
@@ -25,7 +24,7 @@ public enum BruteBehaviourStates
 
 public class BruteStateController : MonoBehaviour
 {
-   [SerializeField] private BruteAttentionStates _currentBruteAttentionState;
+    [SerializeField] private BruteAttentionStates _currentBruteAttentionState;
     [SerializeField] private BruteBehaviourStates _currentBruteBehaviour;
     [SerializeField] float firstAlertDelayTime;
     [SerializeField] private GameObject _heartPrefab;
@@ -69,7 +68,7 @@ public class BruteStateController : MonoBehaviour
             case BruteAttentionStates.Alert:
                 _bruteAnimation.PlayAlert();
                 StopCoroutine(IdleSound());
-                AudioManager.Instance.PlayByKeyAttached("BruteAlert",transform);
+                AudioManager.Instance.PlayByKeyAttached("BruteAlert", transform);
                 break;
             case BruteAttentionStates.Hurt:
                 _bruteHearing.OnExitAlertState();
@@ -165,7 +164,7 @@ public class BruteStateController : MonoBehaviour
                 case 2:
                     AudioManager.Instance.PlayByKey3D("BruteIdleBreath3", transform.position);
                     break;
-              
+
             }
         }
     }
@@ -183,7 +182,7 @@ public class BruteStateController : MonoBehaviour
                 case 1:
                     AudioManager.Instance.PlayByKey3D("BruteHurtIdleBreath2", transform.position);
                     break;
-              
+
 
             }
         }

@@ -1,9 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.Android;
 
 public class BeetleMove : MonoBehaviour
 {
@@ -19,7 +16,7 @@ public class BeetleMove : MonoBehaviour
     [SerializeField] float randomRunPointOffSet;
     [SerializeField] BeetleSO _beetleSO;
     [SerializeField] BeetleAnimation _beetleAnimation;
-   // [SerializeField] LayerMask navMeshLayerMask;
+    // [SerializeField] LayerMask navMeshLayerMask;
     bool _followingPlayer = false;
     bool _runFromPlayer;
     Transform playerToFollow;
@@ -48,31 +45,31 @@ public class BeetleMove : MonoBehaviour
     }
     void Start()
     {
-       PointToMoveTo = GetNextPosition();
+        PointToMoveTo = GetNextPosition();
         doMove = true;
         agent.speed = _beetleSO.WalkSpeed;
     }
     public Vector3 GetNextPosition()
     {
-      
+
         Vector3 nextPos = Vector3.zero;
-        
-            Vector3 temp = new Vector3(Random.Range(MinWanderDistance,MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
-       // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
-            if(NavMesh.SamplePosition(beetleTransform.position + temp, out NavMeshHit hit, MaxWanderDistance * 3f,NavMesh.AllAreas))
-            {
+
+        Vector3 temp = new Vector3(Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
+        // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
+        if (NavMesh.SamplePosition(beetleTransform.position + temp, out NavMeshHit hit, MaxWanderDistance * 3f, NavMesh.AllAreas))
+        {
             if (GetPathLength(agent, hit.position) == -1)
             {
                 return Vector3.zero;
             }
             return hit.position;
-            }
-            else
-            {
+        }
+        else
+        {
             return Vector3.zero;
-            }
+        }
     }
-  
+
 
     public void RunAwayLogic(GameObject threat)
     {
@@ -108,7 +105,7 @@ public class BeetleMove : MonoBehaviour
     }
     IEnumerator PeriodicCheckHostiles()
     {
-        while(true)
+        while (true)
         {
             CheckForHostilePlayers();
             yield return new WaitForSeconds(hostileCheckFrequency);
@@ -150,7 +147,7 @@ public class BeetleMove : MonoBehaviour
     public void MoveToPosition(Vector3 position)
     {
         agent.SetDestination(position);
-        
+
     }
     public void StartIdle()
     {
@@ -181,14 +178,14 @@ public class BeetleMove : MonoBehaviour
         {
             if (Vector3.Distance(beetleTransform.position, agent.destination) < stopDistance)
             {
-               _beetleState.TransitionToState(BeetleStates.Idle);
+                _beetleState.TransitionToState(BeetleStates.Idle);
             }
-        } 
+        }
     }
     public void OnWander()
     {
         Vector3 newPos = GetNextPosition();
-        if(newPos == Vector3.zero)
+        if (newPos == Vector3.zero)
         {
             OnWander();
             return;
@@ -214,13 +211,13 @@ public class BeetleMove : MonoBehaviour
         {
             _beetleAnimation.PlayWalk(0, agent.speed);
         }
-        if(_beetleState.GetCurrentState() == BeetleStates.RunAway && agent.velocity.magnitude >= 0.01f)
+        if (_beetleState.GetCurrentState() == BeetleStates.RunAway && agent.velocity.magnitude >= 0.01f)
         {
             _beetleAnimation.PlayRun(agent.velocity.magnitude, agent.speed);
         }
-        if(_beetleState.GetCurrentState() == BeetleStates.FollowPlayer && agent.velocity.magnitude >= 0.01f)
+        if (_beetleState.GetCurrentState() == BeetleStates.FollowPlayer && agent.velocity.magnitude >= 0.01f)
         {
-            _beetleAnimation.PlayWalk(agent.velocity.magnitude,agent.speed);
+            _beetleAnimation.PlayWalk(agent.velocity.magnitude, agent.speed);
         }
 
     }

@@ -1,8 +1,6 @@
-using Unity.VisualScripting;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
-public class BruteHealth : MonoBehaviour , IHitable
+public class BruteHealth : MonoBehaviour, IHitable
 {
     float _maxHealth;
     float _currentHealth;
@@ -22,12 +20,12 @@ public class BruteHealth : MonoBehaviour , IHitable
     }
     public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
     {
-        if(_stateController.GetAttentionState() == BruteAttentionStates.Hurt)
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt)
         {
             ChangeHealth(-damage);
             ChangeConsciousness(-knockoutPower);
         }
-        else if(_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
+        else if (_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
             _stateController.StartChasePlayer(attackingPlayer);
         }
@@ -75,12 +73,12 @@ public class BruteHealth : MonoBehaviour , IHitable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

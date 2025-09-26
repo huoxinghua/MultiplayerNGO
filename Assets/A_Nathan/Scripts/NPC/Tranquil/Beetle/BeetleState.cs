@@ -1,7 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.ShaderGraph;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 public enum BeetleStates
 {
@@ -32,7 +29,7 @@ public class BeetleState : MonoBehaviour
     bool _isFollowing;
     public void Awake()
     {
-       // _currentState = BeetleStates.MovePosition;
+        // _currentState = BeetleStates.MovePosition;
         beetleMoveScript = GetComponent<BeetleMove>();
         beetleLineOfSight = GetComponent<BeetleLineOfSight>();
     }
@@ -46,9 +43,9 @@ public class BeetleState : MonoBehaviour
     }
     public void SetCurrentState(BeetleStates state)
     {
-        _currentState=state;
+        _currentState = state;
     }
- 
+
     public void TransitionToState(BeetleStates newState)
     {
         if (_currentState == newState || _currentState == BeetleStates.Dead) return;
@@ -92,7 +89,7 @@ public class BeetleState : MonoBehaviour
             case BeetleStates.Dead:
 
                 StopCoroutine(RandomNoises());
-               
+
                 beetleMoveScript.OnDeath();
                 beetleLineOfSight.OnDeath();
                 OnDeath();
@@ -106,14 +103,14 @@ public class BeetleState : MonoBehaviour
     }
     public bool IsEnemyKnockedout()
     {
-        if(_currentState == BeetleStates.KnockedOut)return true;
+        if (_currentState == BeetleStates.KnockedOut) return true;
         else return false;
     }
     IEnumerator RandomNoises()
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(_minNoiseTime,_maxNoiseTime));
+            yield return new WaitForSeconds(Random.Range(_minNoiseTime, _maxNoiseTime));
             int index = Random.Range(0, 3);
             switch (index)
             {
@@ -170,28 +167,28 @@ public class BeetleState : MonoBehaviour
     {
         float randTime = Random.Range(_minIdleTime, _maxIdleTime);
         _beetleAnimation.PlayRandomIdle(0, 1);
-        Debug.Log(randTime);
-        float timeDelayAnim = Random.Range(1,randTime-4);
+        // Debug.Log(randTime);
+        float timeDelayAnim = Random.Range(1, randTime - 4);
 
         Debug.Log(timeDelayAnim);
         yield return new WaitForSeconds(timeDelayAnim);
-        Debug.Log(randTime - timeDelayAnim);
+        // Debug.Log(randTime - timeDelayAnim);
         randTime -= timeDelayAnim;
         _beetleAnimation.PlayRandomIdle(1, 0);
-        Debug.Log(randTime);
+        //  Debug.Log(randTime);
         yield return new WaitForSeconds(randTime);
-        if(_currentState == BeetleStates.Idle)
+        if (_currentState == BeetleStates.Idle)
         {
             Debug.Log("StartMoving");
             TransitionToState(BeetleStates.MovePosition);
         }
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-  
+
 
     // Update is called once per frame
     void Update()
     {
-  
+
     }
 }

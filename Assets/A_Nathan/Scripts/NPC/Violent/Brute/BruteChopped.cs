@@ -5,7 +5,7 @@ public class BruteChopped : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Awake()
     {
-        foreach(GameObject children in gameObject.GetComponentsInChildren<GameObject>())
+        foreach(Collider children in gameObject.GetComponentsInChildren<Collider>())
         {
             children.transform.parent = null;
         }

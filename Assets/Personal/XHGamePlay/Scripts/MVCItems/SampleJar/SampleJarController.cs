@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
 {
@@ -9,7 +8,7 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
     private Dictionary<string, List<SampleData>> samplesContainer = new Dictionary<string, List<SampleData>>();
     private bool isGetSample = false;
     private float detectDistance = 50f;
-   // [SerializeField] private LayerMask lm;
+    // [SerializeField] private LayerMask lm;
 
     private void Awake()
     {
@@ -36,12 +35,12 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
         model.Toggle();
         DetectSample();
     }
-  
+
     private void DetectSample()
     {
         RaycastHit hit;
-        Debug.Log("DetectSample" );
-        if (Physics.Raycast(Camera.main.transform.position,Camera.main.transform.forward,out hit,detectDistance))
+        Debug.Log("DetectSample");
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, detectDistance))
         {
             Debug.Log("DetectSample inside");
             Debug.Log("hit" + hit.transform.ToString());
@@ -52,18 +51,18 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
                 SaveSample(currentSample);
                 isGetSample = true;
             }
-            if(sample.gameObject != null)
+            if (sample.gameObject != null)
             {
                 Destroy(sample.gameObject);
             }
-            
+
         }
-        
+
     }
-  
+
     public void SaveSample(SampleSO value)
     {
-        Debug.Log("Save sample:"+ value.name+"money:" + value.GetRandomMoneyValue()+"research"+ value.GetRandomResearchValue());
+        Debug.Log("Save sample:" + value.name + "money:" + value.GetRandomMoneyValue() + "research" + value.GetRandomResearchValue());
         SampleData data = new SampleData(value.GetRandomResearchValue(),
         value.GetRandomMoneyValue());
         if (!samplesContainer.ContainsKey(value.SampleType))
@@ -71,7 +70,7 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
             samplesContainer[value.SampleType] = new List<SampleData>();
         }
         samplesContainer[value.SampleType].Add(data);
-        Debug.Log("sample container:"+ samplesContainer.Count);
+        Debug.Log("sample container:" + samplesContainer.Count);
     }
     public void OnInteract(GameObject interactingPlayer)
     {
@@ -104,7 +103,12 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
 
     public void SwapOff()
     {
-        throw new System.NotImplementedException();
+        if (!model.HasOwner && view.GetCurrentVisual() == null) return;
+
+        //probably a swap animation here?
+
+        view.DestroyHeldVisual();
+        model.InHand(false);
     }
 
     public void SwapTo()
