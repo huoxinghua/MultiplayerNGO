@@ -119,6 +119,7 @@ public class Inventory : MonoBehaviour
         currentItem = null;
         twoHandedView = Instantiate(heldView,transform.GetChild(0).GetChild(1));
         twoHandedObject = pickedUpObject;
+        twoHandedObject?.SetActive(false);
         currentSlot = -1;
         return true;
     }
@@ -128,7 +129,15 @@ public class Inventory : MonoBehaviour
         
         Destroy(twoHandedView);
         twoHandedView = null;
-        twoHandedObject.GetComponent<ITwoHandItem>()?.OnDrop();
+        twoHandedObject?.SetActive(true);
+        if(twoHandedObject.GetComponent<ITwoHandItem>() != null)
+        {
+            twoHandedObject.GetComponent<ITwoHandItem>()?.OnDrop();
+        }else if(twoHandedObject.GetComponentInChildren<ITwoHandItem>() != null)
+        {
+            twoHandedObject.GetComponentInChildren<ITwoHandItem>()?.OnDrop();
+        }
+
         twoHandedObject.transform.position = transform.GetChild(3).position;
         
         twoHandedObject = null;

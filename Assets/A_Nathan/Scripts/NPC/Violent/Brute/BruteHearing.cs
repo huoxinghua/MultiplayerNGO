@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BruteHearing : MonoBehaviour
@@ -14,8 +16,8 @@ public class BruteHearing : MonoBehaviour
     private bool _isOnHearingCooldown;
     private int _timesAlerted = 0;
     private int _maxTimesAlerted = 3;
-
-    void OnEnable()
+    private HashSet<PlayerMovement> _subscribedPlayers = new();
+    /*void OnEnable()
     {
         PlayerMovement.OnPlayerAdded += HandlePlayerAdded;
         PlayerMovement.OnPlayerRemoved += HandlePlayerRemoved;
@@ -27,9 +29,18 @@ public class BruteHearing : MonoBehaviour
             player.OnFalling += PlayerLanded;
             player.OnRunning += PlayerRunning;
         }
-    }
+    }*/
+    void OnEnable()
+    {
+        PlayerMovement.OnPlayerAdded += HandlePlayerAdded;
+        PlayerMovement.OnPlayerRemoved += HandlePlayerRemoved;
 
-    void OnDisable()
+        foreach (var player in PlayerMovement.AllPlayers)
+        {
+            HandlePlayerAdded(player); // centralize logic
+        }
+    }
+    private void OnDestroy()
     {
         PlayerMovement.OnPlayerAdded -= HandlePlayerAdded;
         PlayerMovement.OnPlayerRemoved -= HandlePlayerRemoved;
@@ -42,24 +53,44 @@ public class BruteHearing : MonoBehaviour
             player.OnRunning -= PlayerRunning;
         }
     }
+    void OnDisable()
+    {
+        PlayerMovement.OnPlayerAdded -= HandlePlayerAdded;
+        PlayerMovement.OnPlayerRemoved -= HandlePlayerRemoved;
+
+        foreach (var player in _subscribedPlayers.ToList()) // to avoid modification during enumeration
+        {
+            HandlePlayerRemoved(player);
+        }
+
+        _subscribedPlayers.Clear();
+    }
     //player joined game, add to list
     void HandlePlayerAdded(PlayerMovement player)
     {
+        if (_subscribedPlayers.Contains(player)) return;
+
         player.OnWalking += PlayerWalking;
         player.OnLand += PlayerLanded;
         player.OnRunning += PlayerRunning;
+
+        _subscribedPlayers.Add(player);
     }
-    //player joined game, add to list
+
     void HandlePlayerRemoved(PlayerMovement player)
     {
+        if (!_subscribedPlayers.Contains(player)) return;
+
         player.OnWalking -= PlayerWalking;
         player.OnLand -= PlayerLanded;
         player.OnRunning -= PlayerRunning;
+
+        _subscribedPlayers.Remove(player);
     }
 
     void PlayerWalking(GameObject player)
     {
-        if(Vector3.Distance(player.transform.position, transform.position) <= _walkingHearDistance)
+        if (Vector3.Distance(player.transform.position, transform.position) <= _walkingHearDistance)
         {
             HeardPlayer(player);
         }
@@ -80,17 +111,19 @@ public class BruteHearing : MonoBehaviour
     }
     public void HeardPlayer(GameObject player)
     {
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt || 
-            _stateController.GetAttentionState() == BruteAttentionStates.Dead || 
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt ||
+            _stateController.GetAttentionState() == BruteAttentionStates.Dead ||
             _stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
+
+
         if (Vector3.Distance(player.transform.position, transform.position) <= _instantAggroDistance)
         {
             _stateController.StartChasePlayer(player);
         }
         if (_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
         {
-            
-            if(_timesAlerted <= _maxTimesAlerted)
+
+            if (_timesAlerted <= _maxTimesAlerted)
             {
                 StartCoroutine(HearingCooldown());
                 _stateController.TransitionToAttentionState(BruteAttentionStates.Alert);
@@ -101,12 +134,12 @@ public class BruteHearing : MonoBehaviour
             {
                 _stateController.StartChasePlayer(player);
             }
-            
+
         }
-        if(_stateController.GetAttentionState() == BruteAttentionStates.Alert && !_isOnHearingCooldown && 
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && !_isOnHearingCooldown &&
             _stateController.GetBehaviourState() != BruteBehaviourStates.Chase)
         {
-           
+
             if (_timesAlerted <= _maxTimesAlerted)
             {
                 StartCoroutine(HearingCooldown());
@@ -118,7 +151,7 @@ public class BruteHearing : MonoBehaviour
                 _stateController.StartChasePlayer(player);
             }
         }
-        if(_stateController.GetAttentionState() == BruteAttentionStates.Alert && _stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
+        if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && _stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
         {
             _bruteMovement.OnHearInChase();
         }

@@ -36,7 +36,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     public void Use()
     {
         if (!model.HasOwner || !model.IsInHand) return;
-
+        AudioManager.Instance.PlayByKey3D("FlashLightClick", model.Owner.transform.position);
         model.Toggle();
         view.SetLightEnabled(model.IsOn);
     }

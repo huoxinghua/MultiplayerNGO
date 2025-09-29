@@ -49,10 +49,10 @@ public class BeetleHealth : MonoBehaviour,IHitable
     {
         beetleState.TransitionToState(BeetleStates.Dead);
     }
-    public void OnKnockout()
+   /* public void OnKnockout()
     {
         beetleState.TransitionToState(BeetleStates.KnockedOut);
-    }
+    }*/
     public void ChangeConsciousness(float consciousnessChange)
     {
         _currentConsciousness += consciousnessChange;

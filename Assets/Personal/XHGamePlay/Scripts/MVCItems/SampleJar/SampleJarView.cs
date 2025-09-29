@@ -12,7 +12,6 @@ public class SampleJarView : MonoBehaviour, IView
     {
         if (currentVisual == null) return;
         Destroy(currentVisual);
-       
     }
 
     public void DisplayHeld(Transform position)

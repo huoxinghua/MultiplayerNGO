@@ -61,7 +61,10 @@ void PerformMeleeAttack()
         if(hitEnemies.Length > 0 )
         {
             //play hit sound??
+            Debug.Log("?A?DA?");
+            AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
         }
+
         foreach (Collider enemy in hitEnemies)
         {
             enemy.gameObject.GetComponent<IHitable>()?.OnHit(model.Owner, model.GetDamage(),model.GetKnockoutPower());
@@ -78,9 +81,10 @@ void PerformMeleeAttack()
     IEnumerator HitRoutine()
     {
         _canHit = false;
-        yield return new WaitForSeconds(0.2f);
+        view.SetLightEnabled(true);
+        yield return new WaitForSeconds(_attackCooldown/2);
         PerformMeleeAttack();
-        yield return new WaitForSeconds(_attackCooldown);
+        yield return new WaitForSeconds(_attackCooldown/2);
         _canHit = true;
         _attackCoroutine = null;
     }
