@@ -1,4 +1,4 @@
-using Netcode.Transports;
+﻿using Netcode.Transports;
 using NUnit.Framework;
 using Project.Network.UI;
 using Steamworks;
@@ -39,6 +39,19 @@ namespace Project.Network.SteamWork
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+        private void OnEnable()
+        {
+            OnCreateFriendOnlyLobby += CreateFriendOnlyLobby;
+            OnCreatePublicLobby += ClickHostPublic;
+            OnLobbyListRequest += GetLobbyList;
+        }
+
+        private void OnDisable()
+        {
+            OnCreateFriendOnlyLobby -= CreateFriendOnlyLobby;
+            OnCreatePublicLobby -= ClickHostPublic;
+            OnLobbyListRequest -= GetLobbyList;
+        }
         void Start()
         {
             Debug.Log("SteamLobbyManager start");
@@ -58,7 +71,7 @@ namespace Project.Network.SteamWork
             CSteamID lobbyId = new CSteamID(param.m_ulSteamIDLobby);
 
             string hostLocStr = SteamMatchmaking.GetLobbyData(lobbyId, "host_location");
-            Debug.Log("[Client] Got host_location from update: " + hostLocStr);
+            Debug.Log("!!!!!!!![Client] Got host_location from update: " + hostLocStr);
 
             if (!string.IsNullOrEmpty(hostLocStr))
             {
@@ -74,19 +87,7 @@ namespace Project.Network.SteamWork
             }
         }
 
-        private void OnEnable()
-        {
-            OnCreateFriendOnlyLobby += CreateFriendOnlyLobby;
-            OnCreatePublicLobby += ClickHostPublic;
-            OnLobbyListRequest += GetLobbyList;
-        }
-
-        private void OnDisable()
-        {
-            OnCreateFriendOnlyLobby -= CreateFriendOnlyLobby;
-            OnCreatePublicLobby -= ClickHostPublic;
-            OnLobbyListRequest -= GetLobbyList;
-        }
+       
         public static Dictionary<CSteamID, string> lobbyLists = new Dictionary<CSteamID, string>();
         public void OnLobbyListReceived(LobbyMatchList_t param)
         {
@@ -94,7 +95,9 @@ namespace Project.Network.SteamWork
             int count = (int)param.m_nLobbiesMatching;
             for (int i = 0; i < count; i++)
             {
+
                 CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(i);
+                SteamMatchmaking.RequestLobbyData(lobbyId);
                 string lobbyName = SteamMatchmaking.GetLobbyData(lobbyId, "name");
                 Debug.Log("Lobby: " + lobbyName + " ID: " + lobbyId);
                 if (string.IsNullOrEmpty(lobbyName))
@@ -208,6 +211,7 @@ namespace Project.Network.SteamWork
                     SteamMatchmaking.SetLobbyData(currentLobbyId, "host_location", locStr);
 
                     Debug.Log($"%%%%%%%%%%%%%%%Lobby created! Host ping location: {locStr}");
+                    StartCoroutine(UpdateHostLocation());
                 }
                 if (lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly)
                 {
@@ -262,6 +266,25 @@ namespace Project.Network.SteamWork
             else
             {
                 Debug.LogError("StartHost() FAILED");
+            }
+        }
+
+        private IEnumerator UpdateHostLocation()
+        {
+            while (true)
+            {
+                if (currentLobbyId.IsValid())
+                {
+                    SteamNetworkPingLocation_t myLoc;
+                    SteamNetworkingUtils.GetLocalPingLocation(out myLoc);
+
+                    string locStr;
+                    SteamNetworkingUtils.ConvertPingLocationToString(ref myLoc, out locStr, 256);
+                    SteamMatchmaking.SetLobbyData(currentLobbyId, "host_location", locStr);
+
+                    Debug.Log("[Host] Updated host_location: " + locStr);
+                }
+                yield return new WaitForSeconds(10f); // 每 10 秒更新一次
             }
         }
         private void OnLobbyEntered(LobbyEnter_t callback)
