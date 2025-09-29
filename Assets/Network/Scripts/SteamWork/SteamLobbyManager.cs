@@ -79,10 +79,6 @@ namespace Project.Network.SteamWork
                 if (SteamNetworkingUtils.ParsePingLocationString(hostLocStr, out hostLoc))
                 {
                     StartCoroutine(TryPingHost(lobbyId, hostLoc));
-                    
-
-                   
-                   
                 }
             }
         }
@@ -91,7 +87,7 @@ namespace Project.Network.SteamWork
             for (int i = 0; i < 5; i++) 
             {
                 int ping = SteamNetworkingUtils.EstimatePingTimeFromLocalHost(ref hostLoc);
-                if (ping >= 0)
+                if (ping >= 0 &&HostUIManager.Instance != null)
                 {
                     Debug.Log($"[Client] Ping to host: {ping} ms");
                     HostUIManager.Instance.UpdateLobbyPing(lobbyId, ping);
