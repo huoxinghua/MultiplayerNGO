@@ -13,7 +13,7 @@ public class LobbyItemUI : MonoBehaviour
     public void SetData(string lobbyName, int ping, CSteamID lobbyId)
     {
         serverNameText.text = lobbyName;
-        pingText.text = ping >= 0 ? $"Ping: {ping} ms" : ping.ToString();
+        pingText.text = ping >= 0 ? $"Ping: {ping} ms" : "ping...";
         LobbyId = lobbyId;
     }
     public void SetPing(int ping)

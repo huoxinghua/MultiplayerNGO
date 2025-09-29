@@ -78,16 +78,35 @@ namespace Project.Network.SteamWork
                 SteamNetworkPingLocation_t hostLoc;
                 if (SteamNetworkingUtils.ParsePingLocationString(hostLocStr, out hostLoc))
                 {
-                    int ping = SteamNetworkingUtils.EstimatePingTimeFromLocalHost(ref hostLoc);
-                    Debug.Log($"??????????????[Client] Ping to host after LobbyDataUpdate: {ping} ms");
+                    StartCoroutine(TryPingHost(lobbyId, hostLoc));
+                    
 
                    
-                    HostUIManager.Instance.UpdateLobbyPing(lobbyId, ping);
+                   
                 }
             }
         }
+        private IEnumerator TryPingHost(CSteamID lobbyId, SteamNetworkPingLocation_t hostLoc)
+        {
+            for (int i = 0; i < 5; i++) 
+            {
+                int ping = SteamNetworkingUtils.EstimatePingTimeFromLocalHost(ref hostLoc);
+                if (ping >= 0)
+                {
+                    Debug.Log($"[Client] Ping to host: {ping} ms");
+                    HostUIManager.Instance.UpdateLobbyPing(lobbyId, ping);
+                    HostUIManager.Instance.UpdateLobbyPing(lobbyId, ping);
+                    yield break; 
+                }
 
-       
+                Debug.Log($"[Client] Ping still -1, retry {i + 1}...");
+                yield return new WaitForSeconds(2f);
+            }
+
+            Debug.LogWarning("[Client] Failed to get valid ping after retries.");
+        }
+
+
         public static Dictionary<CSteamID, string> lobbyLists = new Dictionary<CSteamID, string>();
         public void OnLobbyListReceived(LobbyMatchList_t param)
         {
