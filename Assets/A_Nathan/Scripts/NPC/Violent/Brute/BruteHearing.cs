@@ -17,6 +17,7 @@ public class BruteHearing : MonoBehaviour
     private int _timesAlerted = 0;
     private int _maxTimesAlerted = 3;
     private HashSet<PlayerMovement> _subscribedPlayers = new();
+    [SerializeField] BruteStateMachine _stateMachine;
     /*void OnEnable()
     {
         PlayerMovement.OnPlayerAdded += HandlePlayerAdded;
@@ -111,7 +112,14 @@ public class BruteHearing : MonoBehaviour
     }
     public void HeardPlayer(GameObject player)
     {
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt ||
+        if (!_isOnHearingCooldown)
+        {
+            _stateMachine.OnHearPlayer(player);
+            //replace with timer later
+            StartCoroutine(HearingCooldown());
+        }
+        //All below is old and out dated
+       /* if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt ||
             _stateController.GetAttentionState() == BruteAttentionStates.Dead ||
             _stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
 
@@ -154,14 +162,14 @@ public class BruteHearing : MonoBehaviour
         if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && _stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
         {
             _bruteMovement.OnHearInChase();
-        }
+        }*/
     }
-    public void OnExitAlertState()
+   /* public void OnExitAlertState()
     {
         _timesAlerted = 0;
         StopAllCoroutines();
         _isOnHearingCooldown = false;
-    }
+    }*/
     IEnumerator HearingCooldown()
     {
         _isOnHearingCooldown = true;

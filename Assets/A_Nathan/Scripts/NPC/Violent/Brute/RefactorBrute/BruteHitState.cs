@@ -27,14 +27,4 @@ public class BruteHitState : BruteBaseState
     {
 
     }
-    public override void OnHeartDestroyed()
-    {
-
-    }
-
-    //Better way to do this? probably
-    public override void OnTimerDone()
-    {
-
-    }
 }

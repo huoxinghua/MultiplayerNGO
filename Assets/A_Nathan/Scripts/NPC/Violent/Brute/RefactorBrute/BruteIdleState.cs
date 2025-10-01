@@ -1,23 +1,30 @@
+using System.Threading;
 using UnityEngine;
 
 public class BruteIdleState : BruteBaseState
 {
+    Timer idleTimer = new Timer(0f);
     public BruteIdleState(BruteStateMachine stateController) : base(stateController)
     {
 
     }
     public override void OnEnter()
     {
-
+        agent.SetDestination(stateController.gameObject.transform.position);
+        idleTimer.Reset(Random.Range(bruteSO.MinIdleTime, bruteSO.MaxIdleTime));
     }
     public override void OnExit()
     {
-
+        idleTimer.Stop();
     }
 
     public override void StateUpdate()
     {
-
+        idleTimer.Update(Time.deltaTime);
+        if (idleTimer.IsRunning)
+        {
+            stateController.TransitionTo(stateController.wanderState);
+        }
     }
     public override void StateFixedUpdate()
     {
@@ -25,16 +32,6 @@ public class BruteIdleState : BruteBaseState
     }
     public override void OnHearPlayer()
     {
-        //stateController.TransitionTo();
-    }
-    public override void OnHeartDestroyed()
-    {
-
-    }
-
-    //Better way to do this? probably
-    public override void OnTimerDone()
-    {
-
+        //stateController.TransitionTo(HeardPlayerState);
     }
 }

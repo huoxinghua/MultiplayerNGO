@@ -8,11 +8,11 @@ public class BruteChaseState : BruteBaseState
     }
     public override void OnEnter()
     {
-
+        agent.speed = bruteSO.RunSpeed;
     }
     public override void OnExit()
     {
-
+        stateController.TimesAlerted = 0;
     }
 
     public override void StateUpdate()
@@ -24,16 +24,6 @@ public class BruteChaseState : BruteBaseState
 
     }
     public override void OnHearPlayer()
-    {
-
-    }
-    public override void OnHeartDestroyed()
-    {
-
-    }
-
-    //Better way to do this? probably
-    public override void OnTimerDone()
     {
 
     }

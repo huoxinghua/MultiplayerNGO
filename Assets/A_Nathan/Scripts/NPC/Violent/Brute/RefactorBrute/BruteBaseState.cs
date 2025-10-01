@@ -6,11 +6,13 @@ public class BruteBaseState : BaseState
     protected BruteStateMachine stateController;
     protected Animator animator;
     protected NavMeshAgent agent;
+    protected BruteSO bruteSO;
     public BruteBaseState(BruteStateMachine stateController)
     {
         this.stateController = stateController;
         animator = stateController.animator;
         agent = stateController.agent;
+        bruteSO = stateController.BruteSO;
     }
     public override void OnEnter()
     {
@@ -30,15 +32,6 @@ public class BruteBaseState : BaseState
 
     }
     public virtual void OnHearPlayer()
-    {
-
-    }
-    public virtual void OnHeartDestroyed()
-    {
-
-    }
-    //figure out how to handle this? Might need multiple timers eventually.
-    public virtual void OnTimerDone()
     {
 
     }
