@@ -27,7 +27,13 @@ public class BruteHurtIdleState : BruteBaseState
     }
     public override void StateFixedUpdate()
     {
-
+        foreach (PlayerList player in PlayerList.AllPlayers)
+        {
+            if (Vector3.Distance(player.transform.position, stateController.transform.position) < bruteSO.AttackDistance)
+            {
+                stateController.OnAttack(player.gameObject);
+            }
+        }
     }
     public override void OnHearPlayer()
     {

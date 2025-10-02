@@ -13,11 +13,11 @@ public class BruteHeardPlayerState : BruteBaseState
         // !!!! Need to replace two with a SO variable? yeah, that !!!!
         if(stateController.TimesAlerted >= 2)
         {
-
+            stateController.TransitionTo(stateController.bruteChaseState);
         }
         else
         {
-
+            stateController.TransitionTo(stateController.bruteAlertState);
         }
     }
     public override void OnExit()

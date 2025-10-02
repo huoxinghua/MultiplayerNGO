@@ -63,10 +63,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2037837377892356046}
   - component: {fileID: 9162586361577179208}
+  - component: {fileID: 1416246688982527699}
   - component: {fileID: 4292674310347324361}
   - component: {fileID: 1439766035038809707}
-  - component: {fileID: 626414661014795836}
-  - component: {fileID: 8993394779206960995}
   - component: {fileID: 1157225150806674895}
   - component: {fileID: 4402407431659185700}
   - component: {fileID: 1919039736204623446}
@@ -102,6 +101,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2400597469585159946}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1416246688982527699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2400597469585159946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25916d0c972007c4ea42f8d0ec616f86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TimesAlerted: 0
 --- !u!23 &4292674310347324361
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -170,42 +182,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &626414661014795836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2400597469585159946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 974f356cdb66fa34b848aa4c16a4b8c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  agent: {fileID: 1157225150806674895}
-  stateController: {fileID: 8993394779206960995}
-  _bruteAnimation: {fileID: 6510776149680780632}
---- !u!114 &8993394779206960995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2400597469585159946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f1b04622c5c1a349a75d129e20b574c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _currentBruteAttentionState: 0
-  _currentBruteBehaviour: 0
-  firstAlertDelayTime: 0
-  _heartPrefab: {fileID: 695225100851143457, guid: 4c91afed4eff4734ea7d28af6028ae0f, type: 3}
-  _bruteHearing: {fileID: 4402407431659185700}
-  _bruteMovementScript: {fileID: 626414661014795836}
-  PlayerToChase: {fileID: 0}
-  _bruteAnimation: {fileID: 6510776149680780632}
 --- !u!195 &1157225150806674895
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -241,8 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  _stateController: {fileID: 8993394779206960995}
-  _bruteMovement: {fileID: 626414661014795836}
+  _stateMachine: {fileID: 1416246688982527699}
 --- !u!114 &1919039736204623446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,10 +231,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  _stateController: {fileID: 8993394779206960995}
   _ragdoll: {fileID: 881472344760022702}
   _ragdolledObj: {fileID: 1747903417874316384}
   _bruteDead: {fileID: 4490329722847713444}
+  _stateMachine: {fileID: 1416246688982527699}
 --- !u!114 &306999595227532523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,10 +247,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 259ecdca75643a74ea6bd513eca8b815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stateController: {fileID: 8993394779206960995}
+  _stateMachine: {fileID: 1416246688982527699}
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  _bruteMovement: {fileID: 626414661014795836}
-  _bruteAnimation: {fileID: 6510776149680780632}
 --- !u!1 &5642558134151175090
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,6 +472,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 881472344760022702}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4794436023939625237}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6510776149680780632}
@@ -1337,6 +1313,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ragdollRoot: {fileID: 2959452138449939790}
   RagdollEneble: 0
+--- !u!114 &4794436023939625237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1747903417874316384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e7e40e8e8acf8642be27f69b04d3015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateMachine: {fileID: 1416246688982527699}
 --- !u!114 &6510776149680780632
 MonoBehaviour:
   m_ObjectHideFlags: 0

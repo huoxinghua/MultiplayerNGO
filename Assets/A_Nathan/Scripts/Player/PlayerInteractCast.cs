@@ -68,8 +68,8 @@ public class PlayerInteractCast : MonoBehaviour
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
             GameObject hitRoot = hit.collider.transform.gameObject;
-            Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
-            Debug.Log("Raycast hit: " + hit.transform.name);
+          //  Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
+            //Debug.Log("Raycast hit: " + hit.transform.name);
             // Only update cache if the target changes
             if (hitRoot != currentTarget)
             {

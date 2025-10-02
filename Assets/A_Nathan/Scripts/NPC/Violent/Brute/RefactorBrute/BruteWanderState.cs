@@ -62,6 +62,7 @@ public class BruteWanderState : BruteBaseState
     {
         agent.speed = bruteSO.WalkSpeed;
         WanderTo();
+        Debug.Log("Wander");
     }
     public override void OnExit()
     {
@@ -81,5 +82,6 @@ public class BruteWanderState : BruteBaseState
     }
     public override void OnHearPlayer()
     {
+        stateController.TransitionTo(stateController.BruteHeardPlayerState);
     }
 }

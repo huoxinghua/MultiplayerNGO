@@ -4,7 +4,7 @@ using UnityEngine.AI;
 public class BruteBaseState : BaseState
 {
     protected BruteStateMachine stateController;
-    protected Animator animator;
+    protected BruteAnimation animator;
     protected NavMeshAgent agent;
     protected BruteSO bruteSO;
     public BruteBaseState(BruteStateMachine stateController)

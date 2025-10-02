@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class BruteAnimationEventController : MonoBehaviour
 {
+    [SerializeField] BruteStateMachine _stateMachine;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -23,10 +24,10 @@ public class BruteAnimationEventController : MonoBehaviour
     }
     public void OnAttackConnect()
     {
-
+        _stateMachine.OnAttackConnects();
     }
     public void OnAttackEnd()
     {
-
+        _stateMachine.OnAttackEnd();
     }
 }

@@ -12,6 +12,8 @@ public class BruteIdleState : BruteBaseState
     {
         agent.SetDestination(stateController.gameObject.transform.position);
         idleTimer.Reset(Random.Range(bruteSO.MinIdleTime, bruteSO.MaxIdleTime));
+
+        Debug.Log("Idle");
     }
     public override void OnExit()
     {
@@ -32,6 +34,6 @@ public class BruteIdleState : BruteBaseState
     }
     public override void OnHearPlayer()
     {
-        //stateController.TransitionTo(HeardPlayerState);
+        stateController.TransitionTo(stateController.BruteHeardPlayerState);
     }
 }

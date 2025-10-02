@@ -6,31 +6,19 @@ using UnityEngine;
 public class BruteHearing : MonoBehaviour
 {
     [SerializeField] BruteSO _bruteSO;
-    [SerializeField] BruteStateController _stateController;
-    [SerializeField] BruteMovement _bruteMovement;
+  //  [SerializeField] BruteStateController _stateController;
+  //  [SerializeField] BruteMovement _bruteMovement;
     private float _walkingHearDistance => _bruteSO.WalkHearingDistance;
     private float _runningHearDistance => _bruteSO.RunHearingDistance;
     private float _landingHearDistance => _bruteSO.LandingHearingDistance;
-    private float _instantAggroDistance => _bruteSO.InstantAggroDistance;
+    //private float _instantAggroDistance => _bruteSO.InstantAggroDistance;
     private float _hearingCooldownTime => _bruteSO.HearingCooldown;
     private bool _isOnHearingCooldown;
     private int _timesAlerted = 0;
     private int _maxTimesAlerted = 3;
     private HashSet<PlayerMovement> _subscribedPlayers = new();
     [SerializeField] BruteStateMachine _stateMachine;
-    /*void OnEnable()
-    {
-        PlayerMovement.OnPlayerAdded += HandlePlayerAdded;
-        PlayerMovement.OnPlayerRemoved += HandlePlayerRemoved;
 
-        // Subscribe to existing players
-        foreach (var player in PlayerMovement.AllPlayers)
-        {
-            player.OnWalking += PlayerWalking;
-            player.OnFalling += PlayerLanded;
-            player.OnRunning += PlayerRunning;
-        }
-    }*/
     void OnEnable()
     {
         PlayerMovement.OnPlayerAdded += HandlePlayerAdded;
@@ -91,6 +79,11 @@ public class BruteHearing : MonoBehaviour
 
     void PlayerWalking(GameObject player)
     {
+        if (player == null)
+        {
+            Debug.LogWarning("PlayerWalking called with null player.");
+            return;
+        }
         if (Vector3.Distance(player.transform.position, transform.position) <= _walkingHearDistance)
         {
             HeardPlayer(player);
@@ -112,64 +105,23 @@ public class BruteHearing : MonoBehaviour
     }
     public void HeardPlayer(GameObject player)
     {
+        if(player != null)
+        {
+          //  Debug.Log(player.name);
+        }
+        else
+        {
+            return;
+        }
+
         if (!_isOnHearingCooldown)
         {
             _stateMachine.OnHearPlayer(player);
             //replace with timer later
             StartCoroutine(HearingCooldown());
         }
-        //All below is old and out dated
-       /* if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt ||
-            _stateController.GetAttentionState() == BruteAttentionStates.Dead ||
-            _stateController.GetAttentionState() == BruteAttentionStates.KnockedOut) return;
-
-
-        if (Vector3.Distance(player.transform.position, transform.position) <= _instantAggroDistance)
-        {
-            _stateController.StartChasePlayer(player);
-        }
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
-        {
-
-            if (_timesAlerted <= _maxTimesAlerted)
-            {
-                StartCoroutine(HearingCooldown());
-                _stateController.TransitionToAttentionState(BruteAttentionStates.Alert);
-                _stateController.OnFirstAlert(player);
-                _timesAlerted++;
-            }
-            else
-            {
-                _stateController.StartChasePlayer(player);
-            }
-
-        }
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && !_isOnHearingCooldown &&
-            _stateController.GetBehaviourState() != BruteBehaviourStates.Chase)
-        {
-
-            if (_timesAlerted <= _maxTimesAlerted)
-            {
-                StartCoroutine(HearingCooldown());
-                _stateController.OnSubsequentAlert(player);
-                _timesAlerted++;
-            }
-            else
-            {
-                _stateController.StartChasePlayer(player);
-            }
-        }
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Alert && _stateController.GetBehaviourState() == BruteBehaviourStates.Chase)
-        {
-            _bruteMovement.OnHearInChase();
-        }*/
     }
-   /* public void OnExitAlertState()
-    {
-        _timesAlerted = 0;
-        StopAllCoroutines();
-        _isOnHearingCooldown = false;
-    }*/
+
     IEnumerator HearingCooldown()
     {
         _isOnHearingCooldown = true;

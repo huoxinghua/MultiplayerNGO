@@ -170,7 +170,7 @@ public class BeetleState : MonoBehaviour
         // Debug.Log(randTime);
         float timeDelayAnim = Random.Range(1, randTime - 4);
 
-        Debug.Log(timeDelayAnim);
+      //  Debug.Log(timeDelayAnim);
         yield return new WaitForSeconds(timeDelayAnim);
         // Debug.Log(randTime - timeDelayAnim);
         randTime -= timeDelayAnim;
@@ -179,7 +179,7 @@ public class BeetleState : MonoBehaviour
         yield return new WaitForSeconds(randTime);
         if (_currentState == BeetleStates.Idle)
         {
-            Debug.Log("StartMoving");
+            //Debug.Log("StartMoving");
             TransitionToState(BeetleStates.MovePosition);
         }
     }

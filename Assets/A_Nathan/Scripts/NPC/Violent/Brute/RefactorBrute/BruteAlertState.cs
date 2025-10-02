@@ -11,6 +11,7 @@ public class BruteAlertState : BruteBaseState
     {
         agent.speed = bruteSO.AlertWalkSpeed;
         alertTimer.Reset(bruteSO.LoseInterestTimeInvestigate);
+        agent.SetDestination(stateController.lastHeardPlayer.transform.position);
     }
     public override void OnExit()
     {
@@ -32,6 +33,6 @@ public class BruteAlertState : BruteBaseState
     }
     public override void OnHearPlayer()
     {
-
+        stateController.TransitionTo(stateController.BruteHeardPlayerState);
     }
 }

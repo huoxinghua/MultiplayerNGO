@@ -3,8 +3,10 @@ using UnityEngine;
 
 public class BruteHeart : MonoBehaviour , IHitable
 {
-    private BruteStateController _controller;
+    private BruteStateMachine _controller;
     [SerializeField] float heartBeatFrequency;
+
+    //add health
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -14,14 +16,14 @@ public class BruteHeart : MonoBehaviour , IHitable
     {
         StartCoroutine(HeartBeat());
     }
-    public void SetStateController(BruteStateController stateController)
+    public void SetStateController(BruteStateMachine stateController)
     {
         _controller = stateController;
     }
     public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
     {
         StopCoroutine(HeartBeat());
-        _controller.TransitionToAttentionState(BruteAttentionStates.Hurt);
+        _controller.TransitionTo(_controller.bruteHurtIdleState);
         Destroy(gameObject);
     }
     IEnumerator HeartBeat()

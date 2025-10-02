@@ -7,10 +7,10 @@ public class BruteHealth : MonoBehaviour, IHitable
     float _maxConsciousness;
     float _currentConsciousness;
     [SerializeField] BruteSO _bruteSO;
-    [SerializeField] BruteStateController _stateController;
     [SerializeField] Ragdoll _ragdoll;
     [SerializeField] GameObject _ragdolledObj;
     [SerializeField] BruteDead _bruteDead;
+    [SerializeField] BruteStateMachine _stateMachine;
     public void Awake()
     {
         _maxHealth = _bruteSO.MaxHealth;
@@ -20,15 +20,8 @@ public class BruteHealth : MonoBehaviour, IHitable
     }
     public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
     {
-        if (_stateController.GetAttentionState() == BruteAttentionStates.Hurt)
-        {
-            ChangeHealth(-damage);
-            ChangeConsciousness(-knockoutPower);
-        }
-        else if (_stateController.GetAttentionState() == BruteAttentionStates.Unaware)
-        {
-            _stateController.StartChasePlayer(attackingPlayer);
-        }
+        ChangeHealth(damage);
+        ChangeConsciousness(knockoutPower);
     }
     public void ChangeConsciousness(float consciousnessChange)
     {
@@ -40,14 +33,7 @@ public class BruteHealth : MonoBehaviour, IHitable
     }
     public void OnKnockOut()
     {
-        //  rb.isKinematic = false;
-        //set state to KO. Ragdoll, disable movement
-        _stateController.TransitionToAttentionState(BruteAttentionStates.KnockedOut);
-        _ragdoll.EnableRagdoll();
 
-        _ragdolledObj.transform.SetParent(null);
-        Destroy(gameObject);
-        _bruteDead.enabled = true;
     }
     public void ChangeHealth(float healthChange)
     {
@@ -61,9 +47,7 @@ public class BruteHealth : MonoBehaviour, IHitable
     }
     public void OnDeath()
     {
-        //set state to Dead. Ragdoll, disable movement
-        //rb.isKinematic = false;
-        _stateController.TransitionToAttentionState(BruteAttentionStates.Dead);
+        _stateMachine.OnDeath();
         _ragdoll.EnableRagdoll();
         _ragdolledObj.transform.SetParent(null);
         Destroy(gameObject);

@@ -65,9 +65,8 @@ GameObject:
   - component: {fileID: 88704020777097967}
   - component: {fileID: 8138804089606448322}
   - component: {fileID: 1801592306509086021}
-  - component: {fileID: 3864646212352381443}
-  - component: {fileID: 7334686179765576}
   - component: {fileID: 1011396160465857083}
+  - component: {fileID: 8217287020405159569}
   - component: {fileID: 6340594173865727380}
   - component: {fileID: 7023566519346599343}
   - component: {fileID: 6063608157256412507}
@@ -170,44 +169,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3864646212352381443
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2697955858649440796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 974f356cdb66fa34b848aa4c16a4b8c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  agent: {fileID: 1011396160465857083}
-  stateController: {fileID: 7334686179765576}
-  _bruteAnimation: {fileID: 4319846006947478546}
---- !u!114 &7334686179765576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2697955858649440796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f1b04622c5c1a349a75d129e20b574c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _currentBruteAttentionState: 0
-  _currentBruteBehaviour: 0
-  firstAlertDelayTime: 0
-  _heartPrefab: {fileID: 695225100851143457, guid: 4c91afed4eff4734ea7d28af6028ae0f, type: 3}
-  _bruteHearing: {fileID: 6340594173865727380}
-  _bruteMovementScript: {fileID: 3864646212352381443}
-  PlayerToChase: {fileID: 0}
-  _bruteAnimation: {fileID: 4319846006947478546}
-  _minIdleNoiseTime: 5.3
-  _maxIdleNoiseTime: 8.1
 --- !u!195 &1011396160465857083
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -230,6 +191,21 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &8217287020405159569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2697955858649440796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25916d0c972007c4ea42f8d0ec616f86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
+  _heartPrefab: {fileID: 695225100851143457, guid: 4c91afed4eff4734ea7d28af6028ae0f, type: 3}
+  TimesAlerted: 0
 --- !u!114 &6340594173865727380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,8 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  _stateController: {fileID: 7334686179765576}
-  _bruteMovement: {fileID: 3864646212352381443}
+  _stateMachine: {fileID: 8217287020405159569}
 --- !u!114 &7023566519346599343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,10 +233,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  _stateController: {fileID: 7334686179765576}
   _ragdoll: {fileID: 1395090734324531116}
   _ragdolledObj: {fileID: 4762181252279053927}
   _bruteDead: {fileID: 4312783870806173528}
+  _stateMachine: {fileID: 8217287020405159569}
 --- !u!114 &6063608157256412507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,10 +249,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 259ecdca75643a74ea6bd513eca8b815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stateController: {fileID: 7334686179765576}
+  _stateMachine: {fileID: 8217287020405159569}
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
-  _bruteMovement: {fileID: 3864646212352381443}
-  _bruteAnimation: {fileID: 4319846006947478546}
 --- !u!1 &6264535793290442786
 GameObject:
   m_ObjectHideFlags: 0
@@ -1451,6 +1424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7e40e8e8acf8642be27f69b04d3015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stateMachine: {fileID: 0}
 --- !u!1 &4782783829661423278 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8320365392235035240, guid: 1c6a660d0b82b5b449d06ce1230cbdd8, type: 3}

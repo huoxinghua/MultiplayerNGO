@@ -68,13 +68,20 @@ public class BruteHurtWander : BruteBaseState
     }
     public override void StateUpdate()
     {
-
+        
     }
     public override void StateFixedUpdate()
     {
         if (Vector3.Distance(stateController.gameObject.transform.position, agent.destination) <= agent.stoppingDistance)
         {
             stateController.TransitionTo(stateController.idleState);
+        }
+        foreach (PlayerList player in PlayerList.AllPlayers)
+        {
+            if (Vector3.Distance(player.transform.position,stateController.transform.position) < bruteSO.AttackDistance)
+            {
+                stateController.OnAttack(player.gameObject);
+            }
         }
     }
     public override void OnHearPlayer()

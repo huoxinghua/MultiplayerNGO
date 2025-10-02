@@ -4,25 +4,21 @@ using UnityEngine;
 
 public class BruteAttack : MonoBehaviour
 {
-    [SerializeField] BruteStateController _stateController;
+    [SerializeField] BruteStateMachine _stateMachine;
     bool _isOnCooldown;
     [SerializeField] BruteSO _bruteSO;
-    [SerializeField] BruteMovement _bruteMovement;
-    [SerializeField] BruteAnimation _bruteAnimation;
     float attackDistance => _bruteSO.AttackDistance;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
-    public void OnAttack(GameObject playerAttacked)
+/*    public void OnAttack(GameObject playerAttacked)
     {
-        _bruteAnimation.PlayAttack();
         _isOnCooldown = true;
-        _bruteMovement.StopForAttack();
         StartCoroutine(AttackCooldown(playerAttacked));
-    }
-    public void AttemptAttack(GameObject playerAttacked)
+    }*/
+ /*   public void AttemptAttack(GameObject playerAttacked)
     {
         if(Vector3.Distance(playerAttacked.transform.position, transform.position) < attackDistance)
         {
@@ -64,5 +60,5 @@ public class BruteAttack : MonoBehaviour
                 }
             }
         }
-    }
+    }*/
 }

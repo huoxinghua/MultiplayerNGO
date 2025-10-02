@@ -38,17 +38,17 @@ public class BruteStateController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        HandleHeartSpawn();
+    //    HandleHeartSpawn();
         TransitionToAttentionState(BruteAttentionStates.Unaware);
         TransitionToBehaviourState(BruteBehaviourStates.Wander);
     }
-    public void HandleHeartSpawn()
+/*    public void HandleHeartSpawn()
     {
         _spawnedHeart = Instantiate(_heartPrefab, transform);
         _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
         _spawnedHeart.transform.SetParent(null);
         _bruteMovementScript.SetHeartTransform(_spawnedHeart.transform);
-    }
+    }*/
     public void TransitionToAttentionState(BruteAttentionStates newState)
     {
         if (_currentBruteAttentionState == newState || _currentBruteAttentionState == BruteAttentionStates.Dead || _currentBruteBehaviour == BruteBehaviourStates.None) return;
@@ -61,7 +61,7 @@ public class BruteStateController : MonoBehaviour
         switch (state)
         {
             case BruteAttentionStates.Unaware:
-                _bruteHearing.OnExitAlertState();
+         //       _bruteHearing.OnExitAlertState();
                 _bruteAnimation.PlayNormal();
                 StartCoroutine(IdleSound());
                 break;
@@ -71,7 +71,7 @@ public class BruteStateController : MonoBehaviour
                 AudioManager.Instance.PlayByKeyAttached("BruteAlert", transform);
                 break;
             case BruteAttentionStates.Hurt:
-                _bruteHearing.OnExitAlertState();
+              //  _bruteHearing.OnExitAlertState();
                 _bruteAnimation.PlayInjured();
                 StopCoroutine(IdleSound());
                 StartCoroutine(HurtSound());
