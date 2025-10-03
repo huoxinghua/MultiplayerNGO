@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Project.Network.UI.SteamTransport
+namespace Project.Network.UI
 {
     public class NetworkUI : MonoBehaviour
     {

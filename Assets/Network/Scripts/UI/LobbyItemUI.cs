@@ -5,24 +5,26 @@ using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
-public class LobbyItemUI : MonoBehaviour
+namespace Project.Network.UI
 {
-    [SerializeField] private TMP_Text pingText;
-    [SerializeField] private TMP_Text serverNameText;
-    public CSteamID LobbyId { get; private set; }
-    public void SetData(string lobbyName, int ping, CSteamID lobbyId)
+    public class LobbyItemUI : MonoBehaviour
     {
-        serverNameText.text = lobbyName;
-        pingText.text = ping >= 0 ? $"Ping: {ping} ms" : "ping...";
-        LobbyId = lobbyId;
-    }
-    public void SetPing(int ping)
-    {
-        if (pingText !=null)
+        [SerializeField] private TMP_Text pingText;
+        [SerializeField] private TMP_Text serverNameText;
+        public CSteamID LobbyId { get; private set; }
+        public void SetData(string lobbyName, int ping, CSteamID lobbyId)
         {
-            pingText.text = ping >= 0 ? $"Ping: {ping} ms" : ping.ToString();
+            serverNameText.text = lobbyName;
+            pingText.text = ping >= 0 ? $"Ping: {ping} ms" : "ping...";
+            LobbyId = lobbyId;
         }
+        public void SetPing(int ping)
+        {
+            if (pingText != null)
+            {
+                pingText.text = ping >= 0 ? $"Ping: {ping} ms" : ping.ToString();
+            }
 
+        }
     }
-  
 }

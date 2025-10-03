@@ -35,7 +35,7 @@ namespace Project.Network.UI
             if (!SteamManager.Initialized) return;
             HidePanels();
             isPrivatLobbySelected = createLobbyToggle.isOn;
-            Debug.Log("isPrivatLobbySelected:" + isPrivatLobbySelected);
+            
             createLobbyToggle.onValueChanged.AddListener(OnPrivateLobbyChanged);
 
         }
@@ -110,24 +110,23 @@ namespace Project.Network.UI
         public void ClickCreateLobby()
         {
             //check is the private toggle if check in or not
-            Debug.Log("isPrivatLobbySelected when click:" + isPrivatLobbySelected);
             if (isPrivatLobbySelected)
             {
                 SteamLobbyManager.OnCreateFriendOnlyLobby?.Invoke();
-                Debug.Log("create the friendOnly lobby");
+                //Debug.Log("create the friendOnly lobby");
 
             }
             else
             {
                 SteamLobbyManager.OnCreatePublicLobby?.Invoke();
-                Debug.Log("create the public lobby");
+               // Debug.Log("create the public lobby");
 
             }
         }
 
         public void GenerateLobbyList()
         {
-            Debug.Log("GenerateLobbyList:"+ SteamLobbyManager.lobbyLists.Count);
+            //Debug.Log("GenerateLobbyList:"+ SteamLobbyManager.lobbyLists.Count);
             foreach (var kvp in SteamLobbyManager.lobbyLists)
             {
                 CSteamID lobbyId = kvp.Key;       // Lobby ? ID

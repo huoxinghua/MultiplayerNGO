@@ -2,39 +2,40 @@ using FMODUnity;
 using ProximityChat;
 using UnityEngine;
 
-public class VoiceManager : MonoBehaviour
+namespace Project.Network.Voice
 {
-    private VoiceRecorder recorder;
-
-    void Start()
+    public class VoiceManager : MonoBehaviour
     {
-        recorder = GetComponentInChildren<VoiceRecorder>();
-        if (recorder == null)
+        private VoiceRecorder recorder;
+
+        void Start()
         {
-            Debug.LogError("VoiceRecorder not found on Player prefab!");
-            return;
+            recorder = GetComponentInChildren<VoiceRecorder>();
+            if (recorder == null)
+            {
+                Debug.LogError("VoiceRecorder not found on Player prefab!");
+                return;
+            }
+            recorder.StartRecording();
+            //Debug.Log("Voice recording started!");
         }
 
-   
-        recorder.StartRecording();
-        Debug.Log("Voice recording started!");
-     
-
-    }
-
-    void OnDisable()
-    {
-        if (recorder != null)
-            recorder.StopRecording();
-    }
-
-    void Update()
-    {
-        if (recorder.IsRecording)
+        void OnDisable()
         {
-            Debug.Log("Still recording voice...");
+            if (recorder != null)
+                recorder.StopRecording();
         }
-    }
+        /*
+        void Update()
+        {
+            if (recorder.IsRecording)
+            {
+                Debug.Log("Still recording voice...");
+            }
+        }
 
+        */
+    }
 
 }
+

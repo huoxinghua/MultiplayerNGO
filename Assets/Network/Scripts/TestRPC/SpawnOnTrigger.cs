@@ -3,40 +3,43 @@ using Unity.Netcode;
 using Project.Network.TestRPC;
 using System.Collections;
 
-public class SpawnOnTrigger : NetworkBehaviour
+namespace Project.Network.TestRPC
 {
-     [SerializeField] private GameObject prefabToSpawn;
-    private bool hasSpawned = false;
-    private void OnTriggerEnter(Collider other)
+    public class SpawnOnTrigger : NetworkBehaviour
     {
-        if (!other.GetComponent<PlayerMovement>()) return;
-        if(IsOwner)
+         [SerializeField] private GameObject prefabToSpawn;
+        private bool hasSpawned = false;
+        private void OnTriggerEnter(Collider other)
         {
-            RequestSpawnServerRpc();
+            if (!other.GetComponent<PlayerMovement>()) return;
+            if(IsOwner)
+            {
+                RequestSpawnServerRpc();
+            }
         }
-    }
-    [ServerRpc]
-    private void RequestSpawnServerRpc(ServerRpcParams rpcParams = default)
-    {
-        if(hasSpawned)return;
-        // who request
-        ulong senderId = rpcParams.Receive.SenderClientId;
-        GameObject spawned = Instantiate(prefabToSpawn,transform.position + Vector3.up * 2, Quaternion.identity);
-        //sync to all clients
-        var netObj = spawned.GetComponent<NetworkObject>();
-        netObj.SpawnWithOwnership(senderId);
-        StartCoroutine(DespawnAfterSeconds(netObj, 5f));
-
-        hasSpawned = true;
-    }
-
-    private IEnumerator DespawnAfterSeconds(NetworkObject netObj, float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-
-        if (netObj != null && netObj.IsSpawned)
+        [ServerRpc]
+        private void RequestSpawnServerRpc(ServerRpcParams rpcParams = default)
         {
-            netObj.Despawn(); 
+            if(hasSpawned)return;
+            // who request
+            ulong senderId = rpcParams.Receive.SenderClientId;
+            GameObject spawned = Instantiate(prefabToSpawn,transform.position + Vector3.up * 2, Quaternion.identity);
+            //sync to all clients
+            var netObj = spawned.GetComponent<NetworkObject>();
+            netObj.SpawnWithOwnership(senderId);
+            StartCoroutine(DespawnAfterSeconds(netObj, 5f));
+
+            hasSpawned = true;
+        }
+
+        private IEnumerator DespawnAfterSeconds(NetworkObject netObj, float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+
+            if (netObj != null && netObj.IsSpawned)
+            {
+                netObj.Despawn(); 
+            }
         }
     }
 }

@@ -24,7 +24,6 @@ namespace Project.Network.SteamWork
                 if (ok)
                 {
                     var name = SteamFriends.GetPersonaName();
-                    Debug.Log("[Steam] Current user: " + name + " | SteamID: " + SteamUser.GetSteamID());
                 }
                 else
                 {
@@ -45,15 +44,15 @@ namespace Project.Network.SteamWork
         {
             if (SteamManager.Initialized)
             {
-                SteamAPI.RunCallbacks();
-                
+                SteamAPI.RunCallbacks();//this is very important, if without this P2P all functions not work
             }
-
+            /*
             if (ok && Input.GetKeyDown(KeyCode.F1))
             {
                 SteamFriends.ActivateGameOverlay("Friends");
                
             }
+            */
         }
 
         void OnDestroy()

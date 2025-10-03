@@ -1,12 +1,16 @@
 using UnityEngine;
 
-public class MicTest : MonoBehaviour
+namespace Project.Network.Voice
 {
-    void Start()
+    public class MicTest : MonoBehaviour
     {
-        foreach (var device in Microphone.devices)
+        void Start()
         {
-            Debug.Log("Mic device: " + device);
+            foreach (var device in Microphone.devices)
+            {
+               // Debug.Log("Mic device: " + device);
+            }
         }
     }
 }
+
