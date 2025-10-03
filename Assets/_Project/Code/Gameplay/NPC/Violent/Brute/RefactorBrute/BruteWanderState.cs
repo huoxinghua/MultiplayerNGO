@@ -60,6 +60,7 @@ public class BruteWanderState : BruteBaseState
     } 
     public override void OnEnter()
     {
+        animator.PlayNormal();
         agent.speed = bruteSO.WalkSpeed;
         WanderTo();
         Debug.Log("Wander");
@@ -79,6 +80,7 @@ public class BruteWanderState : BruteBaseState
         {
             stateController.TransitionTo(stateController.idleState);
         }
+        animator.PlayWalk(agent.velocity.magnitude, agent.speed);
     }
     public override void OnHearPlayer()
     {

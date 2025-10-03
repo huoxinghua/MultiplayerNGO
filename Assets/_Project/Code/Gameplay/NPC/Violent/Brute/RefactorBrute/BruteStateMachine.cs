@@ -68,7 +68,14 @@ public class BruteStateMachine : BaseStateController
         lastHeardPlayer = playerObj;
         if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
         {
-            TransitionTo(bruteChaseState);
+            if(currentState == bruteChaseState)
+            {
+                currentState.OnHearPlayer();
+            }
+            else
+            {
+                TransitionTo(bruteChaseState);
+            }
             return;
         }
         else

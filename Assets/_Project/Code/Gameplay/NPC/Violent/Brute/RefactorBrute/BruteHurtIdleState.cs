@@ -9,6 +9,7 @@ public class BruteHurtIdleState : BruteBaseState
     }
     public override void OnEnter()
     {
+        animator.PlayInjured();
         agent.SetDestination(stateController.gameObject.transform.position);
         idleTimer.Reset(Random.Range(bruteSO.MinIdleTime, bruteSO.MaxIdleTime));
     }

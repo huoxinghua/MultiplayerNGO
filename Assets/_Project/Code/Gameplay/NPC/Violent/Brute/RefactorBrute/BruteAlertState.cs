@@ -9,6 +9,8 @@ public class BruteAlertState : BruteBaseState
     }
     public override void OnEnter()
     {
+        Debug.Log("Alert not chase " + bruteSO.AlertWalkSpeed);
+        animator.PlayAlert();
         agent.speed = bruteSO.AlertWalkSpeed;
         alertTimer.Reset(bruteSO.LoseInterestTimeInvestigate);
         agent.SetDestination(stateController.lastHeardPlayer.transform.position);
@@ -16,20 +18,22 @@ public class BruteAlertState : BruteBaseState
     public override void OnExit()
     {
         alertTimer.Stop();
+        Debug.Log("Left Alert");
     }
 
     public override void StateUpdate()
     {
         alertTimer.Update(Time.deltaTime);
-        if (alertTimer.IsRunning)
+        if (alertTimer.IsDone)
         {
             stateController.TimesAlerted = 0;
             stateController.TransitionTo(stateController.idleState);
         }
+        
     }
     public override void StateFixedUpdate()
     {
-
+        animator.PlayWalk(agent.velocity.magnitude, agent.speed);
     }
     public override void OnHearPlayer()
     {

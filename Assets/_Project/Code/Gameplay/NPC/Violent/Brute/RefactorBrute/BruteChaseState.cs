@@ -8,6 +8,7 @@ public class BruteChaseState : BruteBaseState
     }
     public override void OnEnter()
     {
+        animator.PlayAlert();
         agent.speed = bruteSO.RunSpeed;
     }
     public override void OnExit()
@@ -29,6 +30,7 @@ public class BruteChaseState : BruteBaseState
                 stateController.OnAttack(player.gameObject);
             }
         }
+        animator.PlayRun(agent.velocity.magnitude, agent.speed);
     }
     public override void OnHearPlayer()
     {

@@ -24,7 +24,7 @@ public class BruteAnimationEventController : MonoBehaviour
     }
     public void OnAttackConnect()
     {
-        _stateMachine.OnAttackConnects();
+        _stateMachine.OnAttackConnects();   
     }
     public void OnAttackEnd()
     {

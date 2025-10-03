@@ -8,6 +8,7 @@ public class BruteHurtWander : BruteBaseState
     }
     public override void OnEnter()
     {
+        animator.PlayInjured();
         agent.speed = bruteSO.HurtWalkSpeed;
         WanderTo();
     }
@@ -83,6 +84,7 @@ public class BruteHurtWander : BruteBaseState
                 stateController.OnAttack(player.gameObject);
             }
         }
+        animator.PlayWalk(agent.velocity.magnitude, agent.speed);
     }
     public override void OnHearPlayer()
     {
