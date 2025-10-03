@@ -1,5 +1,4 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,7 +12,7 @@ public class PlayerInputManager : MonoBehaviour
     public event Action OnChangeWeaponInput;
     public event Action OnSprintInput;
     public event Action CancelHold;
-
+    public event Action OnCrouchInput;
     public Vector2 LookInput { get; private set; }
     private void Awake()
     {
@@ -31,6 +30,10 @@ public class PlayerInputManager : MonoBehaviour
 
         inputActions.Player.Sprint.performed += HandleSprint;
         inputActions.Player.Sprint.canceled += HandleSprint;
+
+        inputActions.Player.Crouch.performed += HandleCrouch;
+
+
     }
     private void OnDisable()
     {
@@ -44,6 +47,9 @@ public class PlayerInputManager : MonoBehaviour
         inputActions.Player.Look.canceled -= HandleLook;
         inputActions.Player.Sprint.performed -= HandleSprint;
         inputActions.Player.Sprint.canceled -= HandleSprint;
+
+
+        inputActions.Player.Crouch.performed -= HandleCrouch;
 
     }
     Vector2 moveInput;
@@ -60,9 +66,17 @@ public class PlayerInputManager : MonoBehaviour
         {
             isSprinting = true;
         }
-        OnMoveInput?.Invoke(moveInput, true);
+        else if (context.canceled)
+        {
+            isSprinting = false;
+        }
+        OnMoveInput?.Invoke(moveInput, isSprinting);
     }
+    private void HandleLook(InputAction.CallbackContext context)
+    {
 
+        OnLookInput?.Invoke(context.ReadValue<Vector2>());
+    }
     private void HandleJump(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -70,10 +84,9 @@ public class PlayerInputManager : MonoBehaviour
             OnJumpInput?.Invoke();
         }
     }
-    private void HandleLook(InputAction.CallbackContext context)
+    private void HandleCrouch(InputAction.CallbackContext context)
     {
-
-        OnLookInput?.Invoke(context.ReadValue<Vector2>());
+        OnCrouchInput?.Invoke();
     }
 
     private void HandleShoot(InputAction.CallbackContext context)

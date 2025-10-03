@@ -3,7 +3,8 @@ using UnityEngine;
 public class BaseballBatModel
 {
     public bool IsInHand = false;
-    float damage;
+    float damage = 10;
+    float knockoutPower;
     public GameObject Owner;
 
     //must set through something. Maybe SO
@@ -25,6 +26,10 @@ public class BaseballBatModel
     public float GetDamage()
     {
         return damage;
+    }
+    public float GetKnockoutPower()
+    {
+        return knockoutPower;
     }
     public void SetOwner(GameObject player)
     {

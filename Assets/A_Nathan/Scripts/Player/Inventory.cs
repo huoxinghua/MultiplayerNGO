@@ -17,6 +17,9 @@ public class Inventory : MonoBehaviour
         public GameObject currentItem;
         private int currentSlot = 0;
 
+        GameObject twoHandedView;
+        GameObject twoHandedObject;
+
 
     public void Awake()
     {
@@ -56,6 +59,7 @@ public class Inventory : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.G))
         {
+            DropTwoHanded();
             DropHeldItem();
         }
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -81,7 +85,9 @@ public class Inventory : MonoBehaviour
     }
     public void ActivateSelectedSlot(int index)
     {
-        if (heldItems[currentSlot] != null) 
+        if (currentSlot == index) return;
+        if (twoHandedObject != null || twoHandedView != null) return;
+        if (currentSlot >= 0 && heldItems[currentSlot] != null) 
         {
             if (heldItems[currentSlot].GetComponent<IHeldItem>() != null)
             {
@@ -100,7 +106,42 @@ public class Inventory : MonoBehaviour
         EquipItem(heldItems[currentSlot], currentSlot);
     }
   
-    
+    public bool PickUpTwoHanded(GameObject heldView, GameObject pickedUpObject)
+    {
+        if(twoHandedObject != null || twoHandedView != null)
+        {
+            return false;
+        }
+        if (currentSlot >= 0)
+        {
+            heldItems[currentSlot]?.GetComponent<IHeldItem>()?.SwapOff();
+        }
+        currentItem = null;
+        twoHandedView = Instantiate(heldView,transform.GetChild(0).GetChild(1));
+        twoHandedObject = pickedUpObject;
+        twoHandedObject?.SetActive(false);
+        currentSlot = -1;
+        return true;
+    }
+    public void DropTwoHanded()
+    {
+        if (twoHandedObject == null || twoHandedView == null)return;
+        
+        Destroy(twoHandedView);
+        twoHandedView = null;
+        twoHandedObject?.SetActive(true);
+        if(twoHandedObject.GetComponent<ITwoHandItem>() != null)
+        {
+            twoHandedObject.GetComponent<ITwoHandItem>()?.OnDrop();
+        }else if(twoHandedObject.GetComponentInChildren<ITwoHandItem>() != null)
+        {
+            twoHandedObject.GetComponentInChildren<ITwoHandItem>()?.OnDrop();
+        }
+
+        twoHandedObject.transform.position = transform.GetChild(3).position;
+        
+        twoHandedObject = null;
+    }
     public void UseItem()
         {
 
@@ -136,7 +177,7 @@ public class Inventory : MonoBehaviour
             {
             heldItems[currentSlot] = itemPrefab;
             EquipItem(itemPrefab, currentSlot);
-            Debug.Log("Should be");
+         //   Debug.Log("Should be");
                 return true;
             }
 

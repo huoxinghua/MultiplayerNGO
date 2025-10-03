@@ -1,4 +1,3 @@
-using System.Xml.Serialization;
 using UnityEngine;
 
 public class PlayerInteractCast : MonoBehaviour
@@ -11,7 +10,7 @@ public class PlayerInteractCast : MonoBehaviour
     Transform cameraTransform;
     [SerializeField]
     float interactDist;
-    [SerializeField] 
+    [SerializeField]
     LayerMask lM;
     GameObject lastInteracted;
     Transform inOutTransform;
@@ -21,13 +20,16 @@ public class PlayerInteractCast : MonoBehaviour
     bool castedInteract;
     Vector3 startInteractPos;
     [SerializeField] float releaseDistance;
+    [SerializeField] IHoldToInteract currentHold;
+    [SerializeField] GameObject pressEText;
+    [SerializeField] GameObject holdEText;
     //set up interact!!!
 
-   // PlayerInputManager inputManager;
+    // PlayerInputManager inputManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
     public void Update()
     {
@@ -43,67 +45,89 @@ public class PlayerInteractCast : MonoBehaviour
         {
             ReleaseInteract();
         }
-        
+
     }
 
     public void ReleaseInteract()
     {
-       // Debug.Log("Release");
+        // Debug.Log("Release");
         isHolding = false;
         inOutTransform = null;
         timeToInteract = 0;
         timeInteracted = 0;
+        currentHold?.OnRelease(playerObj);
+        currentHold = null;
     }
     // Update is called once per frame
+    private GameObject currentTarget = null;
+    private IInteractable currentInteractable = null;
+    private IHoldInteract currentHoldInteract = null;
+
     void FixedUpdate()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(cameraTransform.position, transform.forward, out hit, interactDist, lM))
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
-            if(hit.transform.gameObject.GetComponent<IInteractable>()!= null)
+            GameObject hitRoot = hit.collider.transform.gameObject;
+          //  Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
+            //Debug.Log("Raycast hit: " + hit.transform.name);
+            // Only update cache if the target changes
+            if (hitRoot != currentTarget)
             {
-                castedInteract = true;
-                //Indicate to player that obj is interactable    
+                currentTarget = hitRoot;
+                currentInteractable = currentTarget.GetComponent<IInteractable>();
+                currentHoldInteract = currentTarget.GetComponent<IHoldInteract>();
             }
-            else
-            {
-                castedInteract = false;
-            }
-        }
 
-        if (isHolding)
+            bool hasInteractable = currentInteractable != null;
+            bool hasHoldInteract = currentHoldInteract != null;
+
+            // UI Logic
+            castedInteract = hasInteractable;
+            pressEText.SetActive(hasInteractable);
+            holdEText.SetActive(!hasInteractable && hasHoldInteract);
+        }
+        else
         {
-            if (!castedInteract || Vector3.Distance(playerObj.transform.position,startInteractPos) > releaseDistance)
-            {
-                ReleaseInteract();
-            }
-            timeInteracted += Time.deltaTime;
-            if (timeInteracted > timeToInteract&&inOutTransform != null)
-            {
-                
-                playerObj.transform.position = inOutTransform.position;
-                playerObj.transform.rotation = Quaternion.Euler(0,inOutTransform.rotation.eulerAngles.y,0);
-                ReleaseInteract();
-            }
+            // Raycast hit nothing, clear everything
+            currentTarget = null;
+            currentInteractable = null;
+            currentHoldInteract = null;
+            castedInteract = false;
+            pressEText.SetActive(false);
+            holdEText.SetActive(false);
         }
     }
     public void AttemptInteract()
     {
         RaycastHit hit;
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM))
-        {
-            if (hit.transform.gameObject.GetComponent<IInteractable>() != null)
-            {
-                if(hit.transform.gameObject.GetComponent<IInOutDoor>() != null)
+        /*        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+                RaycastHit[] hits = Physics.RaycastAll(ray, interactDist, ~0, QueryTriggerInteraction.Collide);
+                foreach (var h in hits)
                 {
-                    IInOutDoor temp = hit.transform.gameObject.GetComponent<IInOutDoor>();
+                    Debug.Log($"RaycastAll hit: {h.collider.name}, IsTrigger: {h.collider.isTrigger}");
+                }
+        */
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
+        {
+            // Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
+            if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
+            {
+                if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
+                {
+                    IInOutDoor temp = hit.collider.transform.gameObject.GetComponent<IInOutDoor>();
                     inOutTransform = temp.UseDoor();
                     timeToInteract = temp.GetTimeToOpen();
                     isHolding = true;
                     startInteractPos = playerObj.transform.position;
                 }
                 lastInteracted = hit.transform.gameObject;
-                hit.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
+                hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
+            }
+            if (hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
+            {
+                Debug.Log("HitIshere>!<>!");
+                currentHold = hit.collider.transform.gameObject.GetComponent<IHoldToInteract>();
+                hit.collider.transform.gameObject.GetComponent<IHoldToInteract>().OnHold(playerObj);
             }
         }
     }
