@@ -9,20 +9,20 @@ namespace Project.Network.UI
 {
     public class LobbyItemUI : MonoBehaviour
     {
-        [SerializeField] private TMP_Text pingText;
-        [SerializeField] private TMP_Text serverNameText;
+        [SerializeField] private TMP_Text _pingText;
+        [SerializeField] private TMP_Text _serverNameText;
         public CSteamID LobbyId { get; private set; }
         public void SetData(string lobbyName, int ping, CSteamID lobbyId)
         {
-            serverNameText.text = lobbyName;
-            pingText.text = ping >= 0 ? $"Ping: {ping} ms" : "ping...";
+            _serverNameText.text = lobbyName;
+            _pingText.text = ping >= 0 ? $"Ping: {ping} ms" : "ping...";
             LobbyId = lobbyId;
         }
         public void SetPing(int ping)
         {
-            if (pingText != null)
+            if (_pingText != null)
             {
-                pingText.text = ping >= 0 ? $"Ping: {ping} ms" : ping.ToString();
+                _pingText.text = ping >= 0 ? $"Ping: {ping} ms" : ping.ToString();
             }
 
         }

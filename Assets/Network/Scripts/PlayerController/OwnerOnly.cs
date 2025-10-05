@@ -4,23 +4,16 @@ namespace Project.Network.PlayerController
 {
     public class OwnerOnly : NetworkBehaviour
     {
-        [SerializeField] private MonoBehaviour[] componentsToDisable;
-        [SerializeField] private GameObject[] objectsToEnable;
+        [SerializeField] private MonoBehaviour[] _componentsToDisable;
+        [SerializeField] private GameObject[] _objectsToEnable;
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            if (!IsOwner)
-            {
-                ApplyOwnerState(false);
-            }
-            else
-            {
-                ApplyOwnerState(true);
-            }
+            ApplyOwnerState(IsOwner);
         }
         private void ApplyOwnerState(bool isOwner)
         {
-            foreach (var component in componentsToDisable)
+            foreach (var component in _componentsToDisable)
             {
                 if (component != null)
                 {
@@ -28,14 +21,19 @@ namespace Project.Network.PlayerController
                 }
             }
 
-            foreach (var obj in objectsToEnable)
-                if (obj != null) obj.SetActive(isOwner);
+            foreach (var obj in _objectsToEnable)
+            {
+                if (obj != null)
+                {
+                    obj.SetActive(isOwner);
+                }
+            }
         }
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
 
-            foreach (var obj in objectsToEnable)
+            foreach (var obj in _objectsToEnable)
             {
                 if (obj != null)
                 {

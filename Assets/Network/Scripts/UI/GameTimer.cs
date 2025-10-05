@@ -6,18 +6,18 @@ namespace Project.Network.UI
 {
     public class GameTimer : NetworkBehaviour
     {
-        public NetworkVariable<double> StartTime = new NetworkVariable<double>(0);
+        private NetworkVariable<double> _startTime = new NetworkVariable<double>(0);
         [SerializeField] private TMP_Text timerText;
         public override void OnNetworkSpawn()
         {
             if (IsServer)
             {
-                StartTime.Value = NetworkManager.ServerTime.Time;
+                _startTime.Value = NetworkManager.ServerTime.Time;
             }
         }
         public double GetElapsedTime()
         {
-            return NetworkManager.ServerTime.Time - StartTime.Value;
+            return NetworkManager.ServerTime.Time - _startTime.Value;
         }
         private void Update()
         {

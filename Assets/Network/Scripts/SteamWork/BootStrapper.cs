@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Bootstrapper : MonoBehaviour
+namespace Project.Network.SteamWork
 {
-    private void Start()
+    public class Bootstrapper : MonoBehaviour
     {
-      
-        SceneManager.LoadScene("NetWorkMainMenu");
+        private void Start()
+        {
+
+            SceneManager.LoadScene("NetWorkMainMenu");
+        }
     }
 }
+

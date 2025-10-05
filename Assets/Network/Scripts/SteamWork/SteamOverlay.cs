@@ -1,13 +1,18 @@
-using UnityEngine;
 using Steamworks;
-public class SteamOverlay : MonoBehaviour
+using UnityEngine;
+
+namespace Project.Network.SteamWork
 {
-    void Update()
+    public class SteamOverlay : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.F1))
+        void Update()
         {
-            SteamFriends.ActivateGameOverlay("Friends");
-            Debug.Log("Steam Tried to open Overlay (Shift+Tab works too)");
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                SteamFriends.ActivateGameOverlay("Friends");
+                Debug.Log("Steam Tried to open Overlay (Shift+Tab works too)");
+            }
         }
     }
 }
+

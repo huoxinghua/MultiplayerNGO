@@ -24,6 +24,7 @@ namespace Project.Network.SteamWork
                 if (ok)
                 {
                     var name = SteamFriends.GetPersonaName();
+                 
                 }
                 else
                 {

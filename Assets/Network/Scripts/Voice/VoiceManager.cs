@@ -6,29 +6,29 @@ namespace Project.Network.Voice
 {
     public class VoiceManager : MonoBehaviour
     {
-        private VoiceRecorder recorder;
+        private VoiceRecorder _recorder;
 
         void Start()
         {
-            recorder = GetComponentInChildren<VoiceRecorder>();
-            if (recorder == null)
+            _recorder = GetComponentInChildren<VoiceRecorder>();
+            if (_recorder == null)
             {
                 Debug.LogError("VoiceRecorder not found on Player prefab!");
                 return;
             }
-            recorder.StartRecording();
+            _recorder.StartRecording();
             //Debug.Log("Voice recording started!");
         }
 
         void OnDisable()
         {
-            if (recorder != null)
-                recorder.StopRecording();
+            if (_recorder != null)
+                _recorder.StopRecording();
         }
         /*
         void Update()
         {
-            if (recorder.IsRecording)
+            if (_recorder.IsRecording)
             {
                 Debug.Log("Still recording voice...");
             }
