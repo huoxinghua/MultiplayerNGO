@@ -17,7 +17,7 @@ namespace Project.Network.Voice
                 return;
             }
             _recorder.StartRecording();
-            //Debug.Log("Voice recording started!");
+            Debug.Log("Voice recording started!");
         }
 
         void OnDisable()
