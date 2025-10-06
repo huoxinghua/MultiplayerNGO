@@ -5,12 +5,12 @@ using UnityEngine.InputSystem;
 public class PlayerInputManager : MonoBehaviour
 {
     public InputSystem_Actions inputActions;
-    public event Action<Vector2, bool> OnMoveInput;
+    public event Action<Vector2> OnMoveInput;
     public event Action OnJumpInput;
     public event Action<Vector2> OnLookInput;
     public event Action OnShootInput;
     public event Action OnChangeWeaponInput;
-    public event Action OnSprintInput;
+    public event Action<bool> OnSprintInput;
     public event Action CancelHold;
     public event Action OnCrouchInput;
     public Vector2 LookInput { get; private set; }
@@ -56,7 +56,7 @@ public class PlayerInputManager : MonoBehaviour
     private void HandleMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        OnMoveInput?.Invoke(moveInput, false);
+        OnMoveInput?.Invoke(moveInput);
     }
 
     private void HandleSprint(InputAction.CallbackContext context)
@@ -70,11 +70,10 @@ public class PlayerInputManager : MonoBehaviour
         {
             isSprinting = false;
         }
-        OnMoveInput?.Invoke(moveInput, isSprinting);
+        OnSprintInput?.Invoke(isSprinting);
     }
     private void HandleLook(InputAction.CallbackContext context)
     {
-
         OnLookInput?.Invoke(context.ReadValue<Vector2>());
     }
     private void HandleJump(InputAction.CallbackContext context)

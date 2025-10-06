@@ -32,11 +32,11 @@ public class PlayerBaseState : BaseState
     {
 
     }
-    public virtual void OnSprintInput()
+    public virtual void OnSprintInput(bool isPerformed)
     {
 
     }
-    public virtual void OnMoveInput()
+    public virtual void OnMoveInput(Vector2 movementDirection)
     {
 
     }

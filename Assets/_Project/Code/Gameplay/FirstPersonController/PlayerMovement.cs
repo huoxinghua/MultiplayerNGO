@@ -53,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (inputManager != null)
         {
-            inputManager.OnMoveInput += Move;
+           // inputManager.OnMoveInput += Move;
             inputManager.OnJumpInput += Jump;
             inputManager.OnCrouchInput += Crouch;
         }
