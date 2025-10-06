@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class BruteIdleState : BruteBaseState
 {
-    Timer idleTimer = new Timer(0f);
+
+    private Timer idleTimer = new Timer(0f);
+
     public BruteIdleState(BruteStateMachine stateController) : base(stateController)
     {
 
@@ -11,8 +13,8 @@ public class BruteIdleState : BruteBaseState
     public override void OnEnter()
     {
         animator.PlayNormal();
-        agent.SetDestination(stateController.gameObject.transform.position);
-        idleTimer.Reset(Random.Range(bruteSO.MinIdleTime, bruteSO.MaxIdleTime));
+        agent.ResetPath();
+        idleTimer.Reset(bruteSO.RandomIdleTime);
 
         Debug.Log("Idle");
     }
@@ -20,19 +22,20 @@ public class BruteIdleState : BruteBaseState
     {
         idleTimer.Stop();
     }
-
+   
     public override void StateUpdate()
     {
-        idleTimer.Update(Time.deltaTime);
-        if (idleTimer.IsRunning)
-        {
-            stateController.TransitionTo(stateController.wanderState);
-        }
+        idleTimer.TimerUpdate(Time.deltaTime);
+
+        if (!idleTimer.IsDone) return;
+      
+        stateController.TransitionTo(stateController.wanderState);        
     }
     public override void StateFixedUpdate()
     {
 
     }
+
     public override void OnHearPlayer()
     {
         stateController.TransitionTo(stateController.BruteHeardPlayerState);

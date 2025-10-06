@@ -35,7 +35,7 @@ public class Timer
         _running = false;
     }
 
-    public void Update(float deltaTime)
+    public void TimerUpdate(float deltaTime)
     {
         if (!_running) return;
 

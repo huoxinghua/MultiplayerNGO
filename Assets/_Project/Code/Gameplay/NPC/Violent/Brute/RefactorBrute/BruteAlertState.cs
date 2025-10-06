@@ -23,7 +23,7 @@ public class BruteAlertState : BruteBaseState
 
     public override void StateUpdate()
     {
-        alertTimer.Update(Time.deltaTime);
+        alertTimer.TimerUpdate(Time.deltaTime);
         if (alertTimer.IsDone)
         {
             stateController.TimesAlerted = 0;

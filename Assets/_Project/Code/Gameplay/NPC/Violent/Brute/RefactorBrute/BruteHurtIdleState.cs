@@ -20,7 +20,7 @@ public class BruteHurtIdleState : BruteBaseState
 
     public override void StateUpdate()
     {
-        idleTimer.Update(Time.deltaTime);
+        idleTimer.TimerUpdate(Time.deltaTime);
         if (idleTimer.IsRunning)
         {
             stateController.TransitionTo(stateController.wanderState);
