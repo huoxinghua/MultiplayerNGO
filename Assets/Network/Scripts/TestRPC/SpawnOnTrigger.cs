@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Project.Network.TestRPC;
 using System.Collections;
-
+using Project.Network.PlayerController;
 namespace Project.Network.TestRPC
 {
     public class SpawnOnTrigger : NetworkBehaviour
@@ -11,7 +11,7 @@ namespace Project.Network.TestRPC
         private bool hasSpawned = false;
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.GetComponent<PlayerMovement>()) return;
+            if (!other.GetComponent<Project.Network.PlayerController.PlayerMovement>()) return;
             if(IsOwner)
             {
                 RequestSpawnServerRpc();

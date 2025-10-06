@@ -279,7 +279,7 @@ namespace Netcode.Transports
 
         public override void Send(ulong clientId, ArraySegment<byte> segment, NetworkDelivery delivery)
         {
-            Debug.Log("steam transport send" + clientId);
+           // Debug.Log("steam transport send" + clientId);
             if(clientId == 0)
                 clientId = serverUser.id.m_SteamID;
 
