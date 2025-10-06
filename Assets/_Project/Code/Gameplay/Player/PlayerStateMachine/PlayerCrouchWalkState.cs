@@ -1,16 +1,24 @@
 using UnityEngine;
 
-public class PlayerCrouchWalkState : MonoBehaviour
+public class PlayerCrouchWalkState : PlayerBaseState
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public PlayerCrouchWalkState(PlayerStateMachine stateController) : base(stateController)
     {
-        
     }
-
-    // Update is called once per frame
-    void Update()
+    public override void OnEnter()
     {
-        
+
+    }
+    public override void OnExit()
+    {
+
+    }
+    public override void StateUpdate()
+    {
+
+    }
+    public override void StateFixedUpdate()
+    {
+
     }
 }

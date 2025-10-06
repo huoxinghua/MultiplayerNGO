@@ -1,16 +1,24 @@
 using UnityEngine;
 
-public class PlayerInAirState : MonoBehaviour
+public class PlayerInAirState : PlayerBaseState
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public PlayerInAirState(PlayerStateMachine stateController) : base(stateController)
+    {
+    }
+    public override void OnEnter()
+    {
+            
+    }
+    public override void OnExit()
     {
         
     }
-
-    // Update is called once per frame
-    void Update()
+    public override void StateUpdate()
     {
-        
+            
+    }
+    public override void StateFixedUpdate()
+    {
+            
     }
 }

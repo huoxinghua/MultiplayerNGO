@@ -26,7 +26,18 @@ public class PlayerBaseState : BaseState
 
     public override void StateUpdate()
     {
-        
+
     }
-    
+    public virtual void OnCrouchInput()
+    {
+
+    }
+    public virtual void OnSprintInput()
+    {
+
+    }
+    public virtual void OnMoveInput()
+    {
+
+    }
 }
