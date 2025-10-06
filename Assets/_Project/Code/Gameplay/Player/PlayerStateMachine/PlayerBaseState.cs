@@ -4,11 +4,13 @@ using UnityEngine.AI;
 public class PlayerBaseState : BaseState
 {
     protected PlayerStateMachine stateController;
-
+    protected PlayerSO playerSO;
+    protected CharacterController characterController;
     public PlayerBaseState(PlayerStateMachine stateController)
     {
         this.stateController = stateController;
-
+        playerSO = stateController.PlayerSO;
+        characterController = stateController.CharacterController;
     }
     public override void OnEnter()
     {

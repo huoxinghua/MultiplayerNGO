@@ -3,7 +3,11 @@
 public class PlayerLook : MonoBehaviour
 {
     private PlayerInputManager inputManager;
-    [SerializeField] private Transform character;
+    [Header("Transforms")]
+    [SerializeField] private Transform _playerTransform;
+    [SerializeField] private Transform _cameraTransform;
+
+    [Header("Sensitivity Values")]
     [SerializeField] private float sensitivity = 2;
     [SerializeField] private float smoothing = 1.5f;
     [SerializeField] private float rawLookMultiply = 0.009f;
@@ -12,7 +16,7 @@ public class PlayerLook : MonoBehaviour
 
     void Reset()
     {
-        character = GetComponentInParent<PlayerMovement>().transform;
+        _playerTransform = GetComponentInParent<PlayerMovement>().transform;
     }
     private void Awake()
     {
@@ -58,8 +62,8 @@ public class PlayerLook : MonoBehaviour
         velocity.y = Mathf.Clamp(velocity.y, -90, 90);
 
         // Rotate camera up-down 
-        transform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
-        character.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
+        _cameraTransform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
+        _playerTransform.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
     }
 
     private void Look(Vector2 dir)

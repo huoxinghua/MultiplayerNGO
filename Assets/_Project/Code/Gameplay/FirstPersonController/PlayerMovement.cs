@@ -67,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
         inputManager = GetComponent<PlayerInputManager>();
         if (inputManager != null)
         {
-            inputManager.OnMoveInput -= Move;
+          //  inputManager.OnMoveInput -= Move;
             inputManager.OnJumpInput -= Jump;
             inputManager.OnCrouchInput -= Crouch;
         }

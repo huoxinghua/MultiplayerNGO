@@ -1,35 +1,74 @@
 using UnityEngine;
+using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.InputSystem.XR;
 
 public class PlayerStateMachine : BaseStateController
 {
     protected PlayerBaseState currentState;
-    public bool isSprintHeld { get; private set; }
-    public PlayerIdleState idleState { get; private set; }
-    public PlayerWalkState walkState { get; private set; }
-    public PlayerSprintState sprintState { get; private set; }
-    public PlayerCrouchIdleState crouchIdleState { get; private set; }
-    public PlayerCrouchWalkState crouchWalkState { get; private set; }
-    public PlayerInAirState inAirState { get; private set; }
-    public PlayerInputManager inputManager { get; private set; }
+    [field: SerializeField] public PlayerSO PlayerSO { get; private set; }
+    [field: SerializeField] public CharacterController CharacterController { get; private set; }
+    [field: SerializeField] public LayerMask groundMask { get; private set; }
+    [SerializeField] Transform _cameraTransform;
+    public bool IsSprintHeld { get; private set; }
+    public Vector2 MoveInput { get; private set; }
+    public PlayerIdleState IdleState { get; private set; }
+    public PlayerWalkState WalkState { get; private set; }
+    public PlayerSprintState SprintState { get; private set; }
+    public PlayerCrouchIdleState CrouchIdleState { get; private set; }
+    public PlayerCrouchWalkState CrouchWalkState { get; private set; }
+    public PlayerInAirState InAirState { get; private set; }
+    public PlayerInputManager InputManager { get; private set; }
+    public Vector3 OriginalCenter { get; private set; }
+    //needs to be changed in children. Is this an acceptable way to do so?
+    public float TargetCameraHeight;
     private void Awake()
     {
-        inputManager = GetComponent<PlayerInputManager>();
-        idleState = new PlayerIdleState(this);
-        walkState = new PlayerWalkState(this);
-        sprintState = new PlayerSprintState(this);
-        crouchIdleState = new PlayerCrouchIdleState(this);
-        crouchWalkState = new PlayerCrouchWalkState(this);
-        inAirState = new PlayerInAirState(this);
-
-
+        InputManager = GetComponent<PlayerInputManager>();
+        IdleState = new PlayerIdleState(this);
+        WalkState = new PlayerWalkState(this);
+        SprintState = new PlayerSprintState(this);
+        CrouchIdleState = new PlayerCrouchIdleState(this);
+        CrouchWalkState = new PlayerCrouchWalkState(this);
+        InAirState = new PlayerInAirState(this);
+        OriginalCenter = CharacterController.center;
+        TargetCameraHeight = PlayerSO.StandingCameraHeight;
+    }
+    public void OnEnable()
+    {
+        if (InputManager != null)
+        {
+            InputManager.OnMoveInput += OnMoveInput;
+            InputManager.OnJumpInput += OnJumpInput;
+            InputManager.OnCrouchInput += OnCrouchInput;
+            InputManager.OnSprintInput += OnSprintInput;
+        }
+        else
+        {
+            Debug.Log("input manager is null ");
+        }
+    }
+    public void OnDisable()
+    {
+        if (InputManager != null)
+        {
+            InputManager.OnMoveInput -= OnMoveInput;
+            InputManager.OnJumpInput -= OnJumpInput;
+            InputManager.OnCrouchInput -= OnCrouchInput;
+            InputManager.OnSprintInput -= OnSprintInput;
+        }
+        else
+        {
+            Debug.Log("input manager is null ");
+        }
     }
     public void Start()
     {
-        TransitionTo(idleState);
+        TransitionTo(IdleState);
     }
-    #region
+    #region Inputs
     public void OnMoveInput(Vector2 movement)
     {
+        MoveInput = movement;
         currentState.OnMoveInput(movement);
     }
     public void OnCrouchInput()
@@ -39,7 +78,7 @@ public class PlayerStateMachine : BaseStateController
     public void OnSprintInput(bool isPerformed)
     {
         currentState.OnSprintInput(isPerformed);
-        isSprintHeld = isPerformed;
+        IsSprintHeld = isPerformed;
     }
     public void OnJumpInput()
     {
@@ -52,11 +91,19 @@ public class PlayerStateMachine : BaseStateController
         currentState?.OnExit();
         currentState = newState;
         currentState.OnEnter();
+        Debug.Log(newState.ToString());
     }
 
     void Update()
     {
         currentState?.StateUpdate();
+        SmoothCameraTransition();
+    }
+    void SmoothCameraTransition()
+    {
+        Vector3 camPos = _cameraTransform.localPosition;
+        camPos.y = Mathf.Lerp(camPos.y, TargetCameraHeight, Time.deltaTime * PlayerSO.CameraTransitionSpeed);
+        _cameraTransform.localPosition = camPos;
     }
     void FixedUpdate()
     {
