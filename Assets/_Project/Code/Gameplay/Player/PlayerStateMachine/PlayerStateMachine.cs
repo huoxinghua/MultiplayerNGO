@@ -28,10 +28,10 @@ public class PlayerStateMachine : BaseStateController
     private bool _jumpRequested = false;
     //needs to be changed in children. Is this an acceptable way to do so?
     private float _targetCameraHeight;
-    public float TargetCameraHeight { get {  return _targetCameraHeight; } set {  _targetCameraHeight = value; } }
+    public float TargetCameraHeight { get { return _targetCameraHeight; } set { _targetCameraHeight = value; } }
 
     Timer _groundTimer;
-    private float _groundTimerLength = 0.3f;
+    private float _groundTimerLength = 0.2f;
     private void Awake()
     {
         InputManager = GetComponent<PlayerInputManager>();
@@ -76,6 +76,7 @@ public class PlayerStateMachine : BaseStateController
     }
     public void Start()
     {
+        _isGrounded = IsGroundedCheck();
         TransitionTo(IdleState);
     }
     #region Inputs
@@ -86,6 +87,7 @@ public class PlayerStateMachine : BaseStateController
     }
     public void OnCrouchInput()
     {
+        _groundTimer.Reset(_groundTimerLength);
         currentState.OnCrouchInput();
     }
     public void OnSprintInput(bool isPerformed)
@@ -95,7 +97,8 @@ public class PlayerStateMachine : BaseStateController
     }
     public void OnJumpInput()
     {
-       RequestJump();
+        _groundTimer.Reset(_groundTimerLength);
+        RequestJump();
     }
     public void RequestJump()
     {
@@ -140,7 +143,7 @@ public class PlayerStateMachine : BaseStateController
     }
     bool IsGroundedCheck()
     {
-       
+
         float radius = CharacterController.radius;
         Vector3 origin = transform.position + Vector3.up * GroundCheckOffset;
         float distance = GroundCheckDistance;
@@ -156,32 +159,24 @@ public class PlayerStateMachine : BaseStateController
     void FixedUpdate()
     {
         currentState?.StateFixedUpdate();
-        
         if (_isGrounded != IsGroundedCheck())
         {
             if (IsGroundedCheck())
             {
-             //   Debug.Log("Landed");
                 TransitionTo(IdleState);
             }
             else
             {
-                Debug.Log("Takeoff");
                 TransitionTo(InAirState);
             }
         }
         _groundTimer.TimerUpdate(Time.deltaTime);
-        
-        if (!_groundTimer.IsDone) return;
-        _isGrounded = IsGroundedCheck();
-        if (!_isGrounded)
+        if (_groundTimer.IsComplete)
         {
-            _groundTimer.Reset(_groundTimerLength);
+            _isGrounded = IsGroundedCheck();
         }
-        else
-        {
-            _groundTimer.Stop();
-        }
-       
+
+
+
     }
 }

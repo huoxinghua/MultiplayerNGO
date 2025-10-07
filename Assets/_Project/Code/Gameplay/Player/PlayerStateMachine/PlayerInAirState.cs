@@ -11,11 +11,19 @@ public class PlayerInAirState : PlayerBaseState
     private int _dumbMathForSpeedMult => _isSprinting ? 0 : 1;
     public override void OnEnter()
     {
+        TryStand();
         _isSprinting = stateController.IsSprintHeld;
     }
     public override void OnExit()
     {
         
+    }
+    void TryStand()
+    {
+        if (characterController.center == stateController.OriginalCenter) return;
+        characterController.height = playerSO.StandHeight;
+        characterController.center = stateController.OriginalCenter;
+        stateController.TargetCameraHeight = playerSO.StandingCameraHeight;
     }
     public override void StateUpdate()
     {

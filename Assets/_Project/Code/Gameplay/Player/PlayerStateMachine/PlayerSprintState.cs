@@ -11,12 +11,12 @@ public class PlayerSprintState : PlayerBaseState
     }
     public override void OnExit()
     {
-            
+
     }
 
     public override void StateFixedUpdate()
     {
-            
+
     }
     //Probably not needed as crouch does not come here. Safety precaution
     void TryStand()
@@ -34,6 +34,10 @@ public class PlayerSprintState : PlayerBaseState
 
         characterController.Move(move * playerSO.MoveSpeed * playerSO.SprintMultiplier * Time.deltaTime);
     }
+    public override void OnCrouchInput()
+    {
+        stateController.TransitionTo(stateController.CrouchWalkState);
+    }
     public override void OnSprintInput(bool isPerformed)
     {
         if (!isPerformed)
@@ -43,7 +47,7 @@ public class PlayerSprintState : PlayerBaseState
     }
     public override void OnMoveInput(Vector2 movementDirection)
     {
-        if(movementDirection == Vector2.zero)
+        if (movementDirection == Vector2.zero)
         {
             stateController.TransitionTo(stateController.IdleState);
         }

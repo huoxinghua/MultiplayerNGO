@@ -9,6 +9,7 @@ public class Timer
     public bool IsDone => _running && _elapsed >= _duration;
     public bool IsRunning => _running;
 
+    public bool IsComplete => _elapsed >= _duration;
     public Timer(float duration)
     {
         _duration = duration;
