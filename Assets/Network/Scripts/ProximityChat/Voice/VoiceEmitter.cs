@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using FMOD;
 using FMODUnity;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Project.Network.ProximityChat
 {
@@ -28,16 +29,16 @@ namespace Project.Network.ProximityChat
         protected bool _soundIsFull;
         // Initialized
         protected bool _initialized = false;
-
-       /// <summary>
-       /// Initialize with sample rate, channel count and format of incoming voice audio data.
-       /// </summary>
-       /// <param name="sampleRate">Audio data sample rate</param>
-       /// <param name="channelCount">Audio data channel count</param>
-       /// <param name="inputFormat">Input voice audio format.
-       /// When set to <see cref="VoiceFormat.PCM16Bytes"/> use <see cref="EnqueueBytesForPlayback"/>
-       /// to play audio data, and when set to <see cref="VoiceFormat.PCM16Samples"/>
-       /// use <see cref="EnqueueSamplesForPlayback"/> instead</param>
+        
+        /// <summary>
+        /// Initialize with sample rate, channel count and format of incoming voice audio data.
+        /// </summary>
+        /// <param name="sampleRate">Audio data sample rate</param>
+        /// <param name="channelCount">Audio data channel count</param>
+        /// <param name="inputFormat">Input voice audio format.
+        /// When set to <see cref="VoiceFormat.PCM16Bytes"/> use <see cref="EnqueueBytesForPlayback"/>
+        /// to play audio data, and when set to <see cref="VoiceFormat.PCM16Samples"/>
+        /// use <see cref="EnqueueSamplesForPlayback"/> instead</param>
         public virtual void Init(uint sampleRate = 48000, int channelCount = 1, VoiceFormat inputFormat = VoiceFormat.PCM16Samples)
         {
             _sampleRate = sampleRate;
@@ -84,7 +85,7 @@ namespace Project.Network.ProximityChat
             
             _voiceBytesQueue.Enqueue(voiceBytes);
         }
-        
+
         /// <summary>
         /// Enqueues a span of voice audio samples to be played back.
         /// </summary>
@@ -94,11 +95,26 @@ namespace Project.Network.ProximityChat
         /// </remarks>
         /// <param name="voiceSamples">Samples to be queued for playback</param>
         /// <exception cref="Exception">Throws an exception if input format is not <see cref="VoiceFormat.PCM16Samples"/></exception>
+       public bool IsReady => _initialized;
         public void EnqueueSamplesForPlayback(Span<short> voiceSamples)
         {
+            //if (_inputFormat != VoiceFormat.PCM16Samples)
+            //{
+            //    throw new Exception("Incorrect input format. Failed to dequeue voice bytes.");
+            //    return;
+            //}
+                
+            if (!_initialized)
+            {
+                Debug.Log($"[VoiceEmitter] ({GetInstanceID()}) enqueue before Init. format={_inputFormat}");
+                return;
+            }
+
             if (_inputFormat != VoiceFormat.PCM16Samples)
-                throw new Exception("Incorrect input format. Failed to dequeue voice bytes.");
-            
+            {
+                Debug.LogError($"[VoiceEmitter] Wrong input format: {_inputFormat}, need PCM16Samples");
+                return;
+            }
             _voiceSamplesQueue.Enqueue(voiceSamples);
         }
 
@@ -235,6 +251,10 @@ namespace Project.Network.ProximityChat
             SetPaused(_availablePlaybackByteCount == 0);
             
             _prevPlaybackPosition = playbackPosition;
+        }
+        public VoiceFormat GetFormat()
+        {
+            return _inputFormat;
         }
     }
 }

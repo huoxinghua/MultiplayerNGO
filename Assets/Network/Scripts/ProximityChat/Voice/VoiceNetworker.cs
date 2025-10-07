@@ -50,47 +50,48 @@ namespace Project.Network.ProximityChat
             base.OnNetworkSpawn();
 
             if (IsOwner)
-            {
-               
-                if (_voiceRecorder != null)
-                {
-                    _voiceRecorder.Init();
-                    _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
-                    Debug.Log("[PVoiceNetwork] Owner Recorder & Encoder initialized");
-                }
-                else
-                {
-                    Debug.LogError("[PVoiceNetwork] Missing VoiceRecorder reference on Owner");
-                }
 
-                if (_playbackOwnVoice)
-                {
-                    _voiceDecoder = new VoiceDecoder();
-                    _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
-                }
-                else
-                {
-                    _voiceEmitter.enabled = false;
-                }
+            {
+
+                _voiceRecorder.Init();
+
+                _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
+
+                Debug.Log("[VoiceNetworker] Owner Recorder & Encoder initialized");
+
             }
-            else
+
+
+            if (_voiceEmitter != null)
+
             {
 
                 _voiceDecoder = new VoiceDecoder();
-                if (_voiceEmitter != null)
-                {
-                    _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
-                    Debug.Log("[PVoiceNetwork] Client Decoder & Emitter initialized");
-                }
-                else
-                {
-                    Debug.LogError("[PVoiceNetwork] Missing VoiceEmitter reference on Client");
-                }
+
+                _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
+
+                Debug.Log("[VoiceNetworker] Decoder & Emitter initialized for " + (IsOwner ? "Owner" : "Client"));
+                Debug.Log($"[PVoiceNetwork] Emitter Type: {_voiceEmitter.GetType()} Format: {_voiceEmitter.GetFormat()}");
+
             }
+
+            else
+
+            {
+
+                Debug.LogError("[VoiceNetworker] Missing VoiceEmitter reference");
+
+            }
+
+
+            if (IsOwner && !_playbackOwnVoice)
+
+                _voiceEmitter.SetVolume(0f);
+
         }
 
 
-      
+
 
         [ServerRpc]
         public void SendEncodedVoiceServerRpc(byte[] encodedVoiceData)
@@ -136,10 +137,17 @@ namespace Project.Network.ProximityChat
                     _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
                     Debug.LogWarning("[PVoiceNetwork] Emitter was null, initialized on the fly");
                 }
+                else
+                {
+                    Debug.Log($"[PVoiceNetwork] Using existing emitter { _voiceEmitter.GetInstanceID() } with format {_voiceEmitter.GetFormat()}");
+                }
             }
             if (!IsOwner || _playbackOwnVoice)
             {
                 Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
+                if (_voiceEmitter is null || !_voiceEmitter.IsReady) 
+                    return;
+
                 _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
             }
         }
