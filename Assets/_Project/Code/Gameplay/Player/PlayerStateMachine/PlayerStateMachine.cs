@@ -9,6 +9,9 @@ public class PlayerStateMachine : BaseStateController
     [field: SerializeField] public CharacterController CharacterController { get; private set; }
     [field: SerializeField] public LayerMask groundMask { get; private set; }
     [SerializeField] Transform _cameraTransform;
+    [field: SerializeField] public float GroundCheckOffset { get; private set; }
+    [field: SerializeField] public float GroundCheckDistance { get; private set; }
+    private bool _isGrounded;
     public bool IsSprintHeld { get; private set; }
     public Vector2 MoveInput { get; private set; }
     public PlayerIdleState IdleState { get; private set; }
@@ -19,8 +22,16 @@ public class PlayerStateMachine : BaseStateController
     public PlayerInAirState InAirState { get; private set; }
     public PlayerInputManager InputManager { get; private set; }
     public Vector3 OriginalCenter { get; private set; }
+
+    private float _coyoteTimer = 0f;
+    private Vector3 _verticalVelocity;
+    private bool _jumpRequested = false;
     //needs to be changed in children. Is this an acceptable way to do so?
-    public float TargetCameraHeight;
+    private float _targetCameraHeight;
+    public float TargetCameraHeight { get {  return _targetCameraHeight; } set {  _targetCameraHeight = value; } }
+
+    Timer _groundTimer;
+    private float _groundTimerLength = 0.3f;
     private void Awake()
     {
         InputManager = GetComponent<PlayerInputManager>();
@@ -32,6 +43,8 @@ public class PlayerStateMachine : BaseStateController
         InAirState = new PlayerInAirState(this);
         OriginalCenter = CharacterController.center;
         TargetCameraHeight = PlayerSO.StandingCameraHeight;
+        _groundTimer = new Timer(.1f);
+        _groundTimer.Start();
     }
     public void OnEnable()
     {
@@ -82,31 +95,93 @@ public class PlayerStateMachine : BaseStateController
     }
     public void OnJumpInput()
     {
-        //transition to air state
+       RequestJump();
+    }
+    public void RequestJump()
+    {
+        _jumpRequested = true;
     }
     #endregion
+    public void HandleJump()
+    {
+        if (CharacterController.isGrounded)
+        {
+            _coyoteTimer = PlayerSO.CoyoteTime;
+
+            if (_verticalVelocity.y < 0f)
+                _verticalVelocity.y = -2f;
+        }
+        else
+        {
+            _coyoteTimer -= Time.deltaTime;
+        }
+        if (_jumpRequested && _coyoteTimer > 0f)
+        {
+            _verticalVelocity.y = Mathf.Sqrt(PlayerSO.JumpStrength * -2f * PlayerSO.PlayerGravity);
+            _coyoteTimer = 0f;
+        }
+        _jumpRequested = false;
+        _verticalVelocity.y += PlayerSO.PlayerGravity * Time.deltaTime;
+        CharacterController.Move(_verticalVelocity * Time.deltaTime);
+    }
     public virtual void TransitionTo(PlayerBaseState newState)
     {
         if (newState == currentState) return;
         currentState?.OnExit();
         currentState = newState;
         currentState.OnEnter();
-        Debug.Log(newState.ToString());
     }
 
     void Update()
     {
         currentState?.StateUpdate();
         SmoothCameraTransition();
+        HandleJump();
+    }
+    bool IsGroundedCheck()
+    {
+       
+        float radius = CharacterController.radius;
+        Vector3 origin = transform.position + Vector3.up * GroundCheckOffset;
+        float distance = GroundCheckDistance;
+
+        return Physics.SphereCast(origin, radius * 0.9f, Vector3.down, out _, distance, groundMask);
     }
     void SmoothCameraTransition()
     {
         Vector3 camPos = _cameraTransform.localPosition;
-        camPos.y = Mathf.Lerp(camPos.y, TargetCameraHeight, Time.deltaTime * PlayerSO.CameraTransitionSpeed);
+        camPos.y = Mathf.Lerp(camPos.y, -TargetCameraHeight, Time.deltaTime * PlayerSO.CameraTransitionSpeed);
         _cameraTransform.localPosition = camPos;
     }
     void FixedUpdate()
     {
         currentState?.StateFixedUpdate();
+        
+        if (_isGrounded != IsGroundedCheck())
+        {
+            if (IsGroundedCheck())
+            {
+             //   Debug.Log("Landed");
+                TransitionTo(IdleState);
+            }
+            else
+            {
+                Debug.Log("Takeoff");
+                TransitionTo(InAirState);
+            }
+        }
+        _groundTimer.TimerUpdate(Time.deltaTime);
+        
+        if (!_groundTimer.IsDone) return;
+        _isGrounded = IsGroundedCheck();
+        if (!_isGrounded)
+        {
+            _groundTimer.Reset(_groundTimerLength);
+        }
+        else
+        {
+            _groundTimer.Stop();
+        }
+       
     }
 }

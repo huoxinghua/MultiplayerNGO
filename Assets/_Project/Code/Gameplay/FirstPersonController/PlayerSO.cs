@@ -12,6 +12,9 @@ public class PlayerSO : ScriptableObject
     [field: Header("Jump")]
     [field: SerializeField] public float JumpStrength { get; private set; }
     [field: SerializeField] public float FallMultiplier { get; private set; }
+    [field: SerializeField] public float PlayerGravity {  get; private set; }
+    [field: SerializeField] public float CoyoteTime { get; private set; }
+    [field: SerializeField] public float AirSpeedMult { get; private set; }
 
     [field: Header("Crouch")]
     [field: SerializeField] public float StandHeight {get; private set;}

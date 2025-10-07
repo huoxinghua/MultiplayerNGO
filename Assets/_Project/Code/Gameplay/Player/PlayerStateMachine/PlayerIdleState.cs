@@ -9,6 +9,17 @@ public class PlayerIdleState : PlayerBaseState
     public override void OnEnter()
     {
         TryStand();
+        if(stateController.MoveInput != Vector2.zero)
+        {
+            if (stateController.IsSprintHeld)
+            {
+                stateController.TransitionTo(stateController.SprintState);
+            }
+            else
+            {
+                stateController.TransitionTo(stateController.WalkState);
+            }
+        }
     }
     public override void OnExit()
     {
