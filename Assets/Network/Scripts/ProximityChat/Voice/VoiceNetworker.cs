@@ -21,49 +21,128 @@ namespace Project.Network.ProximityChat
         private VoiceEncoder _voiceEncoder;
         private VoiceDecoder _voiceDecoder;
 
-        void Start()
+        //void Awake()
+        //{
+        //    if (IsOwner)
+        //    {
+        //        _voiceRecorder.Init();
+        //        _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
+
+        //        if (_playbackOwnVoice)
+        //        {
+        //            _voiceDecoder = new VoiceDecoder();
+        //            _voiceEmitter.Init(VoiceConsts.OpusSampleRate);
+        //        }
+        //        else
+        //        {
+        //            _voiceEmitter.enabled = false;
+        //        }
+        //    }
+        //    else
+        //    {
+
+        //        _voiceDecoder = new VoiceDecoder();
+        //        _voiceEmitter.Init(VoiceConsts.OpusSampleRate);
+        //    }
+        //}
+        public override void OnNetworkSpawn()
         {
-            // Owner should record voice and encode it
+            base.OnNetworkSpawn();
+
             if (IsOwner)
             {
-                // Disable voice emitter
-                _voiceEmitter.enabled = _playbackOwnVoice;
-                // Initialize voice recorder
-                _voiceRecorder.Init();
-                // Initialize voice encoder
-                _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
+               
+                if (_voiceRecorder != null)
+                {
+                    _voiceRecorder.Init();
+                    _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
+                    Debug.Log("[PVoiceNetwork] Owner Recorder & Encoder initialized");
+                }
+                else
+                {
+                    Debug.LogError("[PVoiceNetwork] Missing VoiceRecorder reference on Owner");
+                }
+
+                if (_playbackOwnVoice)
+                {
+                    _voiceDecoder = new VoiceDecoder();
+                    _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
+                }
+                else
+                {
+                    _voiceEmitter.enabled = false;
+                }
             }
-            // Non-owners should receive encoded voice,
-            // decode it and play it as audio
-            if (!IsOwner || _playbackOwnVoice)
+            else
             {
-                // Disable voice recorder
-                _voiceRecorder.enabled = _playbackOwnVoice;
-                // Initialize voice decoder
+
                 _voiceDecoder = new VoiceDecoder();
-                // Initialize voice emitter
-                _voiceEmitter.Init(VoiceConsts.OpusSampleRate);
+                if (_voiceEmitter != null)
+                {
+                    _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
+                    Debug.Log("[PVoiceNetwork] Client Decoder & Emitter initialized");
+                }
+                else
+                {
+                    Debug.LogError("[PVoiceNetwork] Missing VoiceEmitter reference on Client");
+                }
             }
         }
+
+
+      
 
         [ServerRpc]
         public void SendEncodedVoiceServerRpc(byte[] encodedVoiceData)
         {
-            //Debug.Log($"[PVoiceNetwork] ServerRpc reveive {encodedVoiceData.Length} byte");
+           // Debug.Log($"[PVoiceNetwork] ServerRpc reveive {encodedVoiceData.Length} byte");
             SendEncodedVoiceClientRpc(encodedVoiceData);   
         }
+
+        //[ClientRpc]
+        //public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData)
+        //{
+        //    Debug.Log($"[PVoiceNetwork] ClientRpc reveive {encodedVoiceData.Length} byte");
+
+        //    if ((_voiceDecoder == null) || (_voiceEmitter == null))
+        //    {
+        //        Debug.LogWarning("[PVoiceNetwork] Decoder or Emitter not initialized yet");
+        //        return;
+        //    }
+
+        //    if (!IsOwner || _playbackOwnVoice)
+        //    {
+        //        Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
+        //        _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
+        //    }
+        //}
 
         [ClientRpc]
         public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData)
         {
-            //Debug.Log($"[PVoiceNetwork] ClientRpc reveive {encodedVoiceData.Length} byte");
+            //Debug.Log($"[PVoiceNetwork] ClientRpc receive {encodedVoiceData.Length} byte");
+
+
+            if (_voiceDecoder == null)
+            {
+                _voiceDecoder = new VoiceDecoder();
+                Debug.LogWarning("[PVoiceNetwork] Decoder was null, initialized on the fly");
+            }
+            if (_voiceEmitter == null)
+            {
+                _voiceEmitter = GetComponent<VoiceEmitter>();
+                if (_voiceEmitter != null)
+                {
+                    _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
+                    Debug.LogWarning("[PVoiceNetwork] Emitter was null, initialized on the fly");
+                }
+            }
             if (!IsOwner || _playbackOwnVoice)
             {
                 Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
                 _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
             }
         }
-
         /// <summary>
         /// Starts recording and sending voice data over the network.
         /// </summary>
@@ -94,6 +173,14 @@ namespace Project.Network.ProximityChat
 
         void LateUpdate()
         {
+            if (!IsOwner) return;
+
+            if (_voiceEncoder == null || _voiceRecorder == null)
+            {
+                Debug.LogWarning("[PVoiceNetwork] Encoder or Recorder not ready yet");
+                return;
+            }
+
             if (IsOwner)
             {
                 // Encode as much queued voice as possible 

@@ -23,7 +23,8 @@ namespace Project.Network.ProximityChat
         /// <inheritdoc />
         public override void Init(uint sampleRate = 48000, int channelCount = 1, VoiceFormat inputFormat = VoiceFormat.PCM16Samples)
         {
-            base.Init(sampleRate, channelCount, inputFormat);
+            //base.Init(sampleRate, channelCount, inputFormat);
+            base.Init(sampleRate, channelCount, VoiceFormat.PCM16Samples);//xh add
             // Wireup programmer instrument callback
             _voiceCallback = new EVENT_CALLBACK(VoiceEventCallback);
             // Create and initialize an instance of our FMOD voice event
