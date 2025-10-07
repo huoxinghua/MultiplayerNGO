@@ -9,13 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 588951130824886357}
-  - component: {fileID: 8558664536955821914}
-  - component: {fileID: 6539528087678801055}
-  - component: {fileID: 4894854284077010704}
   - component: {fileID: 8841769547390623529}
   - component: {fileID: 3256601806626041199}
+  - component: {fileID: 1910669808078566448}
+  - component: {fileID: 4419228407102304741}
+  - component: {fileID: 3815433240343505637}
   m_Layer: 6
-  m_Name: MN_Voice Networker (Studio)
+  m_Name: PF_Voice Networker (Studio)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,53 +36,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8558664536955821914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4239727852759538138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab98d1b8f9453d54e8d33de132825f3e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _voiceEventReference:
-    Guid:
-      Data1: 1496634757
-      Data2: 1312379894
-      Data3: -840081243
-      Data4: -1235511439
-    Path: event:/VoiceChat/PlayerVoice
---- !u!114 &6539528087678801055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4239727852759538138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d490df594811eb7449c642a8333dc2fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4894854284077010704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4239727852759538138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c96e09a5f55ac8943baadca6876b7a8b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  _voiceRecorder: {fileID: 6539528087678801055}
-  _voiceEmitter: {fileID: 8558664536955821914}
-  _playbackOwnVoice: 0
 --- !u!114 &8841769547390623529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,3 +62,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nonRigidbodyVelocity: 0
   attenuationObject: {fileID: 0}
+--- !u!114 &1910669808078566448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4239727852759538138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3b1b2ec863cea8458dc7f22da8e5f7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _voiceEventReference:
+    Guid:
+      Data1: 1496634757
+      Data2: 1312379894
+      Data3: -840081243
+      Data4: -1235511439
+    Path: event:/VoiceChat/PlayerVoice
+--- !u!114 &4419228407102304741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4239727852759538138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b72c023a150755e468877555e71f1c9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _voiceRecorder: {fileID: 3815433240343505637}
+  _voiceEmitter: {fileID: 1910669808078566448}
+  _playbackOwnVoice: 1
+--- !u!114 &3815433240343505637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4239727852759538138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f8fe2753b8c4604e8af33d281de73bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

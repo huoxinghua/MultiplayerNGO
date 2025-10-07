@@ -1,5 +1,5 @@
 using FMODUnity;
-using ProximityChat;
+using Project.Network.ProximityChat;
 using UnityEngine;
 
 namespace Project.Network.Voice
