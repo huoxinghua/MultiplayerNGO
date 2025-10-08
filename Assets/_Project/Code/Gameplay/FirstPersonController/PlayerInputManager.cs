@@ -2,11 +2,20 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public interface IEvent
+{
+}
+
+public struct PlayerJumpEvent:IEvent
+{
+    public bool IsPressed { get; set; }
+    public float TimeJumped { get; private set; }
+}
 public class PlayerInputManager : MonoBehaviour
 {
     public InputSystem_Actions inputActions;
     public event Action<Vector2> OnMoveInput;
-    public event Action OnJumpInput;
+    public event Action<PlayerJumpEvent> OnJumpInput;
     public event Action<Vector2> OnLookInput;
     public event Action OnShootInput;
     public event Action OnChangeWeaponInput;
@@ -78,10 +87,9 @@ public class PlayerInputManager : MonoBehaviour
     }
     private void HandleJump(InputAction.CallbackContext context)
     {
-        if (context.performed)
-        {
-            OnJumpInput?.Invoke();
-        }
+            Debug.Log($"Jump context is {context.performed}");
+            OnJumpInput?.Invoke(new PlayerJumpEvent{IsPressed = context.performed});
+        
     }
     private void HandleCrouch(InputAction.CallbackContext context)
     {

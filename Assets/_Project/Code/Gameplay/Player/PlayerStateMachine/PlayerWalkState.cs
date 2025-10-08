@@ -26,6 +26,7 @@ public class PlayerWalkState : PlayerBaseState
         move = stateController.transform.TransformDirection(move);
 
         characterController.Move(move * playerSO.MoveSpeed * Time.deltaTime);
+        base.StateUpdate();
     }
     void TryStand()
     {

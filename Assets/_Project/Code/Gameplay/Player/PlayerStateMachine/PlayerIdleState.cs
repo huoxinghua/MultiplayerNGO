@@ -27,7 +27,7 @@ public class PlayerIdleState : PlayerBaseState
     }
     public override void StateUpdate()
     {
-
+        base.StateUpdate();
     }
     public override void StateFixedUpdate()
     {

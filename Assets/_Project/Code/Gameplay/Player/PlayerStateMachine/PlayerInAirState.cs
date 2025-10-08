@@ -27,6 +27,7 @@ public class PlayerInAirState : PlayerBaseState
     }
     public override void StateUpdate()
     {
+        base.StateUpdate();
         Vector3 move = new Vector3(stateController.MoveInput.x, 0f, stateController.MoveInput.y);
 
         move = stateController.transform.TransformDirection(move);

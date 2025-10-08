@@ -15,6 +15,7 @@ public class PlayerCrouchWalkState : PlayerBaseState
     }
     public override void StateUpdate()
     {
+        base.StateUpdate();
         Vector3 move = new Vector3(stateController.MoveInput.x, 0f, stateController.MoveInput.y);
 
         move = stateController.transform.TransformDirection(move);
@@ -27,6 +28,8 @@ public class PlayerCrouchWalkState : PlayerBaseState
     }
     bool CanStandUp()
     {
+        //Vector3 RayOrigin
+        
         float standHeight = playerSO.StandHeight;
         float standCenterY = (standHeight - characterController.skinWidth * 2f) / 2f;
         Vector3 capsuleCenter = stateController.transform.position + new Vector3(0, standCenterY, 0);

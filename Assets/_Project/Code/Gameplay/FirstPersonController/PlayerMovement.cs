@@ -54,8 +54,8 @@ public class PlayerMovement : MonoBehaviour
         if (inputManager != null)
         {
            // inputManager.OnMoveInput += Move;
-            inputManager.OnJumpInput += Jump;
-            inputManager.OnCrouchInput += Crouch;
+            //inputManager.OnJumpInput += Jump;
+           // inputManager.OnCrouchInput += Crouch;
         }
         else
         {
@@ -68,8 +68,8 @@ public class PlayerMovement : MonoBehaviour
         if (inputManager != null)
         {
           //  inputManager.OnMoveInput -= Move;
-            inputManager.OnJumpInput -= Jump;
-            inputManager.OnCrouchInput -= Crouch;
+           // inputManager.OnJumpInput -= Jump;
+          // inputManager.OnCrouchInput -= Crouch;
         }
         else
         {
@@ -81,11 +81,11 @@ public class PlayerMovement : MonoBehaviour
         //move
         Vector3 velocity = rb.linearVelocity;
         var currentSpeed = moveSpeed;
-        if (groundCheck.isGrounded && rb.linearVelocity.magnitude > 0.01f && isSprinting && !isCrouching)
+        if (groundCheck.IsGrounded && rb.linearVelocity.magnitude > 0.01f && isSprinting && !isCrouching)
         {
             OnRunning?.Invoke(gameObject);
         }
-        else if(groundCheck.isGrounded &&rb.linearVelocity.magnitude > 0.01f && !isSprinting && !isCrouching)
+        else if(groundCheck.IsGrounded &&rb.linearVelocity.magnitude > 0.01f && !isSprinting && !isCrouching)
         {
             OnWalking?.Invoke(gameObject);
         }
@@ -102,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = transform.rotation * (velocity + direction);
 
         // extra gravity when falling
-        if (!groundCheck.isGrounded && rb.linearVelocity.y < 0)
+        if (!groundCheck.IsGrounded && rb.linearVelocity.y < 0)
         {
           
             rb.AddForce(Vector3.down * fallMultiplier, ForceMode.Acceleration);
@@ -128,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
     }
     public void Jump()
     {
-        if (groundCheck && groundCheck.isGrounded)
+        if (groundCheck && groundCheck.IsGrounded)
         {
             rb.AddForce(Vector3.up * jumpStrength, ForceMode.Impulse);
             //Debug.Log("player jump");
