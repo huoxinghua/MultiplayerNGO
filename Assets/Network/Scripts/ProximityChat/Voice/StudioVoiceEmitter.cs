@@ -6,6 +6,7 @@ using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 using Project.Network.ProximityChat;
+using Debug = UnityEngine.Debug;
 
 namespace Project.Network.ProximityChat
 {
@@ -31,7 +32,7 @@ namespace Project.Network.ProximityChat
             _voiceEventInstance = RuntimeManager.CreateInstance(_voiceEventReference);
             _voiceEventInstance.setCallback(_voiceCallback);
             _voiceEventInstance.start();
-            _voiceEventInstance.setPaused(true);
+            _voiceEventInstance.setPaused(false);
             // We're not going to be officially initialized until our event instance
             // is created, which takes a little while, so let's re-flag ourself as uninitialized
             _initialized = false;
@@ -66,25 +67,64 @@ namespace Project.Network.ProximityChat
 
         private IEnumerator WaitToGetChannel()
         {
-            // Wait until event is fully created (playback state == playing)
+            /*  // Wait until event is fully created (playback state == playing)
+              while (true)
+              {
+                  yield return null;
+                  _voiceEventInstance.getPlaybackState(out PLAYBACK_STATE playbackState);
+                  if (playbackState == PLAYBACK_STATE.PLAYING)
+                      Debug.Log($"[%%%%%%VoiceEmitter] Channel active={playbackState}");
+                  break;
+              }
+
+              // Get the channel and initialize
+              if (FMODUtilities.TryGetChannelForEvent(_voiceEventInstance, out Channel channel))
+              {
+                  _channel = channel;
+                  _initialized = true;
+              }
+              else
+              {
+                  UnityEngine.Debug.LogError("Failed to find channel. Unable to initialize Studio voice emitter.");
+              }*/
+           
             while (true)
             {
-                yield return null;
                 _voiceEventInstance.getPlaybackState(out PLAYBACK_STATE playbackState);
                 if (playbackState == PLAYBACK_STATE.PLAYING)
+                {
+                    Debug.Log($"[VoiceEmitter] Playback state = {playbackState}");
                     break;
+                }
+                yield return null;
             }
+
             
-            // Get the channel and initialize
-            if (FMODUtilities.TryGetChannelForEvent(_voiceEventInstance, out Channel channel))
+            yield return new WaitForSeconds(0.1f);
+
+           
+            Channel channel;
+            bool gotChannel = false;
+            for (int i = 0; i < 10; i++) 
             {
-                _channel = channel;
-                _initialized = true;
+                if (FMODUtilities.TryGetChannelForEvent(_voiceEventInstance, out channel))
+                {
+                    _channel = channel;
+                    _initialized = true;
+                    Debug.Log($"[VoiceEmitter] ✅ Got FMOD channel handle = {_channel.hasHandle()}");
+                    gotChannel = true;
+                    break;
+                }
+
+                Debug.LogWarning($"[VoiceEmitter] Channel not ready yet... retry {i + 1}/10");
+                yield return new WaitForSeconds(0.05f);
             }
-            else
+
+            if (!gotChannel)
             {
-                UnityEngine.Debug.LogError("Failed to find channel. Unable to initialize Studio voice emitter.");
+                Debug.LogError("[VoiceEmitter] ❌ Failed to find channel after retries. FMOD event may not have initialized properly.");
             }
+
         }
 
         [AOT.MonoPInvokeCallback(typeof(EVENT_CALLBACK))]
