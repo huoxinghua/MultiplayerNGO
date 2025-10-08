@@ -142,16 +142,32 @@ namespace Project.Network.ProximityChat
                     Debug.Log($"[PVoiceNetwork] Using existing emitter { _voiceEmitter.GetInstanceID() } with format {_voiceEmitter.GetFormat()}");
                 }
             }
-            // if (!IsOwner || _playbackOwnVoice)
-             if (true)
+            Debug.Log($"********[PVoiceNetwork] !IsOwner {IsOwner} _playbackOwnVoice {_playbackOwnVoice}");
+        /*    if (!IsOwner||(!IsOwner && _playbackOwnVoice))
+            // if (true)
             {
                 Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
-                if (_voiceEmitter is null || !_voiceEmitter.IsReady) 
+                if (_voiceEmitter is null || !_voiceEmitter.IsReady)
                     return;
                 Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
 
                 _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
             }
+*/
+            bool isRemotePlayer = !IsOwner && IsClient;
+            bool shouldPlay = isRemotePlayer || _playbackOwnVoice;
+
+            Debug.Log($"[VoiceNetworker] Local={NetworkManager.Singleton.LocalClientId}, Owner={OwnerClientId}, shouldPlay={shouldPlay}");
+
+            if (shouldPlay)
+            {
+                Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
+                if (_voiceEmitter is null || !_voiceEmitter.IsReady)
+                    return;
+                Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
+                _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
+            }
+
         }
         /// <summary>
         /// Starts recording and sending voice data over the network.
