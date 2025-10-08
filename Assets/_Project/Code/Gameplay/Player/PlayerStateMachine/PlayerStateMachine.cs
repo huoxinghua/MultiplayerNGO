@@ -11,6 +11,7 @@ public class PlayerStateMachine : BaseStateController
     [SerializeField] Transform _cameraTransform;
     [field: SerializeField] public float GroundCheckOffset { get; private set; }
     [field: SerializeField] public float GroundCheckDistance { get; private set; }
+    [field: SerializeField] public Transform GroundSpherePosition {  get; private set; }
     private bool _isGrounded;
     public bool IsSprintHeld { get; private set; }
     public Vector2 MoveInput { get; private set; }
@@ -28,6 +29,7 @@ public class PlayerStateMachine : BaseStateController
     private bool _jumpRequested = false;
     //needs to be changed in children. Is this an acceptable way to do so?
     private float _targetCameraHeight;
+    
     public float TargetCameraHeight { get { return _targetCameraHeight; } set { _targetCameraHeight = value; } }
 
     Timer _groundTimer;
@@ -145,10 +147,42 @@ public class PlayerStateMachine : BaseStateController
     {
 
         float radius = CharacterController.radius;
-        Vector3 origin = transform.position + Vector3.up * GroundCheckOffset;
-        float distance = GroundCheckDistance;
 
-        return Physics.SphereCast(origin, radius * 0.9f, Vector3.down, out _, distance, groundMask);
+        float distance = GroundCheckDistance;
+        DebugDrawSphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, distance, Color.red);
+        return Physics.SphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, out _, distance, groundMask);
+    }
+    void DebugDrawSphereCast(Vector3 origin, float radius, Vector3 direction, float distance, Color color)
+    {
+        Vector3 end = origin + direction.normalized * distance;
+
+        // Draw center line
+        Debug.DrawLine(origin, end, color);
+
+        // Draw start and end wire spheres
+        DrawWireSphere(origin, radius, color);
+        DrawWireSphere(end, radius, color);
+    }
+
+    void DrawWireSphere(Vector3 position, float radius, Color color)
+    {
+        // Basic wireframe spheres using Debug.DrawLine to simulate a circle
+        int segments = 16;
+        float angleStep = 360f / segments;
+
+        // Draw horizontal ring
+        for (int i = 0; i < segments; i++)
+        {
+            float angleCurrent = Mathf.Deg2Rad * i * angleStep;
+            float angleNext = Mathf.Deg2Rad * (i + 1) * angleStep;
+
+            Vector3 pointCurrent = position + new Vector3(Mathf.Cos(angleCurrent), 0f, Mathf.Sin(angleCurrent)) * radius;
+            Vector3 pointNext = position + new Vector3(Mathf.Cos(angleNext), 0f, Mathf.Sin(angleNext)) * radius;
+
+            Debug.DrawLine(pointCurrent, pointNext, color);
+        }
+
+        // Optionally draw vertical rings (XZ and YZ) for better 3D feel
     }
     void SmoothCameraTransition()
     {

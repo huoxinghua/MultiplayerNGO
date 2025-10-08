@@ -27,8 +27,12 @@ public class PlayerCrouchWalkState : PlayerBaseState
     }
     bool CanStandUp()
     {
-        Vector3 bottom = stateController.transform.position + characterController.center - Vector3.up * (characterController.height / 2f);
-        Vector3 top = bottom + Vector3.up * playerSO.StandHeight;
+        float standHeight = playerSO.StandHeight;
+        float standCenterY = (standHeight - characterController.skinWidth * 2f) / 2f;
+        Vector3 capsuleCenter = stateController.transform.position + new Vector3(0, standCenterY, 0);
+
+        Vector3 bottom = capsuleCenter - Vector3.up * (standHeight / 2f);
+        Vector3 top = capsuleCenter + Vector3.up * (standHeight / 2f);
 
         return !Physics.CheckCapsule(bottom, top, characterController.radius, ~stateController.groundMask, QueryTriggerInteraction.Ignore);
     }

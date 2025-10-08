@@ -62,7 +62,7 @@ public class FlashCont : MonoBehaviour , IHeldItem , IInteractable
     {
         if (!model.HasOwner || !model.IsInHand) return;
 
-        Transform dropPoint = model.Owner.transform.GetChild(3); // or some drop reference
+        Transform dropPoint = model.Owner.transform.GetChild(1); // or some drop reference
         view.MoveToPosition(dropPoint.position);
         view.DestroyHeldVisual();
         view.SetVisible(true);

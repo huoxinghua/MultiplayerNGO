@@ -6,8 +6,10 @@ public class BruteChaseState : BruteBaseState
     {
         this.stateController = stateController;
     }
+    private Timer _chaseTimer = new Timer(0);
     public override void OnEnter()
     {
+        _chaseTimer.Reset(bruteSO.LoseInterestTimeChase);
         animator.PlayAlert();
         agent.speed = bruteSO.RunSpeed;
     }
@@ -18,7 +20,10 @@ public class BruteChaseState : BruteBaseState
 
     public override void StateUpdate()
     {
-        
+        if (_chaseTimer.IsComplete || Vector3.Distance(stateController.lastHeardPlayer.transform.position,stateController.transform.position) >= bruteSO.LoseInterestDistanceChase)
+        {
+            stateController.TransitionTo(stateController.idleState);
+        }
     }
     public override void StateFixedUpdate()
     {
@@ -34,6 +39,6 @@ public class BruteChaseState : BruteBaseState
     }
     public override void OnHearPlayer()
     {
-
+        _chaseTimer.Reset(bruteSO.LoseInterestTimeChase);
     }
 }

@@ -1,8 +1,9 @@
+using Unity.VisualScripting;
 using UnityEngine;
 [CreateAssetMenu(fileName = "BruteSO", menuName = "Scriptable Objects/BruteSO")]
 public class BruteSO : BaseEnemySO
 {
-    [field: Header("Name")]
+    [field: Header("Brute Movement")]
     [field: SerializeField] public float AlertWalkSpeed { get; private set; }
     [field: SerializeField] public float MinWanderDistance { get; private set; }
     [field: SerializeField] public float MaxWanderDistance { get; private set; }
@@ -18,6 +19,7 @@ public class BruteSO : BaseEnemySO
     public float HearingCooldown;
     public float LoseInterestTimeInvestigate;
     public float LoseInterestTimeChase;
+    public float LoseInterestDistanceChase;
     public float LandingCooldown;
 
     public float RandomIdleTime => Random.Range(MinIdleTime, MaxIdleTime);

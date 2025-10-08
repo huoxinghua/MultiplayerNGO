@@ -21,8 +21,6 @@ public class PlayerInteractCast : MonoBehaviour
     Vector3 startInteractPos;
     [SerializeField] float releaseDistance;
     [SerializeField] IHoldToInteract currentHold;
-    [SerializeField] GameObject pressEText;
-    [SerializeField] GameObject holdEText;
     //set up interact!!!
 
     // PlayerInputManager inputManager;
@@ -68,7 +66,7 @@ public class PlayerInteractCast : MonoBehaviour
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
             GameObject hitRoot = hit.collider.transform.gameObject;
-          //  Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
+            //  Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
             //Debug.Log("Raycast hit: " + hit.transform.name);
             // Only update cache if the target changes
             if (hitRoot != currentTarget)
@@ -83,8 +81,6 @@ public class PlayerInteractCast : MonoBehaviour
 
             // UI Logic
             castedInteract = hasInteractable;
-            pressEText.SetActive(hasInteractable);
-            holdEText.SetActive(!hasInteractable && hasHoldInteract);
         }
         else
         {
@@ -93,23 +89,15 @@ public class PlayerInteractCast : MonoBehaviour
             currentInteractable = null;
             currentHoldInteract = null;
             castedInteract = false;
-            pressEText.SetActive(false);
-            holdEText.SetActive(false);
         }
     }
     public void AttemptInteract()
     {
         RaycastHit hit;
-        /*        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-                RaycastHit[] hits = Physics.RaycastAll(ray, interactDist, ~0, QueryTriggerInteraction.Collide);
-                foreach (var h in hits)
-                {
-                    Debug.Log($"RaycastAll hit: {h.collider.name}, IsTrigger: {h.collider.isTrigger}");
-                }
-        */
+
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
-            // Debug.Log($"RaycastAll hit: {hit.collider.name}, IsTrigger: {hit.collider.isTrigger}");
+
             if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
             {
                 if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
@@ -125,7 +113,7 @@ public class PlayerInteractCast : MonoBehaviour
             }
             if (hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
             {
-                Debug.Log("HitIshere>!<>!");
+
                 currentHold = hit.collider.transform.gameObject.GetComponent<IHoldToInteract>();
                 hit.collider.transform.gameObject.GetComponent<IHoldToInteract>().OnHold(playerObj);
             }
