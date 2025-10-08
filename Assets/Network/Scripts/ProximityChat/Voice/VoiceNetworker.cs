@@ -142,11 +142,13 @@ namespace Project.Network.ProximityChat
                     Debug.Log($"[PVoiceNetwork] Using existing emitter { _voiceEmitter.GetInstanceID() } with format {_voiceEmitter.GetFormat()}");
                 }
             }
-            if (!IsOwner || _playbackOwnVoice)
+            // if (!IsOwner || _playbackOwnVoice)
+             if (true)
             {
                 Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
                 if (_voiceEmitter is null || !_voiceEmitter.IsReady) 
                     return;
+                Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
 
                 _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
             }

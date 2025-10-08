@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using FMOD;
@@ -37,9 +37,22 @@ namespace Project.Network.ProximityChat
             _initialized = false;
             StartCoroutine(WaitToGetChannel());
             // Attach it to this to get spatial audio
-            RuntimeManager.AttachInstanceToGameObject(_voiceEventInstance, transform, true);
+            StartCoroutine(AttachVoiceEventDelayed());
         }
-        
+       
+
+        private IEnumerator AttachVoiceEventDelayed()
+        {
+       
+            yield return new WaitForSeconds(0.5f);
+
+            RuntimeManager.AttachInstanceToGameObject(_voiceEventInstance, gameObject);
+
+            FMOD.ATTRIBUTES_3D attr;
+            _voiceEventInstance.get3DAttributes(out attr);
+            UnityEngine.Debug.Log($"[StudioVoiceEmitter] AttachInstanceToGameObject success → pos=({attr.position.x:F2}, {attr.position.y:F2}, {attr.position.z:F2})");
+        }
+
         /// <inheritdoc />
         public override void SetVolume(float volume)
         {
@@ -91,7 +104,18 @@ namespace Project.Network.ProximityChat
             }
             return RESULT.OK;
         }
-
+        private void LateUpdate()
+        {
+           /* 
+            //check the sound position is along with the player or not. it confirm yes
+            if (_voiceEventInstance.isValid())
+            {
+                _voiceEventInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform));
+                FMOD.ATTRIBUTES_3D attr;
+                _voiceEventInstance.get3DAttributes(out attr);
+                UnityEngine.Debug.Log($"[VoiceEmitter] Updating 3D pos = ({attr.position.x:F2}, {attr.position.y:F2}, {attr.position.z:F2})");
+            }*/
+        }
         private void OnDestroy()
         {
             if (_initialized)
