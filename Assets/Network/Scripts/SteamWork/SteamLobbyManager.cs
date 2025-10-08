@@ -20,6 +20,9 @@ namespace Project.Network.SteamWork
         protected Callback<LobbyMatchList_t> _lobbyList;
         protected Callback<LobbyDataUpdate_t> _lobbyDataUpdate;
 
+        //disconneted
+        protected Callback<SteamNetConnectionStatusChangedCallback_t> _connectedHostChanged;
+
         public static event Action OnCreateFriendOnlyLobby;
         public static event Action OnCreatePublicLobby;
         public static event Action OnGetLobbyList;
@@ -64,8 +67,35 @@ namespace Project.Network.SteamWork
             _gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
             _lobbyList = Callback<LobbyMatchList_t>.Create(OnLobbyListReceived);
             _lobbyDataUpdate = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
+            _connectedHostChanged = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(LoadMainMenuWhenHostDisconnect);
         }
 
+        private void LoadMainMenuWhenHostDisconnect(SteamNetConnectionStatusChangedCallback_t param)
+        {
+            var state = param.m_info.m_eState;
+
+            Debug.Log($"[Steam] Connection changed → {state}");
+
+
+            if (!NetworkManager.Singleton.IsServer)
+            {
+
+                if (state == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer ||
+                    state == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
+                {
+                    Debug.Log("[Client] Lost connection to Host → Returning to MainMenu");
+
+
+                    if (NetworkManager.Singleton.IsListening)
+                        NetworkManager.Singleton.Shutdown();
+
+
+                    NetworkManager.Singleton.SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+                }
+                
+            }
+
+        }
         public static void RaiseCreateFriendOnlyLobby()
         {
             OnCreateFriendOnlyLobby?.Invoke();

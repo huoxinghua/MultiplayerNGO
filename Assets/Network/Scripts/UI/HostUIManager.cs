@@ -69,6 +69,7 @@ namespace Project.Network.UI
 
         public void HideHostOption()
         {
+            HidePanels();
             _multiplayerOption.SetActive(false);
             _isOpenHostOption = false;
         }
