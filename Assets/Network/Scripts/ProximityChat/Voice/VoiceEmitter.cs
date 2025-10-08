@@ -65,6 +65,13 @@ namespace Project.Network.ProximityChat
             
             // Create 3D sound in loop mode and allow direct writing to sound data
             RuntimeManager.CoreSystem.createSound(_soundParams.userdata,MODE.LOOP_NORMAL | MODE.OPENUSER | MODE._3D, ref _soundParams, out _voiceSound);
+            RuntimeManager.CoreSystem.getMasterChannelGroup(out ChannelGroup masterGroup);
+            RuntimeManager.CoreSystem.playSound(_voiceSound, masterGroup, false, out _channel);
+            _channel.setMode(MODE.LOOP_NORMAL);
+            _channel.setPaused(false);
+
+            _initialized = true;
+            Debug.Log("[VoiceEmitter] FMOD voice sound created and playing.");
             // Flag initialized
             _initialized = true;
         }
