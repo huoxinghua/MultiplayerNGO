@@ -7,6 +7,7 @@ using FMODUnity;
 using UnityEngine;
 using Project.Network.ProximityChat;
 using Debug = UnityEngine.Debug;
+using System.Security.Cryptography;
 
 namespace Project.Network.ProximityChat
 {
@@ -31,9 +32,10 @@ namespace Project.Network.ProximityChat
             // Create and initialize an instance of our FMOD voice event
             _voiceEventInstance = RuntimeManager.CreateInstance(_voiceEventReference);
             // _voiceEventInstance.setCallback(_voiceCallback);
-            _voiceEventInstance.setCallback(
+            RESULT  res = _voiceEventInstance.setCallback(
      _voiceCallback,
      EVENT_CALLBACK_TYPE.CREATE_PROGRAMMER_SOUND | EVENT_CALLBACK_TYPE.DESTROY_PROGRAMMER_SOUND);//xh add
+            Debug.Log($"!!!!!![StudioVoiceEmitter] Callback registration result = {res}&&&&&&&&&&&");
             _voiceEventInstance.start();
             _voiceEventInstance.setPaused(true);
             // We're not going to be officially initialized until our event instance
@@ -61,6 +63,7 @@ namespace Project.Network.ProximityChat
           
             // _initialized = true;
             UnityEngine.Debug.Log($"[StudioVoiceEmitter] AttachInstanceToGameObject success → pos=({attr.position.x:F2}, {attr.position.y:F2}, {attr.position.z:F2})");
+
         }
 
         /// <inheritdoc />
@@ -135,28 +138,86 @@ namespace Project.Network.ProximityChat
             }
 
         }
-
+        public static short[] LastDecodedSamples;
         [AOT.MonoPInvokeCallback(typeof(EVENT_CALLBACK))]
         static RESULT VoiceEventCallback(EVENT_CALLBACK_TYPE type, IntPtr instancePtr, IntPtr parameterPtr)
         {
-            switch (type)
+            if (type == EVENT_CALLBACK_TYPE.CREATE_PROGRAMMER_SOUND)
             {
+                var parameter = (PROGRAMMER_SOUND_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(PROGRAMMER_SOUND_PROPERTIES));
 
-                // Pass the sound to the programmer instrument
-                case EVENT_CALLBACK_TYPE.CREATE_PROGRAMMER_SOUND:
+               
+                if (LastDecodedSamples == null || LastDecodedSamples.Length == 0)
                 {
-                        
-                        var parameter = (PROGRAMMER_SOUND_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(PROGRAMMER_SOUND_PROPERTIES));
-                    parameter.sound = _voiceSound.handle;
-                        Debug.Log("[studioVoiceEmitter]  VoiceEventCallback CREATE_PROGRAMMER_SOUND"+ parameter.sound);
-                        parameter.subsoundIndex = -1;
-                    Marshal.StructureToPtr(parameter, parameterPtr, false);
-
-                    break;
+                    Debug.LogWarning("[StudioVoiceEmitter] ⚠️ No PCM samples available for programmer sound.");
+                    return RESULT.OK;
                 }
+
+               
+                var exInfo = new CREATESOUNDEXINFO();
+                exInfo.cbsize = Marshal.SizeOf(exInfo);
+                exInfo.numchannels = 1;
+                exInfo.defaultfrequency = 48000;
+                exInfo.format = SOUND_FORMAT.PCM16;
+                exInfo.length = (uint)(LastDecodedSamples.Length * sizeof(short));
+
+         
+                RESULT result = RuntimeManager.CoreSystem.createSound(
+                    (IntPtr)0,
+                    MODE.OPENUSER | MODE.CREATESTREAM | MODE.LOOP_OFF,
+                    ref exInfo,
+                    out Sound localSound);
+
+                if (result != RESULT.OK)
+                {
+                    Debug.LogError($"[StudioVoiceEmitter] ❌ createSound failed: {result}");
+                    return result;
+                }
+
+            
+                IntPtr ptr1, ptr2;
+                uint len1, len2;
+                localSound.@lock(0, exInfo.length, out ptr1, out ptr2, out len1, out len2);
+                Marshal.Copy(LastDecodedSamples, 0, ptr1, LastDecodedSamples.Length);
+                localSound.unlock(ptr1, ptr2, len1, len2);
+
+               
+                parameter.sound = localSound.handle;
+                parameter.subsoundIndex = -1;
+                Marshal.StructureToPtr(parameter, parameterPtr, false);
+
+                Debug.Log($"[StudioVoiceEmitter] ✅ Programmer Sound Created for this emitter ({LastDecodedSamples.Length} samples)");
             }
+            else if (type == EVENT_CALLBACK_TYPE.DESTROY_PROGRAMMER_SOUND)
+            {
+                Debug.Log("[StudioVoiceEmitter] 💀 Programmer Sound destroyed");
+            }
+
             return RESULT.OK;
         }
+
+
+        /*        [AOT.MonoPInvokeCallback(typeof(EVENT_CALLBACK))]
+                static RESULT VoiceEventCallback(EVENT_CALLBACK_TYPE type, IntPtr instancePtr, IntPtr parameterPtr)
+                {
+                    switch (type)
+                    {
+
+                        // Pass the sound to the programmer instrument
+                        case EVENT_CALLBACK_TYPE.CREATE_PROGRAMMER_SOUND:
+                        {
+
+                                var parameter = (PROGRAMMER_SOUND_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(PROGRAMMER_SOUND_PROPERTIES));
+                            parameter.sound = _voiceSound.handle;
+                                Debug.Log("[studioVoiceEmitter]  VoiceEventCallback CREATE_PROGRAMMER_SOUND"+ parameter.sound);
+                                parameter.subsoundIndex = -1;
+                            Marshal.StructureToPtr(parameter, parameterPtr, false);
+
+                            break;
+                        }
+                    }
+                    return RESULT.OK;
+                }*/
         private void LateUpdate()
         {
             /* 

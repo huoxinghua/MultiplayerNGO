@@ -124,7 +124,6 @@ namespace Project.Network.ProximityChat
         [ClientRpc]
         public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData, ulong senderID)
         {
-            Debug.Log($"[VoiceNetwork] emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner}" + senderID);
             Debug.Log("SendEncodedVoiceClientRpc" + OwnerClientId + senderID);
             if (OwnerClientId != senderID)
             {
@@ -163,8 +162,6 @@ namespace Project.Network.ProximityChat
                 {
                     Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
                     Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
-
-
                     if (_voiceEmitter == null)
                     {
                         Debug.Log("[VoiceNetwork] VoiceEmitter is null, caching samples...");
@@ -172,6 +169,14 @@ namespace Project.Network.ProximityChat
                         // Debug.LogWarning("[VoiceNetwork]  samples..." + _pendingSamples.Count);
                         return;
                     }
+
+                    if (_voiceEmitter is StudioVoiceEmitter)
+                    {
+                        Debug.Log("_voiceEmitter is studio voice Emitter");
+                        StudioVoiceEmitter.LastDecodedSamples = decodedVoiceSamples.ToArray();
+
+                    }
+                 
                     Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady);
                     if (!_voiceEmitter.IsReady)
                     {
