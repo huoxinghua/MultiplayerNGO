@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -97,11 +96,11 @@ namespace Project.Network.ProximityChat
 
 
         [ServerRpc]
-        public void SendEncodedVoiceServerRpc(byte[] encodedVoiceData,ServerRpcParams rpcParams = default)
+        public void SendEncodedVoiceServerRpc(byte[] encodedVoiceData, ServerRpcParams rpcParams = default)
         {
             // Debug.Log($"[PVoiceNetwork] ServerRpc reveive {encodedVoiceData.Length} byte");
             ulong senderId = rpcParams.Receive.SenderClientId;
-            SendEncodedVoiceClientRpc(encodedVoiceData, senderId);   
+            SendEncodedVoiceClientRpc(encodedVoiceData, senderId);
         }
 
         //[ClientRpc]
@@ -123,8 +122,9 @@ namespace Project.Network.ProximityChat
         //}
         private readonly Queue<short[]> _pendingSamples = new Queue<short[]>();
         [ClientRpc]
-        public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData,ulong senderID)
+        public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData, ulong senderID)
         {
+            Debug.Log($"[VoiceNetwork] emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner}" + senderID);
             Debug.Log("SendEncodedVoiceClientRpc" + OwnerClientId + senderID);
             if (OwnerClientId != senderID)
             {
@@ -134,74 +134,75 @@ namespace Project.Network.ProximityChat
             else
             {
                 Debug.Log("OwnerClientId = senderID");
-            }
 
-            //Debug.Log($"[PVoiceNetwork] ClientRpc receive {encodedVoiceData.Length} byte");
-            Debug.Log($"[VoiceNetwork] emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner}");
 
-            if (_voiceDecoder == null)
-            {
-                _voiceDecoder = new VoiceDecoder();
-                Debug.LogWarning("[PVoiceNetwork] Decoder was null, initialized on the fly");
-            }
-            if (_voiceEmitter == null)
-            {
-                _voiceEmitter = GetComponent<VoiceEmitter>();
-                if (_voiceEmitter != null)
+                //Debug.Log($"[PVoiceNetwork] ClientRpc receive {encodedVoiceData.Length} byte");
+                Debug.Log($"[VoiceNetwork] emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner}"+ senderID);
+
+                if (_voiceDecoder == null)
                 {
-                    _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
-                    Debug.LogWarning("[PVoiceNetwork] Emitter was null, initialized on the fly");
+                    _voiceDecoder = new VoiceDecoder();
+                    Debug.LogWarning("[PVoiceNetwork] Decoder was null, initialized on the fly");
                 }
-                else
-                {
-                    Debug.Log($"[PVoiceNetwork] Using existing emitter { _voiceEmitter.GetInstanceID() } with format {_voiceEmitter.GetFormat()}");
-                }
-            }
-            Debug.Log($"********[PVoiceNetwork] !IsOwner {!IsOwner} _playbackOwnVoice {_playbackOwnVoice}");
-        
-             if (!IsOwner|| _playbackOwnVoice)
-            {
-                Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
-                Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
-
-               
                 if (_voiceEmitter == null)
                 {
-                    Debug.Log("[VoiceNetwork] VoiceEmitter is null, caching samples...");
-                    _pendingSamples.Enqueue(decodedVoiceSamples.ToArray());
-                   // Debug.LogWarning("[VoiceNetwork]  samples..." + _pendingSamples.Count);
-                    return;
+                    _voiceEmitter = GetComponent<VoiceEmitter>();
+                    if (_voiceEmitter != null)
+                    {
+                        _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
+                        Debug.LogWarning("[PVoiceNetwork] Emitter was null, initialized on the fly");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PVoiceNetwork] Using existing emitter {_voiceEmitter.GetInstanceID()} with format {_voiceEmitter.GetFormat()}");
+                    }
                 }
-                Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady );
-                if (!_voiceEmitter.IsReady)
-                {
-                    Debug.Log("[VoiceNetwork] VoiceEmitter not ready yet, caching samples...");
-                    _pendingSamples.Enqueue(decodedVoiceSamples.ToArray());
-                  //  Debug.LogWarning("[VoiceNetwork]  samples..."+ _pendingSamples.Count);
-                    return;
-                }
-                Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady);
-                while (_pendingSamples.Count > 0)
-                {
-                    _voiceEmitter.EnqueueSamplesForPlayback(_pendingSamples.Dequeue());
-                }
+                Debug.Log($"********[PVoiceNetwork] !IsOwner {!IsOwner} _playbackOwnVoice {_playbackOwnVoice}");
 
-                _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
+                if (!IsOwner || _playbackOwnVoice)
+                {
+                    Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
+                    Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
 
+
+                    if (_voiceEmitter == null)
+                    {
+                        Debug.Log("[VoiceNetwork] VoiceEmitter is null, caching samples...");
+                        _pendingSamples.Enqueue(decodedVoiceSamples.ToArray());
+                        // Debug.LogWarning("[VoiceNetwork]  samples..." + _pendingSamples.Count);
+                        return;
+                    }
+                    Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady);
+                    if (!_voiceEmitter.IsReady)
+                    {
+                        Debug.Log("[VoiceNetwork] VoiceEmitter not ready yet, caching samples...");
+                        _pendingSamples.Enqueue(decodedVoiceSamples.ToArray());
+                        //  Debug.LogWarning("[VoiceNetwork]  samples..."+ _pendingSamples.Count);
+                        return;
+                    }
+                    Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady);
+                    while (_pendingSamples.Count > 0)
+                    {
+                        _voiceEmitter.EnqueueSamplesForPlayback(_pendingSamples.Dequeue());
+                    }
+
+                    _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
+
+                }
             }
 
             // if (IsOwner|| _playbackOwnVoice)
-           // if (true)
-          /*  {
-                Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
-               *//* if (_voiceEmitter is null || !_voiceEmitter.IsReady)
-                    return;*//*
-                Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
+            // if (true)
+            /*  {
+                  Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
+                 *//* if (_voiceEmitter is null || !_voiceEmitter.IsReady)
+                      return;*//*
+                  Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
 
-                _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
-            }*/
+                  _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);
+              }*/
 
-            
+
 
         }
         /// <summary>
@@ -212,7 +213,7 @@ namespace Project.Network.ProximityChat
             if (!IsOwner) return;
             _voiceRecorder.StartRecording();
         }
-        
+
         /// <summary>
         /// Stops recording and sending voice data over the network.
         /// </summary>
