@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.InputSystem.XR;
@@ -37,6 +39,15 @@ public class PlayerStateMachine : BaseStateController
 
     Timer _groundTimer;
     private float _groundTimerLength = 0.2f;
+
+    public event Action<float, GameObject> SoundMade;
+    public static List<PlayerStateMachine> AllPlayers = new List<PlayerStateMachine>();
+    public static event Action<PlayerStateMachine> OnPlayerAdded;
+    public static event Action<PlayerStateMachine> OnPlayerRemoved;
+    public void OnSoundMade(float soundRange)
+    {
+        SoundMade?.Invoke(soundRange, gameObject);
+    }
     private void Awake()
     {
         InputManager = GetComponent<PlayerInputManager>();
@@ -53,6 +64,7 @@ public class PlayerStateMachine : BaseStateController
 
         _groundTimer = new Timer(.1f);
         _groundTimer.Start();
+
     }
     public void OnEnable()
     {
@@ -68,6 +80,9 @@ public class PlayerStateMachine : BaseStateController
         {
             Debug.Log("input manager is null ");
         }
+        if (!AllPlayers.Contains(this))
+            AllPlayers.Add(this);
+        OnPlayerAdded?.Invoke(this);
     }
     public void OnDisable()
     {
@@ -83,6 +98,8 @@ public class PlayerStateMachine : BaseStateController
         {
             Debug.Log("input manager is null ");
         }
+        AllPlayers.Remove(this);
+        OnPlayerRemoved?.Invoke(this);
     }
     public void Start()
     {
@@ -176,6 +193,7 @@ public class PlayerStateMachine : BaseStateController
         if (!isGrounded)
         {
             TransitionTo(IdleState);
+            OnSoundMade(PlayerSO.LandingSoundRange);
         }
         else
         {

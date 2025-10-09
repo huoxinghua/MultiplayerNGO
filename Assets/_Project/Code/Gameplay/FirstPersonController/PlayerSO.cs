@@ -8,6 +8,11 @@ public class PlayerSO : ScriptableObject
     [field: SerializeField] public float MoveSpeed {get; private set; }
     [field: SerializeField] public float CrouchMoveMultiplier { get; private set; }
     [field: SerializeField] public float SprintMultiplier { get; private set; }
+    [field: Header("Noise Ranges")]
+    [field: SerializeField] public float WalkSoundRange {  get; private set; }
+    [field: SerializeField] public float SprintSoundRange { get; private set; }
+    [field: SerializeField] public float CrouchSoundRange { get; private set; }
+    [field: SerializeField] public float LandingSoundRange { get; private set; }
 
     [field: Header("Jump")]
     [field: SerializeField] public float JumpStrength { get; private set; }

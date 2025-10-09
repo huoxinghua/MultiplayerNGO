@@ -21,6 +21,7 @@ public class BruteSO : BaseEnemySO
     public float LoseInterestTimeChase;
     public float LoseInterestDistanceChase;
     public float LandingCooldown;
+    public int TimesHeardBeforeAgro;
 
     public float RandomIdleTime => Random.Range(MinIdleTime, MaxIdleTime);
     private float _randomT;

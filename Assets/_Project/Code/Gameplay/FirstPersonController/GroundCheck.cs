@@ -1,8 +1,42 @@
 using System;
 using UnityEngine;
 
+
+/*public struct EventStructTest
+{
+    public bool EventBoolean;
+    public int EventInt;
+    public float EventFloat;
+}
+public class EventListener : MonoBehaviour
+{
+    EventInvoker inovke;
+    public void Start()
+    {
+        inovke.OnEvent += FunctionName;
+        bool fromEvent;
+        void FunctionName(EventStructTest structTest)
+        {
+            fromEvent = structTest.EventBoolean;
+        }
+    }
+}
+public class EventInvoker : MonoBehaviour
+{
+    public event Action<EventStructTest> OnEvent;
+    EventStructTest StructTest = new EventStructTest();
+    public void Awake()
+    {
+        StructTest.EventFloat = 1;
+        OnEvent?.Invoke(StructTest);
+    }
+}*/
+
+
+
 public class GroundCheck : MonoBehaviour
 {
+
     [SerializeField] private float distanceThreshold = .15f;
     private float _timeSinceChange;
     public event Action<bool> OnGroundedChanged;
@@ -13,7 +47,8 @@ public class GroundCheck : MonoBehaviour
         get
         {
             return _isGrounded;
-        } private set
+        }
+        private set
         {
             if (value != _isGrounded)
             {
@@ -22,12 +57,12 @@ public class GroundCheck : MonoBehaviour
             }
             _isGrounded = value;
         }
-    } 
+    }
 
     private bool _isGrounded;
     public event Action Grounded;
     const float OriginOffset = .001f;
-    public float CoyoteTime => !_isGrounded? _timeSinceChange: 0.0f;
+    public float CoyoteTime => !_isGrounded ? _timeSinceChange : 0.0f;
     private Vector3 RaycastOrigin => _checkLocation.position;//transform.position + Vector3.up * OriginOffset;
     float RaycastDistance => distanceThreshold + OriginOffset;
 

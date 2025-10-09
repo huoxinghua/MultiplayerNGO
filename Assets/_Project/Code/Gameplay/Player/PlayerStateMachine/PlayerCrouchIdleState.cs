@@ -3,6 +3,7 @@ using UnityEngine.InputSystem.XR;
 
 public class PlayerCrouchIdleState : PlayerBaseState
 {
+    LayerMask standCrouchMask = LayerMasks.Instance.PlayerMask;
     public PlayerCrouchIdleState(PlayerStateMachine stateController) : base(stateController)
     {
     }
@@ -24,14 +25,8 @@ public class PlayerCrouchIdleState : PlayerBaseState
     }
     bool CanStandUp()
     {
-        float standHeight = playerSO.StandHeight;
-        float standCenterY = (standHeight - characterController.skinWidth * 2f) / 2f;
-        Vector3 capsuleCenter = stateController.transform.position + new Vector3(0, standCenterY, 0);
-
-        Vector3 bottom = capsuleCenter - Vector3.up * (standHeight / 2f);
-        Vector3 top = capsuleCenter + Vector3.up * (standHeight / 2f);
-
-        return !Physics.CheckCapsule(bottom, top, characterController.radius, ~stateController.groundMask, QueryTriggerInteraction.Ignore);
+        Vector3 RayOrigin = new Vector3(stateController.transform.position.x,stateController.transform.position.y + playerSO.CrouchHeight/2,stateController.transform.position.z);
+        return !Physics.Raycast(RayOrigin, Vector3.up, out _,playerSO.StandHeight - playerSO.CrouchHeight, standCrouchMask);
     }   
     void TryCrouch()
     {

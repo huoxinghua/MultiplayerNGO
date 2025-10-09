@@ -16,7 +16,7 @@ public class PlayerSprintState : PlayerBaseState
 
     public override void StateFixedUpdate()
     {
-
+        stateController.OnSoundMade(playerSO.SprintSoundRange);
     }
     //Probably not needed as crouch does not come here. Safety precaution
     void TryStand()

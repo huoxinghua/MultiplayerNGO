@@ -19,7 +19,7 @@ public class SampleJarController : MonoBehaviour, IHeldItem, IInteractable
     {
         if (!model.HasOwner || !model.IsInHand) return;
 
-        Transform dropPoint = model.Owner.transform.GetChild(3);
+        Transform dropPoint = model.Owner.transform.GetChild(1);    
         view.MoveToPosition(dropPoint.position);
         view.DestroyHeldVisual();
         view.SetVisible(true);

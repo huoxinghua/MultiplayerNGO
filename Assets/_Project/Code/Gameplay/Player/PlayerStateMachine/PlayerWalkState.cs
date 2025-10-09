@@ -17,7 +17,7 @@ public class PlayerWalkState : PlayerBaseState
     }
     public override void StateFixedUpdate()
     {
-
+        stateController.OnSoundMade(playerSO.WalkSoundRange);
     }
     public override void StateUpdate()
     {

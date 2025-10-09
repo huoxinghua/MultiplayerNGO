@@ -11,7 +11,7 @@ public class BruteHeardPlayerState : BruteBaseState
         stateController.TimesAlerted++; 
         
         // !!!! Need to replace two with a SO variable? yeah, that !!!!
-        if(stateController.TimesAlerted >= 2)
+        if(stateController.TimesAlerted >= bruteSO.TimesHeardBeforeAgro)
         {
             stateController.TransitionTo(stateController.bruteChaseState);
         }
