@@ -29,7 +29,7 @@ namespace Project.Network.ProximityChat
         protected bool _soundIsFull;
         // Initialized
         protected bool _initialized = false;
-        
+        public bool IsReady => _initialized;
         /// <summary>
         /// Initialize with sample rate, channel count and format of incoming voice audio data.
         /// </summary>
@@ -68,12 +68,15 @@ namespace Project.Network.ProximityChat
             RuntimeManager.CoreSystem.getMasterChannelGroup(out ChannelGroup masterGroup);
             RuntimeManager.CoreSystem.playSound(_voiceSound, masterGroup, false, out _channel);
             _channel.setMode(MODE.LOOP_NORMAL);
+
             _channel.setPaused(false);
 
-            _initialized = true;
-            Debug.Log("[VoiceEmitter] FMOD voice sound created and playing.");
+           
+           
             // Flag initialized
             _initialized = true;
+
+            Debug.Log("[VoiceEmitter] FMOD voice sound created and playing.+_initialized" + _initialized +"IsReady"+IsReady);
         }
         
        /// <summary>
@@ -102,7 +105,7 @@ namespace Project.Network.ProximityChat
         /// </remarks>
         /// <param name="voiceSamples">Samples to be queued for playback</param>
         /// <exception cref="Exception">Throws an exception if input format is not <see cref="VoiceFormat.PCM16Samples"/></exception>
-       public bool IsReady => _initialized;
+      
         public void EnqueueSamplesForPlayback(Span<short> voiceSamples)
         {
             //if (_inputFormat != VoiceFormat.PCM16Samples)
@@ -110,7 +113,7 @@ namespace Project.Network.ProximityChat
             //    throw new Exception("Incorrect input format. Failed to dequeue voice bytes.");
             //    return;
             //}
-                
+            Debug.Log("[VoiceEmitter] EnqueueSamplesForPlayback");
             if (!_initialized)
             {
                 Debug.Log($"[VoiceEmitter] ({GetInstanceID()}) enqueue before Init. format={_inputFormat}");
@@ -125,7 +128,7 @@ namespace Project.Network.ProximityChat
             _voiceSamplesQueue.Enqueue(voiceSamples);
         }
 
-        /// <summary>
+        /// <summary>`
         /// Sets the emitted voice volume.
         /// </summary>
         /// <param name="volume">Volume from 0 to 1</param>

@@ -20,7 +20,7 @@ namespace Project.Network.ProximityChat
         // Programmer instrument event
         protected EVENT_CALLBACK _voiceCallback;
         protected EventInstance _voiceEventInstance;
-
+        protected Rigidbody _voiceRigidbody;
         /// <inheritdoc />
         public override void Init(uint sampleRate = 48000, int channelCount = 1, VoiceFormat inputFormat = VoiceFormat.PCM16Samples)
         {
@@ -30,12 +30,15 @@ namespace Project.Network.ProximityChat
             _voiceCallback = new EVENT_CALLBACK(VoiceEventCallback);
             // Create and initialize an instance of our FMOD voice event
             _voiceEventInstance = RuntimeManager.CreateInstance(_voiceEventReference);
-            _voiceEventInstance.setCallback(_voiceCallback);
+            // _voiceEventInstance.setCallback(_voiceCallback);
+            _voiceEventInstance.setCallback(
+     _voiceCallback,
+     EVENT_CALLBACK_TYPE.CREATE_PROGRAMMER_SOUND | EVENT_CALLBACK_TYPE.DESTROY_PROGRAMMER_SOUND);//xh add
             _voiceEventInstance.start();
-            _voiceEventInstance.setPaused(false);
+            _voiceEventInstance.setPaused(true);
             // We're not going to be officially initialized until our event instance
             // is created, which takes a little while, so let's re-flag ourself as uninitialized
-            _initialized = false;
+        
             StartCoroutine(WaitToGetChannel());
             // Attach it to this to get spatial audio
             StartCoroutine(AttachVoiceEventDelayed());
@@ -48,9 +51,15 @@ namespace Project.Network.ProximityChat
             yield return new WaitForSeconds(0.5f);
 
             RuntimeManager.AttachInstanceToGameObject(_voiceEventInstance, gameObject);
+            var attributes = RuntimeUtils.To3DAttributes(gameObject);
 
             FMOD.ATTRIBUTES_3D attr;
             _voiceEventInstance.get3DAttributes(out attr);
+            _voiceEventInstance.set3DAttributes(attributes);
+            _voiceEventInstance.setPaused(false);
+
+          
+            // _initialized = true;
             UnityEngine.Debug.Log($"[StudioVoiceEmitter] AttachInstanceToGameObject success → pos=({attr.position.x:F2}, {attr.position.y:F2}, {attr.position.z:F2})");
         }
 
@@ -132,13 +141,17 @@ namespace Project.Network.ProximityChat
         {
             switch (type)
             {
+
                 // Pass the sound to the programmer instrument
                 case EVENT_CALLBACK_TYPE.CREATE_PROGRAMMER_SOUND:
                 {
-                    var parameter = (PROGRAMMER_SOUND_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(PROGRAMMER_SOUND_PROPERTIES));
+                        
+                        var parameter = (PROGRAMMER_SOUND_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(PROGRAMMER_SOUND_PROPERTIES));
                     parameter.sound = _voiceSound.handle;
-                    parameter.subsoundIndex = -1;
+                        Debug.Log("[studioVoiceEmitter]  VoiceEventCallback CREATE_PROGRAMMER_SOUND"+ parameter.sound);
+                        parameter.subsoundIndex = -1;
                     Marshal.StructureToPtr(parameter, parameterPtr, false);
+
                     break;
                 }
             }
@@ -146,16 +159,26 @@ namespace Project.Network.ProximityChat
         }
         private void LateUpdate()
         {
-           /* 
-            //check the sound position is along with the player or not. it confirm yes
+            /* 
+             //check the sound position is along with the player or not. it confirm yes
+             if (_voiceEventInstance.isValid())
+             {
+                 _voiceEventInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform));
+                 FMOD.ATTRIBUTES_3D attr;
+                 _voiceEventInstance.get3DAttributes(out attr);
+                 UnityEngine.Debug.Log($"[VoiceEmitter] Updating 3D pos = ({attr.position.x:F2}, {attr.position.y:F2}, {attr.position.z:F2})");
+             }*/
             if (_voiceEventInstance.isValid())
-            {
-                _voiceEventInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform));
-                FMOD.ATTRIBUTES_3D attr;
-                _voiceEventInstance.get3DAttributes(out attr);
-                UnityEngine.Debug.Log($"[VoiceEmitter] Updating 3D pos = ({attr.position.x:F2}, {attr.position.y:F2}, {attr.position.z:F2})");
-            }*/
+                Set3DNow();
         }
+        void Set3DNow()
+        {
+       
+            ATTRIBUTES_3D attr = RuntimeUtils.To3DAttributes(transform);
+            if (_voiceRigidbody) attr.velocity = RuntimeUtils.ToFMODVector(_voiceRigidbody.linearVelocity);
+            _voiceEventInstance.set3DAttributes(attr);
+        }
+
         private void OnDestroy()
         {
             if (_initialized)
