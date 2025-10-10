@@ -100,20 +100,40 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: 
   EditorBanks:
-  - {fileID: -8902665837616772490}
-  - {fileID: -6368250536984211029}
+  - {fileID: 4533325596515783111}
+  - {fileID: 5933658299973283096}
   EditorEvents:
-  - {fileID: 5014889202488883261}
+  - {fileID: 8215103301235198287}
   EditorParameters: []
   MasterBanks:
-  - {fileID: -6368250536984211029}
+  - {fileID: 5933658299973283096}
   StringsBanks:
-  - {fileID: -8902665837616772490}
+  - {fileID: 4533325596515783111}
   cacheVersion: 131849
-  cacheTime: 638954577858654748
+  cacheTime: 638956355273083961
   SerializableEventsDict:
   - key: event:/VoiceChat/PlayerVoice
     index: 0
+--- !u!114 &4533325596515783111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.strings.bank
+  m_EditorClassIdentifier: 
+  Path: FMODProject/Build/Desktop/Master.strings.bank
+  Name: Master.strings
+  StudioPath: bank:/Master.strings
+  lastModified: 638956355273083961
+  FileSizes:
+  - Name: Desktop
+    Value: 782
+  Exists: 1
 --- !u!114 &5014889202488883261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,6 +154,53 @@ MonoBehaviour:
     Data4: 459199103
   Banks:
   - {fileID: -6368250536984211029}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1000
+--- !u!114 &5933658299973283096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.bank
+  m_EditorClassIdentifier: 
+  Path: FMODProject/Build/Desktop/Master.bank
+  Name: Master
+  StudioPath: bank:/Master
+  lastModified: 638956355273073956
+  FileSizes:
+  - Name: Desktop
+    Value: 2422
+  Exists: 1
+--- !u!114 &8215103301235198287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/VoiceChat/PlayerVoice
+  m_EditorClassIdentifier: 
+  Path: event:/VoiceChat/PlayerVoice
+  Guid:
+    Data1: -896805864
+    Data2: 1250455358
+    Data3: 664967311
+    Data4: 459199103
+  Banks:
+  - {fileID: 5933658299973283096}
   IsStream: 0
   Is3D: 1
   IsOneShot: 0
