@@ -113,6 +113,7 @@ public class BruteStateMachine : BaseStateController
     {
         if (newState == currentState) return;
         currentState?.OnExit();
+        Debug.Log($"Last State: {currentState?.ToString()} nextState: {newState.ToString()}");
         currentState = newState;
         currentState.OnEnter();
     }

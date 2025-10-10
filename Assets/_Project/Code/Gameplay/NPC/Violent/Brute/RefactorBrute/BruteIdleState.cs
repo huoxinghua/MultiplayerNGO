@@ -1,10 +1,11 @@
+using System.Data.Common;
 using System.Threading;
 using UnityEngine;
 
 public class BruteIdleState : BruteBaseState
 {
 
-    private Timer idleTimer = new Timer(0f);
+    private Timer _idleTimer;
 
     public BruteIdleState(BruteStateMachine stateController) : base(stateController)
     {
@@ -12,22 +13,27 @@ public class BruteIdleState : BruteBaseState
     }
     public override void OnEnter()
     {
+        float randomIdleTime = bruteSO.RandomIdleTime;
+        Debug.Log($"randomIdletime {randomIdleTime}");
+        _idleTimer = new Timer(randomIdleTime);
+        
         animator.PlayNormal();
         agent.ResetPath();
-        idleTimer.Reset(bruteSO.RandomIdleTime);
+        _idleTimer.Start();
 
         Debug.Log("Idle");
     }
     public override void OnExit()
     {
-        idleTimer.Stop();
+        _idleTimer.Stop();
+        _idleTimer = null;
     }
    
     public override void StateUpdate()
     {
-        idleTimer.TimerUpdate(Time.deltaTime);
-
-        if (!idleTimer.IsDone) return;
+        _idleTimer.TimerUpdate(Time.deltaTime);
+        animator.PlayWalk(0, 10);
+        if (!_idleTimer.IsComplete) return;
       
         stateController.TransitionTo(stateController.wanderState);        
     }

@@ -135,7 +135,7 @@ public class PlayerStateMachine : BaseStateController
 
     void Update()
     {
-        Debug.Log(currentState.ToString());
+        //Debug.Log(currentState.ToString());
         currentState?.StateUpdate();
         SmoothCameraTransition();
         //HandleJump();

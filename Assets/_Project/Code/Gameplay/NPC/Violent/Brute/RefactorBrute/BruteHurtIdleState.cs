@@ -2,26 +2,28 @@ using UnityEngine;
 
 public class BruteHurtIdleState : BruteBaseState
 {
-    Timer idleTimer = new Timer(0f);
+    Timer idleTimer;
 
     public BruteHurtIdleState(BruteStateMachine stateController) : base(stateController)
     {
     }
     public override void OnEnter()
     {
+        idleTimer = new Timer(bruteSO.RandomIdleTime);
         animator.PlayInjured();
         agent.SetDestination(stateController.gameObject.transform.position);
-        idleTimer.Reset(Random.Range(bruteSO.MinIdleTime, bruteSO.MaxIdleTime));
+        idleTimer.Start();
     }
     public override void OnExit()
     {
         idleTimer.Stop();
+        idleTimer = null;
     }
 
     public override void StateUpdate()
     {
         idleTimer.TimerUpdate(Time.deltaTime);
-        if (idleTimer.IsRunning)
+        if (idleTimer.IsComplete)
         {
             stateController.TransitionTo(stateController.wanderState);
         }

@@ -27,7 +27,7 @@ public class BruteWanderState : BruteBaseState
     }
     public override void StateFixedUpdate()
     {
-        if(Vector3.Distance(stateController.gameObject.transform.position,agent.destination) <= agent.stoppingDistance)
+        if(Vector3.Distance(stateController.gameObject.transform.position,agent.destination) <= bruteSO.StoppingDist)
         {
             stateController.TransitionTo(stateController.idleState);
         }

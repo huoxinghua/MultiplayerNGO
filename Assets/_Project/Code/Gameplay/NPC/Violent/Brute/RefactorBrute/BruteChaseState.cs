@@ -6,16 +6,18 @@ public class BruteChaseState : BruteBaseState
     {
         this.stateController = stateController;
     }
-    private Timer _chaseTimer = new Timer(0);
+    private Timer _chaseTimer;
     public override void OnEnter()
     {
-        _chaseTimer.Reset(bruteSO.LoseInterestTimeChase);
+        _chaseTimer = new Timer(bruteSO.LoseInterestTimeChase);
+        _chaseTimer.Start();
         animator.PlayAlert();
         agent.speed = bruteSO.RunSpeed;
     }
     public override void OnExit()
     {
         stateController.TimesAlerted = 0;
+        _chaseTimer = null;
     }
 
     public override void StateUpdate()
