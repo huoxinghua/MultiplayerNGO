@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class BruteHeart : MonoBehaviour , IHitable
+public class BruteHeart : MonoBehaviour , IHitable 
 {
     private BruteStateMachine _controller;
     private List<PlayerList> _players = PlayerList.AllPlayers;
@@ -14,12 +14,14 @@ public class BruteHeart : MonoBehaviour , IHitable
     [SerializeField] private float _health;
     [SerializeField] private float _playerCheckFrequency;
     [SerializeField] private float _defendDistance;
+   
     //add health
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
+   
     public void Awake()
     {
         StartCoroutine(HeartBeat());
