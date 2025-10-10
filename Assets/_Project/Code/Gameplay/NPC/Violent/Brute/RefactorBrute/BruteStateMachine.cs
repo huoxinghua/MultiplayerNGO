@@ -83,6 +83,11 @@ public class BruteStateMachine : BaseStateController
             currentState?.OnHearPlayer();
         }
     }
+    public void HandleDefendHeart(GameObject attackingPlayer)
+    {
+        lastHeardPlayer = attackingPlayer;
+        TransitionTo(bruteChaseState);
+    }
     public void OnAttack(GameObject playerToAttack) 
     {
         stateBeforeAttack = currentState;
