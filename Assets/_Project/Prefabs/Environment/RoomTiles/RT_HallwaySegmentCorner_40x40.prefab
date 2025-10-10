@@ -142,7 +142,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7413526095046778609}
-  - component: {fileID: 3395562716481243734}
+  - component: {fileID: 38630649370571610}
   m_Layer: 0
   m_Name: RT_HallwaySegmentCorner_40x40
   m_TagString: Untagged
@@ -175,7 +175,7 @@ Transform:
   - {fileID: 8211751762820969033}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3395562716481243734
+--- !u!114 &38630649370571610
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -192,10 +192,10 @@ MonoBehaviour:
   Exit: {fileID: 0}
   AllowRotation: 1
   RepeatMode: 0
-  OverrideAutomaticTileBounds: 1
+  OverrideAutomaticTileBounds: 0
   TileBoundsOverride:
-    m_Center: {x: -3.7799988, y: 1.5999997, z: -3.460001}
-    m_Extent: {x: 6, y: 1.6000004, z: 6.000001}
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
   Entrances: []
   Exits: []
   OverrideConnectionChance: 0
@@ -213,11 +213,11 @@ MonoBehaviour:
     branchId: -1
     isOnMainPath: 0
     localBounds:
-      m_Center: {x: -3.7799988, y: 1.5999997, z: -3.460001}
-      m_Extent: {x: 6, y: 1.6000004, z: 6.000001}
+      m_Center: {x: -3.7799988, y: 1.5999997, z: -3.4599996}
+      m_Extent: {x: 6.000001, y: 1.6000004, z: 5.9999995}
     worldBounds:
-      m_Center: {x: -3.7799988, y: 1.5999997, z: -3.460001}
-      m_Extent: {x: 6, y: 1.6000004, z: 6.000001}
+      m_Center: {x: -3.7799988, y: 1.5999997, z: -3.4599996}
+      m_Extent: {x: 6.000001, y: 1.6000004, z: 5.9999995}
     placementParameters:
       archetype: {fileID: 0}
       node:
@@ -1280,7 +1280,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 204863065047196069, guid: 3282fd8f9e57cc24da0e79591aa9e537, type: 3}
       propertyPath: m_VersionIndex
-      value: 48
+      value: 54
       objectReference: {fileID: 0}
     - target: {fileID: 7170152216646342024, guid: 3282fd8f9e57cc24da0e79591aa9e537, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1408,7 +1408,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 204863065047196069, guid: 3282fd8f9e57cc24da0e79591aa9e537, type: 3}
       propertyPath: m_VersionIndex
-      value: 48
+      value: 54
       objectReference: {fileID: 0}
     - target: {fileID: 7170152216646342024, guid: 3282fd8f9e57cc24da0e79591aa9e537, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3210,7 +3210,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 204863065047196069, guid: 3282fd8f9e57cc24da0e79591aa9e537, type: 3}
       propertyPath: m_VersionIndex
-      value: 48
+      value: 54
       objectReference: {fileID: 0}
     - target: {fileID: 7170152216646342024, guid: 3282fd8f9e57cc24da0e79591aa9e537, type: 3}
       propertyPath: m_LocalPosition.x
