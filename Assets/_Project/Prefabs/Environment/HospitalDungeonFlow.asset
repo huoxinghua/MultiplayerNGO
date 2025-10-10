@@ -15,12 +15,12 @@ MonoBehaviour:
   globalPropGroupID_obsolete: 
   globalPropRanges_obsolete: []
   Length:
-    Min: 30
-    Max: 40
+    Min: 20
+    Max: 20
   BranchMode: 0
   BranchCount:
-    Min: 1
-    Max: 5
+    Min: 10
+    Max: 15
   GlobalProps: []
   KeyManager: {fileID: 0}
   DoorwayConnectionChance: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
   TileInjectionRules: []
   TileTagConnectionMode: 1
   TileConnectionTags: []
-  BranchTagPruneMode: 1
+  BranchTagPruneMode: 0
   BranchPruneTags: []
   GlobalStraighteningSettings:
     OverrideStraightenChance: 0
@@ -74,7 +74,7 @@ MonoBehaviour:
     TileSets:
     - {fileID: 11400000, guid: b5a9039cf6864ae4f9178f0b6c4a11b6, type: 2}
     NodeType: 0
-    Position: 0.5191257
+    Position: 0.47176686
     Label: Start Room
     Keys: []
     Locks: []
@@ -91,7 +91,21 @@ MonoBehaviour:
     DungeonArchetypes:
     - {fileID: 11400000, guid: 1945f91c6d1e1a142831a09fa8fdf4bb, type: 2}
     Position: 0
-    Length: 1
+    Length: 0.37887067
+    Keys: []
+    Locks: []
+  - Graph: {fileID: 11400000}
+    DungeonArchetypes:
+    - {fileID: 11400000, guid: 8353f5f3f9d959b48aad4d1352e4a37c, type: 2}
+    Position: 0.37887067
+    Length: 0.19307834
+    Keys: []
+    Locks: []
+  - Graph: {fileID: 11400000}
+    DungeonArchetypes:
+    - {fileID: 11400000, guid: 1945f91c6d1e1a142831a09fa8fdf4bb, type: 2}
+    Position: 0.571949
+    Length: 0.428051
     Keys: []
     Locks: []
   currentFileVersion: 1
