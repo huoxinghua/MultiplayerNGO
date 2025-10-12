@@ -11,9 +11,4 @@ public class BruteChopped : MonoBehaviour
         }
         Destroy(gameObject);
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -5,26 +5,26 @@ public class BeetleHealth : MonoBehaviour,IHitable
 {
     //add players who attacked to list
 
-    [SerializeField] BeetleSO beetleSO;
-    public List<GameObject> hostilePlayers = new List<GameObject>();
-    [SerializeField] BeetleMove beetleMove;
-    [SerializeField] BeetleState beetleState;
-    float _maxHealth;
-    float _currentHealth;
-    float _maxConsciousness;
-    float _currentConsciousness;
+    [SerializeField] private BeetleSO _beetleSO;
+    public List<GameObject> HostilePlayers = new List<GameObject>();
+    [SerializeField] private BeetleMove _beetleMove;
+    [SerializeField] private BeetleState _beetleState;
+    private float _maxHealth;
+    private float _currentHealth;
+    private float _maxConsciousness;
+    private float _currentConsciousness;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
-        _maxHealth = beetleSO.MaxHealth;
+        _maxHealth = _beetleSO.MaxHealth;
         _currentHealth = _maxHealth;
-        _maxConsciousness = beetleSO.MaxConsciousness;
+        _maxConsciousness = _beetleSO.MaxConsciousness;
         _currentConsciousness = _maxConsciousness;
     }
     public bool IsPlayerHostile(GameObject playerToCheck)
     {
         bool isHostile = false;
-        foreach(var hostilePlayer  in hostilePlayers)
+        foreach(var hostilePlayer  in HostilePlayers)
         {
             if(playerToCheck == hostilePlayer)
             {
@@ -43,11 +43,11 @@ public class BeetleHealth : MonoBehaviour,IHitable
     }
     public void OnKnockOut()
     {
-        beetleState.TransitionToState(BeetleStates.KnockedOut);
+        _beetleState.TransitionToState(BeetleStates.KnockedOut);
     }
     public void OnDeath()
     {
-        beetleState.TransitionToState(BeetleStates.Dead);
+        _beetleState.TransitionToState(BeetleStates.Dead);
     }
    /* public void OnKnockout()
     {
@@ -66,17 +66,17 @@ public class BeetleHealth : MonoBehaviour,IHitable
         if (attacker.layer == 6)
         {
             bool isInList = false;
-            foreach(var player in hostilePlayers)
+            foreach(var player in HostilePlayers)
             {
                 if (player == attacker)
                 {
                     isInList = true;
                 }
             }
-            if (!isInList) hostilePlayers.Add(attacker);
+            if (!isInList) HostilePlayers.Add(attacker);
         }
-        beetleMove.RunFromPlayer(attacker.transform);
-        beetleState.TransitionToState(BeetleStates.RunAway);
+        _beetleMove.RunFromPlayer(attacker.transform);
+        _beetleState.TransitionToState(BeetleStates.RunAway);
         ChangeHealth(-damage);
         ChangeConsciousness(-knockoutPower);
      //   Debug.Log("Was hit");

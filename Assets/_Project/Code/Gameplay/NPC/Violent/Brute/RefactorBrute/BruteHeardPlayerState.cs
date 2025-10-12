@@ -8,16 +8,16 @@ public class BruteHeardPlayerState : BruteBaseState
     }
     public override void OnEnter()
     {
-        stateController.TimesAlerted++; 
+        StateController.TimesAlerted++; 
         
         // !!!! Need to replace two with a SO variable? yeah, that !!!!
-        if(stateController.TimesAlerted >= bruteSO.TimesHeardBeforeAgro)
+        if(StateController.TimesAlerted >= BruteSO.TimesHeardBeforeAgro)
         {
-            stateController.TransitionTo(stateController.bruteChaseState);
+            StateController.TransitionTo(StateController.BruteChaseState);
         }
         else
         {
-            stateController.TransitionTo(stateController.bruteAlertState);
+            StateController.TransitionTo(StateController.BruteAlertState);
         }
     }
     public override void OnExit()

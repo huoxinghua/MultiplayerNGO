@@ -2,39 +2,39 @@ using UnityEngine;
 
 public class BruteHurtIdleState : BruteBaseState
 {
-    Timer idleTimer;
+    private Timer _idleTimer;
 
     public BruteHurtIdleState(BruteStateMachine stateController) : base(stateController)
     {
     }
     public override void OnEnter()
     {
-        idleTimer = new Timer(bruteSO.RandomIdleTime);
-        animator.PlayInjured();
-        agent.SetDestination(stateController.gameObject.transform.position);
-        idleTimer.Start();
+        _idleTimer = new Timer(BruteSO.RandomIdleTime);
+        Animator.PlayInjured();
+        Agent.SetDestination(StateController.gameObject.transform.position);
+        _idleTimer.Start();
     }
     public override void OnExit()
     {
-        idleTimer.Stop();
-        idleTimer = null;
+        _idleTimer.Stop();
+        _idleTimer = null;
     }
 
     public override void StateUpdate()
     {
-        idleTimer.TimerUpdate(Time.deltaTime);
-        if (idleTimer.IsComplete)
+        _idleTimer.TimerUpdate(Time.deltaTime);
+        if (_idleTimer.IsComplete)
         {
-            stateController.TransitionTo(stateController.wanderState);
+            StateController.TransitionTo(StateController.WanderState);
         }
     }
     public override void StateFixedUpdate()
     {
         foreach (PlayerList player in PlayerList.AllPlayers)
         {
-            if (Vector3.Distance(player.transform.position, stateController.transform.position) < bruteSO.AttackDistance)
+            if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
             {
-                stateController.OnAttack(player.gameObject);
+                StateController.OnAttack(player.gameObject);
             }
         }
     }

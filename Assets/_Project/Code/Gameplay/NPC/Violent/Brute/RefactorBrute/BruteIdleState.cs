@@ -13,12 +13,11 @@ public class BruteIdleState : BruteBaseState
     }
     public override void OnEnter()
     {
-        float randomIdleTime = bruteSO.RandomIdleTime;
-        Debug.Log($"randomIdletime {randomIdleTime}");
+        float randomIdleTime = BruteSO.RandomIdleTime;
         _idleTimer = new Timer(randomIdleTime);
         
-        animator.PlayNormal();
-        agent.ResetPath();
+        Animator.PlayNormal();
+        Agent.ResetPath();
         _idleTimer.Start();
 
         Debug.Log("Idle");
@@ -32,10 +31,10 @@ public class BruteIdleState : BruteBaseState
     public override void StateUpdate()
     {
         _idleTimer.TimerUpdate(Time.deltaTime);
-        animator.PlayWalk(0, 10);
+        Animator.PlayWalk(0, 10);
         if (!_idleTimer.IsComplete) return;
       
-        stateController.TransitionTo(stateController.wanderState);        
+        StateController.TransitionTo(StateController.WanderState);        
     }
     public override void StateFixedUpdate()
     {
@@ -44,6 +43,6 @@ public class BruteIdleState : BruteBaseState
 
     public override void OnHearPlayer()
     {
-        stateController.TransitionTo(stateController.BruteHeardPlayerState);
+        StateController.TransitionTo(StateController.BruteHeardPlayerState);
     }
 }

@@ -2,13 +2,8 @@ using UnityEngine;
 
 public class BrutePiece : MonoBehaviour, ITwoHandItem,IInteractable
 {
-    [SerializeField] GameObject _heldView;
-    [SerializeField] Renderer _renderer;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private GameObject _heldView;
+    [SerializeField] private Renderer _renderer;
     void OnEnable()
     {
         transform.parent = null;
@@ -28,10 +23,5 @@ public class BrutePiece : MonoBehaviour, ITwoHandItem,IInteractable
         {
             OnPickup();
         }
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

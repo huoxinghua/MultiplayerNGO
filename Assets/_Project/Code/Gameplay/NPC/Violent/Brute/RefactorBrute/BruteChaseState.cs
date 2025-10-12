@@ -4,43 +4,43 @@ public class BruteChaseState : BruteBaseState
 {
       public BruteChaseState(BruteStateMachine stateController) : base(stateController)
     {
-        this.stateController = stateController;
+        this.StateController = stateController;
     }
     private Timer _chaseTimer;
     public override void OnEnter()
     {
-        _chaseTimer = new Timer(bruteSO.LoseInterestTimeChase);
+        _chaseTimer = new Timer(BruteSO.LoseInterestTimeChase);
         _chaseTimer.Start();
-        animator.PlayAlert();
-        agent.speed = bruteSO.RunSpeed;
+        Animator.PlayAlert();
+        Agent.speed = BruteSO.RunSpeed;
     }
     public override void OnExit()
     {
-        stateController.TimesAlerted = 0;
+        StateController.TimesAlerted = 0;
         _chaseTimer = null;
     }
 
     public override void StateUpdate()
     {
-        if (_chaseTimer.IsComplete || Vector3.Distance(stateController.lastHeardPlayer.transform.position,stateController.transform.position) >= bruteSO.LoseInterestDistanceChase)
+        if (_chaseTimer.IsComplete || Vector3.Distance(StateController.LastHeardPlayer.transform.position,StateController.transform.position) >= BruteSO.LoseInterestDistanceChase)
         {
-            stateController.TransitionTo(stateController.idleState);
+            StateController.TransitionTo(StateController.IdleState);
         }
     }
     public override void StateFixedUpdate()
     {
-        agent.SetDestination(stateController.lastHeardPlayer.transform.position);
+        Agent.SetDestination(StateController.LastHeardPlayer.transform.position);
         foreach (PlayerList player in PlayerList.AllPlayers)
         {
-            if (Vector3.Distance(player.transform.position, stateController.transform.position) < bruteSO.AttackDistance)
+            if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
             {
-                stateController.OnAttack(player.gameObject);
+                StateController.OnAttack(player.gameObject);
             }
         }
-        animator.PlayRun(agent.velocity.magnitude, agent.speed);
+        Animator.PlayRun(Agent.velocity.magnitude, Agent.speed);
     }
     public override void OnHearPlayer()
     {
-        _chaseTimer.Reset(bruteSO.LoseInterestTimeChase);
+        _chaseTimer.Reset(BruteSO.LoseInterestTimeChase);
     }
 }

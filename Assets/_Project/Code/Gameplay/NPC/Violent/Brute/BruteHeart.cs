@@ -38,7 +38,7 @@ public class BruteHeart : MonoBehaviour , IHitable
         {
             StopCoroutine(HeartBeat());
             StopCoroutine(CheckPlayerProximity());
-            _controller.TransitionTo(_controller.bruteHurtIdleState);
+            _controller.TransitionTo(_controller.BruteHurtIdleState);
             Destroy(gameObject);
         }
     }

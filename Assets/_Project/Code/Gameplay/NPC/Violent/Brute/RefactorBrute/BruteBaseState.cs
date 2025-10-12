@@ -3,16 +3,16 @@ using UnityEngine.AI;
 
 public class BruteBaseState : BaseState
 {
-    protected BruteStateMachine stateController;
-    protected BruteAnimation animator;
-    protected NavMeshAgent agent;
-    protected BruteSO bruteSO;
+    protected BruteStateMachine StateController;
+    protected BruteAnimation Animator;
+    protected NavMeshAgent Agent;
+    protected BruteSO BruteSO;
     public BruteBaseState(BruteStateMachine stateController)
     {
-        this.stateController = stateController;
-        animator = stateController.animator;
-        agent = stateController.agent;
-        bruteSO = stateController.BruteSO;
+        this.StateController = stateController;
+        Animator = stateController.Animator;
+        Agent = stateController.agent;
+        BruteSO = stateController.BruteSO;
     }
     public override void OnEnter()
     {

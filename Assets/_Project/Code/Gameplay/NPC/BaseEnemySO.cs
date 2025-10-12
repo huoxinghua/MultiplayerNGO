@@ -2,17 +2,14 @@ using UnityEngine;
 
 public abstract class BaseEnemySO : ScriptableObject
 {
-    [SerializeField] private float walkSpeed;
-    [SerializeField] private float runSpeed;
-    [SerializeField] private float maxConsciousness;
-    [SerializeField] private float maxHealth;
-    [SerializeField] private float damage;
-    [SerializeField] private float stoppingDist;
-
-    public float WalkSpeed => walkSpeed;
-    public float RunSpeed => runSpeed;
-    public float MaxConsciousness => maxConsciousness;
-    public float MaxHealth => maxHealth;
-    public float Damage => damage;
-    public float StoppingDist => stoppingDist;
+    [field: Header("Base Movement")]
+    [field: SerializeField] public float WalkSpeed { get; private set; }
+    [field: SerializeField] public float RunSpeed { get; private set; }
+    [field: Header("Base Health/Defense")]
+    [field: SerializeField] public float MaxConsciousness { get; private set; }
+    [field: SerializeField] public float MaxHealth { get; private set; }
+    [field: Header("Base Attack")]
+    [field: SerializeField] public float Damage { get; private set; }
+    [field: Header("Misc")]
+    [field: SerializeField] public float StoppingDist { get; private set; }
 }

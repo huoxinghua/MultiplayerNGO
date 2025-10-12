@@ -3,38 +3,38 @@ using UnityEngine.AI;
 
 public class BruteStateMachine : BaseStateController
 {
-    protected BruteBaseState currentState;
-    protected BruteBaseState stateBeforeAttack;
-    public BruteIdleState idleState { get; private set; }
-    public BruteWanderState wanderState { get; private set; }
-    public BruteHurtIdleState bruteHurtIdleState { get; private set; }
-    public BruteHurtWander bruteHurtWander { get; private set; }
-    public BruteAlertState bruteAlertState { get; private set; }
-    public BruteChaseState bruteChaseState { get; private set; }
+    protected BruteBaseState CurrentState;
+    protected BruteBaseState StateBeforeAttack;
+    public BruteIdleState IdleState { get; private set; }
+    public BruteWanderState WanderState { get; private set; }
+    public BruteHurtIdleState BruteHurtIdleState { get; private set; }
+    public BruteHurtWander BruteHurtWander { get; private set; }
+    public BruteAlertState BruteAlertState { get; private set; }
+    public BruteChaseState BruteChaseState { get; private set; }
     public BruteAttackState BruteAttackState { get; private set; }
     public BruteHeardPlayerState BruteHeardPlayerState { get; private set; }
     public BruteDeadState BruteDeadState { get; private set; }
     public BruteHitState BruteHitState { get; private set; }
-    public BruteAnimation animator { get; private set; }
+    public BruteAnimation Animator { get; private set; }
     public NavMeshAgent agent { get; private set; }
     [SerializeField] public BruteSO BruteSO;
     public Transform HeartPosition { get; private set; }
-    [SerializeField] GameObject _heartPrefab;
+    [SerializeField] private GameObject _heartPrefab;
     private GameObject _spawnedHeart;
-    public GameObject lastHeardPlayer { get; private set; }
+    public GameObject LastHeardPlayer { get; private set; }
     public GameObject PlayerToAttack { get; private set; }
     public int TimesAlerted = 0;
     public void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        animator = GetComponentInChildren<BruteAnimation>();
+        Animator = GetComponentInChildren<BruteAnimation>();
         HandleHeartSpawn();
-        idleState = new BruteIdleState(this);
-        wanderState = new BruteWanderState(this);
-        bruteHurtIdleState = new BruteHurtIdleState(this);
-        bruteHurtWander = new BruteHurtWander(this);
-        bruteAlertState = new BruteAlertState(this);
-        bruteChaseState = new BruteChaseState(this);
+        IdleState = new BruteIdleState(this);
+        WanderState = new BruteWanderState(this);
+        BruteHurtIdleState = new BruteHurtIdleState(this);
+        BruteHurtWander = new BruteHurtWander(this);
+        BruteAlertState = new BruteAlertState(this);
+        BruteChaseState = new BruteChaseState(this);
         BruteAttackState = new BruteAttackState(this);
         BruteHeardPlayerState = new BruteHeardPlayerState(this);
         BruteDeadState = new BruteDeadState(this);
@@ -50,62 +50,62 @@ public class BruteStateMachine : BaseStateController
     }
     public void Start()
     {
-        TransitionTo(wanderState);
+        TransitionTo(WanderState);
     }
     void Update()
     {
-        currentState?.StateUpdate();
+        CurrentState?.StateUpdate();
     }
     void FixedUpdate()
     {
-        currentState?.StateFixedUpdate();
+        CurrentState?.StateFixedUpdate();
     }
     public void OnHearPlayer(GameObject playerObj)
     {
 
         if (playerObj == null){ Debug.Log("LeavingEarly"); return; }
       //  Debug.Log(playerObj.name);
-        lastHeardPlayer = playerObj;
+        LastHeardPlayer = playerObj;
         if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
         {
-            if(currentState == bruteChaseState)
+            if(CurrentState == BruteChaseState)
             {
-                currentState.OnHearPlayer();
+                CurrentState.OnHearPlayer();
             }
             else
             {
-                TransitionTo(bruteChaseState);
+                TransitionTo(BruteChaseState);
             }
             return;
         }
         else
         {
-            currentState?.OnHearPlayer();
+            CurrentState?.OnHearPlayer();
         }
     }
     public void HandleDefendHeart(GameObject attackingPlayer)
     {
-        lastHeardPlayer = attackingPlayer;
-        TransitionTo(bruteChaseState);
+        LastHeardPlayer = attackingPlayer;
+        TransitionTo(BruteChaseState);
     }
     public void OnAttack(GameObject playerToAttack) 
     {
-        stateBeforeAttack = currentState;
+        StateBeforeAttack = CurrentState;
         PlayerToAttack = playerToAttack;
         TransitionTo(BruteAttackState);
     }
     public void OnDeath()
     {
-        //enter death state
-        //TransitionTo();
+
+        
     }
     public void OnHeartDestroyed()
     {
-        TransitionTo(bruteHurtIdleState);
+        TransitionTo(BruteHurtIdleState);
     }
     public void OnAttackEnd()
     {
-        TransitionTo(stateBeforeAttack);
+        TransitionTo(StateBeforeAttack);
     }
     public void OnAttackConnects()
     {
@@ -116,10 +116,10 @@ public class BruteStateMachine : BaseStateController
     }
     public virtual void TransitionTo(BruteBaseState newState)
     {
-        if (newState == currentState) return;
-        currentState?.OnExit();
-        Debug.Log($"Last State: {currentState?.ToString()} nextState: {newState.ToString()}");
-        currentState = newState;
-        currentState.OnEnter();
+        if (newState == CurrentState) return;
+        CurrentState?.OnExit();
+        Debug.Log($"Last State: {CurrentState?.ToString()} nextState: {newState.ToString()}");
+        CurrentState = newState;
+        CurrentState.OnEnter();
     }
 }

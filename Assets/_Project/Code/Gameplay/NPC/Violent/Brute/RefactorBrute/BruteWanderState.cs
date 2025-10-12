@@ -11,8 +11,8 @@ public class BruteWanderState : BruteBaseState
 
     public override void OnEnter()
     {
-        animator.PlayNormal();
-        agent.speed = bruteSO.WalkSpeed;
+        Animator.PlayNormal();
+        Agent.speed = BruteSO.WalkSpeed;
         WanderTo();
         Debug.Log("Wander");
     }
@@ -27,15 +27,15 @@ public class BruteWanderState : BruteBaseState
     }
     public override void StateFixedUpdate()
     {
-        if(Vector3.Distance(stateController.gameObject.transform.position,agent.destination) <= bruteSO.StoppingDist)
+        if(Vector3.Distance(StateController.gameObject.transform.position,Agent.destination) <= BruteSO.StoppingDist)
         {
-            stateController.TransitionTo(stateController.idleState);
+            StateController.TransitionTo(StateController.IdleState);
         }
-        animator.PlayWalk(agent.velocity.magnitude, agent.speed);
+        Animator.PlayWalk(Agent.velocity.magnitude, Agent.speed);
     }
     public override void OnHearPlayer()
     {
-        stateController.TransitionTo(stateController.BruteHeardPlayerState);
+        StateController.TransitionTo(StateController.BruteHeardPlayerState);
     }
 
 
@@ -45,9 +45,9 @@ public class BruteWanderState : BruteBaseState
         int RandNegativeX = (Random.Range(0, 2) * 2 - 1);
         int RandNegativeY = (Random.Range(0, 2) * 2 - 1);
         int RandNegativeZ = (Random.Range(0, 2) * 2 - 1);
-        return new Vector3(Random.Range(bruteSO.MinWanderDistance, bruteSO.MaxWanderDistance)
-            * (RandNegativeX), Random.Range(bruteSO.MinWanderDistance, bruteSO.MaxWanderDistance) *
-            (RandNegativeY), Random.Range(bruteSO.MinWanderDistance, bruteSO.MaxWanderDistance) * (RandNegativeZ));
+        return new Vector3(Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance)
+            * (RandNegativeX), Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance) *
+            (RandNegativeY), Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance) * (RandNegativeZ));
     }
     private Vector3 GetNextPosition()
     {
@@ -55,9 +55,9 @@ public class BruteWanderState : BruteBaseState
 
         Vector3 temp = GetRandomPosition();
         // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
-        if (NavMesh.SamplePosition(stateController.HeartPosition.position + temp, out NavMeshHit hit, bruteSO.MaxWanderDistance * 3f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(StateController.HeartPosition.position + temp, out NavMeshHit hit, BruteSO.MaxWanderDistance * 3f, NavMesh.AllAreas))
         {
-            if (GetPathLength(agent, hit.position) == -1)
+            if (GetPathLength(Agent, hit.position) == -1)
             {
                 return Vector3.zero;
             }
@@ -96,7 +96,7 @@ public class BruteWanderState : BruteBaseState
             WanderTo();
             return;
         }
-        agent.SetDestination(newPos);
+        Agent.SetDestination(newPos);
     }
     #endregion
 

@@ -8,8 +8,8 @@ public class BruteHurtWander : BruteBaseState
     }
     public override void OnEnter()
     {
-        animator.PlayInjured();
-        agent.speed = bruteSO.HurtWalkSpeed;
+        Animator.PlayInjured();
+        Agent.speed = BruteSO.HurtWalkSpeed;
         WanderTo();
     }
     public override void OnExit()
@@ -20,13 +20,13 @@ public class BruteHurtWander : BruteBaseState
     {
         Vector3 nextPos = Vector3.zero;
 
-        Vector3 temp = new Vector3(Random.Range(bruteSO.MinWanderDistance, bruteSO.MaxWanderDistance)
-            * (Random.Range(0, 2) * 2 - 1), Random.Range(bruteSO.MinWanderDistance, bruteSO.MaxWanderDistance) *
-            (Random.Range(0, 2) * 2 - 1), Random.Range(bruteSO.MinWanderDistance, bruteSO.MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
+        Vector3 temp = new Vector3(Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance)
+            * (Random.Range(0, 2) * 2 - 1), Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance) *
+            (Random.Range(0, 2) * 2 - 1), Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
         // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
-        if (NavMesh.SamplePosition(stateController.gameObject.transform.position + temp, out NavMeshHit hit, bruteSO.MaxWanderDistance * 3f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(StateController.gameObject.transform.position + temp, out NavMeshHit hit, BruteSO.MaxWanderDistance * 3f, NavMesh.AllAreas))
         {
-            if (GetPathLength(agent, hit.position) == -1)
+            if (GetPathLength(Agent, hit.position) == -1)
             {
                 return Vector3.zero;
             }
@@ -65,7 +65,7 @@ public class BruteHurtWander : BruteBaseState
             WanderTo();
             return;
         }
-        agent.SetDestination(newPos);
+        Agent.SetDestination(newPos);
     }
     public override void StateUpdate()
     {
@@ -73,18 +73,18 @@ public class BruteHurtWander : BruteBaseState
     }
     public override void StateFixedUpdate()
     {
-        if (Vector3.Distance(stateController.gameObject.transform.position, agent.destination) <= agent.stoppingDistance)
+        if (Vector3.Distance(StateController.gameObject.transform.position, Agent.destination) <= Agent.stoppingDistance)
         {
-            stateController.TransitionTo(stateController.idleState);
+            StateController.TransitionTo(StateController.IdleState);
         }
         foreach (PlayerList player in PlayerList.AllPlayers)
         {
-            if (Vector3.Distance(player.transform.position,stateController.transform.position) < bruteSO.AttackDistance)
+            if (Vector3.Distance(player.transform.position,StateController.transform.position) < BruteSO.AttackDistance)
             {
-                stateController.OnAttack(player.gameObject);
+                StateController.OnAttack(player.gameObject);
             }
         }
-        animator.PlayWalk(agent.velocity.magnitude, agent.speed);
+        Animator.PlayWalk(Agent.velocity.magnitude, Agent.speed);
     }
     public override void OnHearPlayer()
     {

@@ -2,41 +2,41 @@ using UnityEngine;
 
 public class BruteAlertState : BruteBaseState
 {
-    Timer alertTimer = new Timer(0f);
+    private Timer _alertTimer = new Timer(0f);
     public BruteAlertState(BruteStateMachine stateController) : base(stateController)
     {
-        this.stateController = stateController;
+        this.StateController = stateController;
     }
     public override void OnEnter()
     {
-        Debug.Log("Alert not chase " + bruteSO.AlertWalkSpeed);
-        animator.PlayAlert();
-        agent.speed = bruteSO.AlertWalkSpeed;
-        alertTimer.Reset(bruteSO.LoseInterestTimeInvestigate);
-        agent.SetDestination(stateController.lastHeardPlayer.transform.position);
+        Debug.Log("Alert not chase " + BruteSO.AlertWalkSpeed);
+        Animator.PlayAlert();
+        Agent.speed = BruteSO.AlertWalkSpeed;
+        _alertTimer.Reset(BruteSO.LoseInterestTimeInvestigate);
+        Agent.SetDestination(StateController.LastHeardPlayer.transform.position);
     }
     public override void OnExit()
     {
-        alertTimer.Stop();
+        _alertTimer.Stop();
         Debug.Log("Left Alert");
     }
 
     public override void StateUpdate()
     {
-        alertTimer.TimerUpdate(Time.deltaTime);
-        if (alertTimer.IsDone)
+        _alertTimer.TimerUpdate(Time.deltaTime);
+        if (_alertTimer.IsDone)
         {
-            stateController.TimesAlerted = 0;
-            stateController.TransitionTo(stateController.idleState);
+            StateController.TimesAlerted = 0;
+            StateController.TransitionTo(StateController.IdleState);
         }
         
     }
     public override void StateFixedUpdate()
     {
-        animator.PlayWalk(agent.velocity.magnitude, agent.speed);
+        Animator.PlayWalk(Agent.velocity.magnitude, Agent.speed);
     }
     public override void OnHearPlayer()
     {
-        stateController.TransitionTo(stateController.BruteHeardPlayerState);
+        StateController.TransitionTo(StateController.BruteHeardPlayerState);
     }
 }

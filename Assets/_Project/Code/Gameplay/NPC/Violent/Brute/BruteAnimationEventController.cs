@@ -2,18 +2,7 @@ using UnityEngine;
 
 public class BruteAnimationEventController : MonoBehaviour
 {
-    [SerializeField] BruteStateMachine _stateMachine;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [SerializeField] private BruteStateMachine _stateMachine;
     public void OnFootStep()
     {
         AudioManager.Instance.PlayByKey3D("BruteFootStep", transform.position);
