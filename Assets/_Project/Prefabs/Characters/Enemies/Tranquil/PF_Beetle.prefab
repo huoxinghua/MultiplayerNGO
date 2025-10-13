@@ -443,8 +443,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2c93776657c90f498e57fb067f1b820, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beetleLineOfSight: {fileID: 5763469505779543189}
-  sphereCollider: {fileID: 9005795067751929618}
+  _beetleLineOfSight: {fileID: 5763469505779543189}
+  _sphereCollider: {fileID: 9005795067751929618}
 --- !u!1 &6000019722913479131
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,9 +457,8 @@ GameObject:
   - component: {fileID: 7177043555868278815}
   - component: {fileID: 480365491112471216}
   - component: {fileID: 5832284036706632855}
-  - component: {fileID: 8044148575455490348}
-  - component: {fileID: 3145107186939372429}
   - component: {fileID: 5269772112423571849}
+  - component: {fileID: -4465991783225192383}
   - component: {fileID: 6824510245305468793}
   - component: {fileID: 5763469505779543189}
   m_Layer: 7
@@ -562,53 +561,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8044148575455490348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6000019722913479131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f82c2da7bec66844a0a10d5ac2138af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _minIdleTime: 7
-  _maxIdleTime: 14
-  _minFollowTime: 10
-  _maxFollowTime: 25
-  _followCooldown: 30
-  _beetleAnimation: {fileID: 5142120990532039500}
-  _ragdollScript: {fileID: 7881758042718120484}
-  _beetleSkel: {fileID: 1252242435170775826}
-  _beetleDead: {fileID: 3560666103813700515}
-  _minNoiseTime: 8
-  _maxNoiseTime: 15
---- !u!114 &3145107186939372429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6000019722913479131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afe802df0bba6084fb156f52b2694fa2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agent: {fileID: 5269772112423571849}
-  MaxWanderDistance: 10
-  MinWanderDistance: 8
-  beetleTransform: {fileID: 8695155024704898581}
-  PointToMoveTo: {x: 0, y: 0, z: 0}
-  stopDistance: 2.5
-  _beetleLineOfSight: {fileID: 5763469505779543189}
-  hostileCheckFrequency: 5
-  fleeDistance: 20
-  randomRunPointOffSet: 4
-  _beetleSO: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
-  _beetleAnimation: {fileID: 5142120990532039500}
 --- !u!195 &5269772112423571849
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -631,6 +583,19 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &-4465991783225192383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6000019722913479131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ab81d5246b3fcb448097c325e67b61b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <BeetleSO>k__BackingField: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
 --- !u!114 &6824510245305468793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -643,10 +608,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8be627b43ab3a7449afc7714d7d73adb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beetleSO: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
-  hostilePlayers: []
-  beetleMove: {fileID: 3145107186939372429}
-  beetleState: {fileID: 8044148575455490348}
+  _beetleSO: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
+  HostilePlayers: []
 --- !u!114 &5763469505779543189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -668,8 +631,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   beetleHealthScript: {fileID: 6824510245305468793}
-  _beetleState: {fileID: 8044148575455490348}
-  _beetleMove: {fileID: 3145107186939372429}
 --- !u!1 &7229465637425532591
 GameObject:
   m_ObjectHideFlags: 0

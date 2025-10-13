@@ -6,9 +6,8 @@ public class BeetleHealth : MonoBehaviour,IHitable
     //add players who attacked to list
 
     [SerializeField] private BeetleSO _beetleSO;
+    public BeetleStateMachine StateMachine { get; private set; }
     public List<GameObject> HostilePlayers = new List<GameObject>();
-    [SerializeField] private BeetleMove _beetleMove;
-    [SerializeField] private BeetleState _beetleState;
     private float _maxHealth;
     private float _currentHealth;
     private float _maxConsciousness;
@@ -16,6 +15,7 @@ public class BeetleHealth : MonoBehaviour,IHitable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        StateMachine = GetComponent<BeetleStateMachine>();  
         _maxHealth = _beetleSO.MaxHealth;
         _currentHealth = _maxHealth;
         _maxConsciousness = _beetleSO.MaxConsciousness;
@@ -41,24 +41,21 @@ public class BeetleHealth : MonoBehaviour,IHitable
             OnDeath();
         }
     }
-    public void OnKnockOut()
+    public void OnKnockout()
     {
-        _beetleState.TransitionToState(BeetleStates.KnockedOut);
+        StateMachine.HandleKnockedOut();
     }
     public void OnDeath()
     {
-        _beetleState.TransitionToState(BeetleStates.Dead);
+        StateMachine.HandleDeath();
     }
-   /* public void OnKnockout()
-    {
-        beetleState.TransitionToState(BeetleStates.KnockedOut);
-    }*/
+
     public void ChangeConsciousness(float consciousnessChange)
     {
         _currentConsciousness += consciousnessChange;
         if(_currentConsciousness < 0)
         {
-            OnKnockOut();
+            OnKnockout();
         }
     }
     public void OnHit(GameObject attacker, float damage, float knockoutPower)
@@ -75,8 +72,7 @@ public class BeetleHealth : MonoBehaviour,IHitable
             }
             if (!isInList) HostilePlayers.Add(attacker);
         }
-        _beetleMove.RunFromPlayer(attacker.transform);
-        _beetleState.TransitionToState(BeetleStates.RunAway);
+       StateMachine.HandleHitByPlayer(attacker);
         ChangeHealth(-damage);
         ChangeConsciousness(-knockoutPower);
      //   Debug.Log("Was hit");

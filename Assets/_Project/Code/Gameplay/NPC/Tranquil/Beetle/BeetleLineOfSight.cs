@@ -13,14 +13,16 @@ public class BeetleLineOfSight : MonoBehaviour
     [SerializeField] float fieldOfViewCheckFrequency;
     [SerializeField] LayerMask viewCastLayerMask;
     [SerializeField] BeetleHealth beetleHealthScript;
-    [SerializeField] BeetleState _beetleState;
-    [SerializeField] BeetleMove _beetleMove;
+    public BeetleStateMachine StateMachine { get; private set; }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         StartCoroutine(PeriodicCheckFOV()); 
     }
-  
+    public void Awake()
+    {
+        StateMachine = GetComponent<BeetleStateMachine>();
+    }
 
     // Update is called once per frame
     void FixedUpdate()
@@ -70,22 +72,16 @@ public class BeetleLineOfSight : MonoBehaviour
         {
             if (InFOV(player) && HasLineOfSight(player))
             {
-             //   Debug.Log("Player Spotted");
                 if(beetleHealthScript.IsPlayerHostile(player))
                 {
                     //player is hostile - RUN!
-                    _beetleMove.RunFromPlayer(player.transform);
-                    _beetleState.TransitionToState(BeetleStates.RunAway);
+                  StateMachine.HandleRunFromPlayer(player);
                 }
                 else
                 {
-                    if (!_beetleState.GetFollowCooldown())
-                    {
-                        _beetleMove.SetPlayerToFollow(player.transform);
-                        _beetleState.TransitionToState(BeetleStates.FollowPlayer);
-                    }
+                    StateMachine.HandleFollowPlayer(player);
                     //player is friendly. Follow
-                }                // Player is visible, engage!
+                } 
             }
         }
     }
