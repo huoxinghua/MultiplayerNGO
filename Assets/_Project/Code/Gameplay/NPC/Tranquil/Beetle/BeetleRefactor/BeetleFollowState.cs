@@ -10,6 +10,7 @@ public class BeetleFollowState : BeetleBaseState
     private Timer _followTimer;
     public override void OnEnter()
     {
+        StateController.IsFirstFollow = false;
         _followTimer = new Timer(BeetleSO.RandomFollowTime);
         _followTimer.Start();
         Agent.speed = BeetleSO.WalkSpeed;
@@ -18,6 +19,7 @@ public class BeetleFollowState : BeetleBaseState
     {
         _followTimer?.Stop();
         _followTimer = null;
+        StateController.FollowCooldown.Reset(BeetleSO.FollowCooldown);
     }
 
     public override void StateUpdate()
@@ -35,10 +37,13 @@ public class BeetleFollowState : BeetleBaseState
     }
     public override void OnHitByPlayer()
     {
-        
+        StateController.TransitionTo(StateController.RunState);
     }
-    public override void OnSpotPlayer()
+    public override void OnSpotPlayer(bool isHostilePlayer)
     {
-
+        if (isHostilePlayer)
+        {
+            StateController.TransitionTo(StateController.RunState);
+        }
     }
 }

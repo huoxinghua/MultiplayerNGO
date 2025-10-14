@@ -16,4 +16,10 @@ public class BeetleSO : BaseEnemySO
     [field: SerializeField] public float MinFollowTime { get; private set; }
     [field: SerializeField] public float MaxFollowTime { get; private set; }
     public float RandomFollowTime => Random.Range(MinFollowTime, MaxFollowTime);
+    [field: SerializeField] public float FollowCooldown { get; private set; }
+    [field: Header("Beetle Run")]
+    [field: SerializeField] public float MaxRunPointOffset { get; private set; }
+    public float RandomRunOffset => Random.Range(-MaxRunPointOffset, MaxRunPointOffset);
+    [field: SerializeField] public float FleeDistance { get; private set; }
+    [field: SerializeField] public float StopRunDistance { get; private set; }
 }

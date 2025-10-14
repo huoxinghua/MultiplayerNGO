@@ -8,7 +8,7 @@ public class BeetleWanderState : BeetleBaseState
 
     }
     #region PathFinding
-    public void OnWander()
+    void OnWander()
     {
         Vector3 newPos = GetNextPosition();
         if (newPos == Vector3.zero)
@@ -18,7 +18,7 @@ public class BeetleWanderState : BeetleBaseState
         }
         Agent.SetDestination(newPos);
     }
-    public Vector3 GetNextPosition()
+    Vector3 GetNextPosition()
     {
 
         Vector3 nextPos = Vector3.zero;
@@ -82,12 +82,19 @@ public class BeetleWanderState : BeetleBaseState
             StateController.TransitionTo(StateController.IdleState);
         }
     }
-    public override void OnSpotPlayer()
+    public override void OnSpotPlayer(bool isHostilePlayer)
     {
-        
+        if (isHostilePlayer)
+        {
+            StateController.TransitionTo(StateController.RunState);
+        }
+        else if(StateController.FollowCooldown.IsComplete || StateController.IsFirstFollow)
+        {
+            StateController.TransitionTo(StateController.FollowState);
+        }
     }
     public override void OnHitByPlayer()
     {
-
+        StateController.TransitionTo(StateController.RunState);
     }
 }

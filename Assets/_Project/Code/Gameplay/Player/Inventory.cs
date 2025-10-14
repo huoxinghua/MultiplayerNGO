@@ -117,7 +117,7 @@ public class Inventory : MonoBehaviour
             heldItems[currentSlot]?.GetComponent<IHeldItem>()?.SwapOff();
         }
         currentItem = null;
-        twoHandedView = Instantiate(heldView,transform.GetChild(0).GetChild(1));
+        twoHandedView = Instantiate(heldView,transform.GetChild(0).GetChild(0));
         twoHandedObject = pickedUpObject;
         twoHandedObject?.SetActive(false);
         currentSlot = -1;
@@ -138,7 +138,7 @@ public class Inventory : MonoBehaviour
             twoHandedObject.GetComponentInChildren<ITwoHandItem>()?.OnDrop();
         }
 
-        twoHandedObject.transform.position = transform.GetChild(3).position;
+        twoHandedObject.transform.position = transform.GetChild(1).position;
         
         twoHandedObject = null;
     }

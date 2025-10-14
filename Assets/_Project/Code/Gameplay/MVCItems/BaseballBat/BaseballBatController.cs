@@ -61,7 +61,7 @@ void PerformMeleeAttack()
         if(hitEnemies.Length > 0 )
         {
             //play hit sound??
-            Debug.Log("?A?DA?");
+            //Debug.Log("?A?DA?");
             AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
         }
 

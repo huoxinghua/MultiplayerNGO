@@ -48,12 +48,19 @@ public class BeetleIdleState : BeetleBaseState
     {
 
     }
-    public override void OnSpotPlayer()
+    public override void OnSpotPlayer(bool isHostilePlayer)
     {
-
+        if (isHostilePlayer)
+        {
+            StateController.TransitionTo(StateController.RunState);
+        }
+        else if (StateController.FollowCooldown.IsComplete || StateController.IsFirstFollow)
+        {
+            StateController.TransitionTo(StateController.FollowState);
+        }
     }
     public override void OnHitByPlayer()
     {
-       
+        StateController.TransitionTo(StateController.RunState);
     }
 }

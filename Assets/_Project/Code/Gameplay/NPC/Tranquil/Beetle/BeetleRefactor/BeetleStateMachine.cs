@@ -17,8 +17,14 @@ public class BeetleStateMachine : BaseStateController
     public GameObject PlayerToRunFrom { get; private set; }
     public GameObject PlayerToFollow { get; private set; }
 
+    public Timer FollowCooldown { get; private set; }
+    public bool IsFirstFollow { get; set; }
+    [SerializeField] private Ragdoll _ragdollScript;
+    [SerializeField]private BeetleDead BeetleDeadScript;
     public void Awake()
     {
+        IsFirstFollow = true;
+        FollowCooldown = new Timer(BeetleSO.FollowCooldown);
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponentInChildren<BeetleAnimation>();
         IdleState = new BeetleIdleState(this);
@@ -32,6 +38,7 @@ public class BeetleStateMachine : BaseStateController
     }
     void Update()
     {
+        FollowCooldown.TimerUpdate(Time.deltaTime);
         CurrentState?.StateUpdate();
     }
     void FixedUpdate()
@@ -48,23 +55,32 @@ public class BeetleStateMachine : BaseStateController
     public void HandleFollowPlayer(GameObject playerToFollow)
     {
         PlayerToFollow = playerToFollow;
-        TransitionTo(FollowState);
+        CurrentState.OnSpotPlayer(false);
     }
     public void HandleRunFromPlayer(GameObject playerToRunFrom)
     {
         PlayerToRunFrom = playerToRunFrom;
-        TransitionTo(RunState);
+        CurrentState.OnSpotPlayer(true);
     }
     public void HandleKnockedOut()
     {
-
+        BeetleDeadScript.enabled = true;
+        transform.GetChild(1).parent = null;
+        _ragdollScript.EnableRagdoll();
+        Destroy(transform.GetChild(0).gameObject);
+        Destroy(gameObject);
     }
     public void HandleDeath()
     {
-
+        BeetleDeadScript.enabled = true;
+        transform.GetChild(1).parent = null;
+        _ragdollScript.EnableRagdoll();
+        Destroy(transform.GetChild(0).gameObject);
+        Destroy(gameObject);
     }
     public void HandleHitByPlayer(GameObject player)
     {
-
+        PlayerToRunFrom = player;
+        CurrentState.OnHitByPlayer();
     }
 }

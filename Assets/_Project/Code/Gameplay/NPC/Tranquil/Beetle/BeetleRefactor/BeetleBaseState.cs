@@ -28,7 +28,7 @@ public class BeetleBaseState : BaseState
     {
     }
 
-    public virtual void OnSpotPlayer()
+    public virtual void OnSpotPlayer(bool isHostilePlayer)
     {
 
     }
