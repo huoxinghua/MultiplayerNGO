@@ -17,11 +17,18 @@ public class PlayerInputManager : MonoBehaviour
     public event Action<Vector2> OnMoveInput;
     public event Action<PlayerJumpEvent> OnJumpInput;
     public event Action<Vector2> OnLookInput;
-    public event Action OnShootInput;
+    public event Action OnUse;
     public event Action OnChangeWeaponInput;
     public event Action<bool> OnSprintInput;
     public event Action CancelHold;
     public event Action OnCrouchInput;
+    public event Action OnNumOne;
+    public event Action OnNumTwo;
+    public event Action OnNumThree;
+    public event Action OnNumFour;
+    public event Action OnNumFive;
+    public event Action OnDropItem;
+    public event Action OnInteract;
     public Vector2 LookInput { get; private set; }
     private void Awake()
     {
@@ -42,7 +49,15 @@ public class PlayerInputManager : MonoBehaviour
 
         inputActions.Player.Crouch.performed += HandleCrouch;
 
+        inputActions.Player.NumOne.performed += HandleNumOne;
+        inputActions.Player.NumTwo.performed += HandleNumTwo;
+        inputActions.Player.NumThree.performed += HandleNumThree;
+        inputActions.Player.NumFour.performed += HandleNumFour;
+        inputActions.Player.NumFive.performed += HandleNumFive;
 
+        inputActions.Player.DropItem.performed += HandleDropItem;
+        inputActions.Player.Interact.performed += HandleInteract;
+        inputActions.Player.Use.performed += HandleUse;
     }
     private void OnDisable()
     {
@@ -60,6 +75,16 @@ public class PlayerInputManager : MonoBehaviour
 
         inputActions.Player.Crouch.performed -= HandleCrouch;
 
+
+        inputActions.Player.NumOne.performed -= HandleNumOne;
+        inputActions.Player.NumTwo.performed -= HandleNumTwo;
+        inputActions.Player.NumThree.performed -= HandleNumThree;
+        inputActions.Player.NumFour.performed -= HandleNumFour;
+        inputActions.Player.NumFive.performed -= HandleNumFive;
+
+        inputActions.Player.DropItem.performed -= HandleDropItem;
+        inputActions.Player.Interact.performed -= HandleInteract;
+        inputActions.Player.Use.performed -= HandleUse;
     }
     Vector2 moveInput;
     private void HandleMove(InputAction.CallbackContext context)
@@ -96,23 +121,59 @@ public class PlayerInputManager : MonoBehaviour
         OnCrouchInput?.Invoke();
     }
 
-    private void HandleShoot(InputAction.CallbackContext context)
+   
+    /*    private void HandleChangeWeapon(InputAction.CallbackContext context)
+        {
+
+            if (context.performed)
+            {
+                OnChangeWeaponInput?.Invoke();
+            }
+        }*/
+
+    #region Item slots
+    private void HandleNumOne(InputAction.CallbackContext context)
+    {
+        OnNumOne?.Invoke();
+    }
+    private void HandleNumTwo(InputAction.CallbackContext context)
+    {
+        OnNumTwo?.Invoke();
+    }
+    private void HandleNumThree(InputAction.CallbackContext context)
+    {
+        OnNumThree?.Invoke();
+    }
+    private void HandleNumFour(InputAction.CallbackContext context) 
+    {
+        OnNumFour?.Invoke();
+    }
+    private void HandleNumFive(InputAction.CallbackContext context)
+    {
+        OnNumFive?.Invoke();
+    }
+    #endregion
+
+
+    #region Item Control
+    private void HandleDropItem(InputAction.CallbackContext context)
+    {
+        OnDropItem?.Invoke();
+    }
+    private void HandleUse(InputAction.CallbackContext context)
     {
 
         if (context.performed)
         {
-            OnShootInput?.Invoke();
+            OnUse?.Invoke();
         }
     }
-    private void HandleChangeWeapon(InputAction.CallbackContext context)
+    #endregion
+
+
+    private void HandleInteract(InputAction.CallbackContext context)
     {
-
-        if (context.performed)
-        {
-            OnChangeWeaponInput?.Invoke();
-        }
+        OnInteract?.Invoke();
     }
-
-
 }
 
