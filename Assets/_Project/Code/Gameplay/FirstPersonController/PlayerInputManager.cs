@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public interface IEvent
 {
@@ -22,6 +23,7 @@ public class PlayerInputManager : MonoBehaviour
     public event Action<bool> OnSprintInput;
     public event Action CancelHold;
     public event Action OnCrouchInput;
+    public event Action<int> OnNumPressed;
     public event Action OnNumOne;
     public event Action OnNumTwo;
     public event Action OnNumThree;
@@ -49,15 +51,11 @@ public class PlayerInputManager : MonoBehaviour
 
         inputActions.Player.Crouch.performed += HandleCrouch;
 
-        inputActions.Player.NumOne.performed += HandleNumOne;
-        inputActions.Player.NumTwo.performed += HandleNumTwo;
-        inputActions.Player.NumThree.performed += HandleNumThree;
-        inputActions.Player.NumFour.performed += HandleNumFour;
-        inputActions.Player.NumFive.performed += HandleNumFive;
 
         inputActions.Player.DropItem.performed += HandleDropItem;
         inputActions.Player.Interact.performed += HandleInteract;
         inputActions.Player.Use.performed += HandleUse;
+        inputActions.Player.KeyPressed.performed += HandleKeyPressed;
     }
     private void OnDisable()
     {
@@ -76,15 +74,10 @@ public class PlayerInputManager : MonoBehaviour
         inputActions.Player.Crouch.performed -= HandleCrouch;
 
 
-        inputActions.Player.NumOne.performed -= HandleNumOne;
-        inputActions.Player.NumTwo.performed -= HandleNumTwo;
-        inputActions.Player.NumThree.performed -= HandleNumThree;
-        inputActions.Player.NumFour.performed -= HandleNumFour;
-        inputActions.Player.NumFive.performed -= HandleNumFive;
-
         inputActions.Player.DropItem.performed -= HandleDropItem;
         inputActions.Player.Interact.performed -= HandleInteract;
         inputActions.Player.Use.performed -= HandleUse;
+        inputActions.Player.KeyPressed.performed -= HandleKeyPressed;
     }
     Vector2 moveInput;
     private void HandleMove(InputAction.CallbackContext context)
@@ -121,7 +114,7 @@ public class PlayerInputManager : MonoBehaviour
         OnCrouchInput?.Invoke();
     }
 
-   
+
     /*    private void HandleChangeWeapon(InputAction.CallbackContext context)
         {
 
@@ -132,8 +125,14 @@ public class PlayerInputManager : MonoBehaviour
         }*/
 
     #region Item slots
-    private void HandleNumOne(InputAction.CallbackContext context)
+    private void HandleKeyPressed(InputAction.CallbackContext context)
     {
+        var keyValue = int.Parse(context.control.displayName);
+        OnNumPressed?.Invoke(keyValue);
+    }
+   /* private void HandleNumOne(InputAction.CallbackContext context)
+    {
+
         OnNumOne?.Invoke();
     }
     private void HandleNumTwo(InputAction.CallbackContext context)
@@ -151,7 +150,7 @@ public class PlayerInputManager : MonoBehaviour
     private void HandleNumFive(InputAction.CallbackContext context)
     {
         OnNumFive?.Invoke();
-    }
+    }*/
     #endregion
 
 

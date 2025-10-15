@@ -3,37 +3,44 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    public List<IInventoryItem> InventoryItems = new List<IInventoryItem>();
+    [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
     public IInventoryItem BigItemCarried { get; private set; }
     [field: SerializeField] public int InventorySlots {  get; private set; }
+    [field: SerializeField] public Transform HoldTransform { get; private set; }
+    [field: SerializeField] public Transform DropTransform {  get; private set; }
     private int _currentIndex;
     [SerializeField] private PlayerInputManager _inputManager;
     private bool _handsFull => BigItemCarried != null;
-    public bool InventoryFull => InventoryItems.Count >= InventorySlots;
+    public bool InventoryFull => IsInventoryFull();
     public void Awake()
     {
-        _inputManager.OnNumOne += HandlePressedSlotOne;
-        _inputManager.OnNumTwo += HandlePressedSlotTwo;
-        _inputManager.OnNumThree += HandlePressedSlotThree;
-        _inputManager.OnNumFour += HandlePressedSlotFour;
-        _inputManager.OnNumFive += HandlePressedSlotFive;
+        _inputManager.OnNumPressed += HandlePressedSlot;
+
 
         _inputManager.OnUse += UseItemInHand;
         _inputManager.OnDropItem += DropItem;
     }
     public void OnDisable()
     {
-        _inputManager.OnNumOne -= HandlePressedSlotOne;
-        _inputManager.OnNumTwo -= HandlePressedSlotTwo;
-        _inputManager.OnNumThree -= HandlePressedSlotThree;
-        _inputManager.OnNumFour -= HandlePressedSlotFour;
-        _inputManager.OnNumFive -= HandlePressedSlotFive;
+        _inputManager.OnNumPressed -= HandlePressedSlot;
+        
 
         _inputManager.OnUse -= UseItemInHand;
         _inputManager.OnDropItem -= DropItem;
     }
 
-
+    public bool IsInventoryFull()
+    {
+        bool isFull = true;
+        for(int i = 0; i < InventoryItems.Length; i++)
+        {
+            if(InventoryItems[i] == null)
+            {
+                isFull = false;
+            }
+        }
+        return isFull;
+    }
 
     /// <summary>
     /// Called by interact cast. When interacting with an item than can be picked up, this function checks if thats possible
@@ -58,22 +65,22 @@ public class PlayerInventory : MonoBehaviour
             if (InventoryItems[_currentIndex] == null) 
             {
                 InventoryItems[_currentIndex] = item;
-                item.PickupItem();
+                item.PickupItem(gameObject,HoldTransform);
                 item.EquipItem();
             }
             else
             {
                 //should find first available slot? I hope
-                int i = 0;
-                foreach(var items in InventoryItems)
+                for(int i = 0; i < InventoryItems.Length; i++)
                 {
+                    var items = InventoryItems[i];
                     if(items == null)
                     {
                         InventoryItems[i] = item;
-                        item.PickupItem();
+                        item.PickupItem(gameObject, HoldTransform);
                         break;
                     }
-                    i++;
+       
                 }
             }
             //add to inventory list
@@ -81,7 +88,7 @@ public class PlayerInventory : MonoBehaviour
         else
         {
             BigItemCarried = item;
-            item.PickupItem();
+            item.PickupItem(gameObject, HoldTransform);
             item.EquipItem();
         }
     }
@@ -98,7 +105,7 @@ public class PlayerInventory : MonoBehaviour
             //than handle drop to make it visible as an in scene item
             //than set null
             BigItemCarried.UnequipItem();
-            BigItemCarried.DropItem();
+            BigItemCarried.DropItem(DropTransform);
             BigItemCarried = null;
         }
         else if (InventoryItems[_currentIndex] != null)
@@ -107,7 +114,7 @@ public class PlayerInventory : MonoBehaviour
             //than handle drop to make it visible as an in scene item
             //than set null
             InventoryItems[_currentIndex].UnequipItem();
-            InventoryItems[_currentIndex].DropItem();
+            InventoryItems[_currentIndex].DropItem(DropTransform);
             InventoryItems[_currentIndex] = null;
             //drop current slot if there is one
         }
@@ -140,30 +147,11 @@ public class PlayerInventory : MonoBehaviour
         InventoryItems[_currentIndex]?.EquipItem();
     }
     #region Inputs
-    public void HandlePressedSlotOne()
+    private void HandlePressedSlot(int index)
     {
         if (_handsFull) return;
-        EquipSlot(0);
+        EquipSlot(index - 1);
     }
-    public void HandlePressedSlotTwo()
-    {
-        if (_handsFull) return;
-        EquipSlot(1);
-    }
-    public void HandlePressedSlotThree()
-    {
-        if (_handsFull) return;
-        EquipSlot(2);
-    }
-    public void HandlePressedSlotFour()
-    {
-        if (_handsFull) return;
-        EquipSlot(3);
-    }
-    public void HandlePressedSlotFive()
-    {
-        if (_handsFull) return;
-        EquipSlot(4);
-    }
+  
     #endregion
 }
