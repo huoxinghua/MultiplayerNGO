@@ -78,6 +78,7 @@ public class PlayerInventory : MonoBehaviour
                     {
                         InventoryItems[i] = item;
                         item.PickupItem(gameObject, HoldTransform);
+                        item.UnequipItem();
                         break;
                     }
        

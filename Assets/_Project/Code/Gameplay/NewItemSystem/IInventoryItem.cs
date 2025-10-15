@@ -12,6 +12,9 @@ public interface IInventoryItem
     public bool IsPocketSize();
     public GameObject GetHeldVisual();
     public Image GetUIImage();
+
+    //change to raw value struct
     public int GetSampleMonValue();
     public float GetSampleSciValue();
+     
 }
