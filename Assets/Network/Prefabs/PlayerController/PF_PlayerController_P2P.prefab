@@ -32,8 +32,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.43699998, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 122283883126384905}
+  m_Children: []
   m_Father: {fileID: 8547502617307912352}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &6269113086015367552
@@ -202,6 +201,7 @@ Transform:
   - {fileID: 8547502617307912352}
   - {fileID: 8318464057026131354}
   - {fileID: 728798581797721400}
+  - {fileID: 122283883126384905}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &7868940255001257893
@@ -754,7 +754,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1982660135745258911}
+    m_TransformParent: {fileID: 1670997008028469281}
     m_Modifications:
     - target: {fileID: 588951130824886357, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -762,7 +762,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 588951130824886357, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.37
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 588951130824886357, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -796,13 +796,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3256601806626041199, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
+      propertyPath: attenuationObject
+      value: 
+      objectReference: {fileID: 1587949806157485949}
     - target: {fileID: 4239727852759538138, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
       propertyPath: m_Name
       value: MN_Voice Networker (Studio)
       objectReference: {fileID: 0}
     - target: {fileID: 4894854284077010704, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
       propertyPath: _playbackOwnVoice
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8558664536955821914, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
+      propertyPath: _voiceEventReference.Path
+      value: event:/VoiceChat/PlayerVoice3Dmax
+      objectReference: {fileID: 0}
+    - target: {fileID: 8558664536955821914, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
+      propertyPath: _voiceEventReference.Guid.Data1
+      value: 950859513
+      objectReference: {fileID: 0}
+    - target: {fileID: 8558664536955821914, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
+      propertyPath: _voiceEventReference.Guid.Data2
+      value: 1145958469
+      objectReference: {fileID: 0}
+    - target: {fileID: 8558664536955821914, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
+      propertyPath: _voiceEventReference.Guid.Data3
+      value: 266556340
+      objectReference: {fileID: 0}
+    - target: {fileID: 8558664536955821914, guid: 035dbdcffc2c4fb47bcd31369205f1cb, type: 3}
+      propertyPath: _voiceEventReference.Guid.Data4
+      value: 1988679231
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

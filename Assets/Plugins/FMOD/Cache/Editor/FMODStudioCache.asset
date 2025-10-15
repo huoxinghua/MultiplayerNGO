@@ -14,20 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: event:/VoiceChat/PlayerVoice
   Guid:
-    Data1: 1496634757
-    Data2: 1312379894
-    Data3: -840081243
-    Data4: -1235511439
+    Data1: -896805864
+    Data2: 1250455358
+    Data3: 664967311
+    Data4: 459199103
   Banks:
-  - {fileID: -2335786500596527637}
+  - {fileID: -6389283186234409032}
   IsStream: 0
-  Is3D: 0
+  Is3D: 1
   IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 20
---- !u!114 &-2335786500596527637
+  Length: 1000
+--- !u!114 &-6389283186234409032
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39,13 +39,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
   m_Name: bank:/Master.bank
   m_EditorClassIdentifier: 
-  Path: ../FMODProject/PerDiem/perDiem/Build/Desktop/Master.bank
+  Path: FMODProject/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 638953731132199958
-  FileSizes:
-  - Name: Desktop
-    Value: 3138
+  lastModified: 638961181295373325
+  FileSizes: []
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -60,51 +58,24 @@ MonoBehaviour:
   m_Name: FMODStudioCache
   m_EditorClassIdentifier: 
   EditorBanks:
-  - {fileID: 8362313156214771446}
-  - {fileID: -2335786500596527637}
+  - {fileID: 8275003173247884059}
+  - {fileID: -6389283186234409032}
   EditorEvents:
   - {fileID: -6961133100722628064}
-  - {fileID: 7890539053035680672}
+  - {fileID: 8889850071837192820}
   EditorParameters: []
   MasterBanks:
-  - {fileID: -2335786500596527637}
+  - {fileID: -6389283186234409032}
   StringsBanks:
-  - {fileID: 8362313156214771446}
+  - {fileID: 8275003173247884059}
   cacheVersion: 131849
-  cacheTime: 638953731132209969
+  cacheTime: 638961181295377532
   SerializableEventsDict:
   - key: event:/VoiceChat/PlayerVoice
     index: 0
-  - key: event:/VoiceChat/ChatVoice
+  - key: event:/VoiceChat/PlayerVoice3Dmax
     index: 1
---- !u!114 &7890539053035680672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/VoiceChat/ChatVoice
-  m_EditorClassIdentifier: 
-  Path: event:/VoiceChat/ChatVoice
-  Guid:
-    Data1: 392314582
-    Data2: 1221504262
-    Data3: -1628781939
-    Data4: -1819695017
-  Banks:
-  - {fileID: -2335786500596527637}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1000
---- !u!114 &8362313156214771446
+--- !u!114 &8275003173247884059
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,11 +87,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
   m_Name: bank:/Master.strings.bank
   m_EditorClassIdentifier: 
-  Path: ../FMODProject/PerDiem/perDiem/Build/Desktop/Master.strings.bank
+  Path: FMODProject/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 638953731132209969
-  FileSizes:
-  - Name: Desktop
-    Value: 834
+  lastModified: 638961181295377532
+  FileSizes: []
   Exists: 1
+--- !u!114 &8889850071837192820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/VoiceChat/PlayerVoice3Dmax
+  m_EditorClassIdentifier: 
+  Path: event:/VoiceChat/PlayerVoice3Dmax
+  Guid:
+    Data1: 950859513
+    Data2: 1145958469
+    Data3: 266556340
+    Data4: 1988679231
+  Banks:
+  - {fileID: -6389283186234409032}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 10000
