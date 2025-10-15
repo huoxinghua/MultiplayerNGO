@@ -2,7 +2,7 @@ using FMODUnity;
 using ProximityChat;
 using UnityEngine;
 
-namespace Project.Network.Voice
+namespace Project.Network.ProximityChat
 {
     public class VoiceManager : MonoBehaviour
     {
@@ -10,7 +10,7 @@ namespace Project.Network.Voice
 
         void Start()
         {
-            _recorder = GetComponentInChildren<VoiceRecorder>();
+            _recorder = GetComponent<VoiceRecorder>();
             if (_recorder == null)
             {
                 Debug.LogError("VoiceRecorder not found on Player prefab!");
