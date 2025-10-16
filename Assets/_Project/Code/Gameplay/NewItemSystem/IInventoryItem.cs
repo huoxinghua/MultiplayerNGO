@@ -19,6 +19,8 @@ public interface IInventoryItem
 }
 public struct ScienceData
 {
-    public float rawScienceValue;
+    public float RawTranquilValue;
+    public float RawViolentValue;
+    public float RawMiscValue;
 
 }

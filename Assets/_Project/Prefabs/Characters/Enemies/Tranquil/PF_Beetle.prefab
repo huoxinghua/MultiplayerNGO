@@ -596,6 +596,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <BeetleSO>k__BackingField: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
+  _ragdollScript: {fileID: 0}
   BeetleDeadScript: {fileID: 3560666103813700515}
 --- !u!114 &6824510245305468793
 MonoBehaviour:
@@ -698,11 +699,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67d3fa83603ed8a4a83286af13997b42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _heldView: {fileID: 1413494595960936745, guid: c4009aae71d4c1c42aa398912957ce03, type: 3}
   _renderer: {fileID: 565238493127841915}
   _beetleTransform: {fileID: 1885613447529785768}
   _beetleSkele: {fileID: 1252242435170775826}
   _collider: {fileID: 6586784674427242807}
+  _heldVisual: {fileID: 1413494595960936745, guid: c4009aae71d4c1c42aa398912957ce03, type: 3}
+  _rb: {fileID: 575082549948801223}
+  _beetleSO: {fileID: 11400000, guid: 86cb6ad047dd9114ea1c87b2181470d4, type: 2}
 --- !u!1 &8138754733307219722
 GameObject:
   m_ObjectHideFlags: 0

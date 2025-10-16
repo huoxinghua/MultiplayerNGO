@@ -9,7 +9,7 @@ public class BaseballBatItem : MonoBehaviour, IInventoryItem, IInteractable
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private Renderer _renderer;
     [SerializeField] private Collider _collider;
-    private GameObject _owner;
+    private GameObject _owner = null;
     private bool _hasOwner => _owner != null;
     private bool _isInOwnerHand = false;
     private GameObject _currentHeldVisual;
@@ -117,7 +117,7 @@ public class BaseballBatItem : MonoBehaviour, IInventoryItem, IInteractable
     //change to raw value struct
     public ScienceData GetValueStruct()
     {
-        return new ScienceData { rawScienceValue = 0 };
+        return new ScienceData {};
     }
 
 }

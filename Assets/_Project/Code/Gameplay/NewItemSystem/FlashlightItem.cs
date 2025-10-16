@@ -122,6 +122,6 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
     }
     public ScienceData GetValueStruct()
     {
-        return new ScienceData { rawScienceValue = 0};
+        return new ScienceData { };
     }
 }

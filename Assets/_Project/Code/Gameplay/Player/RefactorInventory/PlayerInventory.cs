@@ -89,6 +89,7 @@ public class PlayerInventory : MonoBehaviour
         else
         {
             BigItemCarried = item;
+            InventoryItems[_currentIndex]?.UnequipItem();
             item.PickupItem(gameObject, HoldTransform);
             item.EquipItem();
         }
@@ -140,6 +141,7 @@ public class PlayerInventory : MonoBehaviour
     /// <param name="indexOf"> The index of the inventory slot to switch to </param>
     private void EquipSlot(int indexOf)
     {
+        if (_handsFull) return;
         if (InventoryItems[_currentIndex] != null) 
         {
             InventoryItems[_currentIndex].UnequipItem();
