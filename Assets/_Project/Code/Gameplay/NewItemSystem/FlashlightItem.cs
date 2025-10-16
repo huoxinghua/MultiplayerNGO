@@ -61,7 +61,6 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
         _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
         _lightComponent = _currentHeldVisual.GetComponent<Light>();
         _lightComponent.enabled = _isFlashOn;
-        Debug.Log(_currentHeldVisual?.name);
         _sceneLight.enabled = false;
     }
     public void DropItem(Transform dropPoint)

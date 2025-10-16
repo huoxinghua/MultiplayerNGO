@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-[CreateAssetMenu(fileName = "BaseItemSO", menuName = "Scriptable Objects/BaseItemSO")]
+[CreateAssetMenu(fileName = "BaseItemSO", menuName = "Items/BaseItemSO")]
 public class BaseItemSO : ScriptableObject
 {
     [field: Header("Base Item Details")]
