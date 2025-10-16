@@ -14,7 +14,11 @@ public interface IInventoryItem
     public Image GetUIImage();
 
     //change to raw value struct
-    public int GetSampleMonValue();
-    public float GetSampleSciValue();
+    public ScienceData GetValueStruct();
      
+}
+public struct ScienceData
+{
+    public float rawScienceValue;
+
 }

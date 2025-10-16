@@ -121,12 +121,8 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
     {
         return _flashSO.ItemUIImage;
     }
-    public int GetSampleMonValue()
+    public ScienceData GetValueStruct()
     {
-        return 0;
-    }
-    public float GetSampleSciValue()
-    {
-        return 0;
+        return new ScienceData { rawScienceValue = 0};
     }
 }
