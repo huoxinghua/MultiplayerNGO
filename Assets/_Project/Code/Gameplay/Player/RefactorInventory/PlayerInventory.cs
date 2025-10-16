@@ -1,13 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
     [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
     public IInventoryItem BigItemCarried { get; private set; }
-    [field: SerializeField] public int InventorySlots {  get; private set; }
+    [field: SerializeField] public int InventorySlots { get; private set; }
     [field: SerializeField] public Transform HoldTransform { get; private set; }
-    [field: SerializeField] public Transform DropTransform {  get; private set; }
+    [field: SerializeField] public Transform DropTransform { get; private set; }
     private int _currentIndex;
     [SerializeField] private PlayerInputManager _inputManager;
     private bool _handsFull => BigItemCarried != null;
@@ -23,7 +22,7 @@ public class PlayerInventory : MonoBehaviour
     public void OnDisable()
     {
         _inputManager.OnNumPressed -= HandlePressedSlot;
-        
+
 
         _inputManager.OnUse -= UseItemInHand;
         _inputManager.OnDropItem -= DropItem;
@@ -32,9 +31,9 @@ public class PlayerInventory : MonoBehaviour
     public bool IsInventoryFull()
     {
         bool isFull = true;
-        for(int i = 0; i < InventoryItems.Length; i++)
+        for (int i = 0; i < InventoryItems.Length; i++)
         {
-            if(InventoryItems[i] == null)
+            if (InventoryItems[i] == null)
             {
                 isFull = false;
             }
@@ -62,26 +61,26 @@ public class PlayerInventory : MonoBehaviour
     {
         if (item.IsPocketSize())
         {
-            if (InventoryItems[_currentIndex] == null) 
+            if (InventoryItems[_currentIndex] == null)
             {
                 InventoryItems[_currentIndex] = item;
-                item.PickupItem(gameObject,HoldTransform);
+                item.PickupItem(gameObject, HoldTransform);
                 item.EquipItem();
             }
             else
             {
                 //should find first available slot? I hope
-                for(int i = 0; i < InventoryItems.Length; i++)
+                for (int i = 0; i < InventoryItems.Length; i++)
                 {
                     var items = InventoryItems[i];
-                    if(items == null)
+                    if (items == null)
                     {
                         InventoryItems[i] = item;
                         item.PickupItem(gameObject, HoldTransform);
                         item.UnequipItem();
                         break;
                     }
-       
+
                 }
             }
             //add to inventory list
@@ -123,7 +122,7 @@ public class PlayerInventory : MonoBehaviour
     }
     public void UseItemInHand()
     {
-        if(_handsFull)
+        if (_handsFull)
         {
             BigItemCarried?.UseItem();
         }
@@ -131,7 +130,7 @@ public class PlayerInventory : MonoBehaviour
         {
             InventoryItems[_currentIndex]?.UseItem();
         }
-        
+
     }
 
     /// <summary>
@@ -142,7 +141,7 @@ public class PlayerInventory : MonoBehaviour
     private void EquipSlot(int indexOf)
     {
         if (_handsFull) return;
-        if (InventoryItems[_currentIndex] != null) 
+        if (InventoryItems[_currentIndex] != null)
         {
             InventoryItems[_currentIndex].UnequipItem();
         }
@@ -155,6 +154,6 @@ public class PlayerInventory : MonoBehaviour
         if (_handsFull) return;
         EquipSlot(index - 1);
     }
-  
+
     #endregion
 }

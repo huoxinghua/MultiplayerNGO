@@ -1,8 +1,7 @@
 
-using UnityEngine;
-using System.Collections.Generic;
-using static UnityEngine.GraphicsBuffer;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class BeetleLineOfSight : MonoBehaviour
 {
@@ -17,7 +16,7 @@ public class BeetleLineOfSight : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        StartCoroutine(PeriodicCheckFOV()); 
+        StartCoroutine(PeriodicCheckFOV());
     }
     public void Awake()
     {
@@ -27,7 +26,7 @@ public class BeetleLineOfSight : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        
+
     }
     public void OnDeath()
     {
@@ -55,33 +54,33 @@ public class BeetleLineOfSight : MonoBehaviour
     public void RemovePlayerFromProximity(GameObject playerToRemove)
     {
         bool doRemove = false;
-        foreach(var player in players)
+        foreach (var player in players)
         {
-            if(player == playerToRemove)
+            if (player == playerToRemove)
             {
                 doRemove = true;
-                
+
             }
         }
-        if(doRemove) players.Remove(playerToRemove);
+        if (doRemove) players.Remove(playerToRemove);
     }
     private void CheckFOV()
     {
-      //  Debug.Log("Checking");
+        //  Debug.Log("Checking");
         foreach (var player in players)
         {
             if (InFOV(player) && HasLineOfSight(player))
             {
-                if(beetleHealthScript.IsPlayerHostile(player))
+                if (beetleHealthScript.IsPlayerHostile(player))
                 {
                     //player is hostile - RUN!
-                  StateMachine.HandleRunFromPlayer(player);
+                    StateMachine.HandleRunFromPlayer(player);
                 }
                 else
                 {
                     StateMachine.HandleFollowPlayer(player);
                     //player is friendly. Follow
-                } 
+                }
             }
         }
     }
@@ -90,7 +89,7 @@ public class BeetleLineOfSight : MonoBehaviour
         bool hasHostile = false;
         foreach (var player in players)
         {
-            if(beetleHealthScript.IsPlayerHostile(player) && HasLineOfSight(player))
+            if (beetleHealthScript.IsPlayerHostile(player) && HasLineOfSight(player))
             {
                 hasHostile = true;
             }
@@ -118,9 +117,9 @@ public class BeetleLineOfSight : MonoBehaviour
     }
     private bool HasLineOfSight(GameObject player)
     {
-        Vector3 dirToTarget = ((player.transform.position + new Vector3(0,0.5f,0)) - transform.position).normalized;
-      //  Debug.DrawRay(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget * viewDistance, Color.red, 1f);
-        if (Physics.Raycast(transform.position + new Vector3(0,eyeOffset,0), dirToTarget, out RaycastHit hit, viewDistance,~viewCastLayerMask))
+        Vector3 dirToTarget = ((player.transform.position + new Vector3(0, 0.5f, 0)) - transform.position).normalized;
+        //  Debug.DrawRay(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget * viewDistance, Color.red, 1f);
+        if (Physics.Raycast(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget, out RaycastHit hit, viewDistance, ~viewCastLayerMask))
         {
             if (hit.transform.gameObject == player)
             {
@@ -133,6 +132,6 @@ public class BeetleLineOfSight : MonoBehaviour
             }
         }
         return false;
-}
+    }
 
 }

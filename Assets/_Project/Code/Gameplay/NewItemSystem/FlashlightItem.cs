@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +10,7 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
     [SerializeField] private Light _sceneLight;
     [SerializeField] private Collider _collider;
     private float _currentCharge;
-    [SerializeField]private bool _isFlashOn = false;
+    [SerializeField] private bool _isFlashOn = false;
     [SerializeField] private bool _lastFlashState = true;
     private GameObject _owner;
     private bool _hasOwner => _owner != null;
@@ -30,7 +29,7 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
         if (_isFlashOn) _currentCharge -= _flashSO.ChargeLoseRate * Time.deltaTime;
         if (_currentCharge <= 0) _isFlashOn = false;
         if (_currentHeldVisual == null) return;
-        if(_hasOwner)
+        if (_hasOwner)
         {
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(0, 0, 0);
@@ -57,7 +56,7 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
 
         transform.parent = playerHoldPosition;
         transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.Euler(0,0,0);
+        transform.localRotation = Quaternion.Euler(0, 0, 0);
         _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
         _lightComponent = _currentHeldVisual.GetComponent<Light>();
         _lightComponent.enabled = _isFlashOn;

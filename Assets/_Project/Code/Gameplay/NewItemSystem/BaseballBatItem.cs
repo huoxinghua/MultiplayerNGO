@@ -1,5 +1,3 @@
-using Unity.VisualScripting;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 using UnityEngine.UI;
 public class BaseballBatItem : MonoBehaviour, IInventoryItem, IInteractable
@@ -117,7 +115,7 @@ public class BaseballBatItem : MonoBehaviour, IInventoryItem, IInteractable
     //change to raw value struct
     public ScienceData GetValueStruct()
     {
-        return new ScienceData {};
+        return new ScienceData { };
     }
 
 }
