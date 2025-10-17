@@ -12,6 +12,7 @@ public class SwingDoors : MonoBehaviour , IInteractable
     {
         ToggleOpen();
     }
+    public bool IsDoorOpen() {return _isOpen; }
     public void ToggleOpen()
     {
         transform.localRotation = Quaternion.Euler(0f, _isOpen ? 0f : 90f, 0f);
@@ -24,4 +25,5 @@ public class SwingDoors : MonoBehaviour , IInteractable
     {
         
     }
+
 }
