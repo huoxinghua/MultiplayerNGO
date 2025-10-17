@@ -125,7 +125,7 @@ namespace Project.Network.ProximityChat
                     _pendingSamples[senderID] = new Queue<short[]>();
 
                 _pendingSamples[senderID].Enqueue(decodedVoiceSamples.ToArray());
-                Debug.LogWarning($"[VoiceNetwork] Emitter not ready yet for sender {senderID}, caching {decodedVoiceSamples.Length} samples...");
+               // Debug.LogWarning($"[VoiceNetwork] Emitter not ready yet for sender {senderID}, caching {decodedVoiceSamples.Length} samples...");
 
                 if (!_waitingForReady && isActiveAndEnabled)
                     StartCoroutine(WaitUntilEmitterReadyAndPlay(emitterToPlay, senderID));
@@ -190,13 +190,13 @@ namespace Project.Network.ProximityChat
 
             if (Input.GetKeyDown(KeyCode.V))
             {
-                Debug.Log("[VoiceNetwork] 🎤 StartRecording by key press");
+              //  Debug.Log("[VoiceNetwork] 🎤 StartRecording by key press");
                 StartRecording();
             }
 
             if (Input.GetKeyUp(KeyCode.V))
             {
-                Debug.Log("[VoiceNetwork] 📴 StopRecording by key release");
+               // Debug.Log("[VoiceNetwork] 📴 StopRecording by key release");
                 StopRecording();
             }
         }

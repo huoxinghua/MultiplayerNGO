@@ -113,11 +113,11 @@ namespace Project.Network.SteamWork
                     yield break;
                 }
 
-                Debug.Log($"[Client] Ping still -1, retry {i + 1}...");
+              //  Debug.Log($"[Client] Ping still -1, retry {i + 1}...");
                 yield return new WaitForSeconds(2f);
             }
 
-            Debug.LogWarning("[Client] Failed to get valid ping after retries.");
+          //  Debug.LogWarning("[Client] Failed to get valid ping after retries.");
         }
         public void OnLobbyListReceived(LobbyMatchList_t param)
         {
@@ -296,14 +296,7 @@ namespace Project.Network.SteamWork
         private void OnLobbyEntered(LobbyEnter_t callback)
         {
             CSteamID lobbyId = new CSteamID(callback.m_ulSteamIDLobby);
-            // Debug.Log("[SteamLobbyManager] OnLobbyEntered Joined lobby: " + lobbyId);
-
             CSteamID hostId = SteamMatchmaking.GetLobbyOwner(lobbyId);
-
-
-            Debug.Log("[SteamLobbyManager] OnLobbyEntered NetworkManager.Singleton.IsListening =" + NetworkManager.Singleton.IsListening);
-
-
             var myId = SteamUser.GetSteamID();
             if (myId.m_SteamID != hostId.m_SteamID)
             {
@@ -312,9 +305,6 @@ namespace Project.Network.SteamWork
                 if (lobbyId != null)
                 {
                     transport.ConnectToSteamID = hostId.m_SteamID;
-                    Debug.Log("[SteamLobbyManager] OnLobbyEntered Client Target Host SteamID = " + transport.ConnectToSteamID);
-
-                    Debug.Log("[SteamLobbyManager] OnLobbyEntered my client id is :" + myId);
                 }
                 else
                 {

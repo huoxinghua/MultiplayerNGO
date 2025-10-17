@@ -139,7 +139,6 @@ namespace Project.Network.UI
                 {
                     joinButton.onClick.AddListener(() =>
                     {
-                        Debug.Log("join Lobby: " + lobbyId);
                         SteamMatchmaking.JoinLobby(lobbyId);
                     });
                 }

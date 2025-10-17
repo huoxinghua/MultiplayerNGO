@@ -47,7 +47,7 @@ namespace Netcode.Transports
 #else
                     InteropHelp.TestIfAvailableClient();
 #endif
-                    Debug.Log("both server and client availbe now");
+                  //  Debug.Log("both server and client availbe now");
                     return true;
                 }
                 catch
@@ -60,7 +60,7 @@ namespace Netcode.Transports
 
         public override void DisconnectLocalClient()
         {
-            Debug.Log("DisconnectLocalClient");
+           // Debug.Log("DisconnectLocalClient");
             if (NetworkManager.Singleton.LogLevel <= LogLevel.Developer) NetworkLog.LogInfoServer(nameof(SteamNetworkingSocketsTransport) + " - DisconnectLocalClient");
 
             if (serverUser != null)
@@ -137,17 +137,16 @@ namespace Netcode.Transports
 
         public override NetworkEvent PollEvent(out ulong clientId, out ArraySegment<byte> payload, out float receiveTime)
         {
-          
             //Handle any connection state changes we may have
             #region Connnection State Changes
             while (connectionStatusChangeQueue.Count > 0)
             {
-                Debug.Log("[SteamTransport] >>> PollEvent called connectionStatusChangeQueue.Count >0");
+               // Debug.Log("[SteamTransport] >>> PollEvent called connectionStatusChangeQueue.Count >0");
                 var param = connectionStatusChangeQueue.Dequeue();
 
                 if (param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connecting)
                 {
-                    Debug.Log("[SteamTransport] >>> PollEvent called Connecting");
+                  //  Debug.Log("[SteamTransport] >>> PollEvent called Connecting");
                     //This happens when someone asked to connect to us, in the case of NetCode for GameObject this should only happen if we are a server/host
                     //the current standard is to blindly accept ... NetCode for GO should really consider a validation model for connections
                     if (NetworkManager.Singleton.LogLevel <= LogLevel.Developer)
@@ -195,7 +194,7 @@ namespace Netcode.Transports
                 }
                 else if (param.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected)
                 {
-                    Debug.Log("[SteamTransport] >>> PollEvent called Connected");
+                  //  Debug.Log("[SteamTransport] >>> PollEvent called Connected");
                     if (NetworkManager.Singleton.LogLevel <= LogLevel.Developer)
                         Debug.Log(nameof(SteamNetworkingSocketsTransport) + " - connection request to " + param.m_info.m_identityRemote.GetSteamID64() + " was accepted!");
 
@@ -351,7 +350,7 @@ namespace Netcode.Transports
 
         public override void Shutdown()
         {
-            Debug.Log("steam transport shutdown");
+          //  Debug.Log("steam transport shutdown");
             if (NetworkManager.Singleton.LogLevel <= LogLevel.Developer)
                 UnityEngine.Debug.Log(nameof(SteamNetworkingSocketsTransport.Shutdown));
 
@@ -395,7 +394,7 @@ namespace Netcode.Transports
 
         public override bool StartClient()
         {
-            Debug.Log(" steam transport start client");
+            //Debug.Log(" steam transport start client");
             if (c_onConnectionChange == null)
 #if UNITY_SERVER
                 c_onConnectionChange = Callback<SteamNetConnectionStatusChangedCallback_t>.CreateGameServer(OnConnectionStatusChanged);
@@ -405,27 +404,27 @@ namespace Netcode.Transports
 #endif
 
           serverUser = new SteamConnectionData(new CSteamID(ConnectToSteamID));
-            Debug.Log("[Client] Target Host SteamID = " + ConnectToSteamID);
+          //  Debug.Log("[Client] Target Host SteamID = " + ConnectToSteamID);
             try
             {
 #if UNITY_SERVER
                 SteamGameServerNetworkingUtils.InitRelayNetworkAccess();
 #else
                 SteamNetworkingUtils.InitRelayNetworkAccess();
-                Debug.Log("[SteamTransport] InitRelayNetworkAccess() called in StartClient()");
+              //  Debug.Log("[SteamTransport] InitRelayNetworkAccess() called in StartClient()");
 #endif
                 SteamNetworkingIdentity smi = new SteamNetworkingIdentity();
                 smi.SetSteamID(serverUser.id);
-                Debug.Log("[SteamTransport] Trying ConnectP2P to " + ConnectToSteamID);
+              //  Debug.Log("[SteamTransport] Trying ConnectP2P to " + ConnectToSteamID);
 #if UNITY_SERVER
                 serverUser.connection = SteamGameServerNetworkingSockets.ConnectP2P(ref smi, 0, options.Length, options);
 #else
 
                 serverUser.connection = SteamNetworkingSockets.ConnectP2P(ref smi, 0, options.Length, options);
-                Debug.Log(" start client success");
+               // Debug.Log(" start client success");
 #endif
                 connectionMapping.Add(ConnectToSteamID, serverUser);
-                Debug.Log("[SteamTransport] After ConnectP2P, connection handle = " + serverUser.connection.m_HSteamNetConnection);
+             //   Debug.Log("[SteamTransport] After ConnectP2P, connection handle = " + serverUser.connection.m_HSteamNetConnection);
                 return true;
             }
             catch (Exception ex)
@@ -437,7 +436,7 @@ namespace Netcode.Transports
 
         public override bool StartServer()
         {
-            Debug.Log("start server");
+           // Debug.Log("start server");
             isServer = true;
 
             if(c_onConnectionChange == null)
@@ -455,10 +454,10 @@ namespace Netcode.Transports
 #else
             listenSocket = SteamNetworkingSockets.CreateListenSocketP2P(0, options.Length, options);
 #endif
-            Debug.Log("[Host] ListenSocket handle = " + listenSocket.m_HSteamListenSocket);
+           // Debug.Log("[Host] ListenSocket handle = " + listenSocket.m_HSteamListenSocket);
             if (NetworkManager.Singleton.LogLevel <= LogLevel.Developer)
                 UnityEngine.Debug.Log(nameof(SteamNetworkingSocketsTransport.StartServer));
-            Debug.Log("start server success");
+           // Debug.Log("start server success");
             return true;
         }
 
@@ -499,11 +498,11 @@ namespace Netcode.Transports
 
         private void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t param)
         {
-            Debug.Log("OnConnectionStatusChanged");
+           // Debug.Log("OnConnectionStatusChanged");
 
-            Debug.Log($"[SteamTransport] Connection state change: " +
+       /*     Debug.Log($"[SteamTransport] Connection state change: " +
              $"{param.m_info.m_szConnectionDescription} → {param.m_info.m_eState}");
-
+*/
             connectionStatusChangeQueue.Enqueue(param);
         }
 

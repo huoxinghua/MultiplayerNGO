@@ -43,7 +43,7 @@ namespace Project.Network.ProximityChat
                 out _voiceSound
             );
 
-            Debug.Log($"[StudioVoiceEmitter] ✅ Created _voiceSound for {gameObject.name}");
+          //  Debug.Log($"[StudioVoiceEmitter] ✅ Created _voiceSound for {gameObject.name}");
 
             // Wireup programmer instrument callback
             _voiceCallback = new EVENT_CALLBACK(VoiceEventCallback);
@@ -74,7 +74,7 @@ namespace Project.Network.ProximityChat
 
         public override void EnqueueSamplesForPlayback(Span<short> voiceSamples)
         {
-            Debug.Log($"EnqueueSamplesForPlayback,Samples={voiceSamples.Length},valid={_voiceEventInstance.isValid()}playing={_voiceEventInstance.getPlaybackState(out PLAYBACK_STATE playbackState)}");
+           // Debug.Log($"EnqueueSamplesForPlayback,Samples={voiceSamples.Length},valid={_voiceEventInstance.isValid()}playing={_voiceEventInstance.getPlaybackState(out PLAYBACK_STATE playbackState)}");
             base.EnqueueSamplesForPlayback(voiceSamples);
         }
 
