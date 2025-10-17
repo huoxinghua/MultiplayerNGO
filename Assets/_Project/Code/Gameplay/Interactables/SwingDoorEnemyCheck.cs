@@ -7,7 +7,7 @@ public class SwingDoorEnemyCheck : MonoBehaviour
     {
         if (!_doorScript.IsDoorOpen() && other.gameObject.layer == 7)
         {
-            _doorScript.ToggleOpen();
+            _doorScript.EnemyOpened();
         }
     }
 }

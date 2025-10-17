@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FlashlightItem : BaseInventoryItem, IInventoryItem, IInteractable
+public class FlashlightItem : BaseInventoryItem
 {
     [SerializeField] private Light _sceneLight;
     private float _currentCharge;

@@ -18,6 +18,9 @@ public class BaseInventoryItem : MonoBehaviour , IInteractable , IInventoryItem
     protected bool _isInOwnerHand = false;
 
     protected GameObject _currentHeldVisual;
+    protected float _tranquilValue = 0;
+    protected float _violentValue = 0;
+    protected float _miscValue = 0;
     private void Awake()
     {
 
@@ -116,6 +119,6 @@ public class BaseInventoryItem : MonoBehaviour , IInteractable , IInventoryItem
     }
     public virtual ScienceData GetValueStruct()
     {
-        return new ScienceData { };
+        return new ScienceData { RawTranquilValue = _tranquilValue, RawMiscValue = _miscValue, RawViolentValue = _violentValue, KeyName = _itemSO.ItemName };
     }
 }
