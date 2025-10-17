@@ -1,4 +1,4 @@
-using NUnit.Framework.Interfaces;
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,6 +24,11 @@ public class BaseMarketSO : ScriptableObject
 
     public MarketData GetItemData(string itemID)
     {
+        if (string.IsNullOrEmpty(itemID))
+        {
+            Debug.Log("empty for somereason");
+            return default;
+        }
         if (itemDictionary.TryGetValue(itemID, out var data))
         {
             return data;

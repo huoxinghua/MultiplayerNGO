@@ -84,11 +84,23 @@ public class BeetleDead : MonoBehaviour, IInteractable, IInventoryItem
     {
         return _beetleSO.ItemUIImage;
     }
-
+    public bool CanPickUp()
+    {
+        return _beetleSO.CanBeSold;
+    }
+    public bool CanBeSold()
+    {
+        return _beetleSO.CanBeSold;
+    }
+    public void WasSold()
+    {
+        Destroy(_currentHeldVisual);
+        Destroy(_beetleSkele);
+    }
     //change to raw value struct
     public ScienceData GetValueStruct()
     {
-        return new ScienceData { RawTranquilValue = _tranquilValue, RawMiscValue = _miscValue, RawViolentValue = _violentValue };
+        return new ScienceData { RawTranquilValue = _tranquilValue, RawMiscValue = _miscValue, RawViolentValue = _violentValue, KeyName = _beetleSO.ItemName};
     }
     public void OnEnable()
     {

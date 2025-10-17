@@ -12,4 +12,5 @@ public class BaseItemSO : ScriptableObject
 
     [field: Header("Base Item Inventory Info")]
     [field: SerializeField] public bool IsPocketSize { get; private set; }
+    [field: SerializeField] public bool CanBeSold { get; private set; }
 }

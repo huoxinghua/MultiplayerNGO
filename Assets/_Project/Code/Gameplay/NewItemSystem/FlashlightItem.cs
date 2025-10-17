@@ -1,32 +1,32 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
+public class FlashlightItem : BaseInventoryItem, IInventoryItem, IInteractable
 {
-    [SerializeField] private GameObject _heldVisual;
-    [SerializeField] private FlashItemSO _flashSO;
-    [SerializeField] private Rigidbody _rb;
-    [SerializeField] private Renderer _renderer;
     [SerializeField] private Light _sceneLight;
-    [SerializeField] private Collider _collider;
     private float _currentCharge;
     [SerializeField] private bool _isFlashOn = false;
     [SerializeField] private bool _lastFlashState = true;
-    private GameObject _owner;
-    private bool _hasOwner => _owner != null;
-    private bool _isInOwnerHand = false;
     private bool _hasCharge => _currentCharge >= 0;
-
     private Light _lightComponent;
-    private GameObject _currentHeldVisual;
     private void Awake()
     {
         _sceneLight.enabled = false;
-        _currentCharge = _flashSO.MaxCharge;
+
+        if (_itemSO is FlashItemSO flashLight)
+        {
+            _currentCharge = flashLight.MaxCharge;
+        }
+
     }
     private void Update()
     {
-        if (_isFlashOn) _currentCharge -= _flashSO.ChargeLoseRate * Time.deltaTime;
+        if(_itemSO is FlashItemSO flashLight)
+        {
+            if (_isFlashOn) _currentCharge -= flashLight.ChargeLoseRate * Time.deltaTime;
+        }
+        
         if (_currentCharge <= 0) _isFlashOn = false;
         if (_currentHeldVisual == null) return;
         if (_hasOwner)
@@ -40,45 +40,22 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
             _lastFlashState = _isFlashOn;
         }
     }
-    public void OnInteract(GameObject interactingPlayer)
+    public override void PickupItem(GameObject player, Transform playerHoldPosition)
     {
-        if (interactingPlayer.GetComponent<PlayerInventory>().TryPickupItem())
-        {
-            interactingPlayer.GetComponent<PlayerInventory>().DoPickup(this);
-        }
-    }
-    public void PickupItem(GameObject player, Transform playerHoldPosition)
-    {
-        _owner = player;
-        _rb.isKinematic = true;
-        _renderer.enabled = false;
-        _collider.enabled = false;
-
-        transform.parent = playerHoldPosition;
-        transform.localPosition = Vector3.zero;
-        transform.localRotation = Quaternion.Euler(0, 0, 0);
-        _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
+        base.PickupItem(player, playerHoldPosition);
         _lightComponent = _currentHeldVisual.GetComponent<Light>();
         _lightComponent.enabled = _isFlashOn;
         _sceneLight.enabled = false;
     }
-    public void DropItem(Transform dropPoint)
+    public override void DropItem(Transform dropPoint)
     {
-        _owner = null;
-
-        _renderer.enabled = true;
-
-        Destroy(_currentHeldVisual);
+        base.DropItem(dropPoint);
         _sceneLight.enabled = _isFlashOn;
         _lightComponent = null;
-        transform.parent = null;
-
-        _rb.isKinematic = false;
-        _collider.enabled = true;
-        transform.position = dropPoint.position;
     }
     private void ToggleFlashLight()
     {
+
         if (!_hasCharge)
         {
             _isFlashOn = false;
@@ -86,41 +63,22 @@ public class FlashlightItem : MonoBehaviour, IInventoryItem, IInteractable
         }
         _isFlashOn = !_isFlashOn;
     }
-    public void UseItem()
+    public override void UseItem()
     {
-        if (!_isInOwnerHand) return;
+        base.UseItem();
         ToggleFlashLight();
     }
-    public void UnequipItem()
+    public override void UnequipItem()
     {
-        _currentHeldVisual?.SetActive(false);
+        base.UnequipItem();
         _lightComponent.enabled = false;
         _isInOwnerHand = false;
     }
-    public void EquipItem()
+    public override void EquipItem()
     {
-        _currentHeldVisual?.SetActive(true);
+        base.EquipItem();
         _lightComponent.enabled = _isFlashOn;
         _isInOwnerHand = true;
     }
-    public string GetItemName()
-    {
-        return _flashSO.ItemName;
-    }
-    public bool IsPocketSize()
-    {
-        return _flashSO.IsPocketSize;
-    }
-    public GameObject GetHeldVisual()
-    {
-        return _heldVisual;
-    }
-    public Image GetUIImage()
-    {
-        return _flashSO.ItemUIImage;
-    }
-    public ScienceData GetValueStruct()
-    {
-        return new ScienceData { };
-    }
+
 }

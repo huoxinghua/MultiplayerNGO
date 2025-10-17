@@ -111,7 +111,15 @@ public class BaseballBatItem : MonoBehaviour, IInventoryItem, IInteractable
     {
         return _baseballBatSO.ItemUIImage;
     }
-
+    public bool CanBeSold()
+    {
+        return _baseballBatSO.CanBeSold;
+    }
+    public void WasSold()
+    {
+        Destroy(_currentHeldVisual);
+        Destroy(gameObject);
+    }
     //change to raw value struct
     public ScienceData GetValueStruct()
     {

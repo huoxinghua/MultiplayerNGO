@@ -82,7 +82,15 @@ public class BrutePiece : MonoBehaviour, IInventoryItem ,IInteractable
     {
         return _brutePieceSO.ItemUIImage;
     }
-
+    public bool CanBeSold()
+    {
+        return _brutePieceSO.CanBeSold;
+    }
+    public void WasSold()
+    {
+        Destroy(_currentHeldVisual);
+        Destroy(gameObject);
+    }
     //change to raw value struct
     public ScienceData GetValueStruct()
     {

@@ -50,12 +50,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _heldVisual: {fileID: 6191987581465459003, guid: 044eca1a98c3bf14680a1a0fc31a275c, type: 3}
-  _flashSO: {fileID: 11400000, guid: 8110417f5a1b2b742b9d297ffef94fe8, type: 2}
+  _itemSO: {fileID: 11400000, guid: 8110417f5a1b2b742b9d297ffef94fe8, type: 2}
   _rb: {fileID: 2995521283193962688}
   _renderer: {fileID: 1865311399591713702}
-  _sceneLight: {fileID: 3126328674173226819}
   _collider: {fileID: 3785101570154961571}
-  _currentHeldVisual: {fileID: 0}
+  _sceneLight: {fileID: 3126328674173226819}
+  _isFlashOn: 0
+  _lastFlashState: 1
 --- !u!65 &3785101570154961571
 BoxCollider:
   m_ObjectHideFlags: 0

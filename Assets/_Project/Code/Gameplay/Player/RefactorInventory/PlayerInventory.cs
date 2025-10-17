@@ -132,7 +132,60 @@ public class PlayerInventory : MonoBehaviour
         }
 
     }
+    /// <summary>
+    /// Checks if holding a sample in hand. Safety net for TrySell()
+    /// </summary>
+    /// <returns>If item held can be sold</returns>
+    public bool IsHoldingSample()
+    {
+        if (_handsFull)
+        {
+            if(BigItemCarried != null)
+            {
+                return BigItemCarried.CanBeSold();
+            }
+        }
+        else if(InventoryItems[_currentIndex] != null)
+        {
+            return InventoryItems[_currentIndex].CanBeSold();
+        }
+        return false;
+    }
+    /// <summary>
+    /// Checks if the applicable item is eligible for sale. If holding big item, check big item. If not, check for a held item and if it can be sold
+    /// </summary>
+    /// <returns>A struct containing the data associated with the samples values</returns>
+    public ScienceData TrySell()
+    {
+        float tranquilVal = 0;
+        float violentVal = 0;
+        float miscVal = 0;
+        string itemName = "StoopidDumb";
+        //big item check and logic
+        if (_handsFull && BigItemCarried != null)
+        {
+            
+            tranquilVal = BigItemCarried.GetValueStruct().RawTranquilValue;
+            violentVal = BigItemCarried.GetValueStruct().RawViolentValue;
+            miscVal = BigItemCarried.GetValueStruct().RawMiscValue;
+            itemName = BigItemCarried.GetValueStruct().KeyName;
+            BigItemCarried.WasSold();
+            BigItemCarried = null;
+        }
+        //inventory check and item held check (if item is held)
+        else if(!_handsFull && InventoryItems[_currentIndex] != null)
+        {
+            if (InventoryItems[_currentIndex] == null) return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal };
+            tranquilVal = InventoryItems[_currentIndex].GetValueStruct().RawTranquilValue;
+            violentVal = InventoryItems[_currentIndex].GetValueStruct().RawViolentValue;
+            miscVal = InventoryItems[_currentIndex].GetValueStruct().RawMiscValue;
+            itemName = InventoryItems[_currentIndex].GetValueStruct().KeyName;
+            InventoryItems[_currentIndex].WasSold();
+            InventoryItems[_currentIndex] = null;
+        }
 
+        return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal, KeyName = itemName };
+    }
     /// <summary>
     /// Called by number inputs to switch to new slot. 
     /// <br/>Tells current item (if applicable) to handle unequip logic, sets new index for current item, than tells new item to handle equip logic
