@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using _Project.Code.Core.Patterns;
 public class LayerMasks : Singleton<LayerMasks>
 {
     [SerializeField] private LayerMask _groundMask;
