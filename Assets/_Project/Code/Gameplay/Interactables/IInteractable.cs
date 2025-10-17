@@ -6,4 +6,8 @@ public interface IInteractable
     {
 
     }
+    public void HandleHover(bool isHovering)
+    {
+
+    }
 }

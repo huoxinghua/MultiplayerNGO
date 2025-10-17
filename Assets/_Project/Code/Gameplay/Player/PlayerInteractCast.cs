@@ -81,10 +81,18 @@ public class PlayerInteractCast : MonoBehaviour
 
             // UI Logic
             castedInteract = hasInteractable;
+            if (hasInteractable)
+            {
+                currentInteractable.HandleHover(true);
+            }
         }
         else
         {
             // Raycast hit nothing, clear everything
+            if(currentInteractable != null)
+            {
+                currentInteractable.HandleHover(false);
+            }
             currentTarget = null;
             currentInteractable = null;
             currentHoldInteract = null;

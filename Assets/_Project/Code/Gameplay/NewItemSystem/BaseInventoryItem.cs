@@ -33,6 +33,22 @@ public class BaseInventoryItem : MonoBehaviour , IInteractable , IInventoryItem
             interactingPlayer.GetComponent<PlayerInventory>().DoPickup(this);
         }
     }
+    public virtual void HandleHover(bool isHovering)
+    {
+        if (isHovering)
+        {
+            Material materialInstance = _renderer.material;
+            //wont work yet I dont think
+            // materialInstance.SetFloat("_GlowFloat", 1);
+            Debug.Log("Change to Glow");
+        }
+        else
+        {
+            //set back
+            Debug.Log("Change back");
+        }
+        
+    }
     public virtual void PickupItem(GameObject player, Transform playerHoldPosition)
     {
         _owner = player;
