@@ -97,3 +97,20 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+#FMOD
+
+# Ignore the Cache folder since it is updated locally.
+/Aassets/Plugins/FMOD/Cache/*
+
+# Ignore bank files in the StreamingAssets folder.
+/Aassets/StreamingAssets/**/*.bank
+/Aassets/StreamingAssets/**/*.bank.meta
+
+# If the source bank files are kept outside of the StreamingAssets folder then these can be ignored.
+# Log files can be ignored.
+fmod_editor.log
+# Ignore FMOD build output
+FMODProject/Build/
+FMODProject/.cache/
+FMODProject/Temp/
