@@ -11,7 +11,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Project.Network.ProximityChat
 {
-  
+
 
     public class StudioVoiceEmitter : VoiceEmitter
     {
@@ -25,13 +25,6 @@ namespace Project.Network.ProximityChat
         /// <inheritdoc />
         public override void Init(uint sampleRate = 48000, int channelCount = 1, VoiceFormat inputFormat = VoiceFormat.PCM16Samples)
         {
-            /*  if (_voiceEventInstance.hasHandle())
-              {
-                  _voiceEventInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                  _voiceEventInstance.release();
-                  _voiceEventInstance.clearHandle();
-                  Debug.Log("[FMOD] Old voice EventInstance released before creating new one.");
-              }*/
             ReleaseVoiceEvent();
 
             base.Init(sampleRate, channelCount, inputFormat);
@@ -42,7 +35,7 @@ namespace Project.Network.ProximityChat
             soundInfo.defaultfrequency = (int)sampleRate;
             soundInfo.format = SOUND_FORMAT.PCM16;
             soundInfo.length = sampleRate * VoiceConsts.SampleSize * (uint)channelCount;
-          
+
             system.createSound(
                 (string)null,
                 MODE.OPENUSER | MODE.LOOP_NORMAL | MODE._3D,
@@ -78,12 +71,13 @@ namespace Project.Network.ProximityChat
         {
             _voiceEventInstance.setPaused(isPaused);
         }
+
         public override void EnqueueSamplesForPlayback(Span<short> voiceSamples)
         {
             Debug.Log($"EnqueueSamplesForPlayback,Samples={voiceSamples.Length},valid={_voiceEventInstance.isValid()}playing={_voiceEventInstance.getPlaybackState(out PLAYBACK_STATE playbackState)}");
             base.EnqueueSamplesForPlayback(voiceSamples);
-
         }
+
         private IEnumerator WaitToGetChannel()
         {
             // Wait until event is fully created (playback state == playing)
@@ -118,7 +112,7 @@ namespace Project.Network.ProximityChat
                         var parameter = (PROGRAMMER_SOUND_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(PROGRAMMER_SOUND_PROPERTIES));
                         if (_instanceMap.TryGetValue(instancePtr, out var emitter))
                         {
-                            parameter.sound = emitter._voiceSound.handle; 
+                            parameter.sound = emitter._voiceSound.handle;
                         }
                         else
                         {
@@ -147,7 +141,6 @@ namespace Project.Network.ProximityChat
                 _voiceSound.release();
             }
 
-    
             if (_instanceMap.ContainsKey(_voiceEventInstance.handle))
                 _instanceMap.Remove(_voiceEventInstance.handle);
 

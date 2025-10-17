@@ -22,83 +22,38 @@ namespace Project.Network.ProximityChat
         // Encode/decode
         private VoiceEncoder _voiceEncoder;
         private VoiceDecoder _voiceDecoder;
-        //  private readonly Queue<short[]> _pendingSamples = new Queue<short[]>();
+
         private readonly Dictionary<ulong, Queue<short[]>> _pendingSamples = new();
-        //void Awake()
-        //{
-        //    if (IsOwner)
-        //    {
-        //        _voiceRecorder.Init();
-        //        _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
 
-        //        if (_playbackOwnVoice)
-        //        {
-        //            _voiceDecoder = new VoiceDecoder();
-        //            _voiceEmitter.Init(VoiceConsts.OpusSampleRate);
-        //        }
-        //        else
-        //        {
-        //            _voiceEmitter.enabled = false;
-        //        }
-        //    }
-        //    else
-        //    {
-
-        //        _voiceDecoder = new VoiceDecoder();
-        //        _voiceEmitter.Init(VoiceConsts.OpusSampleRate);
-        //    }
-        //}
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-
-           // Debug.Log($"[VoiceNetworker] OnNetworkSpawn() called on {gameObject.name} for owner={OwnerClientId}, local={NetworkManager.Singleton.LocalClientId}");
             if (IsOwner)
-
             {
-
                 _voiceRecorder.Init();
-
                 _voiceEncoder = new VoiceEncoder(_voiceRecorder.RecordedSamplesQueue);
-
-                Debug.Log("[VoiceNetworker] Owner Recorder & Encoder initialized");
-
             }
-
 
             if (_voiceEmitter != null)
-
             {
-
                 _voiceDecoder = new VoiceDecoder();
-
                 _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
-
-                //  Debug.Log("[VoiceNetworker] Decoder & Emitter initialized for " + (IsOwner ? "Owner" : "Client"));
-                //  Debug.Log($"[PVoiceNetwork] Emitter Type: {_voiceEmitter.GetType()} Format: {_voiceEmitter.GetFormat()}");
-                 Debug.Log($"[VoiceNetwork] emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner}");
-                
             }
-
             else
-
             {
-
                 Debug.LogError("[VoiceNetworker] Missing VoiceEmitter reference");
-
             }
 
 
-           /* if (IsOwner && !_playbackOwnVoice)
+            /* if (IsOwner && !_playbackOwnVoice)
 
-                _voiceEmitter.SetVolume(0f);*/
+                 _voiceEmitter.SetVolume(0f);*/
 
             StartCoroutine(WaitToInitEmitter());
-
         }
         private IEnumerator WaitToInitEmitter()
         {
-            yield return null; 
+            yield return null;
             if (_voiceEmitter != null && !_voiceEmitter.IsReady)
             {
                 _voiceEmitter.Init(VoiceConsts.OpusSampleRate, 1, VoiceFormat.PCM16Samples);
@@ -109,58 +64,46 @@ namespace Project.Network.ProximityChat
         [ServerRpc]
         public void SendEncodedVoiceServerRpc(byte[] encodedVoiceData, ServerRpcParams rpcParams = default)
         {
-            // Debug.Log($"[PVoiceNetwork] ServerRpc reveive {encodedVoiceData.Length} byte");
             ulong senderId = rpcParams.Receive.SenderClientId;
-
             SendEncodedVoiceClientRpc(encodedVoiceData, senderId);
         }
 
-
-      
         [ClientRpc]
         public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData, ulong senderID)
         {
             if (senderID == NetworkManager.Singleton.LocalClientId)
+            {
                 return;
-            bool shouldPlay = false;
+            }
 
+            bool shouldPlay = false;
             if (IsOwner)
             {
-    
                 shouldPlay = _playbackOwnVoice;
             }
             else
             {
-   
+
                 shouldPlay = true;
             }
-   
+
             if (!shouldPlay)
             {
-                Debug.Log("this voice should not play，return");
                 return;
             }
 
+           // Debug.Log($"[VoiceNetwork] @@@@@@@@@@￥￥￥￥￥emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner} +senderId={senderID}");
 
-            Debug.Log($"[VoiceNetwork] @@@@@@@@@@￥￥￥￥￥emitterRef name={_voiceEmitter?.name} id={_voiceEmitter?.GetInstanceID()} IsReady={_voiceEmitter?.IsReady} format={_voiceEmitter?.GetFormat()} owner={IsOwner} +senderId={ senderID}");
-
-            Debug.Log($"********[PVoiceNetwork] !IsOwner {!IsOwner} _playbackOwnVoice {_playbackOwnVoice}");
             Span<short> decodedVoiceSamples = _voiceDecoder.DecodeVoiceSamples(encodedVoiceData);
-            Debug.Log($"[Net] decodedLen={decodedVoiceSamples.Length}");
-      
             StudioVoiceEmitter emitterToPlay = null;
-
-
             NetworkObject senderObject = null;
 
             if (NetworkManager.Singleton.IsServer)
             {
-              
                 senderObject = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(senderID);
             }
             else
             {
-                
                 if (NetworkManager.Singleton.ConnectedClients.TryGetValue(senderID, out var client))
                 {
                     senderObject = client.PlayerObject;
@@ -171,14 +114,11 @@ namespace Project.Network.ProximityChat
                 emitterToPlay = senderObject.GetComponentInChildren<StudioVoiceEmitter>();
             }
 
-       
             if (emitterToPlay == null)
             {
-                Debug.LogWarning($"[VoiceNetwork] ❌ Could not find emitter for sender {senderID}, fallback to local emitter.");
                 emitterToPlay = _voiceEmitter as StudioVoiceEmitter;
             }
 
-       
             if (!emitterToPlay.IsReady)
             {
                 if (!_pendingSamples.ContainsKey(senderID))
@@ -193,42 +133,12 @@ namespace Project.Network.ProximityChat
                 return;
             }
 
-
             if (_pendingSamples.TryGetValue(senderID, out var queue))
             {
                 while (queue.Count > 0)
                     emitterToPlay.EnqueueSamplesForPlayback(queue.Dequeue());
             }
             emitterToPlay.EnqueueSamplesForPlayback(decodedVoiceSamples);
-
-            Debug.Log($"[VoiceNetwork] ✅ Played voice for sender {senderID} on emitter {emitterToPlay.name}");
-
-            /*
-                        Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady);
-                        if (!_voiceEmitter.IsReady)
-                        {
-                            Debug.Log("[VoiceNetwork] VoiceEmitter not ready yet, caching samples...");
-                            _pendingSamples.Enqueue(decodedVoiceSamples.ToArray());
-                            //  Debug.LogWarning("[VoiceNetwork]  samples..."+ _pendingSamples.Count);
-                            if (!_waitingForReady && isActiveAndEnabled)
-                            {
-                                StartCoroutine(WaitUntilEmitterReadyAndPlay());
-                            }
-                            else if (!_waitingForReady)
-                            {
-                                Debug.LogWarning("[VoiceNetwork] Object inactive, skipping coroutine start.");
-                            }
-
-                        }
-                        Debug.Log("[VoiceNetwork] VoiceEmitter is ready, ？" + _voiceEmitter.IsReady);
-                        while (_pendingSamples.Count > 0)
-                        {
-                            _voiceEmitter.EnqueueSamplesForPlayback(_pendingSamples.Dequeue());
-                        }
-
-                        _voiceEmitter.EnqueueSamplesForPlayback(decodedVoiceSamples);*/
-
-
 
         }
         private bool _waitingForReady = false;

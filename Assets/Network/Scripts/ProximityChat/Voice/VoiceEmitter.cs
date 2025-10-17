@@ -1,7 +1,7 @@
-using System;
-using System.Runtime.InteropServices;
 using FMOD;
 using FMODUnity;
+using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -14,7 +14,7 @@ namespace Project.Network.ProximityChat
     {
         // Sound parameters
         protected VoiceFormat _inputFormat;
-        protected   Sound _voiceSound;
+        protected Sound _voiceSound;
         protected CREATESOUNDEXINFO _soundParams;
         protected uint _sampleRate;
         protected int _channelCount;
@@ -44,14 +44,14 @@ namespace Project.Network.ProximityChat
             _sampleRate = sampleRate;
             _channelCount = channelCount;
             _inputFormat = inputFormat;
-            
+
             // Initialize sound parameters
             _soundParams.cbsize = Marshal.SizeOf(typeof(CREATESOUNDEXINFO));
             _soundParams.numchannels = _channelCount;
             _soundParams.defaultfrequency = (int)_sampleRate;
             _soundParams.format = SOUND_FORMAT.PCM16;
             _soundParams.length = _sampleRate * VoiceConsts.SampleSize * (uint)_channelCount;
-            
+
             // Initialize voice data buffers
             _emptyBytes = new byte[_soundParams.length];
             if (_inputFormat == VoiceFormat.PCM16Bytes)
@@ -62,37 +62,32 @@ namespace Project.Network.ProximityChat
             {
                 _voiceSamplesQueue = new VoiceDataQueue<short>(_soundParams.length / VoiceConsts.SampleSize);
             }
-            
+
             // Create 3D sound in loop mode and allow direct writing to sound data
-            RuntimeManager.CoreSystem.createSound(_soundParams.userdata,MODE.LOOP_NORMAL | MODE.OPENUSER | MODE._3D, ref _soundParams, out _voiceSound);
+            RuntimeManager.CoreSystem.createSound(_soundParams.userdata, MODE.LOOP_NORMAL | MODE.OPENUSER | MODE._3D, ref _soundParams, out _voiceSound);
             RuntimeManager.CoreSystem.getMasterChannelGroup(out ChannelGroup masterGroup);
             RuntimeManager.CoreSystem.playSound(_voiceSound, masterGroup, false, out _channel);
             _channel.setMode(MODE.LOOP_NORMAL);
-
             _channel.setPaused(false);
 
-           
-           
             // Flag initialized
             _initialized = true;
-
-            Debug.Log("[VoiceEmitter] FMOD voice sound created and playing.+_initialized" + _initialized +"IsReady"+IsReady);
         }
-        
-       /// <summary>
-       /// Enqueues a span of voice audio bytes to be played back.
-       /// </summary>
-       /// <remarks>
-       /// Emitter must be initialized with <see cref="VoiceFormat.PCM16Bytes"/> input format
-       /// to use this method.
-       /// </remarks>
-       /// <param name="voiceBytes">Bytes to be queued for playback</param>
-       /// <exception cref="Exception">Throws an exception if input format is not <see cref="VoiceFormat.PCM16Bytes"/></exception>
+
+        /// <summary>
+        /// Enqueues a span of voice audio bytes to be played back.
+        /// </summary>
+        /// <remarks>
+        /// Emitter must be initialized with <see cref="VoiceFormat.PCM16Bytes"/> input format
+        /// to use this method.
+        /// </remarks>
+        /// <param name="voiceBytes">Bytes to be queued for playback</param>
+        /// <exception cref="Exception">Throws an exception if input format is not <see cref="VoiceFormat.PCM16Bytes"/></exception>
         public void EnqueueBytesForPlayback(Span<byte> voiceBytes)
         {
             if (_inputFormat != VoiceFormat.PCM16Bytes)
                 throw new Exception("Incorrect input format. Failed to enqueue voice bytes.");
-            
+
             _voiceBytesQueue.Enqueue(voiceBytes);
         }
 
@@ -105,15 +100,9 @@ namespace Project.Network.ProximityChat
         /// </remarks>
         /// <param name="voiceSamples">Samples to be queued for playback</param>
         /// <exception cref="Exception">Throws an exception if input format is not <see cref="VoiceFormat.PCM16Samples"/></exception>
-      
+
         public virtual void EnqueueSamplesForPlayback(Span<short> voiceSamples)
         {
-            //if (_inputFormat != VoiceFormat.PCM16Samples)
-            //{
-            //    throw new Exception("Incorrect input format. Failed to dequeue voice bytes.");
-            //    return;
-            //}
-          
             if (!_initialized)
             {
                 Debug.Log($"[VoiceEmitter] ({GetInstanceID()}) enqueue before Init. format={_inputFormat}");
@@ -133,27 +122,27 @@ namespace Project.Network.ProximityChat
         /// </summary>
         /// <param name="volume">Volume from 0 to 1</param>
         public abstract void SetVolume(float volume);
-        
+
         /// <summary>
         /// Write voice data bytes directly to the voice sound.
         /// </summary>
         protected void WriteVoiceBytes(byte[] voiceBytes, uint writePosition, uint byteCount)
         {
             if (byteCount <= 0) return;
-            
+
             _voiceSound.@lock(writePosition, byteCount, out IntPtr ptr1, out IntPtr ptr2, out uint len1, out uint len2);
             Marshal.Copy(voiceBytes, 0, ptr1, (int)len1);
             Marshal.Copy(voiceBytes, (int)len1, ptr2, (int)len2);
             _voiceSound.unlock(ptr1, ptr2, len1, len2);
         }
-        
+
         /// <summary>
         /// Write voice data samples directly to the voice sound.
         /// </summary>
         protected void WriteVoiceSamples(short[] voiceSamples, uint writePosition, uint sampleCount)
         {
             if (sampleCount <= 0) return;
-            
+
             _voiceSound.@lock(writePosition, sampleCount * VoiceConsts.SampleSize, out IntPtr ptr1, out IntPtr ptr2, out uint len1, out uint len2);
             Marshal.Copy(voiceSamples, 0, ptr1, (int)(len1 / VoiceConsts.SampleSize));
             Marshal.Copy(voiceSamples, (int)(len1 / VoiceConsts.SampleSize), ptr2, (int)(len2 / VoiceConsts.SampleSize));
@@ -166,7 +155,7 @@ namespace Project.Network.ProximityChat
                 ? playbackEndPosition - playbackStartPosition
                 : _soundParams.length - playbackStartPosition + playbackEndPosition;
         }
-        
+
         protected uint GetAvailablePlaybackByteCount(uint playbackPosition, uint writePosition, bool soundIsFull = false)
         {
             if (writePosition > playbackPosition)
@@ -182,7 +171,7 @@ namespace Project.Network.ProximityChat
                 return soundIsFull ? _soundParams.length : 0;
             }
         }
-        
+
         protected uint GetAvailableWriteByteCount(uint playbackPosition, uint writePosition, bool soundIsFull = false)
         {
             if (writePosition > playbackPosition)
@@ -204,18 +193,18 @@ namespace Project.Network.ProximityChat
             _channel.getPosition(out uint playbackPosition, TIMEUNIT.PCMBYTES);
             return playbackPosition;
         }
-        
+
         protected abstract void SetPaused(bool isPaused);
-        
+
         protected virtual void Update()
         {
             if (!_initialized) return;
-            
+
             // Get the current playback position
             uint playbackPosition = GetPlaybackPositionBytes();
             // Sound is only full if it was full the last frame and playback position hasn't changed
-            _soundIsFull = _soundIsFull && playbackPosition == _prevPlaybackPosition; 
-            
+            _soundIsFull = _soundIsFull && playbackPosition == _prevPlaybackPosition;
+
             // Check if we have played all the available voice data since last frame
             uint bytesPlayedSinceLastFrame = GetPlaybackByteCount(_prevPlaybackPosition, playbackPosition);
             if (bytesPlayedSinceLastFrame > _availablePlaybackByteCount)
@@ -228,7 +217,7 @@ namespace Project.Network.ProximityChat
             {
                 WriteVoiceBytes(_emptyBytes, _prevPlaybackPosition, bytesPlayedSinceLastFrame);
             }
-            
+
             // Write length is the minimum of available writing space and buffered voice data
             uint availableWriteByteCount = GetAvailableWriteByteCount(playbackPosition, _writePosition, _soundIsFull);
             uint writeLength = (_inputFormat == VoiceFormat.PCM16Bytes) ?
@@ -259,7 +248,7 @@ namespace Project.Network.ProximityChat
 
             // Pause the channel if there are no bytes left to play
             SetPaused(_availablePlaybackByteCount == 0);
-            
+
             _prevPlaybackPosition = playbackPosition;
         }
         public VoiceFormat GetFormat()

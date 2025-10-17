@@ -25,14 +25,14 @@ namespace Project.Network.UI
         [SerializeField] private GameObject _filterImg;
         //host
         [SerializeField] private TMP_InputField _roomNameInput;
-        public string RoomName {  get; private set; }   
+        public string RoomName { get; private set; }
         void Start()
         {
             if (!SteamManager.Initialized) return;
             //give the server name with a deafault name
             var servar = SteamFriends.GetPersonaName().ToString();
             _roomNameInput.text = servar + "'s Game ";
-        
+
             HidePanels();
             isPrivatLobbySelected = _createLobbyToggle.isOn;
             _createLobbyToggle.onValueChanged.AddListener(OnPrivateLobbyChanged);
@@ -83,7 +83,6 @@ namespace Project.Network.UI
 
         }
 
-
         public void ClearLobbyList()
         {
             foreach (Transform child in _lobbyListContainer)
@@ -92,12 +91,9 @@ namespace Project.Network.UI
             }
         }
 
-
         public void OnPrivateLobbyChanged(bool value)
         {
-            Debug.Log("On private lobby changed");
             isPrivatLobbySelected = value;
-
         }
 
         public void ClickCreateLobby()
@@ -107,16 +103,14 @@ namespace Project.Network.UI
             if (isPrivatLobbySelected)
             {
                 SteamLobbyManager.RaiseCreateFriendOnlyLobby();
-                //Debug.Log("create the friendOnly lobby");
             }
             else
             {
                 SteamLobbyManager.RaiseCreatePublicLobby();
-                // Debug.Log("create the public lobby");
             }
         }
 
-       public void DisplayInputServerName()
+        public void DisplayInputServerName()
         {
             if (_roomNameInput != null && !string.IsNullOrEmpty(_roomNameInput.text))
             {
@@ -126,10 +120,10 @@ namespace Project.Network.UI
 
         public void GenerateLobbyList()
         {
-            //Debug.Log("GenerateLobbyList:"+ SteamLobbyManager.LobbyLists.Count);
             foreach (var kvp in SteamLobbyManager.LobbyLists)
             {
-                CSteamID lobbyId = kvp.Key;       // KeyValuePair:kvp
+                // KeyValuePair:kvp
+                CSteamID lobbyId = kvp.Key; 
                 string lobbyName = kvp.Value;
 
                 GameObject newItem = Instantiate(_lobbyItemPrefab, _lobbyListContainer);
