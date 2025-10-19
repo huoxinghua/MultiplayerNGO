@@ -253,7 +253,7 @@ namespace Project.Network.SteamWork
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
             {
-                NetworkManager.Singleton.SceneManager.LoadScene("NetWorkLobby", LoadSceneMode.Single);
+                NetworkManager.Singleton.SceneManager.LoadScene("LevelGenerationSync", LoadSceneMode.Single);
             }
 
             if (ok)
