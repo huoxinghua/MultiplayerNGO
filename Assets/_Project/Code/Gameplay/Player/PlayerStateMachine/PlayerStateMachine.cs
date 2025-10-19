@@ -103,6 +103,9 @@ public class PlayerStateMachine : BaseStateController
     }
     public void Start()
     {
+        //test
+    //  transform.position = new Vector3(4,2,2) + Vector3.up * 10f;
+        //test end
         TransitionTo(IdleState);
     }
     #region Inputs
