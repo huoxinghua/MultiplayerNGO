@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5734987260658464074
+--- !u!114 &-523553718627797578
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -26,20 +26,22 @@ MonoBehaviour:
   m_Name: DunGen Settings
   m_EditorClassIdentifier: 
   BroadphaseSettings:
-    rid: 3800509302982836288
+    rid: 7904958721198129214
   BoundsCalculationsIgnoreSprites: 0
   RecalculateTileBoundsOnSave: 1
   EnableTilePooling: 0
   DisplayFailureReportWindow: 1
   CheckForUnusedFiles: 1
-  defaultSocket: {fileID: 0}
+  defaultSocket: {fileID: -523553718627797578}
   tagManager:
-    keys: 
-    values: []
+    keys: 0000000001000000
+    values:
+    - Room
+    - Hallway
   references:
     version: 2
     RefIds:
-    - rid: 3800509302982836288
+    - rid: 7904958721198129214
       type: {class: SpatialHashBroadphaseSettings, ns: DunGen.Collision, asm: DunGen}
       data:
         CellSize: 40
