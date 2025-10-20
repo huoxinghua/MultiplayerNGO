@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 6716369746917026194}
   - component: {fileID: -1828691224128072747}
   - component: {fileID: -2559592197902180710}
+  - component: {fileID: 5085335193256860592}
   m_Layer: 0
   m_Name: PlayerCharacterDoor
   m_TagString: Untagged
@@ -322,6 +323,24 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &5085335193256860592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395632011506178275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb6d9805c9e8b1c49a61e40a9a99db0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _componentsToDisable:
+  - {fileID: 4648013823145631565}
+  - {fileID: 6049905178415054960}
+  _objectsToEnable:
+  - {fileID: 7793070681904133800}
 --- !u!1 &6101830775051530877
 GameObject:
   m_ObjectHideFlags: 0
