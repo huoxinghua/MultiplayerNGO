@@ -2,20 +2,19 @@ using UnityEngine;
 
 public class IKInteractable : MonoBehaviour
 {
-    [SerializeField] Animator anim;
     [SerializeField] Transform handR;
     [SerializeField] Transform handL;
+    [SerializeField] FingerPoseSO fingerSO;
 
-    public void Pickup(PlayerIKController ikController)
+    public void PickupAnimation(PlayerIKController ikController)
     {
-        ikController.IKPos(handL, handR);
+        ikController.IKPos(handL, handR, fingerSO);
         ikController.IkActive = true;
     }
 
-    public void Drop(PlayerIKController ikController)
+    public void DropAnimation(PlayerIKController ikController)
     {
         ikController.IkActive = false;
-        ikController.IKPos(null, null);
-
+        ikController.IKPos(null, null, null);
     }
 }

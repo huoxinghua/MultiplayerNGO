@@ -1,11 +1,18 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
+public enum BruteAnimationState
+{
+    Alert,
+    Normal,
+    Injured
+}
 public class BruteAnimation : EnemyAnimation
 {
     private int hStatus = Animator.StringToHash("bruteStatus");
     private int hInjured = Animator.StringToHash("isInjured");
-    private float currentStatus = 1;
+    private float currentStatus = (float)BruteAnimationState.Normal;
 
     private void Start()
     {
@@ -19,28 +26,28 @@ public class BruteAnimation : EnemyAnimation
 
     public void PlayNormal()
     {
-        ChangeStatus(1);
+        ChangeStatus(BruteAnimationState.Normal);
         anim.SetBool(hAlert, false);
         anim.SetBool(hInjured, false);
     }
 
     public override void PlayAlert()
     {
-        ChangeStatus(0);
+        ChangeStatus(BruteAnimationState.Alert);
         anim.SetBool(hAlert, true);
         anim.SetBool(hInjured, false);
     }
 
     public void PlayInjured()
     {
-        ChangeStatus(2);
+        ChangeStatus(BruteAnimationState.Injured);
         anim.SetBool(hAlert, false);
         anim.SetBool(hInjured, true);
     }
 
-    private void ChangeStatus(float statusNumber)
+    private void ChangeStatus(BruteAnimationState state)
     {
-        StartCoroutine(SmoothStatusChange(statusNumber, 1));
+        StartCoroutine(SmoothStatusChange(state, 1));
     }
 
     public override void PlayAttack()
@@ -57,19 +64,20 @@ public class BruteAnimation : EnemyAnimation
         }
     }
 
-    private IEnumerator SmoothStatusChange(float targetStatus, float duration)
+    private IEnumerator SmoothStatusChange(BruteAnimationState targetStatus, float duration)
     {
+        float targetValue = (float)targetStatus;
         float time = 0f;
         
-        while (time < duration && targetStatus != currentStatus)
+        while (time < duration && targetValue != currentStatus)
         {
             time += Time.deltaTime;
-            float value = Mathf.Lerp(currentStatus, targetStatus, time / duration);
+            float value = Mathf.Lerp(currentStatus, targetValue, time / duration);
             anim.SetFloat(hStatus, value);
             yield return null;
         }
 
-        anim.SetFloat(hStatus, targetStatus);
-        currentStatus = targetStatus;
+        anim.SetFloat(hStatus, targetValue);
+        currentStatus = targetValue;
     }
 }
