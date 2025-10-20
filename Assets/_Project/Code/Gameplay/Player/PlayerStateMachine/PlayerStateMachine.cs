@@ -104,7 +104,7 @@ public class PlayerStateMachine : BaseStateController
     public void Start()
     {
         //test
-    //  transform.position = new Vector3(4,2,2) + Vector3.up * 10f;
+      transform.position = new Vector3(4,2,2) + Vector3.up * 1f;
         //test end
         TransitionTo(IdleState);
     }
