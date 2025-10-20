@@ -55,7 +55,7 @@ namespace Project.Gameplay.Interactabele.Network
             }
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void RequestToggleServerRpc(ServerRpcParams rpcParams = default)
         {
             ToggleOpen();
