@@ -12,6 +12,7 @@ public class PlayerHealth : MonoBehaviour, IPlayerHealth
         if ( _currentHealth < 0)
         {
             //temp for now
+            CurrentPlayers.Instance.RemovePlayer(gameObject);
             SceneManager.LoadScene("LevelBlockOut");
             Debug.Log("Player is DEAD");
             //reload scene for prototype, handle proper multiplayer death logic later
