@@ -19,12 +19,13 @@ public class Ragdoll : MonoBehaviour
 
         jointRBs = ragdollRoot.GetComponentsInChildren<Rigidbody>();
         jointColls = ragdollRoot.GetComponentsInChildren<Collider>();
+        if (RagdollEneble) EnableRagdoll();
+        else EnableAnimator();
     }
 
     private void Start()
     {
-        if (RagdollEneble) EnableRagdoll();
-        else EnableAnimator();
+        
     }
 
     public void EnableRagdoll()
