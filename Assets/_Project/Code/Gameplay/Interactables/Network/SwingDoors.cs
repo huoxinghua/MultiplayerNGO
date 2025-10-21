@@ -15,7 +15,7 @@ namespace Project.Gameplay.Interactabele.Network
         private void Start()
         {
             _isOpen.OnValueChanged += OnDoorStateChanged;
-            if (NetworkManager.Singleton != null)
+           /* if (NetworkManager.Singleton != null)
             {
                 Debug.Log($"NetworkManager active: " +
                     $"IsServer={NetworkManager.Singleton.IsServer}, " +
@@ -26,7 +26,7 @@ namespace Project.Gameplay.Interactabele.Network
             else
             {
                 Debug.Log("❌ NetworkManager is NULL");
-            }
+            }*/
         }
         private void Disable()
         {

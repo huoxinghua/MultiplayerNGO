@@ -11,7 +11,7 @@ namespace Project.Network.TestRPC
         private bool hasSpawned = false;
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.GetComponent<Project.Network.PlayerController.PlayerMovement>()) return;
+            if (!other.GetComponent<PlayerHealth>()) return;
             if(IsOwner)
             {
                 RequestSpawnServerRpc();
@@ -27,7 +27,7 @@ namespace Project.Network.TestRPC
             //sync to all clients
             var netObj = spawned.GetComponent<NetworkObject>();
             netObj.SpawnWithOwnership(senderId);
-            StartCoroutine(DespawnAfterSeconds(netObj, 5f));
+          //  StartCoroutine(DespawnAfterSeconds(netObj, 5f));
 
             hasSpawned = true;
         }
