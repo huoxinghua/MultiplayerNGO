@@ -1,20 +1,39 @@
 using Unity.Netcode.Components;
 using UnityEngine;
 
-public class PlayerAnimation : MonoBehaviour
+public class PlayerAnimation : BaseAnimation
 {
     [SerializeField] Animator fpsAnim;
-    [SerializeField] Animator tpsAnim;
-    [SerializeField] NetworkAnimator networkAnim;
+    [SerializeField] NetworkAnimator netAnim;
 
-    public void SetMovement(float speed,bool isRunning)
+    protected override void Awake()
     {
-        fpsAnim.SetFloat("speed", speed);
-        tpsAnim.SetFloat("speed", speed);
+        base.Awake();
 
-        tpsAnim.SetBool("isRunning", isRunning);
-        tpsAnim.SetBool("isRunning", isRunning);
+        if (netAnim != null) netAnim.Animator = fpsAnim;
+    }
 
-        //networkAnim
+    public override void PlayWalk(float currentSpeed, float maxSpeed)
+    {
+        base.PlayWalk(currentSpeed, maxSpeed);
+    }
+    public override void PlayJump()
+    {
+        fpsAnim.SetTrigger(hJump);
+    }
+
+    public override void PlayCrouch()
+    {
+        fpsAnim.SetBool(hCrouch, true);
+    }
+
+    public override void PlayStanding()
+    {
+        fpsAnim.SetBool(hCrouch, false);
+    }
+
+    public override void PlayAttack()
+    {
+
     }
 }

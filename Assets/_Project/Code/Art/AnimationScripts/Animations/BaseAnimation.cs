@@ -3,7 +3,6 @@ using UnityEngine;
 
 public abstract class BaseAnimation : MonoBehaviour
 {
-    [SerializeField] protected int idleIndex;
     [SerializeField] protected float walkRunTransition = 1f;
     protected Animator anim;
 
@@ -20,6 +19,7 @@ public abstract class BaseAnimation : MonoBehaviour
     protected int hInAir = Animator.StringToHash("isInAir");
     protected int hIsGround = Animator.StringToHash("isGround");
     protected int hAlert = Animator.StringToHash("isAlert");
+    protected int hCrouch = Animator.StringToHash("isCrouch");
 
     protected virtual void Awake()
     {
@@ -44,6 +44,8 @@ public abstract class BaseAnimation : MonoBehaviour
     public abstract void PlayJump();
 
     public virtual void PlayCrouch() { }
+
+    public virtual void PlayStanding() { }
     public virtual void PlayInteract() { }
 
     private IEnumerator SmoothWalkRun(float target)

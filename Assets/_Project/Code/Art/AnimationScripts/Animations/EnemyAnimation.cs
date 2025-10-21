@@ -2,6 +2,7 @@ using UnityEngine;
 
 public abstract class EnemyAnimation : BaseAnimation
 {
+    [SerializeField] protected int idleIndex;
     public virtual void PlayRandomIdle(float currentIdleTime, float idleStart)
     {
         if (idleIndex == 0) return;
