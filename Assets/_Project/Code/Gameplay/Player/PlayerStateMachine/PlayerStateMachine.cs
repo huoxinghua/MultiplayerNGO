@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -104,10 +105,20 @@ public class PlayerStateMachine : BaseStateController
     public void Start()
     {
         //test
-      transform.position = new Vector3(4,2,2) + Vector3.up * 1f;
+      transform.position = new Vector3(4,0,2) + Vector3.up * 1f;
+       var controller = GetComponent<CharacterController>();
+        controller.enabled = false;
+        StartCoroutine(EnablePlayerController(controller));
         //test end
         TransitionTo(IdleState);
     }
+    //test
+    private IEnumerator EnablePlayerController(CharacterController con)
+    {
+        yield return new WaitForSeconds(1f);
+        con.enabled = true;
+    }
+    //test end
     #region Inputs
     public void OnMoveInput(Vector2 movement)
     {

@@ -254,8 +254,8 @@ namespace Project.Network.SteamWork
             if (NetworkManager.Singleton != null)
             {
                 //NetworkManager.Singleton.SceneManager.LoadScene("LevelGenerationSync", LoadSceneMode.Single);
-               // NetworkManager.Singleton.SceneManager.LoadScene("NetWorkLobby", LoadSceneMode.Single);
-                NetworkManager.Singleton.SceneManager.LoadScene("NWLevelTest", LoadSceneMode.Single);
+               NetworkManager.Singleton.SceneManager.LoadScene("NetWorkLobby", LoadSceneMode.Single);
+              // NetworkManager.Singleton.SceneManager.LoadScene("NWLevelTest", LoadSceneMode.Single);
                 
             }
 
