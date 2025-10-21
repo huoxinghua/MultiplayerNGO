@@ -10,6 +10,7 @@ public class MainDoor : MonoBehaviour , IInteractable, IInOutDoor
     }
     public Transform UseDoor()
     {
+        Debug.Log("Door");
         return GameObject.Find("MainEntryPoint").transform;
     }
     public float GetTimeToOpen()

@@ -91,12 +91,18 @@ public class PlayerInteractCast : MonoBehaviour
             // Raycast hit nothing, clear everything
             if(currentInteractable != null)
             {
+                
                 currentInteractable.HandleHover(false);
+            }
+            if(currentHold != null)
+            {
+                currentHold.OnRelease(playerObj);
             }
             currentTarget = null;
             currentInteractable = null;
             currentHoldInteract = null;
             castedInteract = false;
+            currentHold = null;
         }
     }
     public void AttemptInteract()
@@ -105,7 +111,7 @@ public class PlayerInteractCast : MonoBehaviour
 
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
         {
-
+            Debug.Log(hit.collider.gameObject.name);
             if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
             {
                 if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
@@ -121,7 +127,7 @@ public class PlayerInteractCast : MonoBehaviour
             }
             if (hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
             {
-
+                Debug.Log("WTF");
                 currentHold = hit.collider.transform.gameObject.GetComponent<IHoldToInteract>();
                 hit.collider.transform.gameObject.GetComponent<IHoldToInteract>().OnHold(playerObj);
             }

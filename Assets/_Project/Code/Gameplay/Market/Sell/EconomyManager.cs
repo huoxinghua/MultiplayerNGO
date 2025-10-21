@@ -9,7 +9,7 @@ public class EconomyManager : MonoBehaviourService
 
         ServiceLocator.Register<EconomyManager>(this);
     }
-    public float GetTranquilMarketValue(float lerpValue , string keyName)
+/*    public float GetTranquilMarketValue(float lerpValue , string keyName)
     {
         MarketData data = BaseMarketSO.GetItemData(keyName);
         return Mathf.Lerp(data.MinTranquilValue,data.MaxTranquilValue,lerpValue);
@@ -23,7 +23,7 @@ public class EconomyManager : MonoBehaviourService
     {
         MarketData data = BaseMarketSO.GetItemData(keyName);
         return Mathf.Lerp(data.MinTranquilValue, data.MaxTranquilValue, lerpValue);
-    }
+    }*/
     public SampleMarketValue GetMarketValue(ScienceData itemData)
     {
         MarketData marketData = BaseMarketSO.GetItemData(itemData.KeyName);
@@ -34,7 +34,6 @@ public class EconomyManager : MonoBehaviourService
             MiscMarketValue = Mathf.Lerp(marketData.MinTranquilValue, marketData.MaxTranquilValue, itemData.RawMiscValue)
         };
     }
-    
 }
 public struct SampleMarketValue
 {
