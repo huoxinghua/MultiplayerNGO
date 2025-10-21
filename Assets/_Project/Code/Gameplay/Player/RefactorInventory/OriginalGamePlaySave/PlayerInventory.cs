@@ -1,9 +1,7 @@
 using UnityEngine;
-using Unity.Netcode;
-
-namespace Project.Gameplay.Player.RefactorInventory.Network
+namespace _Project.Code.Core.GamePlay.Player
 {
-    public class PlayerInventory : NetworkBehaviour
+    public class PlayerInventory : MonoBehaviour
     {
         [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
         public IInventoryItem BigItemCarried { get; private set; }
@@ -94,10 +92,6 @@ namespace Project.Gameplay.Player.RefactorInventory.Network
                 InventoryItems[_currentIndex]?.UnequipItem();
                 item.PickupItem(gameObject, HoldTransform);
                 item.EquipItem();
-            }
-            if (item is MonoBehaviour mono && mono.TryGetComponent(out NetworkObject netObj))
-            {
-                HideItemServerRpc(netObj.NetworkObjectId);
             }
         }
 
@@ -208,7 +202,6 @@ namespace Project.Gameplay.Player.RefactorInventory.Network
             _currentIndex = indexOf;
             InventoryItems[_currentIndex]?.EquipItem();
         }
-
         #region Inputs
         private void HandlePressedSlot(int index)
         {
@@ -217,21 +210,6 @@ namespace Project.Gameplay.Player.RefactorInventory.Network
         }
 
         #endregion
-
-        [ServerRpc(RequireOwnership = false)]
-        private void HideItemServerRpc(ulong itemNetworkId)
-        {
-            HideItemClientRpc(itemNetworkId);
-        }
-
-        [ClientRpc]
-        private void HideItemClientRpc(ulong itemNetworkId)
-        {
-            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(itemNetworkId, out var netObj))
-            {
-                netObj.gameObject.SetActive(false);
-            }
-        }
     }
 
 }
