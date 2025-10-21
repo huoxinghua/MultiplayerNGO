@@ -50,14 +50,17 @@ public class BruteStateMachine : BaseStateController
     }
     public void Start()
     {
+        if (!IsServer) return;
         TransitionTo(WanderState);
     }
     void Update()
     {
+        if (!IsServer) return;
         CurrentState?.StateUpdate();
     }
     void FixedUpdate()
     {
+        if (!IsServer) return;
         CurrentState?.StateFixedUpdate();
     }
     public void OnHearPlayer(GameObject playerObj)
@@ -116,6 +119,7 @@ public class BruteStateMachine : BaseStateController
     }
     public virtual void TransitionTo(BruteBaseState newState)
     {
+        if (!IsServer) return;
         if (newState == CurrentState) return;
         CurrentState?.OnExit();
         CurrentState = newState;

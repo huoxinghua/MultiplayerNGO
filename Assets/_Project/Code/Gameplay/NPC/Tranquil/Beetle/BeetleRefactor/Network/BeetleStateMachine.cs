@@ -117,8 +117,8 @@ public class BeetleStateMachine : BaseStateController
         if (!IsServer) return;
         Debug.Log("PlayDeathClientRpc");
         PlayDeathClientRpc();
-            // Destroy(gameObject, 2f);
-        StartCoroutine(DespawnAfterSeconds(GetComponent<NetworkObject>(), 2f));
+        // Destroy(gameObject, 2f);
+       // StartCoroutine(DespawnAfterSeconds(GetComponent<NetworkObject>(), 2f));
     }
 
     private IEnumerator DespawnAfterSeconds(NetworkObject netObj, float seconds)
