@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerInventory : MonoBehaviour
+public class PlayerInventory : NetworkBehaviour
 {
     [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
     public IInventoryItem BigItemCarried { get; private set; }
@@ -59,41 +60,76 @@ public class PlayerInventory : MonoBehaviour
     /// <param name="item"> the item itself being picked up</param>
     public void DoPickup(IInventoryItem item)
     {
-        if (item.IsPocketSize())
+        if (IsServer)
         {
-            if (InventoryItems[_currentIndex] == null)
+
+
+            if (item.IsPocketSize())
             {
-                InventoryItems[_currentIndex] = item;
-                item.PickupItem(gameObject, HoldTransform);
-                item.EquipItem();
+                if (InventoryItems[_currentIndex] == null)
+                {
+                    InventoryItems[_currentIndex] = item;
+                    item.PickupItem(gameObject, HoldTransform);
+                    item.EquipItem();
+                }
+                else
+                {
+                    //should find first available slot? I hope
+                    for (int i = 0; i < InventoryItems.Length; i++)
+                    {
+                        var items = InventoryItems[i];
+                        if (items == null)
+                        {
+                            InventoryItems[i] = item;
+                            item.PickupItem(gameObject, HoldTransform);
+                            item.UnequipItem();
+                            break;
+                        }
+
+                    }
+                }
+                //add to inventory list
             }
             else
             {
-                //should find first available slot? I hope
-                for (int i = 0; i < InventoryItems.Length; i++)
-                {
-                    var items = InventoryItems[i];
-                    if (items == null)
-                    {
-                        InventoryItems[i] = item;
-                        item.PickupItem(gameObject, HoldTransform);
-                        item.UnequipItem();
-                        break;
-                    }
-
-                }
+                BigItemCarried = item;
+                InventoryItems[_currentIndex]?.UnequipItem();
+                item.PickupItem(gameObject, HoldTransform);
+                item.EquipItem();
             }
-            //add to inventory list
+            var netBehaviour = (NetworkBehaviour)item;  
+            NotifyClientsPickupClientRpc(netBehaviour.NetworkObject, OwnerClientId);
+         
         }
         else
         {
-            BigItemCarried = item;
-            InventoryItems[_currentIndex]?.UnequipItem();
-            item.PickupItem(gameObject, HoldTransform);
-            item.EquipItem();
+            TryPickupServerRpc(((NetworkBehaviour)item).NetworkObject);
+            return;
         }
     }
+    [ServerRpc(RequireOwnership = false)]
+    private void TryPickupServerRpc(NetworkObjectReference itemRef)
+    {
+        if (itemRef.TryGet(out NetworkObject netObj))
+        {
+            var item = netObj.GetComponent<IInventoryItem>();
+            if (item != null)
+                DoPickup(item);
+        }
+    }
+    [ClientRpc]
+    private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
+    {
+        if (!itemRef.TryGet(out NetworkObject netObj)) return;
 
+        var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
+        if (item == null) return;
+
+        Debug.Log($"[Sync] Item picked up by player {playerId}");
+
+
+        netObj.gameObject.SetActive(false);
+    }
 
     /// <summary>
     /// Tells items at current item index to handle drop logic. This is done via input
@@ -140,12 +176,12 @@ public class PlayerInventory : MonoBehaviour
     {
         if (_handsFull)
         {
-            if(BigItemCarried != null)
+            if (BigItemCarried != null)
             {
                 return BigItemCarried.CanBeSold();
             }
         }
-        else if(InventoryItems[_currentIndex] != null)
+        else if (InventoryItems[_currentIndex] != null)
         {
             return InventoryItems[_currentIndex].CanBeSold();
         }
@@ -164,7 +200,7 @@ public class PlayerInventory : MonoBehaviour
         //big item check and logic
         if (_handsFull && BigItemCarried != null)
         {
-            
+
             tranquilVal = BigItemCarried.GetValueStruct().RawTranquilValue;
             violentVal = BigItemCarried.GetValueStruct().RawViolentValue;
             miscVal = BigItemCarried.GetValueStruct().RawMiscValue;
@@ -173,7 +209,7 @@ public class PlayerInventory : MonoBehaviour
             BigItemCarried = null;
         }
         //inventory check and item held check (if item is held)
-        else if(!_handsFull && InventoryItems[_currentIndex] != null)
+        else if (!_handsFull && InventoryItems[_currentIndex] != null)
         {
             if (InventoryItems[_currentIndex] == null) return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal };
             tranquilVal = InventoryItems[_currentIndex].GetValueStruct().RawTranquilValue;
