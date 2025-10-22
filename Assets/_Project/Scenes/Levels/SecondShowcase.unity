@@ -763,7 +763,7 @@ MonoBehaviour:
     Root: {fileID: 0}
     DungeonFlow: {fileID: 11400000, guid: d570da778fddf634ba5188f22dc52754, type: 2}
     fileVersion: 3
-  GenerateOnStart: 1
+  GenerateOnStart: 0
   Root: {fileID: 1662115577}
 --- !u!4 &1662115579
 Transform:
@@ -814,7 +814,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1662115577}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6248be97758dd78449c8e52d347717a6, type: 3}
+  m_Script: {fileID: 11500000, guid: 242c28e937eb647479d1de5e1e115d2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
@@ -851,8 +851,8 @@ MonoBehaviour:
       OverlapThreshold: 0.01
       Padding: 0
       AvoidCollisionsWithOtherDungeons: 0
-    Root: {fileID: 0}
-    DungeonFlow: {fileID: 0}
+    Root: {fileID: 1662115577}
+    DungeonFlow: {fileID: 11400000, guid: d570da778fddf634ba5188f22dc52754, type: 2}
     fileVersion: 3
 --- !u!1 &1777689747
 GameObject:
