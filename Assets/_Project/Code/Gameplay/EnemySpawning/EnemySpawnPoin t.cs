@@ -29,5 +29,6 @@ public class EnemySpawnPoint : MonoBehaviour
     public void DoSpawnEnemy(GameObject EnemyPrefab)
     {
         GameObject temp = Instantiate(EnemyPrefab, _spawnPos);
+        temp.transform.parent = null;
     }
 }

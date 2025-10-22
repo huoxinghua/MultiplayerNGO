@@ -13,7 +13,10 @@ public class EnemySpawnManager : MonoBehaviour
     }
     private void Start()
     {
-        StartSpawn();
+        int randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
+        SpawnViolent(randomSpawnPoint);
+        randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
+        SpawnTranquil(randomSpawnPoint);
     }
     private void Update()
     {

@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class EconomyManager : MonoBehaviourService
 {
-    [SerializeField] BaseMarketSO BaseMarketSO;
+    [SerializeField] private BaseMarketSO BaseMarketSO;
+    [SerializeField] private ScienceToMoneySO _scienceToMoneySO;
     public int PlayerMoney { get; private set; }
     public float ResearchProgress { get; private set; }
     public float ResearchForQuota { get; private set; }
@@ -11,6 +12,14 @@ public class EconomyManager : MonoBehaviourService
     {
 
         ServiceLocator.Register<EconomyManager>(this);
+    }
+    public void SetResearchForQuota(float newQuota)
+    {
+        ResearchForQuota = newQuota;
+    }
+    public void ResetResearchProgress()
+    {
+        ResearchProgress = 0.0f;
     }
 /*    public float GetTranquilMarketValue(float lerpValue , string keyName)
     {
@@ -40,7 +49,9 @@ public class EconomyManager : MonoBehaviourService
     public void SoldItem(SampleMarketValue values)
     {
         ResearchProgress += values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue;
-
+        PlayerMoney += (int) (values.TranquilMarketValue * _scienceToMoneySO.TranquilMoneyModifier + 
+            values.ViolentMarketValue * _scienceToMoneySO.ViolentMoneyModifier +
+            values.MiscMarketValue * _scienceToMoneySO.MiscMoneyModifier);
     }
 }
 public struct SampleMarketValue

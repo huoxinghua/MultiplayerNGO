@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BaseMarketSO", menuName = "Scriptable Objects/BaseMarketSO")]
+[CreateAssetMenu(fileName = "BaseMarketSO", menuName = "Market/BaseMarketSO")]
 public class BaseMarketSO : ScriptableObject
 {
     [SerializeField]
