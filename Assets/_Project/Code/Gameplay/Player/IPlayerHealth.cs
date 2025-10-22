@@ -1,6 +1,7 @@
-using UnityEngine;
-
-public interface IPlayerHealth
+namespace _Project.Code.Gameplay.Player
 {
-   public void TakeDamage(float damage);
+   public interface IPlayerHealth
+   {
+      public void TakeDamage(float damage);
+   }
 }

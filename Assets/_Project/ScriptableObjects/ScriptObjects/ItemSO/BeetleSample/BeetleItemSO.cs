@@ -1,7 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BeetleItemSO", menuName = "Items/BeetleItemSO")]
-public class BeetleItemSO : BaseItemSO
+namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.BeetleSample
 {
+    [CreateAssetMenu(fileName = "BeetleItemSO", menuName = "Items/BeetleItemSO")]
+    public class BeetleItemSO : BaseItemSO
+    {
     
+    }
 }

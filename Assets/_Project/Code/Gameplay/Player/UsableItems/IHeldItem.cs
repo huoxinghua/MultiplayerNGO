@@ -1,10 +1,11 @@
-using UnityEngine;
-
-public interface IHeldItem
+namespace _Project.Code.Gameplay.Player.UsableItems
 {
-    public void Use();
-    public void Drop();
-    public void Pickup();
-    public void SwapOff();
-    public void SwapTo();
+    public interface IHeldItem
+    {
+        public void Use();
+        public void Drop();
+        public void Pickup();
+        public void SwapOff();
+        public void SwapTo();
+    }
 }

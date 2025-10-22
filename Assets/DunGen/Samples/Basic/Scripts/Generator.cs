@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Text;
-using System;
 using DunGen.Analysis;
+using UnityEngine;
 
-namespace DunGen.Demo
+namespace DunGen.Samples.Basic.Scripts
 {
 	public class Generator : MonoBehaviour
 	{

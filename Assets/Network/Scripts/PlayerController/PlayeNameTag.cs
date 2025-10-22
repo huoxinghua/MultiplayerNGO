@@ -1,9 +1,10 @@
-using UnityEngine;
-using Unity.Netcode;
-using TMPro;
 using Steamworks;
+using TMPro;
 using Unity.Collections;
-namespace Project.Network.PlayerController
+using Unity.Netcode;
+using UnityEngine;
+
+namespace Network.Scripts.PlayerController
 {
     public class PlayeNameTag : NetworkBehaviour
     {

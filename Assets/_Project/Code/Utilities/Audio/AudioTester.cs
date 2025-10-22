@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class AudioTester : MonoBehaviour
+namespace _Project.Code.Utilities.Audio
 {
-
-    void Start()
+    public class AudioTester : MonoBehaviour
     {
-        AudioManager.Instance.PlayByKey3D("SampleCollected", transform.position);
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
+        void Start()
+        {
+            AudioManager.Instance.PlayByKey3D("SampleCollected", transform.position);
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
         
+        }
     }
 }

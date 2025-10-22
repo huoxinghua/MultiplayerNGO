@@ -1,28 +1,31 @@
+using _Project.Code.Gameplay.NewItemSystem;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class BrutePiece : BaseInventoryItem
+namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    public void Awake()
+    public class BrutePiece : BaseInventoryItem
     {
-        _tranquilValue = Random.Range(0f, 1f);
-        _violentValue = Random.Range(0f, 1f);
-        _miscValue = Random.Range(0f, 1f);
-    }
-    private void Update()
-    {
-        if (_hasOwner)
+        public void Awake()
         {
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
+            _tranquilValue = Random.Range(0f, 1f);
+            _violentValue = Random.Range(0f, 1f);
+            _miscValue = Random.Range(0f, 1f);
         }
-    }
-    public override void UseItem()
-    {
+        private void Update()
+        {
+            if (_hasOwner)
+            {
+                transform.localPosition = Vector3.zero;
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
+        }
+        public override void UseItem()
+        {
 
-    }
-    void OnEnable()
-    {
-        transform.parent = null;
+        }
+        void OnEnable()
+        {
+            transform.parent = null;
+        }
     }
 }

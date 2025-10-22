@@ -1,5 +1,7 @@
+using _Project.Code.Utilities.Utility;
 using UnityEngine;
-namespace _Project.Code.Core.GamePlay.AI.NetWork
+
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor.Network
 {
 
 public class BeetleFollowState : BeetleBaseState

@@ -1,5 +1,6 @@
 using UnityEngine;
-namespace Project.Network.PlayerController
+
+namespace Network.Scripts.PlayerController
 {
     public class PlayerMovement : MonoBehaviour
     {

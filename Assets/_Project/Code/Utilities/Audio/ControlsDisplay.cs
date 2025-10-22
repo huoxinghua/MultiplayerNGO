@@ -1,33 +1,36 @@
 using UnityEngine;
 
-public class ControlsDisplay : MonoBehaviour
+namespace _Project.Code.Utilities.Audio
 {
-    public GameObject PauseMenu;
-
-    void Start()
+    public class ControlsDisplay : MonoBehaviour
     {
-        PauseMenu.SetActive(false);
-    }
+        public GameObject PauseMenu;
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
+        void Start()
         {
-            PauseGame();
+            PauseMenu.SetActive(false);
         }
-    }
 
-    public void PauseGame()
-    {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        PauseMenu.SetActive(true);
-    }
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                PauseGame();
+            }
+        }
 
-    public void ResumeGame()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        PauseMenu.SetActive(false);
+        public void PauseGame()
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            PauseMenu.SetActive(true);
+        }
+
+        public void ResumeGame()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            PauseMenu.SetActive(false);
+        }
     }
 }

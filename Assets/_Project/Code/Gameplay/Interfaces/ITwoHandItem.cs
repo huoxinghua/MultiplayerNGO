@@ -1,7 +1,8 @@
-using UnityEngine;
-
-public interface ITwoHandItem
+namespace _Project.Code.Gameplay.Interfaces
 {
-    public void OnPickup();
-    public void OnDrop();
+    public interface ITwoHandItem
+    {
+        public void OnPickup();
+        public void OnDrop();
+    }
 }

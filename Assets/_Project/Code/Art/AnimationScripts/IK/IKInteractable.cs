@@ -1,20 +1,24 @@
+using _Project.Code.Art.AnimationScripts.FingerPoseSOs;
 using UnityEngine;
 
-public class IKInteractable : MonoBehaviour
+namespace _Project.Code.Art.AnimationScripts.IK
 {
-    [SerializeField] Transform handR;
-    [SerializeField] Transform handL;
-    [SerializeField] FingerPoseSO fingerSO;
-
-    public void PickupAnimation(PlayerIKController ikController)
+    public class IKInteractable : MonoBehaviour
     {
-        ikController.IKPos(handL, handR, fingerSO);
-        ikController.IkActive = true;
-    }
+        [SerializeField] Transform handR;
+        [SerializeField] Transform handL;
+        [SerializeField] FingerPoseSO fingerSO;
 
-    public void DropAnimation(PlayerIKController ikController)
-    {
-        ikController.IkActive = false;
-        ikController.IKPos(null, null, null);
+        public void PickupAnimation(PlayerIKController ikController)
+        {
+            ikController.IKPos(handL, handR, fingerSO);
+            ikController.IkActive = true;
+        }
+
+        public void DropAnimation(PlayerIKController ikController)
+        {
+            ikController.IkActive = false;
+            ikController.IKPos(null, null, null);
+        }
     }
 }

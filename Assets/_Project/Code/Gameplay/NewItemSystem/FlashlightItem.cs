@@ -1,84 +1,86 @@
-using Unity.VisualScripting;
+using _Project.ScriptableObjects.ScriptObjects.ItemSO.Flashlight;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class FlashlightItem : BaseInventoryItem
+namespace _Project.Code.Gameplay.NewItemSystem
 {
-    [SerializeField] private Light _sceneLight;
-    private float _currentCharge;
-    [SerializeField] private bool _isFlashOn = false;
-    [SerializeField] private bool _lastFlashState = true;
-    private bool _hasCharge => _currentCharge >= 0;
-    private Light _lightComponent;
-    private void Awake()
+    public class FlashlightItem : BaseInventoryItem
     {
-        _sceneLight.enabled = false;
-
-        if (_itemSO is FlashItemSO flashLight)
+        [SerializeField] private Light _sceneLight;
+        private float _currentCharge;
+        [SerializeField] private bool _isFlashOn = false;
+        [SerializeField] private bool _lastFlashState = true;
+        private bool _hasCharge => _currentCharge >= 0;
+        private Light _lightComponent;
+        private void Awake()
         {
-            _currentCharge = flashLight.MaxCharge;
-        }
+            _sceneLight.enabled = false;
 
-    }
-    private void Update()
-    {
-        if(_itemSO is FlashItemSO flashLight)
-        {
-            if (_isFlashOn) _currentCharge -= flashLight.ChargeLoseRate * Time.deltaTime;
+            if (_itemSO is FlashItemSO flashLight)
+            {
+                _currentCharge = flashLight.MaxCharge;
+            }
+
         }
+        private void Update()
+        {
+            if(_itemSO is FlashItemSO flashLight)
+            {
+                if (_isFlashOn) _currentCharge -= flashLight.ChargeLoseRate * Time.deltaTime;
+            }
         
-        if (_currentCharge <= 0) _isFlashOn = false;
-        if (_currentHeldVisual == null) return;
-        if (_hasOwner)
-        {
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
+            if (_currentCharge <= 0) _isFlashOn = false;
+            if (_currentHeldVisual == null) return;
+            if (_hasOwner)
+            {
+                transform.localPosition = Vector3.zero;
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
+            if (_currentHeldVisual.activeInHierarchy && _lastFlashState != _isFlashOn)
+            {
+                _lightComponent.enabled = _isFlashOn;
+                _lastFlashState = _isFlashOn;
+            }
         }
-        if (_currentHeldVisual.activeInHierarchy && _lastFlashState != _isFlashOn)
+        public override void PickupItem(GameObject player, Transform playerHoldPosition)
         {
+            base.PickupItem(player, playerHoldPosition);
+            _lightComponent = _currentHeldVisual.GetComponent<Light>();
             _lightComponent.enabled = _isFlashOn;
-            _lastFlashState = _isFlashOn;
+            _sceneLight.enabled = false;
         }
-    }
-    public override void PickupItem(GameObject player, Transform playerHoldPosition)
-    {
-        base.PickupItem(player, playerHoldPosition);
-        _lightComponent = _currentHeldVisual.GetComponent<Light>();
-        _lightComponent.enabled = _isFlashOn;
-        _sceneLight.enabled = false;
-    }
-    public override void DropItem(Transform dropPoint)
-    {
-        base.DropItem(dropPoint);
-        _sceneLight.enabled = _isFlashOn;
-        _lightComponent = null;
-    }
-    private void ToggleFlashLight()
-    {
-
-        if (!_hasCharge)
+        public override void DropItem(Transform dropPoint)
         {
-            _isFlashOn = false;
-            return;
+            base.DropItem(dropPoint);
+            _sceneLight.enabled = _isFlashOn;
+            _lightComponent = null;
         }
-        _isFlashOn = !_isFlashOn;
-    }
-    public override void UseItem()
-    {
-        base.UseItem();
-        ToggleFlashLight();
-    }
-    public override void UnequipItem()
-    {
-        base.UnequipItem();
-        _lightComponent.enabled = false;
-        _isInOwnerHand = false;
-    }
-    public override void EquipItem()
-    {
-        base.EquipItem();
-        _lightComponent.enabled = _isFlashOn;
-        _isInOwnerHand = true;
-    }
+        private void ToggleFlashLight()
+        {
 
+            if (!_hasCharge)
+            {
+                _isFlashOn = false;
+                return;
+            }
+            _isFlashOn = !_isFlashOn;
+        }
+        public override void UseItem()
+        {
+            base.UseItem();
+            ToggleFlashLight();
+        }
+        public override void UnequipItem()
+        {
+            base.UnequipItem();
+            _lightComponent.enabled = false;
+            _isInOwnerHand = false;
+        }
+        public override void EquipItem()
+        {
+            base.EquipItem();
+            _lightComponent.enabled = _isFlashOn;
+            _isInOwnerHand = true;
+        }
+
+    }
 }

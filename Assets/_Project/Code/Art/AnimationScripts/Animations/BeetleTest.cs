@@ -1,19 +1,22 @@
 using UnityEngine;
 
-public class BeetleTest : MonoBehaviour
+namespace _Project.Code.Art.AnimationScripts.Animations
 {
-    [SerializeField] private BeetleAnimation beetleAnim;
-
-    private void Update()
+    public class BeetleTest : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            beetleAnim.PlayWalk(10, 10);
-        }
+        [SerializeField] private BeetleAnimation beetleAnim;
 
-        if (Input.GetKeyDown(KeyCode.W))
+        private void Update()
         {
-            beetleAnim.PlayRun(10, 10);
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                beetleAnim.PlayWalk(10, 10);
+            }
+
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                beetleAnim.PlayRun(10, 10);
+            }
         }
     }
 }

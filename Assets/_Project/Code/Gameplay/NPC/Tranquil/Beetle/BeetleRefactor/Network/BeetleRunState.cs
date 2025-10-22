@@ -1,8 +1,8 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-namespace _Project.Code.Core.GamePlay.AI.NetWork
+using Timer = _Project.Code.Utilities.Utility.Timer;
+
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor.Network
 {
     public class BeetleRunState : BeetleBaseState
     {

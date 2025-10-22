@@ -2,7 +2,7 @@ using System;
 using Concentus.Enums;
 using Concentus.Structs;
 
-namespace Project.Network.ProximityChat
+namespace Network.Scripts.ProximityChat.Voice
 {
     /// <summary>
     /// Encodes queued voice audio samples using Opus.

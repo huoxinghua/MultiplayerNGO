@@ -1,95 +1,99 @@
+using _Project.Code.Art.AnimationScripts.FingerPoseSOs;
 using UnityEngine;
 
-public class PlayerIKController : MonoBehaviour
+namespace _Project.Code.Art.AnimationScripts.IK
 {
-    [SerializeField] IKInteractable interactable;
-
-    [SerializeField] private Animator animator;
-    [SerializeField] private bool ikActive;
-
-    private Transform handL;
-    private Transform handR;
-    private FingerPoseSO fingerSO;
-
-    public bool IkActive
+    public class PlayerIKController : MonoBehaviour
     {
-        get { return ikActive; }
-        set { ikActive = value; }
-    }
+        [SerializeField] IKInteractable interactable;
 
-    private void OnAnimatorIK()
-    {
-        if (IkActive)
+        [SerializeField] private Animator animator;
+        [SerializeField] private bool ikActive;
+
+        private Transform handL;
+        private Transform handR;
+        private FingerPoseSO fingerSO;
+
+        public bool IkActive
         {
-            if (handR != null)
+            get { return ikActive; }
+            set { ikActive = value; }
+        }
+
+        private void OnAnimatorIK()
+        {
+            if (IkActive)
             {
-                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
-                animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
+                if (handR != null)
+                {
+                    animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
+                    animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
 
 
-                animator.SetIKPosition(AvatarIKGoal.RightHand, handR.position);
-                animator.SetIKRotation(AvatarIKGoal.RightHand, handR.rotation);
+                    animator.SetIKPosition(AvatarIKGoal.RightHand, handR.position);
+                    animator.SetIKRotation(AvatarIKGoal.RightHand, handR.rotation);
 
-                ApplyFinger(HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal, fingerSO.thumbR);
-                ApplyFinger(HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal, fingerSO.indexR);
-                ApplyFinger(HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal, fingerSO.middleR);
-                ApplyFinger(HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate, HumanBodyBones.RightRingDistal, fingerSO.ringR);
-                ApplyFinger(HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate, HumanBodyBones.RightLittleDistal, fingerSO.littleR);
+                    ApplyFinger(HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate, HumanBodyBones.RightThumbDistal, fingerSO.thumbR);
+                    ApplyFinger(HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate, HumanBodyBones.RightIndexDistal, fingerSO.indexR);
+                    ApplyFinger(HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate, HumanBodyBones.RightMiddleDistal, fingerSO.middleR);
+                    ApplyFinger(HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate, HumanBodyBones.RightRingDistal, fingerSO.ringR);
+                    ApplyFinger(HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate, HumanBodyBones.RightLittleDistal, fingerSO.littleR);
+                }
+                if (handL != null)
+                {
+
+                    animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+                    animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
+
+                    animator.SetIKPosition(AvatarIKGoal.LeftHand, handL.position);
+                    animator.SetIKRotation(AvatarIKGoal.LeftHand, handL.rotation);
+
+                    ApplyFinger(HumanBodyBones.LeftThumbProximal, HumanBodyBones.LeftThumbIntermediate, HumanBodyBones.LeftThumbDistal, fingerSO.thumbL);
+                    ApplyFinger(HumanBodyBones.LeftIndexProximal, HumanBodyBones.LeftIndexIntermediate, HumanBodyBones.LeftIndexDistal, fingerSO.indexL);
+                    ApplyFinger(HumanBodyBones.LeftMiddleProximal, HumanBodyBones.LeftMiddleIntermediate, HumanBodyBones.LeftMiddleDistal, fingerSO.middleL);
+                    ApplyFinger(HumanBodyBones.LeftRingProximal, HumanBodyBones.LeftRingIntermediate, HumanBodyBones.LeftRingDistal, fingerSO.ringL);
+                    ApplyFinger(HumanBodyBones.LeftLittleProximal, HumanBodyBones.LeftLittleIntermediate, HumanBodyBones.LeftLittleDistal, fingerSO.littleL);
+                }
             }
-            if (handL != null)
+            else
             {
+                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 0);
+                animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 0);
 
-                animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
-                animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
+                animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 0);
+                animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 0);
 
-                animator.SetIKPosition(AvatarIKGoal.LeftHand, handL.position);
-                animator.SetIKRotation(AvatarIKGoal.LeftHand, handL.rotation);
-
-                ApplyFinger(HumanBodyBones.LeftThumbProximal, HumanBodyBones.LeftThumbIntermediate, HumanBodyBones.LeftThumbDistal, fingerSO.thumbL);
-                ApplyFinger(HumanBodyBones.LeftIndexProximal, HumanBodyBones.LeftIndexIntermediate, HumanBodyBones.LeftIndexDistal, fingerSO.indexL);
-                ApplyFinger(HumanBodyBones.LeftMiddleProximal, HumanBodyBones.LeftMiddleIntermediate, HumanBodyBones.LeftMiddleDistal, fingerSO.middleL);
-                ApplyFinger(HumanBodyBones.LeftRingProximal, HumanBodyBones.LeftRingIntermediate, HumanBodyBones.LeftRingDistal, fingerSO.ringL);
-                ApplyFinger(HumanBodyBones.LeftLittleProximal, HumanBodyBones.LeftLittleIntermediate, HumanBodyBones.LeftLittleDistal, fingerSO.littleL);
             }
         }
-        else
+
+        public void IKPos(Transform handLPos, Transform handRPos, FingerPoseSO fingerPose)
         {
-            animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 0);
-            animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 0);
-
-            animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 0);
-            animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 0);
-
+            handL = handLPos;
+            handR = handRPos;
+            fingerSO = fingerPose;
         }
-    }
 
-    public void IKPos(Transform handLPos, Transform handRPos, FingerPoseSO fingerPose)
-    {
-        handL = handLPos;
-        handR = handRPos;
-        fingerSO = fingerPose;
-    }
-
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
+        private void Update()
         {
-            interactable.PickupAnimation(this);
+            if (Input.GetMouseButtonDown(0))
+            {
+                interactable.PickupAnimation(this);
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                interactable.DropAnimation(this);
+            }
         }
-        if (Input.GetMouseButtonDown(1))
+
+        private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)
         {
-            interactable.DropAnimation(this);
+            Transform proximal = animator.GetBoneTransform(proximalBone);
+            Transform intermediate = animator.GetBoneTransform(intermediateBone);
+            Transform distal = animator.GetBoneTransform(distalBone);
+
+            if (proximal != null) animator.SetBoneLocalRotation(proximalBone, proximal.localRotation *= finger.proximal);
+            if (intermediate != null) animator.SetBoneLocalRotation(intermediateBone, intermediate.localRotation *= finger.intermediate);
+            if (distal != null) animator.SetBoneLocalRotation(distalBone, distal.localRotation *= finger.distal);
         }
-    }
-
-    private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)
-    {
-        Transform proximal = animator.GetBoneTransform(proximalBone);
-        Transform intermediate = animator.GetBoneTransform(intermediateBone);
-        Transform distal = animator.GetBoneTransform(distalBone);
-
-        if (proximal != null) animator.SetBoneLocalRotation(proximalBone, proximal.localRotation *= finger.proximal);
-        if (intermediate != null) animator.SetBoneLocalRotation(intermediateBone, intermediate.localRotation *= finger.intermediate);
-        if (distal != null) animator.SetBoneLocalRotation(distalBone, distal.localRotation *= finger.distal);
     }
 }

@@ -1,4 +1,4 @@
-namespace Project.Network.ProximityChat
+namespace Network.Scripts.ProximityChat.Voice
 {
     public enum VoiceFormat
     {

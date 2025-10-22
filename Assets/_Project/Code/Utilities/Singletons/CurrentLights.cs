@@ -1,24 +1,26 @@
-using _Project.Code.Core.Patterns;
-using NUnit.Framework;
 using System.Collections.Generic;
-using UnityEngine;
+using _Project.Code.Core.Patterns;
+using _Project.Code.Optimization;
 
-public class CurrentLights : Singleton<CurrentLights>
+namespace _Project.Code.Utilities.Singletons
 {
-    public List<LightObject> Lights = new List<LightObject>();
-    public void AddLight(LightObject playerObj)
+    public class CurrentLights : Singleton<CurrentLights>
     {
-        Lights.Add(playerObj);
+        public List<LightObject> Lights = new List<LightObject>();
+        public void AddLight(LightObject playerObj)
+        {
+            Lights.Add(playerObj);
 
-    }
-    public void RemoveLight(LightObject playerObj)
-    {
-        Lights.Remove(playerObj);
+        }
+        public void RemoveLight(LightObject playerObj)
+        {
+            Lights.Remove(playerObj);
 
-    }
-    public void ClearLights()
-    {
-        Lights.Clear();
+        }
+        public void ClearLights()
+        {
+            Lights.Clear();
 
+        }
     }
 }

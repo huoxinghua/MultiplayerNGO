@@ -1,6 +1,9 @@
-﻿using Unity.Netcode;
+﻿using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.Utility;
+using Unity.Netcode;
 using UnityEngine;
-namespace Project.Gameplay.Interactabele.Network
+
+namespace _Project.Code.Gameplay.Interactables.Network
 {
     public class SwingDoors : NetworkBehaviour, IInteractable
     {

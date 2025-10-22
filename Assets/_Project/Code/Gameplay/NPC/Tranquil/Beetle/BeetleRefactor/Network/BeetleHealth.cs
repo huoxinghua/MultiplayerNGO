@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using _Project.Code.Gameplay.Interfaces;
 using UnityEngine;
-namespace _Project.Code.Core.GamePlay.AI.NetWork
+
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor.Network
 {
     public class BeetleHealth : MonoBehaviour, IHitable
     {

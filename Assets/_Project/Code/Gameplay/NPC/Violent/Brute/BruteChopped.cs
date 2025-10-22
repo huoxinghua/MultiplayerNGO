@@ -1,14 +1,17 @@
 using UnityEngine;
 
-public class BruteChopped : MonoBehaviour
+namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public void Awake()
+    public class BruteChopped : MonoBehaviour
     {
-        foreach(Collider children in gameObject.GetComponentsInChildren<Collider>())
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        public void Awake()
         {
-            children.transform.parent = null;
+            foreach(Collider children in gameObject.GetComponentsInChildren<Collider>())
+            {
+                children.transform.parent = null;
+            }
+            Destroy(gameObject);
         }
-        Destroy(gameObject);
     }
 }

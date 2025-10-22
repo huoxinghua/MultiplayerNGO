@@ -2,33 +2,36 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class MapNetworkSync : NetworkBehaviour
+namespace _Project.Code.Network.Level
 {
-    [SerializeField] private DungeonGenerator generator;
-
-    private NetworkVariable<int> seed = new NetworkVariable<int>(
-      default,
-      NetworkVariableReadPermission.Everyone,
-      NetworkVariableWritePermission.Server
-  );
-
-    public override void OnNetworkSpawn()
+    public class MapNetworkSync : NetworkBehaviour
     {
-        if (IsServer)
-        {
-            int randomSeed = Random.Range(0, int.MaxValue);
-            seed.Value = randomSeed;
+        [SerializeField] private DungeonGenerator generator;
 
-            generator.Seed = randomSeed;         
-            generator.Generate();
-        }
-        else
+        private NetworkVariable<int> seed = new NetworkVariable<int>(
+            default,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
+
+        public override void OnNetworkSpawn()
         {
-            seed.OnValueChanged += (_, newSeed) =>
+            if (IsServer)
             {
-                generator.Seed = newSeed;         
+                int randomSeed = Random.Range(0, int.MaxValue);
+                seed.Value = randomSeed;
+
+                generator.Seed = randomSeed;         
                 generator.Generate();
-            };
+            }
+            else
+            {
+                seed.OnValueChanged += (_, newSeed) =>
+                {
+                    generator.Seed = newSeed;         
+                    generator.Generate();
+                };
+            }
         }
     }
 }

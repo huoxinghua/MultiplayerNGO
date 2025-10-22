@@ -1,22 +1,27 @@
+using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Utilities.Audio;
 using UnityEngine;
 
-public class BruteAnimationEventController : MonoBehaviour
+namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    [SerializeField] private BruteStateMachine _stateMachine;
-    public void OnFootStep()
+    public class BruteAnimationEventController : MonoBehaviour
     {
-        AudioManager.Instance.PlayByKey3D("BruteFootStep", transform.position);
-    }
-    public void OnAttackNoise()
-    {
-        AudioManager.Instance.PlayByKey3D("BruteAttack", transform.position);
-    }
-    public void OnAttackConnect()
-    {
-        _stateMachine.OnAttackConnects();   
-    }
-    public void OnAttackEnd()
-    {
-        _stateMachine.OnAttackEnd();
+        [SerializeField] private BruteStateMachine _stateMachine;
+        public void OnFootStep()
+        {
+            AudioManager.Instance.PlayByKey3D("BruteFootStep", transform.position);
+        }
+        public void OnAttackNoise()
+        {
+            AudioManager.Instance.PlayByKey3D("BruteAttack", transform.position);
+        }
+        public void OnAttackConnect()
+        {
+            _stateMachine.OnAttackConnects();   
+        }
+        public void OnAttackEnd()
+        {
+            _stateMachine.OnAttackEnd();
+        }
     }
 }

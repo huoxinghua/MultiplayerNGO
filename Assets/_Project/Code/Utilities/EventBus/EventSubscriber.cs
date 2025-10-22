@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using _Project.Code.Gameplay.FirstPersonController;
 using UnityEngine;
 
-namespace _Project.Code.Core.Events
+namespace _Project.Code.Utilities.EventBus
 {
     public class EventSubscriber : MonoBehaviour
     {

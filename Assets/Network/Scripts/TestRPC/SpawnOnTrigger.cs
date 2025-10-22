@@ -1,9 +1,9 @@
-using UnityEngine;
-using Unity.Netcode;
-using Project.Network.TestRPC;
 using System.Collections;
-using Project.Network.PlayerController;
-namespace Project.Network.TestRPC
+using _Project.Code.Gameplay.Player;
+using Unity.Netcode;
+using UnityEngine;
+
+namespace Network.Scripts.TestRPC
 {
     public class SpawnOnTrigger : NetworkBehaviour
     {

@@ -1,22 +1,23 @@
-
-
-using _Project.Code.Core.Patterns;
 using System.Collections.Generic;
-using UnityEngine;
+using _Project.Code.Core.Patterns;
+using _Project.Code.Gameplay.EnemySpawning;
 
-public class EnemySpawnPoints : Singleton<EnemySpawnPoints>
+namespace _Project.Code.Utilities.Singletons
 {
-    public List<EnemySpawnPoint> ActiveEnemySpawnPoints = new List<EnemySpawnPoint>();
-    public void AddSpawnPoint(EnemySpawnPoint enemySpawnPoint)
+    public class EnemySpawnPoints : Singleton<EnemySpawnPoints>
     {
-        ActiveEnemySpawnPoints.Add(enemySpawnPoint);
-    }
-    public void RemoveSpawnPoint(EnemySpawnPoint enemySpawnPoint)
-    {
-        ActiveEnemySpawnPoints.Remove(enemySpawnPoint);
-    }
-    public void ClearSpawnPoints()
-    {
-        ActiveEnemySpawnPoints.Clear();
+        public List<EnemySpawnPoint> ActiveEnemySpawnPoints = new List<EnemySpawnPoint>();
+        public void AddSpawnPoint(EnemySpawnPoint enemySpawnPoint)
+        {
+            ActiveEnemySpawnPoints.Add(enemySpawnPoint);
+        }
+        public void RemoveSpawnPoint(EnemySpawnPoint enemySpawnPoint)
+        {
+            ActiveEnemySpawnPoints.Remove(enemySpawnPoint);
+        }
+        public void ClearSpawnPoints()
+        {
+            ActiveEnemySpawnPoints.Clear();
+        }
     }
 }

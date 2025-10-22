@@ -1,11 +1,8 @@
-using Project.Network.SteamWork;
 using Steamworks;
-using System.Net.NetworkInformation;
 using TMPro;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
-namespace Project.Network.UI
+namespace Network.Scripts.UI
 {
     public class LobbyItemUI : MonoBehaviour
     {

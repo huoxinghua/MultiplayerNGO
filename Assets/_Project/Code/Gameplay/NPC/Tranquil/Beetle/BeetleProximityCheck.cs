@@ -1,27 +1,30 @@
 using UnityEngine;
 
-public class BeetleProximityCheck : MonoBehaviour
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 {
-    [SerializeField] private BeetleLineOfSight _beetleLineOfSight;
-    [SerializeField] private SphereCollider _sphereCollider;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class BeetleProximityCheck : MonoBehaviour
     {
-        _sphereCollider.radius = _beetleLineOfSight.viewDistance;
-    }
-
-    public void OnTriggerEnter(Collider other)
-    {
-        if(other.gameObject.layer == 6)
+        [SerializeField] private BeetleLineOfSight _beetleLineOfSight;
+        [SerializeField] private SphereCollider _sphereCollider;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
         {
-            _beetleLineOfSight.AddPlayerInProximity(other.gameObject);
+            _sphereCollider.radius = _beetleLineOfSight.viewDistance;
         }
-    }
-    public void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.layer == 6)
+
+        public void OnTriggerEnter(Collider other)
         {
-            _beetleLineOfSight.RemovePlayerFromProximity(other.gameObject);
+            if(other.gameObject.layer == 6)
+            {
+                _beetleLineOfSight.AddPlayerInProximity(other.gameObject);
+            }
+        }
+        public void OnTriggerExit(Collider other)
+        {
+            if (other.gameObject.layer == 6)
+            {
+                _beetleLineOfSight.RemovePlayerFromProximity(other.gameObject);
+            }
         }
     }
 }

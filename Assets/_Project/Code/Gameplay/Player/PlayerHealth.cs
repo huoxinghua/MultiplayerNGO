@@ -1,36 +1,40 @@
+using _Project.Code.Utilities.Singletons;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerHealth : MonoBehaviour, IPlayerHealth
+namespace _Project.Code.Gameplay.Player
 {
-    float _currentHealth;
-    [SerializeField] float _maxHealth;
-
-    public void TakeDamage(float damage)
+    public class PlayerHealth : MonoBehaviour, IPlayerHealth
     {
-        _currentHealth -= damage;
-        if ( _currentHealth < 0)
+        float _currentHealth;
+        [SerializeField] float _maxHealth;
+
+        public void TakeDamage(float damage)
         {
-            //temp for now
-            CurrentPlayers.Instance.RemovePlayer(gameObject);
-            SceneManager.LoadScene("LevelBlockOut");
-            Debug.Log("Player is DEAD");
-            //reload scene for prototype, handle proper multiplayer death logic later
+            _currentHealth -= damage;
+            if ( _currentHealth < 0)
+            {
+                //temp for now
+                CurrentPlayers.Instance.RemovePlayer(gameObject);
+                SceneManager.LoadScene("LevelBlockOut");
+                Debug.Log("Player is DEAD");
+                //reload scene for prototype, handle proper multiplayer death logic later
+            }
         }
-    }
-    public void Awake()
-    {
-        _currentHealth = _maxHealth;
-    }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
+        public void Awake()
+        {
+            _currentHealth = _maxHealth;
+        }
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
         
-    }
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
+        // Update is called once per frame
+        void Update()
+        {
         
+        }
     }
 }

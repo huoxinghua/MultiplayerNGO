@@ -1,34 +1,37 @@
-using UnityEditor.Rendering;
+using _Project.Code.Utilities.Singletons;
 using UnityEngine;
 
-public class EnemySpawnPoint : MonoBehaviour
+namespace _Project.Code.Gameplay.EnemySpawning
 {
-    [SerializeField] private Transform _spawnPos;
-    [SerializeField] private float _safeDistance;
-    public bool CanSpawnEnemy()
+    public class EnemySpawnPoint : MonoBehaviour
     {
-        bool canSpawn = true;
-        foreach(Transform playerTransforms in CurrentPlayers.Instance.PlayerTransforms)
+        [SerializeField] private Transform _spawnPos;
+        [SerializeField] private float _safeDistance;
+        public bool CanSpawnEnemy()
         {
-            if (Vector3.Distance(transform.position, playerTransforms.position) <=  _safeDistance)
+            bool canSpawn = true;
+            foreach(Transform playerTransforms in CurrentPlayers.Instance.PlayerTransforms)
             {
-                canSpawn = false;
+                if (Vector3.Distance(transform.position, playerTransforms.position) <=  _safeDistance)
+                {
+                    canSpawn = false;
+                }
             }
-        }
         
-        return canSpawn;
-    }
-    private void OnEnable()
-    {
-        EnemySpawnPoints.Instance.AddSpawnPoint(this);
-    }
-    private void OnDisable()
-    {
-        EnemySpawnPoints.Instance.RemoveSpawnPoint(this);
-    }
-    public void DoSpawnEnemy(GameObject EnemyPrefab)
-    {
-        GameObject temp = Instantiate(EnemyPrefab, _spawnPos);
-        temp.transform.parent = null;
+            return canSpawn;
+        }
+        private void OnEnable()
+        {
+            EnemySpawnPoints.Instance.AddSpawnPoint(this);
+        }
+        private void OnDisable()
+        {
+            EnemySpawnPoints.Instance.RemoveSpawnPoint(this);
+        }
+        public void DoSpawnEnemy(GameObject EnemyPrefab)
+        {
+            GameObject temp = Instantiate(EnemyPrefab, _spawnPos);
+            temp.transform.parent = null;
+        }
     }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Project.Network.SteamWork
+namespace Network.Scripts.SteamWork
 {
     public class Bootstrapper : MonoBehaviour
     {

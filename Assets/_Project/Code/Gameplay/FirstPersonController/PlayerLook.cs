@@ -1,73 +1,76 @@
 ﻿using UnityEngine;
 
-public class PlayerLook : MonoBehaviour
+namespace _Project.Code.Gameplay.FirstPersonController
 {
-    private PlayerInputManager inputManager;
-    [Header("Transforms")]
-    [SerializeField] private Transform _playerTransform;
-    [SerializeField] private Transform _cameraTransform;
+    public class PlayerLook : MonoBehaviour
+    {
+        private PlayerInputManager inputManager;
+        [Header("Transforms")]
+        [SerializeField] private Transform _playerTransform;
+        [SerializeField] private Transform _cameraTransform;
 
-    [Header("Sensitivity Values")]
-    [SerializeField] private float sensitivity = 2;
-    [SerializeField] private float smoothing = 1.5f;
-    [SerializeField] private float rawLookMultiply = 0.009f;
-    Vector2 velocity;
-    Vector2 frameVelocity;
+        [Header("Sensitivity Values")]
+        [SerializeField] private float sensitivity = 2;
+        [SerializeField] private float smoothing = 1.5f;
+        [SerializeField] private float rawLookMultiply = 0.009f;
+        Vector2 velocity;
+        Vector2 frameVelocity;
 
-    void Reset()
-    {
-        _playerTransform = GetComponentInParent<PlayerMovement>().transform;
-    }
-    private void Awake()
-    {
-        inputManager = GetComponentInParent<PlayerInputManager>();
-    }
-    private void OnEnable()
-    {
-        if (inputManager != null)
+        void Reset()
         {
-
-            inputManager.OnLookInput += Look;
+            _playerTransform = GetComponentInParent<PlayerMovement>().transform;
         }
-        else
+        private void Awake()
         {
-            Debug.Log("input manager is null ");
+            inputManager = GetComponentInParent<PlayerInputManager>();
         }
-    }
-    private void OnDisable()
-    {
-        if (inputManager != null)
+        private void OnEnable()
         {
-            inputManager.OnLookInput -= Look;
+            if (inputManager != null)
+            {
+
+                inputManager.OnLookInput += Look;
+            }
+            else
+            {
+                Debug.Log("input manager is null ");
+            }
         }
-        else
+        private void OnDisable()
         {
-            Debug.Log("input manager is null ");
+            if (inputManager != null)
+            {
+                inputManager.OnLookInput -= Look;
+            }
+            else
+            {
+                Debug.Log("input manager is null ");
+            }
         }
-    }
-    void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+        void Start()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
-    Vector2 rawLook;
-    void Update()
-    {
-        rawLook = inputManager.inputActions.Player.Look.ReadValue<Vector2>();
-        Vector2 rawLookScale = Vector2.Scale(rawLook, Vector2.one * rawLookMultiply);
+        Vector2 rawLook;
+        void Update()
+        {
+            rawLook = inputManager.inputActions.Player.Look.ReadValue<Vector2>();
+            Vector2 rawLookScale = Vector2.Scale(rawLook, Vector2.one * rawLookMultiply);
 
-        Vector2 rawFrameVelocity = Vector2.Scale(rawLookScale, Vector2.one * sensitivity);
-        frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, 1 / smoothing);
-        velocity += frameVelocity;
-        velocity.y = Mathf.Clamp(velocity.y, -90, 90);
+            Vector2 rawFrameVelocity = Vector2.Scale(rawLookScale, Vector2.one * sensitivity);
+            frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, 1 / smoothing);
+            velocity += frameVelocity;
+            velocity.y = Mathf.Clamp(velocity.y, -90, 90);
 
-        // Rotate camera up-down 
-        _cameraTransform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
-        _playerTransform.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
-    }
+            // Rotate camera up-down 
+            _cameraTransform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
+            _playerTransform.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
+        }
 
-    private void Look(Vector2 dir)
-    {
-        rawLook = dir;
+        private void Look(Vector2 dir)
+        {
+            rawLook = dir;
+        }
     }
 }

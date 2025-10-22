@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public interface IInteractable
+namespace _Project.Code.Gameplay.Interactables
 {
-    public void OnInteract(GameObject interactingPlayer)
+    public interface IInteractable
     {
+        public void OnInteract(GameObject interactingPlayer)
+        {
 
-    }
-    public void HandleHover(bool isHovering)
-    {
+        }
+        public void HandleHover(bool isHovering)
+        {
 
+        }
     }
 }

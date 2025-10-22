@@ -1,52 +1,53 @@
-using System;
-
-public class Timer
+namespace _Project.Code.Utilities.Utility
 {
-    private float _duration;
-    private float _elapsed;
-    private bool _running;
-
-    public bool IsDone => _running && _elapsed >= _duration;
-    public bool IsRunning => _running;
-
-    public bool IsComplete => _elapsed >= _duration;
-    public Timer(float duration)
+    public class Timer
     {
-        _duration = duration;
-        _elapsed = 0f;
-        _running = false;
-    }
-    public float GetElapsed()
-    {
-        return _elapsed;
-    }
-    public void Start()
-    {
-        _elapsed = 0f;
-        _running = true;
-    }
+        private float _duration;
+        private float _elapsed;
+        private bool _running;
 
-    public void Reset(float newDuration = -1f)
-    {
-        if (newDuration > 0f)
-            _duration = newDuration;
+        public bool IsDone => _running && _elapsed >= _duration;
+        public bool IsRunning => _running;
 
-        Start();
-    }
+        public bool IsComplete => _elapsed >= _duration;
+        public Timer(float duration)
+        {
+            _duration = duration;
+            _elapsed = 0f;
+            _running = false;
+        }
+        public float GetElapsed()
+        {
+            return _elapsed;
+        }
+        public void Start()
+        {
+            _elapsed = 0f;
+            _running = true;
+        }
 
-    public void Stop()
-    {
-        _running = false;
-    }
+        public void Reset(float newDuration = -1f)
+        {
+            if (newDuration > 0f)
+                _duration = newDuration;
 
-    public void TimerUpdate(float deltaTime)
-    {
-        if (!_running) return;
+            Start();
+        }
 
-        _elapsed += deltaTime;
-        if (_elapsed >= _duration)
+        public void Stop()
         {
             _running = false;
+        }
+
+        public void TimerUpdate(float deltaTime)
+        {
+            if (!_running) return;
+
+            _elapsed += deltaTime;
+            if (_elapsed >= _duration)
+            {
+                _running = false;
+            }
         }
     }
 }

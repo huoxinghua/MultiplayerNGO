@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Project.Network.PlayerController
+namespace Network.Scripts.PlayerController
 {
     public class PlayerInputManager : MonoBehaviour
     {

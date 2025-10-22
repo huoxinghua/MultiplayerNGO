@@ -1,7 +1,6 @@
-﻿using System.ComponentModel;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace DunGen.Demo
+namespace DunGen.Samples.Basic.Scripts
 {
 	public class KeyColour : MonoBehaviour, IKeyLock
 	{

@@ -1,7 +1,10 @@
 using UnityEngine;
 
-public interface IHoldToInteract
+namespace _Project.Code.Gameplay.Interactables
 {
-    public void OnHold(GameObject player);
-    public void OnRelease(GameObject player);
+    public interface IHoldToInteract
+    {
+        public void OnHold(GameObject player);
+        public void OnRelease(GameObject player);
+    }
 }

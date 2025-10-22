@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using _Project.Code.Core.Patterns;
+using _Project.Code.Gameplay.FirstPersonController;
+using UnityEngine;
 
-namespace _Project.Code.Core.Events
+namespace _Project.Code.Utilities.EventBus
 {
     public class EventBus : Singleton<EventBus>
 

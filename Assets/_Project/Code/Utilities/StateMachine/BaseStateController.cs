@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode;
 
-
-public abstract class BaseStateController : NetworkBehaviour
+namespace _Project.Code.Utilities.StateMachine
 {
+    public abstract class BaseStateController : NetworkBehaviour
+    {
   
+    }
 }

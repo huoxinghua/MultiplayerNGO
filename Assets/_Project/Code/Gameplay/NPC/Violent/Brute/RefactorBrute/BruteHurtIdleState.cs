@@ -1,45 +1,50 @@
+using _Project.Code.Gameplay.Player;
+using _Project.Code.Utilities.Utility;
 using UnityEngine;
 
-public class BruteHurtIdleState : BruteBaseState
+namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
-    private Timer _idleTimer;
+    public class BruteHurtIdleState : BruteBaseState
+    {
+        private Timer _idleTimer;
 
-    public BruteHurtIdleState(BruteStateMachine stateController) : base(stateController)
-    {
-    }
-    public override void OnEnter()
-    {
-        _idleTimer = new Timer(BruteSO.RandomIdleTime);
-        Animator.PlayInjured();
-        Agent.SetDestination(StateController.gameObject.transform.position);
-        _idleTimer.Start();
-    }
-    public override void OnExit()
-    {
-        _idleTimer.Stop();
-        _idleTimer = null;
-    }
-
-    public override void StateUpdate()
-    {
-        _idleTimer.TimerUpdate(Time.deltaTime);
-        if (_idleTimer.IsComplete)
+        public BruteHurtIdleState(BruteStateMachine stateController) : base(stateController)
         {
-            StateController.TransitionTo(StateController.WanderState);
         }
-    }
-    public override void StateFixedUpdate()
-    {
-        foreach (PlayerList player in PlayerList.AllPlayers)
+        public override void OnEnter()
         {
-            if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+            _idleTimer = new Timer(BruteSO.RandomIdleTime);
+            Animator.PlayInjured();
+            Agent.SetDestination(StateController.gameObject.transform.position);
+            _idleTimer.Start();
+        }
+        public override void OnExit()
+        {
+            _idleTimer.Stop();
+            _idleTimer = null;
+        }
+
+        public override void StateUpdate()
+        {
+            _idleTimer.TimerUpdate(Time.deltaTime);
+            if (_idleTimer.IsComplete)
             {
-                StateController.OnAttack(player.gameObject);
+                StateController.TransitionTo(StateController.WanderState);
             }
         }
-    }
-    public override void OnHearPlayer()
-    {
+        public override void StateFixedUpdate()
+        {
+            foreach (PlayerList player in PlayerList.AllPlayers)
+            {
+                if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+                {
+                    StateController.OnAttack(player.gameObject);
+                }
+            }
+        }
+        public override void OnHearPlayer()
+        {
 
+        }
     }
 }

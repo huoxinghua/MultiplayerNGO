@@ -1,14 +1,15 @@
-using UnityEngine;
-
-public class SampleData
+namespace _Project.Code.Gameplay.Scripts.MVCItems.SampleJar
 {
-    public float researchValue;
-    public int moneyValue;
-
-    public SampleData(float research, int money)
+    public class SampleData
     {
-        researchValue = research;
-        moneyValue = money;
-    }
+        public float researchValue;
+        public int moneyValue;
 
+        public SampleData(float research, int money)
+        {
+            researchValue = research;
+            moneyValue = money;
+        }
+
+    }
 }

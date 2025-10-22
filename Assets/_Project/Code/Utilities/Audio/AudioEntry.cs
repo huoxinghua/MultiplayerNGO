@@ -1,8 +1,11 @@
 using UnityEngine;
 
-[System.Serializable]
-public class AudioEntry
+namespace _Project.Code.Utilities.Audio
 {
-    public string key;      // e.g. "Explosion", "Footstep"
-    public AudioClip clip;
+    [System.Serializable]
+    public class AudioEntry
+    {
+        public string key;      // e.g. "Explosion", "Footstep"
+        public AudioClip clip;
+    }
 }

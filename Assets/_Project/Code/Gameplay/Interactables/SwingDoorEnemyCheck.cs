@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class SwingDoorEnemyCheck : MonoBehaviour
+namespace _Project.Code.Gameplay.Interactables
 {
-    [SerializeField] private SwingDoors _doorScript;
-    public void OnTriggerEnter(Collider other)
+    public class SwingDoorEnemyCheck : MonoBehaviour
     {
-        if (!_doorScript.IsDoorOpen() && other.gameObject.layer == 7)
+        [SerializeField] private SwingDoors _doorScript;
+        public void OnTriggerEnter(Collider other)
         {
-            _doorScript.EnemyOpened();
+            if (!_doorScript.IsDoorOpen() && other.gameObject.layer == 7)
+            {
+                _doorScript.EnemyOpened();
+            }
         }
     }
 }

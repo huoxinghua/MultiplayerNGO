@@ -1,6 +1,8 @@
-using UnityEngine;
+using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Utilities.StateMachine;
 using UnityEngine.AI;
-namespace _Project.Code.Core.GamePlay.AI.NetWork
+
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor.Network
 {
 
 public class BeetleBaseState : BaseState

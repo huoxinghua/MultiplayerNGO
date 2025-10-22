@@ -1,6 +1,7 @@
-using UnityEngine;
-
-public class BeetleAnimation : EnemyAnimation
+namespace _Project.Code.Art.AnimationScripts.Animations
 {
+    public class BeetleAnimation : EnemyAnimation
+    {
     
+    }
 }

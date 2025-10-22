@@ -1,9 +1,13 @@
+using System.Collections;
+using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Art.RagdollScripts;
+using _Project.Code.Utilities.StateMachine;
+using _Project.Code.Utilities.Utility;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
-using Unity.Netcode;
-using System.Collections;
 
-namespace _Project.Code.Core.GamePlay.AI.NetWork
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor.Network
 {
 
 public class BeetleStateMachine : BaseStateController

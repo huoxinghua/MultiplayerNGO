@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Reflection;
+using _Project.Code.Utilities.ServiceLocator;
 using UnityEngine;
 
-namespace _Project.Code.Core.ServiceLocator
+namespace _Project.Code.Core.Patterns
 {
     public class GameInitializer : MonoBehaviour
     {

@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-namespace DunGen.Demo
+namespace DunGen.Samples.Basic.Scripts
 {
 	public class DemoTileInjector : MonoBehaviour
 	{

@@ -1,83 +1,85 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public enum BruteAnimationState
+namespace _Project.Code.Art.AnimationScripts.Animations
 {
-    Alert,
-    Normal,
-    Injured
-}
-public class BruteAnimation : EnemyAnimation
-{
-    private int hStatus = Animator.StringToHash("bruteStatus");
-    private int hInjured = Animator.StringToHash("isInjured");
-    private float currentStatus = (float)BruteAnimationState.Normal;
-
-    private void Start()
+    public enum BruteAnimationState
     {
-        anim.SetFloat(hStatus, currentStatus);
+        Alert,
+        Normal,
+        Injured
     }
-
-    public override void PlayRandomIdle(float currentIdleTime, float idleStart)
+    public class BruteAnimation : EnemyAnimation
     {
-        Debug.Log("No random idle animation for brute!");
-    }
+        private int hStatus = Animator.StringToHash("bruteStatus");
+        private int hInjured = Animator.StringToHash("isInjured");
+        private float currentStatus = (float)BruteAnimationState.Normal;
 
-    public void PlayNormal()
-    {
-        ChangeStatus(BruteAnimationState.Normal);
-        anim.SetBool(hAlert, false);
-        anim.SetBool(hInjured, false);
-    }
-
-    public override void PlayAlert()
-    {
-        ChangeStatus(BruteAnimationState.Alert);
-        anim.SetBool(hAlert, true);
-        anim.SetBool(hInjured, false);
-    }
-
-    public void PlayInjured()
-    {
-        ChangeStatus(BruteAnimationState.Injured);
-        anim.SetBool(hAlert, false);
-        anim.SetBool(hInjured, true);
-    }
-
-    private void ChangeStatus(BruteAnimationState state)
-    {
-        StartCoroutine(SmoothStatusChange(state, 1));
-    }
-
-    public override void PlayAttack()
-    {
-        if (anim.GetBool(hAlert) && !anim.GetBool(hInjured))
+        private void Start()
         {
-            anim.SetFloat(hAttackType, Random.Range(0, 2));
-            anim.SetTrigger(hAttack);
+            anim.SetFloat(hStatus, currentStatus);
         }
-        else if (!anim.GetBool(hAlert) && anim.GetBool(hInjured))
-        {
-            anim.SetFloat(hAttackType, 2);
-            anim.SetTrigger(hAttack);
-        }
-    }
 
-    private IEnumerator SmoothStatusChange(BruteAnimationState targetStatus, float duration)
-    {
-        float targetValue = (float)targetStatus;
-        float time = 0f;
+        public override void PlayRandomIdle(float currentIdleTime, float idleStart)
+        {
+            Debug.Log("No random idle animation for brute!");
+        }
+
+        public void PlayNormal()
+        {
+            ChangeStatus(BruteAnimationState.Normal);
+            anim.SetBool(hAlert, false);
+            anim.SetBool(hInjured, false);
+        }
+
+        public override void PlayAlert()
+        {
+            ChangeStatus(BruteAnimationState.Alert);
+            anim.SetBool(hAlert, true);
+            anim.SetBool(hInjured, false);
+        }
+
+        public void PlayInjured()
+        {
+            ChangeStatus(BruteAnimationState.Injured);
+            anim.SetBool(hAlert, false);
+            anim.SetBool(hInjured, true);
+        }
+
+        private void ChangeStatus(BruteAnimationState state)
+        {
+            StartCoroutine(SmoothStatusChange(state, 1));
+        }
+
+        public override void PlayAttack()
+        {
+            if (anim.GetBool(hAlert) && !anim.GetBool(hInjured))
+            {
+                anim.SetFloat(hAttackType, Random.Range(0, 2));
+                anim.SetTrigger(hAttack);
+            }
+            else if (!anim.GetBool(hAlert) && anim.GetBool(hInjured))
+            {
+                anim.SetFloat(hAttackType, 2);
+                anim.SetTrigger(hAttack);
+            }
+        }
+
+        private IEnumerator SmoothStatusChange(BruteAnimationState targetStatus, float duration)
+        {
+            float targetValue = (float)targetStatus;
+            float time = 0f;
         
-        while (time < duration && targetValue != currentStatus)
-        {
-            time += Time.deltaTime;
-            float value = Mathf.Lerp(currentStatus, targetValue, time / duration);
-            anim.SetFloat(hStatus, value);
-            yield return null;
-        }
+            while (time < duration && targetValue != currentStatus)
+            {
+                time += Time.deltaTime;
+                float value = Mathf.Lerp(currentStatus, targetValue, time / duration);
+                anim.SetFloat(hStatus, value);
+                yield return null;
+            }
 
-        anim.SetFloat(hStatus, targetValue);
-        currentStatus = targetValue;
+            anim.SetFloat(hStatus, targetValue);
+            currentStatus = targetValue;
+        }
     }
 }

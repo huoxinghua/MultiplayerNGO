@@ -1,10 +1,11 @@
-using Project.Network.SteamWork;
+using Network.Scripts.SteamWork;
 using Steamworks;
+using Steamworks.NET;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Project.Network.UI
+namespace Network.Scripts.UI
 {
     public class HostUIManager : MonoBehaviour
     {

@@ -1,10 +1,9 @@
-
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Project.Network.UI
+namespace Network.Scripts.UI
 {
     public class NetworkUI : MonoBehaviour
     {

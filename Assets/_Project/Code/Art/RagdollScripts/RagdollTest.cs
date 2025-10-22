@@ -1,24 +1,27 @@
 using UnityEngine;
 
-public class RagdollTest : MonoBehaviour
+namespace _Project.Code.Art.RagdollScripts
 {
-    [SerializeField] Ragdoll ragdoll;
-
-    // Update is called once per frame
-    void Update()
+    public class RagdollTest : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        [SerializeField] Ragdoll ragdoll;
+
+        // Update is called once per frame
+        void Update()
         {
-            if (ragdoll != null)
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                ragdoll.EnableRagdoll();
+                if (ragdoll != null)
+                {
+                    ragdoll.EnableRagdoll();
+                }
             }
-        }
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            if (ragdoll != null)
+            if (Input.GetKeyDown(KeyCode.T))
             {
-                ragdoll.EnableAnimator();
+                if (ragdoll != null)
+                {
+                    ragdoll.EnableAnimator();
+                }
             }
         }
     }

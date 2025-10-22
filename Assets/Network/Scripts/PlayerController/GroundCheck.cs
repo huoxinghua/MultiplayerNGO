@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
-namespace Project.Network.PlayerController
+
+namespace Network.Scripts.PlayerController
 {
 
     public class GroundCheck : MonoBehaviour

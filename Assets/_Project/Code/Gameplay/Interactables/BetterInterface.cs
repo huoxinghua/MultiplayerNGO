@@ -1,7 +1,7 @@
 using UnityEngine;
 
-
-
+namespace _Project.Code.Gameplay.Interactables
+{
     public static class BetterInterface
     {
         public static T GetInterface<T>(this GameObject obj) where T : class
@@ -14,4 +14,5 @@ using UnityEngine;
             return null;
         }
     }
+}
 

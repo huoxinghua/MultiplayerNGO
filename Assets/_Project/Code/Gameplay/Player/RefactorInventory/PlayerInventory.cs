@@ -1,298 +1,303 @@
+using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.NewItemSystem;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerInventory : NetworkBehaviour
+namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
-    [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
-    public IInventoryItem BigItemCarried { get; private set; }
-    [field: SerializeField] public int InventorySlots { get; private set; }
-    [field: SerializeField] public Transform HoldTransform { get; private set; }
-    [field: SerializeField] public Transform DropTransform { get; private set; }
-    private int _currentIndex;
-    [SerializeField] private PlayerInputManager _inputManager;
-    private bool _handsFull => BigItemCarried != null;
-    public bool InventoryFull => IsInventoryFull();
-    public void Awake()
+    public class PlayerInventory : NetworkBehaviour
     {
-        _inputManager.OnNumPressed += HandlePressedSlot;
-
-
-        _inputManager.OnUse += UseItemInHand;
-        _inputManager.OnDropItem += DropItem;
-    }
-    public void OnDisable()
-    {
-        _inputManager.OnNumPressed -= HandlePressedSlot;
-
-
-        _inputManager.OnUse -= UseItemInHand;
-        _inputManager.OnDropItem -= DropItem;
-    }
-
-    public bool IsInventoryFull()
-    {
-        bool isFull = true;
-        for (int i = 0; i < InventoryItems.Length; i++)
+        [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
+        public IInventoryItem BigItemCarried { get; private set; }
+        [field: SerializeField] public int InventorySlots { get; private set; }
+        [field: SerializeField] public Transform HoldTransform { get; private set; }
+        [field: SerializeField] public Transform DropTransform { get; private set; }
+        private int _currentIndex;
+        [SerializeField] private PlayerInputManager _inputManager;
+        private bool _handsFull => BigItemCarried != null;
+        public bool InventoryFull => IsInventoryFull();
+        public void Awake()
         {
-            if (InventoryItems[i] == null)
-            {
-                isFull = false;
-            }
+            _inputManager.OnNumPressed += HandlePressedSlot;
+
+
+            _inputManager.OnUse += UseItemInHand;
+            _inputManager.OnDropItem += DropItem;
         }
-        return isFull;
-    }
-
-    /// <summary>
-    /// Called by interact cast. When interacting with an item than can be picked up, this function checks if thats possible
-    /// </summary>
-    /// <returns>True if possible to pickup, false if not</returns>
-    public bool TryPickupItem()
-    {
-        if (_handsFull || InventoryFull) return false;
-        return true;
-    }
-
-
-    /// <summary>
-    /// Handles the pickup logic. Adds IInventory item to inventory. Equips to hand if current slot free. 
-    /// <br/>Else adds to closest slot to the left. if item isnt pocket sized, place in hand not inventory
-    /// </summary>
-    /// <param name="item"> the item itself being picked up</param>
-    public void DoPickup(IInventoryItem item)
-    {
-        if (IsServer)
+        public void OnDisable()
         {
+            _inputManager.OnNumPressed -= HandlePressedSlot;
 
-            if (item.IsPocketSize())
+
+            _inputManager.OnUse -= UseItemInHand;
+            _inputManager.OnDropItem -= DropItem;
+        }
+
+        public bool IsInventoryFull()
+        {
+            bool isFull = true;
+            for (int i = 0; i < InventoryItems.Length; i++)
             {
-                if (InventoryItems[_currentIndex] == null)
+                if (InventoryItems[i] == null)
                 {
-                    InventoryItems[_currentIndex] = item;
-                    item.PickupItem(gameObject, HoldTransform);
-                    item.EquipItem();
-                    Debug.Log("server side do Pice up");
-                    //network
-                    NetworkObject netObj = null;
+                    isFull = false;
+                }
+            }
+            return isFull;
+        }
+
+        /// <summary>
+        /// Called by interact cast. When interacting with an item than can be picked up, this function checks if thats possible
+        /// </summary>
+        /// <returns>True if possible to pickup, false if not</returns>
+        public bool TryPickupItem()
+        {
+            if (_handsFull || InventoryFull) return false;
+            return true;
+        }
 
 
-                    var mono = item as MonoBehaviour;
-                    if (mono != null)
+        /// <summary>
+        /// Handles the pickup logic. Adds IInventory item to inventory. Equips to hand if current slot free. 
+        /// <br/>Else adds to closest slot to the left. if item isnt pocket sized, place in hand not inventory
+        /// </summary>
+        /// <param name="item"> the item itself being picked up</param>
+        public void DoPickup(IInventoryItem item)
+        {
+            if (IsServer)
+            {
+
+                if (item.IsPocketSize())
+                {
+                    if (InventoryItems[_currentIndex] == null)
                     {
-                        Debug.LogWarning($"network pick up");
-                        netObj = mono.GetComponent<NetworkObject>();
-                        if (netObj != null)
+                        InventoryItems[_currentIndex] = item;
+                        item.PickupItem(gameObject, HoldTransform);
+                        item.EquipItem();
+                        Debug.Log("server side do Pice up");
+                        //network
+                        NetworkObject netObj = null;
+
+
+                        var mono = item as MonoBehaviour;
+                        if (mono != null)
                         {
-                            netObj.TrySetParent(HoldTransform);
-                            netObj.transform.localPosition = Vector3.zero;
-                            netObj.transform.localRotation = Quaternion.identity;
+                            Debug.LogWarning($"network pick up");
+                            netObj = mono.GetComponent<NetworkObject>();
+                            if (netObj != null)
+                            {
+                                netObj.TrySetParent(HoldTransform);
+                                netObj.transform.localPosition = Vector3.zero;
+                                netObj.transform.localRotation = Quaternion.identity;
 
 
-                            NotifyClientsPickupClientRpc(netObj, OwnerClientId);
+                                NotifyClientsPickupClientRpc(netObj, OwnerClientId);
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"n NetworkObject no");
+                            }
                         }
                         else
                         {
-                            Debug.LogWarning($"n NetworkObject no");
+                            Debug.LogWarning($"mono == null");
                         }
+                        //end network
                     }
                     else
                     {
-                        Debug.LogWarning($"mono == null");
+                        //should find first available slot? I hope
+                        for (int i = 0; i < InventoryItems.Length; i++)
+                        {
+                            var items = InventoryItems[i];
+                            if (items == null)
+                            {
+                                InventoryItems[i] = item;
+                                item.PickupItem(gameObject, HoldTransform);
+                                item.UnequipItem();
+                                break;
+                            }
+
+                        }
                     }
-                    //end network
+
+
+                    //add to inventory list
                 }
                 else
                 {
-                    //should find first available slot? I hope
-                    for (int i = 0; i < InventoryItems.Length; i++)
-                    {
-                        var items = InventoryItems[i];
-                        if (items == null)
-                        {
-                            InventoryItems[i] = item;
-                            item.PickupItem(gameObject, HoldTransform);
-                            item.UnequipItem();
-                            break;
-                        }
-
-                    }
+                    BigItemCarried = item;
+                    InventoryItems[_currentIndex]?.UnequipItem();
+                    item.PickupItem(gameObject, HoldTransform);
+                    item.EquipItem();
                 }
 
+            }
+      
+     
+        }
 
-                //add to inventory list
+        [ClientRpc]
+        private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
+        {
+            if (NetworkManager.Singleton.LocalClientId == playerId)
+            {
+                Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
+                return;
+            }
+
+            Debug.Log("NotifyClientsPickupClientRpc");
+            if (!itemRef.TryGet(out NetworkObject netObj)) return;
+
+            var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
+            if (item == null) return;
+
+            Debug.Log($"[Sync] Item picked up by player {playerId}");
+
+
+            var player = FindPlayerById(playerId);
+            if (player == null)
+            {
+                Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
+                return;
+            }
+            var inventory = player.GetComponent<PlayerInventory>();
+            if (inventory == null)
+            {
+                Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
+                return;
+            }
+            netObj.transform.SetParent(inventory.HoldTransform);
+            netObj.transform.localPosition = Vector3.zero;
+            netObj.transform.localRotation = Quaternion.identity;
+            netObj.gameObject.SetActive(true);
+            Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
+        }
+        private GameObject FindPlayerById(ulong clientId)
+        {
+            foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+            {
+                if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
+                {
+                    return obj.gameObject;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Tells items at current item index to handle drop logic. This is done via input
+        /// </summary>
+        public void DropItem()
+        {
+            if (_handsFull)
+            {
+                //first unequip to hide held visual
+                //than handle drop to make it visible as an in scene item
+                //than set null
+                BigItemCarried.UnequipItem();
+                BigItemCarried.DropItem(DropTransform);
+                BigItemCarried = null;
+            }
+            else if (InventoryItems[_currentIndex] != null)
+            {
+                //first unequip to hide held visual
+                //than handle drop to make it visible as an in scene item
+                //than set null
+                InventoryItems[_currentIndex].UnequipItem();
+                InventoryItems[_currentIndex].DropItem(DropTransform);
+                InventoryItems[_currentIndex] = null;
+                //drop current slot if there is one
+            }
+        }
+        public void UseItemInHand()
+        {
+            if (_handsFull)
+            {
+                BigItemCarried?.UseItem();
             }
             else
             {
-                BigItemCarried = item;
-                InventoryItems[_currentIndex]?.UnequipItem();
-                item.PickupItem(gameObject, HoldTransform);
-                item.EquipItem();
+                InventoryItems[_currentIndex]?.UseItem();
             }
 
         }
-      
-     
-    }
-
-    [ClientRpc]
-    private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
-    {
-        if (NetworkManager.Singleton.LocalClientId == playerId)
+        /// <summary>
+        /// Checks if holding a sample in hand. Safety net for TrySell()
+        /// </summary>
+        /// <returns>If item held can be sold</returns>
+        public bool IsHoldingSample()
         {
-            Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
-            return;
-        }
-
-        Debug.Log("NotifyClientsPickupClientRpc");
-        if (!itemRef.TryGet(out NetworkObject netObj)) return;
-
-        var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
-        if (item == null) return;
-
-        Debug.Log($"[Sync] Item picked up by player {playerId}");
-
-
-        var player = FindPlayerById(playerId);
-        if (player == null)
-        {
-            Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
-            return;
-        }
-        var inventory = player.GetComponent<PlayerInventory>();
-        if (inventory == null)
-        {
-            Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
-            return;
-        }
-        netObj.transform.SetParent(inventory.HoldTransform);
-        netObj.transform.localPosition = Vector3.zero;
-        netObj.transform.localRotation = Quaternion.identity;
-        netObj.gameObject.SetActive(true);
-        Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
-    }
-    private GameObject FindPlayerById(ulong clientId)
-    {
-        foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
-        {
-            if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
+            if (_handsFull)
             {
-                return obj.gameObject;
+                if (BigItemCarried != null)
+                {
+                    return BigItemCarried.CanBeSold();
+                }
             }
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Tells items at current item index to handle drop logic. This is done via input
-    /// </summary>
-    public void DropItem()
-    {
-        if (_handsFull)
-        {
-            //first unequip to hide held visual
-            //than handle drop to make it visible as an in scene item
-            //than set null
-            BigItemCarried.UnequipItem();
-            BigItemCarried.DropItem(DropTransform);
-            BigItemCarried = null;
-        }
-        else if (InventoryItems[_currentIndex] != null)
-        {
-            //first unequip to hide held visual
-            //than handle drop to make it visible as an in scene item
-            //than set null
-            InventoryItems[_currentIndex].UnequipItem();
-            InventoryItems[_currentIndex].DropItem(DropTransform);
-            InventoryItems[_currentIndex] = null;
-            //drop current slot if there is one
-        }
-    }
-    public void UseItemInHand()
-    {
-        if (_handsFull)
-        {
-            BigItemCarried?.UseItem();
-        }
-        else
-        {
-            InventoryItems[_currentIndex]?.UseItem();
-        }
-
-    }
-    /// <summary>
-    /// Checks if holding a sample in hand. Safety net for TrySell()
-    /// </summary>
-    /// <returns>If item held can be sold</returns>
-    public bool IsHoldingSample()
-    {
-        if (_handsFull)
-        {
-            if (BigItemCarried != null)
+            else if (InventoryItems[_currentIndex] != null)
             {
-                return BigItemCarried.CanBeSold();
+                return InventoryItems[_currentIndex].CanBeSold();
             }
+            return false;
         }
-        else if (InventoryItems[_currentIndex] != null)
+        /// <summary>
+        /// Checks if the applicable item is eligible for sale. If holding big item, check big item. If not, check for a held item and if it can be sold
+        /// </summary>
+        /// <returns>A struct containing the data associated with the samples values</returns>
+        public ScienceData TrySell()
         {
-            return InventoryItems[_currentIndex].CanBeSold();
-        }
-        return false;
-    }
-    /// <summary>
-    /// Checks if the applicable item is eligible for sale. If holding big item, check big item. If not, check for a held item and if it can be sold
-    /// </summary>
-    /// <returns>A struct containing the data associated with the samples values</returns>
-    public ScienceData TrySell()
-    {
-        float tranquilVal = 0;
-        float violentVal = 0;
-        float miscVal = 0;
-        string itemName = "StoopidDumb";
-        //big item check and logic
-        if (_handsFull && BigItemCarried != null)
-        {
+            float tranquilVal = 0;
+            float violentVal = 0;
+            float miscVal = 0;
+            string itemName = "StoopidDumb";
+            //big item check and logic
+            if (_handsFull && BigItemCarried != null)
+            {
 
-            tranquilVal = BigItemCarried.GetValueStruct().RawTranquilValue;
-            violentVal = BigItemCarried.GetValueStruct().RawViolentValue;
-            miscVal = BigItemCarried.GetValueStruct().RawMiscValue;
-            itemName = BigItemCarried.GetValueStruct().KeyName;
-            BigItemCarried.WasSold();
-            BigItemCarried = null;
+                tranquilVal = BigItemCarried.GetValueStruct().RawTranquilValue;
+                violentVal = BigItemCarried.GetValueStruct().RawViolentValue;
+                miscVal = BigItemCarried.GetValueStruct().RawMiscValue;
+                itemName = BigItemCarried.GetValueStruct().KeyName;
+                BigItemCarried.WasSold();
+                BigItemCarried = null;
+            }
+            //inventory check and item held check (if item is held)
+            else if (!_handsFull && InventoryItems[_currentIndex] != null)
+            {
+                if (InventoryItems[_currentIndex] == null) return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal };
+                tranquilVal = InventoryItems[_currentIndex].GetValueStruct().RawTranquilValue;
+                violentVal = InventoryItems[_currentIndex].GetValueStruct().RawViolentValue;
+                miscVal = InventoryItems[_currentIndex].GetValueStruct().RawMiscValue;
+                itemName = InventoryItems[_currentIndex].GetValueStruct().KeyName;
+                InventoryItems[_currentIndex].WasSold();
+                InventoryItems[_currentIndex] = null;
+            }
+
+            return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal, KeyName = itemName };
         }
-        //inventory check and item held check (if item is held)
-        else if (!_handsFull && InventoryItems[_currentIndex] != null)
+        /// <summary>
+        /// Called by number inputs to switch to new slot. 
+        /// <br/>Tells current item (if applicable) to handle unequip logic, sets new index for current item, than tells new item to handle equip logic
+        /// </summary>
+        /// <param name="indexOf"> The index of the inventory slot to switch to </param>
+        private void EquipSlot(int indexOf)
         {
-            if (InventoryItems[_currentIndex] == null) return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal };
-            tranquilVal = InventoryItems[_currentIndex].GetValueStruct().RawTranquilValue;
-            violentVal = InventoryItems[_currentIndex].GetValueStruct().RawViolentValue;
-            miscVal = InventoryItems[_currentIndex].GetValueStruct().RawMiscValue;
-            itemName = InventoryItems[_currentIndex].GetValueStruct().KeyName;
-            InventoryItems[_currentIndex].WasSold();
-            InventoryItems[_currentIndex] = null;
+            if (_handsFull) return;
+            if (InventoryItems[_currentIndex] != null)
+            {
+                InventoryItems[_currentIndex].UnequipItem();
+            }
+            _currentIndex = indexOf;
+            InventoryItems[_currentIndex]?.EquipItem();
+        }
+        #region Inputs
+        private void HandlePressedSlot(int index)
+        {
+            if (_handsFull) return;
+            EquipSlot(index - 1);
         }
 
-        return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal, KeyName = itemName };
+        #endregion
     }
-    /// <summary>
-    /// Called by number inputs to switch to new slot. 
-    /// <br/>Tells current item (if applicable) to handle unequip logic, sets new index for current item, than tells new item to handle equip logic
-    /// </summary>
-    /// <param name="indexOf"> The index of the inventory slot to switch to </param>
-    private void EquipSlot(int indexOf)
-    {
-        if (_handsFull) return;
-        if (InventoryItems[_currentIndex] != null)
-        {
-            InventoryItems[_currentIndex].UnequipItem();
-        }
-        _currentIndex = indexOf;
-        InventoryItems[_currentIndex]?.EquipItem();
-    }
-    #region Inputs
-    private void HandlePressedSlot(int index)
-    {
-        if (_handsFull) return;
-        EquipSlot(index - 1);
-    }
-
-    #endregion
 }

@@ -1,9 +1,13 @@
+using _Project.Code.Utilities.Audio;
 using UnityEngine;
 
-public class BeetleAnimationEventSystem : MonoBehaviour
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 {
-    public void OnFootStep()
+    public class BeetleAnimationEventSystem : MonoBehaviour
     {
-        AudioManager.Instance.PlayByKey3D("BeetleFootStep", transform.position);
+        public void OnFootStep()
+        {
+            AudioManager.Instance.PlayByKey3D("BeetleFootStep", transform.position);
+        }
     }
 }

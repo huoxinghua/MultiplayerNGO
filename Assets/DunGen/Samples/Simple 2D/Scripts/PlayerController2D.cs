@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using DunGen.Samples.Basic.Scripts;
+using UnityEngine;
 
-namespace DunGen.Demo2D
+namespace DunGen.Samples.Simple_2D.Scripts
 {
 	sealed class PlayerController2D : MonoBehaviour
 	{
@@ -16,7 +17,7 @@ namespace DunGen.Demo2D
 			playerCollider = GetComponent<CircleCollider2D>();
 			hitBuffer = new RaycastHit2D[10];
 
-			var gen = UnityUtil.FindObjectByType<DunGen.Demo.Generator>();
+			var gen = UnityUtil.FindObjectByType<Generator>();
 			dungeonGenerator = gen.DungeonGenerator.Generator;
 
 			dungeonGenerator.OnGenerationStatusChanged += OnGeneratorStatusChanged;

@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class CursorVisibility : MonoBehaviour
+namespace _Project.Code.UI
 {
-
-    void Update()
+    public class CursorVisibility : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            Debug.Log("Working");
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-    }
 
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                Debug.Log("Working");
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
+        }
+
+    }
 }

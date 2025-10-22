@@ -1,18 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerList : MonoBehaviour
+namespace _Project.Code.Gameplay.Player
 {
-
-    public static List<PlayerList> AllPlayers = new List<PlayerList>();
-
-    void Awake()
+    public class PlayerList : MonoBehaviour
     {
-        AllPlayers.Add(this);
-    }
 
-    void OnDestroy()
-    {
-        AllPlayers.Remove(this);
+        public static List<PlayerList> AllPlayers = new List<PlayerList>();
+
+        void Awake()
+        {
+            AllPlayers.Add(this);
+        }
+
+        void OnDestroy()
+        {
+            AllPlayers.Remove(this);
+        }
     }
 }

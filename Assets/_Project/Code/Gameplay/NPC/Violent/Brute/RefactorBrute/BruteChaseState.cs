@@ -1,46 +1,51 @@
+using _Project.Code.Gameplay.Player;
+using _Project.Code.Utilities.Utility;
 using UnityEngine;
 
-public class BruteChaseState : BruteBaseState
+namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
-      public BruteChaseState(BruteStateMachine stateController) : base(stateController)
+    public class BruteChaseState : BruteBaseState
     {
-        this.StateController = stateController;
-    }
-    private Timer _chaseTimer;
-    public override void OnEnter()
-    {
-        _chaseTimer = new Timer(BruteSO.LoseInterestTimeChase);
-        _chaseTimer.Start();
-        Animator.PlayAlert();
-        Agent.speed = BruteSO.RunSpeed;
-    }
-    public override void OnExit()
-    {
-        StateController.TimesAlerted = 0;
-        _chaseTimer = null;
-    }
-
-    public override void StateUpdate()
-    {
-        if (_chaseTimer.IsComplete || Vector3.Distance(StateController.LastHeardPlayer.transform.position,StateController.transform.position) >= BruteSO.LoseInterestDistanceChase)
+        public BruteChaseState(BruteStateMachine stateController) : base(stateController)
         {
-            StateController.TransitionTo(StateController.IdleState);
+            this.StateController = stateController;
         }
-    }
-    public override void StateFixedUpdate()
-    {
-        Agent.SetDestination(StateController.LastHeardPlayer.transform.position);
-        foreach (PlayerList player in PlayerList.AllPlayers)
+        private Timer _chaseTimer;
+        public override void OnEnter()
         {
-            if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+            _chaseTimer = new Timer(BruteSO.LoseInterestTimeChase);
+            _chaseTimer.Start();
+            Animator.PlayAlert();
+            Agent.speed = BruteSO.RunSpeed;
+        }
+        public override void OnExit()
+        {
+            StateController.TimesAlerted = 0;
+            _chaseTimer = null;
+        }
+
+        public override void StateUpdate()
+        {
+            if (_chaseTimer.IsComplete || Vector3.Distance(StateController.LastHeardPlayer.transform.position,StateController.transform.position) >= BruteSO.LoseInterestDistanceChase)
             {
-                StateController.OnAttack(player.gameObject);
+                StateController.TransitionTo(StateController.IdleState);
             }
         }
-        Animator.PlayRun(Agent.velocity.magnitude, Agent.speed);
-    }
-    public override void OnHearPlayer()
-    {
-        _chaseTimer.Reset(BruteSO.LoseInterestTimeChase);
+        public override void StateFixedUpdate()
+        {
+            Agent.SetDestination(StateController.LastHeardPlayer.transform.position);
+            foreach (PlayerList player in PlayerList.AllPlayers)
+            {
+                if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+                {
+                    StateController.OnAttack(player.gameObject);
+                }
+            }
+            Animator.PlayRun(Agent.velocity.magnitude, Agent.speed);
+        }
+        public override void OnHearPlayer()
+        {
+            _chaseTimer.Reset(BruteSO.LoseInterestTimeChase);
+        }
     }
 }

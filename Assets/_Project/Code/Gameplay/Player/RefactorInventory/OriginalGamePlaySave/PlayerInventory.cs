@@ -1,5 +1,8 @@
+using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.NewItemSystem;
 using UnityEngine;
-namespace _Project.Code.Core.GamePlay.Player
+
+namespace _Project.Code.Gameplay.Player.RefactorInventory.OriginalGamePlaySave
 {
     public class PlayerInventory : MonoBehaviour
     {

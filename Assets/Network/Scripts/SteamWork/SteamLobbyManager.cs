@@ -1,15 +1,15 @@
-﻿using Netcode.Transports;
-using Project.Network.UI;
-using Steamworks;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using Netcode.Transports;
+using Network.Scripts.UI;
+using Steamworks;
+using Steamworks.NET;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Project.Network.SteamWork
+namespace Network.Scripts.SteamWork
 {
     public class SteamLobbyManager : MonoBehaviour
     {

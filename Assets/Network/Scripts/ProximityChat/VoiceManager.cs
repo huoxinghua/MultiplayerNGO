@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-namespace Project.Network.ProximityChat
+namespace Network.Scripts.ProximityChat
 {
     public class VoiceManager : MonoBehaviour
     {

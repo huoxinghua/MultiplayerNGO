@@ -1,31 +1,37 @@
-using _Project.Code.Core.ServiceLocator;
+using _Project.Code.Gameplay.Interactables;
+using _Project.Code.Gameplay.NewItemSystem;
+using _Project.Code.Gameplay.Player.RefactorInventory;
+using _Project.Code.Utilities.ServiceLocator;
 using UnityEngine;
 
-public class ResearchDeposit : MonoBehaviour, IInteractable
+namespace _Project.Code.Gameplay.Market.Sell
 {
-    
-    public void OnInteract(GameObject interactingPlayer)
+    public class ResearchDeposit : MonoBehaviour, IInteractable
     {
-        PlayerInventory playerInventory = interactingPlayer.GetComponent<PlayerInventory>();
-        if(playerInventory != null)
+    
+        public void OnInteract(GameObject interactingPlayer)
         {
-            if (playerInventory.IsHoldingSample())
+            PlayerInventory playerInventory = interactingPlayer.GetComponent<PlayerInventory>();
+            if(playerInventory != null)
             {
-                if (!ServiceLocator.TryGet<EconomyManager>(out var economy))
+                if (playerInventory.IsHoldingSample())
                 {
-                    Debug.Log("Failed");
-                }
-                else
-                {
-                    var economyManager = ServiceLocator.Get<EconomyManager>();
-                    ScienceData scienceData = playerInventory.TrySell();
-                    SampleMarketValue itemValues = economyManager.GetMarketValue(scienceData);
-                    economyManager.SoldItem(itemValues);
-                    Debug.Log($"current  money {economyManager.PlayerMoney} - current research progress {economyManager.ResearchProgress}");
-                }
+                    if (!ServiceLocator.TryGet<EconomyManager>(out var economy))
+                    {
+                        Debug.Log("Failed");
+                    }
+                    else
+                    {
+                        var economyManager = ServiceLocator.Get<EconomyManager>();
+                        ScienceData scienceData = playerInventory.TrySell();
+                        SampleMarketValue itemValues = economyManager.GetMarketValue(scienceData);
+                        economyManager.SoldItem(itemValues);
+                        Debug.Log($"current  money {economyManager.PlayerMoney} - current research progress {economyManager.ResearchProgress}");
+                    }
                 
+                }
             }
-        }
       
+        }
     }
 }

@@ -1,39 +1,43 @@
-using UnityEngine;
+using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Utilities.StateMachine;
 using UnityEngine.AI;
 
-public class BeetleBaseState : BaseState
+namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
 {
-    protected BeetleStateMachine StateController;
-    protected BeetleSO BeetleSO;
-    protected BeetleAnimation Animator;
-    protected NavMeshAgent Agent;
-    public BeetleBaseState(BeetleStateMachine stateController)
+    public class BeetleBaseState : BaseState
     {
-        StateController = stateController;
-        BeetleSO = stateController.BeetleSO;
-        Animator = stateController.Animator;
-        Agent = stateController.Agent;
-    }
-    public override void OnEnter()
-    { 
-    }
-    public override void OnExit()
-    {
-    }
-    public override void StateUpdate()
-    {
+        protected BeetleStateMachine StateController;
+        protected BeetleSO BeetleSO;
+        protected BeetleAnimation Animator;
+        protected NavMeshAgent Agent;
+        public BeetleBaseState(BeetleStateMachine stateController)
+        {
+            StateController = stateController;
+            BeetleSO = stateController.BeetleSO;
+            Animator = stateController.Animator;
+            Agent = stateController.Agent;
+        }
+        public override void OnEnter()
+        { 
+        }
+        public override void OnExit()
+        {
+        }
+        public override void StateUpdate()
+        {
 
-    }
-    public override void StateFixedUpdate()
-    {
-    }
+        }
+        public override void StateFixedUpdate()
+        {
+        }
 
-    public virtual void OnSpotPlayer(bool isHostilePlayer)
-    {
+        public virtual void OnSpotPlayer(bool isHostilePlayer)
+        {
 
-    }
-    public virtual void OnHitByPlayer()
-    {
+        }
+        public virtual void OnHitByPlayer()
+        {
 
+        }
     }
 }

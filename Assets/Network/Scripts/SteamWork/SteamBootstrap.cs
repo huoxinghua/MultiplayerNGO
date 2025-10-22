@@ -1,8 +1,8 @@
 using Steamworks;
-using TMPro;
+using Steamworks.NET;
 using UnityEngine;
 
-namespace Project.Network.SteamWork
+namespace Network.Scripts.SteamWork
 {
     public class SteamBootstrap : MonoBehaviour
     {

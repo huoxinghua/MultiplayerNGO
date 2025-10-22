@@ -1,5 +1,6 @@
 using UnityEngine;
-namespace Project.Gameplay.Interactabele.Network
+
+namespace _Project.Code.Gameplay.Interactables.Network
 {
     public class SwingDoorEnemyCheck : MonoBehaviour
     {

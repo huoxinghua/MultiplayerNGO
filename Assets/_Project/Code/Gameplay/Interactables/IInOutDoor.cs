@@ -1,7 +1,10 @@
 using UnityEngine;
 
-public interface IInOutDoor
+namespace _Project.Code.Gameplay.Interactables
 {
-    public Transform UseDoor();
-    public float GetTimeToOpen();
+    public interface IInOutDoor
+    {
+        public Transform UseDoor();
+        public float GetTimeToOpen();
+    }
 }

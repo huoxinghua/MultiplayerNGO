@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace _Project.Code.Core.ServiceLocator
+namespace _Project.Code.Utilities.ServiceLocator
 {
     public abstract class MonoBehaviourService : MonoBehaviour, IService
     {

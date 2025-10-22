@@ -1,15 +1,15 @@
-﻿using FMOD;
-using FMOD.Studio;
-using FMODUnity;
-using ProximityChat;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using FMOD;
+using FMOD.Studio;
+using FMODUnity;
+using ProximityChat;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Project.Network.ProximityChat
+namespace Network.Scripts.ProximityChat.Voice
 {
 
 

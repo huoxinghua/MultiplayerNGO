@@ -1,9 +1,12 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ScienceToMoneySO", menuName = "Market/ScienceToMoneySO")]
-public class ScienceToMoneySO : ScriptableObject
+namespace _Project.ScriptableObjects.ScriptObjects.MarketSO
 {
-    [field: SerializeField] public float TranquilMoneyModifier { get; private set; }
-    [field: SerializeField] public float ViolentMoneyModifier { get; private set; }
-    [field: SerializeField] public float MiscMoneyModifier { get; private set; }
+    [CreateAssetMenu(fileName = "ScienceToMoneySO", menuName = "Market/ScienceToMoneySO")]
+    public class ScienceToMoneySO : ScriptableObject
+    {
+        [field: SerializeField] public float TranquilMoneyModifier { get; private set; }
+        [field: SerializeField] public float ViolentMoneyModifier { get; private set; }
+        [field: SerializeField] public float MiscMoneyModifier { get; private set; }
+    }
 }

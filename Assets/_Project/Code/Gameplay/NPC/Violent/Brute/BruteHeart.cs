@@ -1,72 +1,78 @@
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using _Project.Code.Gameplay.Interfaces;
+using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Gameplay.Player;
+using _Project.Code.Utilities.Audio;
 using UnityEngine;
-using UnityEngine.Rendering;
 
-public class BruteHeart : MonoBehaviour , IHitable 
+namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    private BruteStateMachine _controller;
-    private List<PlayerList> _players = PlayerList.AllPlayers;
-
-
-    [SerializeField] private float _heartBeatFrequency;
-    [Header("Heart Defense")]
-    [SerializeField] private float _health;
-    [SerializeField] private float _playerCheckFrequency;
-    [SerializeField] private float _defendDistance;
-   
-    //add health
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class BruteHeart : MonoBehaviour , IHitable 
     {
+        private BruteStateMachine _controller;
+        private List<PlayerList> _players = PlayerList.AllPlayers;
+
+
+        [SerializeField] private float _heartBeatFrequency;
+        [Header("Heart Defense")]
+        [SerializeField] private float _health;
+        [SerializeField] private float _playerCheckFrequency;
+        [SerializeField] private float _defendDistance;
+   
+        //add health
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
         
-    }
+        }
    
-    public void Awake()
-    {
-        StartCoroutine(HeartBeat());
-        StartCoroutine(CheckPlayerProximity());
-    }
-    public void SetStateController(BruteStateMachine stateController)
-    {
-        _controller = stateController;
-    }
-    public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
-    {
-        _health -= damage;
-        if(_health < 0)
+        public void Awake()
         {
-            StopCoroutine(HeartBeat());
-            StopCoroutine(CheckPlayerProximity());
-            _controller.TransitionTo(_controller.BruteHurtIdleState);
-            Destroy(gameObject);
+            StartCoroutine(HeartBeat());
+            StartCoroutine(CheckPlayerProximity());
         }
-    }
-    IEnumerator HeartBeat()
-    {
-        while(true)
+        public void SetStateController(BruteStateMachine stateController)
         {
-            yield return new WaitForSeconds(_heartBeatFrequency);
-            AudioManager.Instance.PlayByKey3D("BruteHeartBeat",transform.position);
+            _controller = stateController;
         }
-    }
-    IEnumerator CheckPlayerProximity()
-    {
-        while(true)
+        public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
         {
-            yield return new WaitForSeconds(_playerCheckFrequency);
-            foreach (var player in _players)
+            _health -= damage;
+            if(_health < 0)
             {
-                if(Vector3.Distance(player.transform.position, transform.position) <= _defendDistance)
+                StopCoroutine(HeartBeat());
+                StopCoroutine(CheckPlayerProximity());
+                _controller.TransitionTo(_controller.BruteHurtIdleState);
+                Destroy(gameObject);
+            }
+        }
+        IEnumerator HeartBeat()
+        {
+            while(true)
+            {
+                yield return new WaitForSeconds(_heartBeatFrequency);
+                AudioManager.Instance.PlayByKey3D("BruteHeartBeat",transform.position);
+            }
+        }
+        IEnumerator CheckPlayerProximity()
+        {
+            while(true)
+            {
+                yield return new WaitForSeconds(_playerCheckFrequency);
+                foreach (var player in _players)
                 {
-                    _controller.HandleDefendHeart(player.gameObject);
+                    if(Vector3.Distance(player.transform.position, transform.position) <= _defendDistance)
+                    {
+                        _controller.HandleDefendHeart(player.gameObject);
+                    }
                 }
             }
         }
-    }
-    // Update is called once per frame
-    void Update()
-    {
+        // Update is called once per frame
+        void Update()
+        {
         
+        }
     }
 }

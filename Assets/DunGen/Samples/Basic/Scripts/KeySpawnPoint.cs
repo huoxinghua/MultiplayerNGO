@@ -1,7 +1,7 @@
 ﻿using DunGen.LockAndKey;
 using UnityEngine;
 
-namespace DunGen.Demo
+namespace DunGen.Samples.Basic.Scripts
 {
 	public class KeySpawnPoint : MonoBehaviour, IKeySpawner
 	{

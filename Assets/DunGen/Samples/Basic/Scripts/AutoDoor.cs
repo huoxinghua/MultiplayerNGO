@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace DunGen.Demo
+namespace DunGen.Samples.Basic.Scripts
 {
 	public class AutoDoor : MonoBehaviour
 	{

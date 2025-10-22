@@ -1,43 +1,48 @@
+using _Project.Code.Gameplay.Interactables;
+using _Project.Code.Gameplay.Player;
 using UnityEngine;
 
-public class FFlashLight : MonoBehaviour ,IInteractable
+namespace _Project.Code.Gameplay.NonAttachedItems
 {
-
-
-
-    //Obsolete for now
-
-
-    //Trash. Replaced. For now
-
-
-
-
-
-
-
-    [SerializeField] GameObject heldVersionPrefab;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class FFlashLight : MonoBehaviour ,IInteractable
     {
+
+
+
+        //Obsolete for now
+
+
+        //Trash. Replaced. For now
+
+
+
+
+
+
+
+        [SerializeField] GameObject heldVersionPrefab;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
         
-    }
-    public void OnInteract(GameObject interactingPlayer)
-    {
-        Debug.Log("Grabbed");
-        if (interactingPlayer.GetComponent<Inventory>() != null)
+        }
+        public void OnInteract(GameObject interactingPlayer)
         {
             Debug.Log("Grabbed");
-            if (interactingPlayer.GetComponent<Inventory>().PickUpItem(heldVersionPrefab))
+            if (interactingPlayer.GetComponent<Inventory>() != null)
             {
-                Destroy(gameObject);
-            }
+                Debug.Log("Grabbed");
+                if (interactingPlayer.GetComponent<Inventory>().PickUpItem(heldVersionPrefab))
+                {
+                    Destroy(gameObject);
+                }
            
+            }
         }
-    }
-    // Update is called once per frame
-    void Update()
-    {
+        // Update is called once per frame
+        void Update()
+        {
         
+        }
     }
 }

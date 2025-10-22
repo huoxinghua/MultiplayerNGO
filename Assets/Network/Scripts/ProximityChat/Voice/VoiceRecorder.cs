@@ -5,7 +5,7 @@ using FMOD;
 using FMODUnity;
 using UnityEngine;
 
-namespace Project.Network.ProximityChat
+namespace Network.Scripts.ProximityChat.Voice
 {
     /// <summary>
     /// Records microphone audio as single channel 16-bit PCM through FMOD,

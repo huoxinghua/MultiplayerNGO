@@ -1,13 +1,17 @@
+using _Project.Code.Gameplay.Scripts.Interfaces;
 using UnityEngine;
 
-public class SampleObjTest : MonoBehaviour,ISampleable
+namespace _Project.Code.Gameplay.Scripts.MVCItems.SampleJar
 {
-    [SerializeField] SampleSO sampleSO;
-
-    public SampleSO GetSample()
+    public class SampleObjTest : MonoBehaviour,ISampleable
     {
-        return sampleSO;
-    }
+        [SerializeField] SampleSO sampleSO;
+
+        public SampleSO GetSample()
+        {
+            return sampleSO;
+        }
 
   
+    }
 }

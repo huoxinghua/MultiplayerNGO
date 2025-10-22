@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
-namespace Project.Network.PlayerController
+
+namespace Network.Scripts.PlayerController
 {
     public class OwnerOnly : NetworkBehaviour
     {

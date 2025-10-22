@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Project.Network.TestRPC
+namespace Network.Scripts.TestRPC
 {
 
 

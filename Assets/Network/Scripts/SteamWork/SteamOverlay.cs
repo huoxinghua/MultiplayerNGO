@@ -1,7 +1,7 @@
 using Steamworks;
 using UnityEngine;
 
-namespace Project.Network.SteamWork
+namespace Network.Scripts.SteamWork
 {
     public class SteamOverlay : MonoBehaviour
     {
