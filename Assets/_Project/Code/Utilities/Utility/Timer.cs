@@ -16,7 +16,10 @@ public class Timer
         _elapsed = 0f;
         _running = false;
     }
-
+    public float GetElapsed()
+    {
+        return _elapsed;
+    }
     public void Start()
     {
         _elapsed = 0f;

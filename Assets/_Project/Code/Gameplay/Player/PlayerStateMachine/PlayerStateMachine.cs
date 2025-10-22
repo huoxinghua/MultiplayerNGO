@@ -53,7 +53,7 @@ public class PlayerStateMachine : BaseStateController
     {
         InputManager = GetComponent<PlayerInputManager>();
         GroundChecker = GetComponent<GroundCheck>();
-        
+        CurrentPlayers.Instance.AddPlayer(gameObject);
         IdleState = new PlayerIdleState(this);
         WalkState = new PlayerWalkState(this);
         SprintState = new PlayerSprintState(this);
@@ -101,6 +101,7 @@ public class PlayerStateMachine : BaseStateController
         }
         AllPlayers.Remove(this);
         OnPlayerRemoved?.Invoke(this);
+        
     }
     public void Start()
     {

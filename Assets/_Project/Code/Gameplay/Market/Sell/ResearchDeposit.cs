@@ -17,7 +17,7 @@ public class ResearchDeposit : MonoBehaviour, IInteractable
                 } 
                 var economyManager = ServiceLocator.Get<EconomyManager>();
                 ScienceData scienceData = playerInventory.TrySell(); 
-                Debug.Log($"Tranquil Value {scienceData.RawTranquilValue} -> {economyManager.GetTranquilMarketValue(scienceData.RawTranquilValue,scienceData.KeyName)}");
+                SampleMarketValue itemValues = economyManager.GetMarketValue(scienceData);
             }
         }
       
