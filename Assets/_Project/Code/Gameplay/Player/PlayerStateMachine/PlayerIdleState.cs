@@ -9,6 +9,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public override void OnEnter()
         {
+            Animator.PlayStanding();
+
             TryStand();
             if(stateController.MoveInput != Vector2.zero)
             {
@@ -32,7 +34,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public override void StateFixedUpdate()
         {
-
+            Animator.PlayWalk(0,1);
         }
         void TryStand()
         {

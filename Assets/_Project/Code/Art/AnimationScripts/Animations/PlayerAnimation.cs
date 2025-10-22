@@ -48,6 +48,24 @@ namespace _Project.Code.Art.AnimationScripts.Animations
 
         }
 
+        public void PlayInAir()
+        {
+            anim.SetBool(hInAir, true);
+            anim.SetBool(hIsGround, false);
+            
+            netAnim.Animator.SetBool(hInAir, true);
+            netAnim.Animator.SetBool(hIsGround, false);
+        }
+
+        public void PlayLand()
+        {
+            anim.SetBool(hIsGround, true);
+            anim.SetBool(hInAir, false);
+            
+            netAnim.Animator.SetBool(hIsGround, true);
+            netAnim.Animator.SetBool(hInAir, false);
+        }
+
         protected override IEnumerator SmoothWalkRun(float target)
         {
             float time = 0f;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
@@ -14,7 +15,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
     {
         protected PlayerBaseState currentState;
         [field: SerializeField] public PlayerSO PlayerSO { get; private set; }
-        [field: SerializeField] public CharacterController CharacterController { get; private set; }
+        [field: SerializeField] public CharacterController CharacterController { get; private set;}
+        [field: SerializeField] public PlayerAnimation Animator { get; private set; }
         [field: SerializeField] public LayerMask groundMask { get; private set; }
         [SerializeField] Transform _cameraTransform;
         [field: SerializeField] public float GroundCheckOffset { get; private set; }
