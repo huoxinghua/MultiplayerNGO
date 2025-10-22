@@ -63,7 +63,6 @@ public class PlayerInventory : NetworkBehaviour
         if (IsServer)
         {
 
-
             if (item.IsPocketSize())
             {
                 if (InventoryItems[_currentIndex] == null)
@@ -71,6 +70,35 @@ public class PlayerInventory : NetworkBehaviour
                     InventoryItems[_currentIndex] = item;
                     item.PickupItem(gameObject, HoldTransform);
                     item.EquipItem();
+                    Debug.Log("server side do Pice up");
+                    //network
+                    NetworkObject netObj = null;
+
+
+                    var mono = item as MonoBehaviour;
+                    if (mono != null)
+                    {
+                        Debug.LogWarning($"network pick up");
+                        netObj = mono.GetComponent<NetworkObject>();
+                        if (netObj != null)
+                        {
+                            netObj.TrySetParent(HoldTransform);
+                            netObj.transform.localPosition = Vector3.zero;
+                            netObj.transform.localRotation = Quaternion.identity;
+
+
+                            NotifyClientsPickupClientRpc(netObj, OwnerClientId);
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"n NetworkObject no");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"mono == null");
+                    }
+                    //end network
                 }
                 else
                 {
@@ -88,6 +116,8 @@ public class PlayerInventory : NetworkBehaviour
 
                     }
                 }
+
+
                 //add to inventory list
             }
             else
@@ -97,29 +127,22 @@ public class PlayerInventory : NetworkBehaviour
                 item.PickupItem(gameObject, HoldTransform);
                 item.EquipItem();
             }
-            var netBehaviour = (NetworkBehaviour)item;  
-            NotifyClientsPickupClientRpc(netBehaviour.NetworkObject, OwnerClientId);
-         
+
         }
-        else
-        {
-            TryPickupServerRpc(((NetworkBehaviour)item).NetworkObject);
-            return;
-        }
+      
+     
     }
-    [ServerRpc(RequireOwnership = false)]
-    private void TryPickupServerRpc(NetworkObjectReference itemRef)
-    {
-        if (itemRef.TryGet(out NetworkObject netObj))
-        {
-            var item = netObj.GetComponent<IInventoryItem>();
-            if (item != null)
-                DoPickup(item);
-        }
-    }
+
     [ClientRpc]
     private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
     {
+        if (NetworkManager.Singleton.LocalClientId == playerId)
+        {
+            Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
+            return;
+        }
+
+        Debug.Log("NotifyClientsPickupClientRpc");
         if (!itemRef.TryGet(out NetworkObject netObj)) return;
 
         var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
@@ -128,7 +151,34 @@ public class PlayerInventory : NetworkBehaviour
         Debug.Log($"[Sync] Item picked up by player {playerId}");
 
 
-        netObj.gameObject.SetActive(false);
+        var player = FindPlayerById(playerId);
+        if (player == null)
+        {
+            Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
+            return;
+        }
+        var inventory = player.GetComponent<PlayerInventory>();
+        if (inventory == null)
+        {
+            Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
+            return;
+        }
+        netObj.transform.SetParent(inventory.HoldTransform);
+        netObj.transform.localPosition = Vector3.zero;
+        netObj.transform.localRotation = Quaternion.identity;
+        netObj.gameObject.SetActive(true);
+        Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
+    }
+    private GameObject FindPlayerById(ulong clientId)
+    {
+        foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+        {
+            if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
+            {
+                return obj.gameObject;
+            }
+        }
+        return null;
     }
 
     /// <summary>
