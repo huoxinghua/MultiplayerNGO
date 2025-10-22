@@ -9,17 +9,10 @@ public abstract class BaseAnimation : MonoBehaviour
     protected float currentWalkRunType = 0;
 
     protected int hSpeed = Animator.StringToHash("speed");
-    protected int hIdleSlot = Animator.StringToHash("idleSlot");
-    protected int hIsIdle = Animator.StringToHash("isIdle");
     protected int hIsRunning = Animator.StringToHash("locomotionType");
-    protected int hRandomIdle = Animator.StringToHash("randomIdle");
     protected int hAttack = Animator.StringToHash("attack");
     protected int hAttackType = Animator.StringToHash("attackType");
-    protected int hJump = Animator.StringToHash("jump");
-    protected int hInAir = Animator.StringToHash("isInAir");
-    protected int hIsGround = Animator.StringToHash("isGround");
-    protected int hAlert = Animator.StringToHash("isAlert");
-    protected int hCrouch = Animator.StringToHash("isCrouch");
+
 
     protected virtual void Awake()
     {
@@ -36,17 +29,10 @@ public abstract class BaseAnimation : MonoBehaviour
         if (isRunning) StartCoroutine(SmoothWalkRun(1));
         else StartCoroutine(SmoothWalkRun(0));
         anim.SetFloat(hSpeed, currentSpeed / maxSpeed);
-        //Debug.Log(isRunning);
     }
 
     public abstract void PlayAttack();
 
-    public abstract void PlayJump();
-
-    public virtual void PlayCrouch() { }
-
-    public virtual void PlayStanding() { }
-    public virtual void PlayInteract() { }
 
     protected virtual IEnumerator SmoothWalkRun(float target)
     {
