@@ -6,7 +6,7 @@ public abstract class BaseAnimation : MonoBehaviour
     [SerializeField] protected float walkRunTransition = 1f;
     protected Animator anim;
 
-    private float currentWalkRunType = 0;
+    protected float currentWalkRunType = 0;
 
     protected int hSpeed = Animator.StringToHash("speed");
     protected int hIdleSlot = Animator.StringToHash("idleSlot");
@@ -48,7 +48,7 @@ public abstract class BaseAnimation : MonoBehaviour
     public virtual void PlayStanding() { }
     public virtual void PlayInteract() { }
 
-    private IEnumerator SmoothWalkRun(float target)
+    protected virtual IEnumerator SmoothWalkRun(float target)
     {
         float time = 0f;
 

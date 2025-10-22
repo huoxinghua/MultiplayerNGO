@@ -1876,9 +1876,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba6cf2cac55764446aa630e1679acfae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1728352203}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba6cf2cac55764446aa630e1679acfae, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1728352205}
   m_SourcePrefab: {fileID: 100100000, guid: ba6cf2cac55764446aa630e1679acfae, type: 3}
 --- !u!4 &700124474 stripped
 Transform:
@@ -3481,6 +3478,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2116d3511ec49340879e7ffb20a5de8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1410411725}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2116d3511ec49340879e7ffb20a5de8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1410411727}
   m_SourcePrefab: {fileID: 100100000, guid: d2116d3511ec49340879e7ffb20a5de8, type: 3}
 --- !u!4 &1110415869 stripped
 Transform:
@@ -4557,6 +4557,21 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d2116d3511ec49340879e7ffb20a5de8, type: 3}
   m_PrefabInstance: {fileID: 1106475382}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1410411727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096092998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 1410411723}
 --- !u!4 &1419788230 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5286420982225327693, guid: ba6cf2cac55764446aa630e1679acfae, type: 3}
@@ -6249,23 +6264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkRunTransition: 1
-  fpsAnim: {fileID: 1728352202}
   netAnim: {fileID: 0}
---- !u!114 &1728352205
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 548034585}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  TransitionStateInfoList: []
-  m_Animator: {fileID: 1410411723}
 --- !u!4 &1747198523 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5465876776183304480, guid: cff9519c43cd9d245a9260ed57ca9edc, type: 3}
