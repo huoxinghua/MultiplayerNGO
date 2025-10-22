@@ -1,14 +1,13 @@
-using FMODUnity;
-using ProximityChat;
+
 using UnityEngine;
 
 namespace Project.Network.ProximityChat
 {
     public class VoiceManager : MonoBehaviour
     {
-        private VoiceRecorder _recorder;
+      //  private VoiceRecorder _recorder;
 
-        void Start()
+/*        void Start()
         {
             _recorder = GetComponent<VoiceRecorder>();
             if (_recorder == null)
@@ -24,7 +23,7 @@ namespace Project.Network.ProximityChat
         {
             if (_recorder != null)
                 _recorder.StopRecording();
-        }
+        }*/
         /*
         void Update()
         {
