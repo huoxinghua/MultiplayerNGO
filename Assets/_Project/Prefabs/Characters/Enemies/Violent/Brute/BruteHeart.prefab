@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8875287009614627098}
@@ -199,9 +199,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9485405a15ce2da41ad0edbcb9d3bac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _heldView: {fileID: 695225100851143457, guid: acb72dff4aaa29842b3bf7452ce769b9, type: 3}
+  _heldVisual: {fileID: 695225100851143457, guid: acb72dff4aaa29842b3bf7452ce769b9, type: 3}
+  _itemSO: {fileID: 11400000, guid: 8f362af55ae2ead44807739eac2e1825, type: 2}
+  _rb: {fileID: -1551224371488124054}
   _renderer: {fileID: 4233560687559498024}
-  _rb: {fileID: 0}
+  _collider: {fileID: 7483938077577604700}
+  _secondCollider: {fileID: 8874970035850304353}
 --- !u!135 &8874970035850304353
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -221,5 +224,5 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.32
   m_Center: {x: 0, y: 0, z: 0}

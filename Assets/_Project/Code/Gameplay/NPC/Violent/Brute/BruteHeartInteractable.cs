@@ -1,33 +1,58 @@
+
 using UnityEngine;
 
-public class BruteHeartInteractable : MonoBehaviour, ITwoHandItem, IInteractable
+
+public class BruteHeartInteractable : BaseInventoryItem
 {
-    [SerializeField] private GameObject _heldView;
-    [SerializeField] private Renderer _renderer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private Collider _secondCollider;
+    public void Awake()
     {
-        
+        _tranquilValue = Random.Range(0f, 1f);
+        _violentValue = Random.Range(0f, 1f);
+        _miscValue = Random.Range(0f, 1f);
     }
-    public void OnPickup()
+    public override void PickupItem(GameObject player, Transform playerHoldPosition)
     {
-        _renderer.enabled = false;  
+        _owner = player;
+        _rb.isKinematic = true;
+        _renderer.enabled = false;
+        _collider.enabled = false;
+        _secondCollider.enabled = false;
+        transform.parent.parent = playerHoldPosition;
+        transform.parent.localPosition = Vector3.zero;
+        transform.parent.localRotation = Quaternion.Euler(0, 0, 0);
+        _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
+
     }
-    public void OnDrop()
+    public override void DropItem(Transform dropPoint)
     {
+        _owner = null;
+
         _renderer.enabled = true;
+
+        Destroy(_currentHeldVisual);
+        transform.parent.parent = null;
+
+        _rb.isKinematic = false;
+        _collider.enabled = true;
+        _secondCollider.enabled = true;
+        transform.parent.position = dropPoint.position;
     }
-    public void OnInteract(GameObject interactingPlayer)
+    public override void WasSold()
     {
-        var inventory = interactingPlayer.GetComponent<Inventory>();
-        if (inventory != null && inventory.PickUpTwoHanded(_heldView, gameObject))
-        {
-            OnPickup();
-        }
+        Destroy(_currentHeldVisual);
+        Destroy(transform.parent.gameObject);
     }
     // Update is called once per frame
     void Update()
     {
-        
+        if (_currentHeldVisual == null) return;
+        if (_hasOwner)
+        {
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
+   
     }
 }

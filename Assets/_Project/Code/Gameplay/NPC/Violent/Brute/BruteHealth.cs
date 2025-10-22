@@ -20,8 +20,8 @@ public class BruteHealth : MonoBehaviour, IHitable
     }
     public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
     {
-        ChangeHealth(damage);
-        ChangeConsciousness(knockoutPower);
+        ChangeHealth(-damage);
+        ChangeConsciousness(-knockoutPower);
     }
     public void ChangeConsciousness(float consciousnessChange)
     {
