@@ -13,6 +13,14 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
 
+        protected override void Awake()
+        {
+            base.Awake();
+            anim.SetBool(hIsGround, true);
+            anim.SetBool(hInAir, false);
+            netAnim.Animator.SetBool(hInAir, false);
+            netAnim.Animator.SetBool(hIsGround, true);
+        }
 
         protected override void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
@@ -24,12 +32,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         public void PlayJump()
         {
             anim.SetTrigger(hJump);
-            anim.SetBool(hCrouch, false);
-            anim.SetBool(hIsGround, false);
-
             netAnim.Animator.SetTrigger(hJump);
-            netAnim.Animator.SetBool(hCrouch, false);
-            netAnim.Animator.SetBool(hIsGround, false);
         }
 
         public void PlayCrouch()
@@ -53,16 +56,16 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             anim.SetBool(hInAir, true);
             anim.SetBool(hIsGround, false);
-
             netAnim.Animator.SetBool(hInAir, true);
             netAnim.Animator.SetBool(hIsGround, false);
         }
 
         public void PlayLand()
         {
+            anim.ResetTrigger(hJump);
+            netAnim.Animator.ResetTrigger(hJump);
             anim.SetBool(hIsGround, true);
             anim.SetBool(hInAir, false);
-            
             netAnim.Animator.SetBool(hIsGround, true);
             netAnim.Animator.SetBool(hInAir, false);
         }
