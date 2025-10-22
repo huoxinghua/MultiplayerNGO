@@ -7,7 +7,7 @@ public class BaseMarketSO : ScriptableObject
 {
     [SerializeField]
     private List<MarketData> itemList = new();
-
+    [field: SerializeField] public float ScienceToMoneyMult {  get; private set; }
     private Dictionary<string, MarketData> itemDictionary;
 
     private void OnEnable()

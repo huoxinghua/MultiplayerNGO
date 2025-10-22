@@ -4,6 +4,9 @@ using UnityEngine;
 public class EconomyManager : MonoBehaviourService
 {
     [SerializeField] BaseMarketSO BaseMarketSO;
+    public int PlayerMoney { get; private set; }
+    public float ResearchProgress { get; private set; }
+    public float ResearchForQuota { get; private set; }
     void Awake()
     {
 
@@ -33,6 +36,11 @@ public class EconomyManager : MonoBehaviourService
             ViolentMarketValue = Mathf.Lerp(marketData.MinTranquilValue, marketData.MaxTranquilValue, itemData.RawViolentValue),
             MiscMarketValue = Mathf.Lerp(marketData.MinTranquilValue, marketData.MaxTranquilValue, itemData.RawMiscValue)
         };
+    }
+    public void SoldItem(SampleMarketValue values)
+    {
+        ResearchProgress += values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue;
+
     }
 }
 public struct SampleMarketValue
