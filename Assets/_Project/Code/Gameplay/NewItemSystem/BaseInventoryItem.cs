@@ -3,10 +3,11 @@ using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    public class BaseInventoryItem : MonoBehaviour , IInteractable , IInventoryItem
+    public class BaseInventoryItem : NetworkBehaviour , IInteractable , IInventoryItem
     {
         [SerializeField] protected GameObject _heldVisual;
         [SerializeField] protected BaseItemSO _itemSO;
@@ -37,10 +38,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public virtual void OnInteract(GameObject interactingPlayer)
         {
-            if (interactingPlayer.GetComponent<PlayerInventory>().TryPickupItem())
-            {
-                interactingPlayer.GetComponent<PlayerInventory>().DoPickup(this);
-            }
+            var inv = interactingPlayer.GetComponent<PlayerInventory>();
+            if (inv == null) return;
+
+            if (!inv.IsOwner)
+                return;
+            inv.TryPickupItem();
+            inv.DoPickup(this);
+            //if (interactingPlayer.GetComponent<PlayerInventory>().TryPickupItem())
+            //{
+            //    interactingPlayer.GetComponent<PlayerInventory>().DoPickup(this);
+            //}
         }
         public virtual void HandleHover(bool isHovering)
         {
@@ -49,7 +57,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Material materialInstance = _renderer.material;
                 //wont work yet I dont think
                 // materialInstance.SetFloat("_GlowFloat", 1);
-                Debug.Log("Change to Glow");
+                //Debug.Log("Change to Glow");
             }
             else
             {
@@ -60,7 +68,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public virtual void PickupItem(GameObject player, Transform playerHoldPosition)
         {
-            _owner = player;
+          
+            _owner = player; 
             _rb.isKinematic = true;
             _renderer.enabled = false;
             _collider.enabled = false;
@@ -69,6 +78,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
+            Debug.Log("[BaseInventoryItem] PickupItem"+ _currentHeldVisual.name);
 
         }
         public virtual void DropItem(Transform dropPoint)
@@ -90,13 +100,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public virtual void UnequipItem()
         {
+     
             _currentHeldVisual?.SetActive(false);
             _isInOwnerHand = false;
+            Debug.Log("[BaseInventoryItem] UnequipItem"+ _currentHeldVisual);
         }
         public virtual void EquipItem()
         {
+            
             _currentHeldVisual?.SetActive(true);
             _isInOwnerHand = true;
+            Debug.Log("[BaseInventoryItem] EquipItem"+ _currentHeldVisual.name);
         }
         public virtual string GetItemName()
         {
