@@ -25,21 +25,6 @@ namespace _Project.Code.Gameplay.Market.Sell
         {
             ResearchProgress = 0.0f;
         }
-/*    public float GetTranquilMarketValue(float lerpValue , string keyName)
-    {
-        MarketData data = BaseMarketSO.GetItemData(keyName);
-        return Mathf.Lerp(data.MinTranquilValue,data.MaxTranquilValue,lerpValue);
-    }
-    public float GetViolentMarketValue(float lerpValue, string keyName)
-    {
-        MarketData data = BaseMarketSO.GetItemData(keyName);
-        return Mathf.Lerp(data.MinTranquilValue, data.MaxTranquilValue, lerpValue);
-    }
-    public float GetMiscMarketValue(float lerpValue, string keyName)
-    {
-        MarketData data = BaseMarketSO.GetItemData(keyName);
-        return Mathf.Lerp(data.MinTranquilValue, data.MaxTranquilValue, lerpValue);
-    }*/
         public SampleMarketValue GetMarketValue(ScienceData itemData)
         {
             MarketData marketData = BaseMarketSO.GetItemData(itemData.KeyName);
@@ -52,10 +37,10 @@ namespace _Project.Code.Gameplay.Market.Sell
         }
         public void SoldItem(SampleMarketValue values)
         {
-            ResearchProgress += values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue;
-            PlayerMoney += (int) (values.TranquilMarketValue * _scienceToMoneySO.TranquilMoneyModifier + 
+            WalletBankton.Instance.AddResearchProgress(values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue);
+            WalletBankton.Instance.AddSubMoney((int)(values.TranquilMarketValue * _scienceToMoneySO.TranquilMoneyModifier +
                                   values.ViolentMarketValue * _scienceToMoneySO.ViolentMoneyModifier +
-                                  values.MiscMarketValue * _scienceToMoneySO.MiscMoneyModifier);
+                                  values.MiscMarketValue * _scienceToMoneySO.MiscMoneyModifier));
         }
     }
     public struct SampleMarketValue
