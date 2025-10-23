@@ -35,7 +35,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         public override void StateUpdate()
         {
-            HandleJump();
+            HandleGravity();
+            //HandleJump();
         }
         public virtual void OnCrouchInput()
         {
@@ -53,6 +54,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public virtual void OnJumpInput(bool isPerformed)
         {
             stateController.JumpRequested = isPerformed;
+            HandleJump();
         
         }
 
@@ -66,9 +68,13 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 stateController.VerticalVelocity.y = Mathf.Sqrt(playerSO.JumpStrength * -2f * playerSO.PlayerGravity);
                 Animator.PlayJump();
             }
+
+
+        }
+        public virtual void HandleGravity()
+        {
             stateController.VerticalVelocity.y += playerSO.PlayerGravity * Time.deltaTime;
             characterController.Move(stateController.VerticalVelocity * Time.deltaTime);
-
 
         }
     }
