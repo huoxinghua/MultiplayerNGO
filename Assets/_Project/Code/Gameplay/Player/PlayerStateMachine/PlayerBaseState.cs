@@ -28,7 +28,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         public override void StateFixedUpdate()
         {
-        
+
         }
 
         public override void StateUpdate()
@@ -51,7 +51,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public virtual void OnJumpInput(bool isPerformed)
         {
             stateController.JumpRequested = isPerformed;
-        
+
         }
 
         public virtual void HandleJump()
@@ -63,7 +63,11 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                     stateController.VerticalVelocity.y = -2f;
                 stateController.VerticalVelocity.y = Mathf.Sqrt(playerSO.JumpStrength * -2f * playerSO.PlayerGravity);
             }
-            stateController.VerticalVelocity.y += playerSO.PlayerGravity * Time.deltaTime;
+            if (!stateController.GroundChecker.IsGrounded)
+            {
+                stateController.VerticalVelocity.y += playerSO.PlayerGravity * Time.deltaTime;
+
+            }
             characterController.Move(stateController.VerticalVelocity * Time.deltaTime);
 
 

@@ -18,7 +18,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public override void OnExit()
         {
-        
+            stateController.VerticalVelocity.y = 0;
         }
         void TryStand()
         {

@@ -110,11 +110,11 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public void Start()
         {
-            //test
-            transform.position = new Vector3(4,0,2) + Vector3.up * 1f;
-            var controller = GetComponent<CharacterController>();
-            controller.enabled = false;
-            StartCoroutine(EnablePlayerController(controller));
+            ////test
+            //transform.position = new Vector3(4,0,2) + Vector3.up * 1f;
+            //var controller = GetComponent<CharacterController>();
+            //controller.enabled = false;
+            //StartCoroutine(EnablePlayerController(controller));
             //test end
             TransitionTo(IdleState);
         }
