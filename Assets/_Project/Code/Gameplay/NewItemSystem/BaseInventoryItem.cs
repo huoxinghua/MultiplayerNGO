@@ -10,6 +10,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
     public class BaseInventoryItem : NetworkBehaviour , IInteractable , IInventoryItem
     {
         [SerializeField] protected GameObject _heldVisual;
+        [SerializeField] protected GameObject _heldVisualRPC;
         [SerializeField] protected BaseItemSO _itemSO;
 
         //casting type to child? to get child specific properties
@@ -25,6 +26,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected bool _isInOwnerHand = false;
 
         protected GameObject _currentHeldVisual;
+        protected GameObject _currentHeldVisualRPC;
         protected float _tranquilValue = 0;
         protected float _violentValue = 0;
         protected float _miscValue = 0;
@@ -81,6 +83,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Debug.Log("[BaseInventoryItem] PickupItem"+ _currentHeldVisual.name);
 
         }
+        public virtual void GenerateItemRPC(GameObject player, Transform playerHoldPositionRPC)
+        {
+            _currentHeldVisualRPC = Instantiate(_heldVisualRPC, playerHoldPositionRPC);
+        }
+
         public virtual void DropItem(Transform dropPoint)
         {
             _owner = null;
@@ -123,6 +130,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public virtual GameObject GetHeldVisual()
         {
             return _heldVisual;
+        }public virtual GameObject GetHeldVisualRPC()
+        {
+            return _currentHeldVisualRPC;
+
         }
         public virtual Image GetUIImage()
         {

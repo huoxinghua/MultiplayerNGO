@@ -11,6 +11,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         public IInventoryItem BigItemCarried { get; private set; }
         [field: SerializeField] public int InventorySlots { get; private set; }
         [field: SerializeField] public Transform HoldTransform { get; private set; }
+        [field: SerializeField] public Transform HoldTransformRPC { get; private set; }
         [field: SerializeField] public Transform DropTransform { get; private set; }
         private int _currentIndex;
         [SerializeField] private PlayerInputManager _inputManager;
@@ -95,9 +96,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
             if (IsClient && IsOwner)
             {
-                Debug.Log($"[Client] Sending pickup request for {netObj.name}");
                 this.RequestPickupServerRpc(new NetworkObjectReference(netObj), OwnerClientId);
-                Debug.Log($"[Client] Sending pickup request finsh for {netObj.name}");
             }
             else
             {
@@ -172,37 +171,29 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         }
         private void TryNotifyClient(IInventoryItem item)
         {
-            NetworkObject netObj = null;
             var mono = item as MonoBehaviour;
-            if (mono != null)
-            {
-                Debug.LogWarning($"network pick up");
-                netObj = mono.GetComponent<NetworkObject>();
-                if (netObj != null)
-                {
-                    netObj.TrySetParent(HoldTransform);
-                    netObj.transform.localPosition = Vector3.zero;
-                    netObj.transform.localRotation = Quaternion.identity;
-
-
-                    NotifyClientsPickupClientRpc(netObj, OwnerClientId);
-                }
-                else
-                {
-                    Debug.LogWarning($"n NetworkObject no");
-                }
-            }
-            else
+            if (mono == null)
             {
                 Debug.LogWarning($"mono == null");
+                return;
             }
+
+            var netObj = mono.GetComponent<NetworkObject>();
+            if (netObj == null)
+            {
+                Debug.LogWarning($"NetworkObject missing on item");
+                return;
+            }
+
+         
+            NotifyClientsPickupClientRpc(new NetworkObjectReference(netObj), OwnerClientId);
         }
         [ClientRpc]
         private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
         {
             if (NetworkManager.Singleton.LocalClientId == playerId)
             {
-                Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
+                Debug.Log($"[ClientRpc] LocalClientId ==({playerId}) skip.");
                 return;
             }
 
@@ -225,21 +216,33 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
           
             var inv = player.GetComponent<PlayerInventory>();
-            if (inv == null) return;
-
-          
-            netObj.transform.SetParent(inv.HoldTransform, false);
-            netObj.transform.localPosition = Vector3.zero;
-            netObj.transform.localRotation = Quaternion.identity;
-
-            var rb = netObj.GetComponent<Rigidbody>();
-            if (rb) rb.isKinematic = true;
+            if (inv == null)
+            {
+                Debug.LogWarning($"[ClientRpc]  player.GetComponent<PlayerInventory>()null!");
+                return;
+            }
 
             var renderer = netObj.GetComponent<Renderer>();
             if (renderer) renderer.enabled = false;
 
             var collider = netObj.GetComponent<Collider>();
             if (collider) collider.enabled = false;
+
+            var rb = netObj.GetComponent<Rigidbody>();
+            if (rb) rb.isKinematic = true;
+
+            var item = netObj.GetComponent<BaseInventoryItem>();
+            if (item == null)
+            {
+                Debug.LogWarning("[ClientRpc] BaseInventoryItem missing on netObj!");
+                return;
+            }
+           item.GenerateItemRPC(player,inv.HoldTransformRPC);
+            var visual = item.GetHeldVisualRPC();
+            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localRotation = Quaternion.identity;
+            Debug.Log($"[ClientRpc] Spawned held visual for {player.name}");
+            
 
             Debug.Log($"[ClientRpc] {netObj.name} visually attached to {player.name}");
         }
