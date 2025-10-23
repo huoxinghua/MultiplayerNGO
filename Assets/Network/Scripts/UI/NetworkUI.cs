@@ -1,4 +1,3 @@
-using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,41 +9,23 @@ namespace Network.Scripts.UI
         [SerializeField] private Button hostButton;
         [SerializeField] private Button serverButton;
         [SerializeField] private Button clientButton;
-        [SerializeField] private TMP_InputField hostIdInput;
-        [SerializeField] private TMP_Text mySteamIdText;
-        void Awake()
-        {
-            DontDestroyOnLoad(gameObject);
-        }
         void Start()
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += (id) =>
+            if (hostButton != null)
             {
-                Debug.Log($"[Host] Client connected: {id}");
-            };
-
-            NetworkManager.Singleton.OnClientDisconnectCallback += (id) =>
-            {
-                Debug.Log($"[Host] Client disconnected: {id}");
-            };
-        }
-        public void QuitGame()
-        {
-            Debug.Log("Quit button pressed. Exiting game...");
-            if (Unity.Netcode.NetworkManager.Singleton != null && Unity.Netcode.NetworkManager.Singleton.IsListening)
-            {
-                Unity.Netcode.NetworkManager.Singleton.Shutdown();
+                hostButton.onClick.AddListener(() => NetworkManager.Singleton.StartHost());
             }
-
-            Application.Quit();
-
-            
-
-#if UNITY_EDITOR
-
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
+            if (serverButton != null)
+            {
+                serverButton.onClick.AddListener(() => NetworkManager.Singleton.StartServer());
+            }
+            if (clientButton != null)
+            {
+                clientButton.onClick.AddListener(() => NetworkManager.Singleton.StartClient());
+            }
         }
     }
+
+
 
 }
