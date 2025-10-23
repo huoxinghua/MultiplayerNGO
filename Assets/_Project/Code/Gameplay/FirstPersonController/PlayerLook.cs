@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using _Project.Code.Gameplay.Player.PlayerStateMachine;
+using UnityEngine;
 
 namespace _Project.Code.Gameplay.FirstPersonController
 {
@@ -8,7 +9,7 @@ namespace _Project.Code.Gameplay.FirstPersonController
         [Header("Transforms")]
         [SerializeField] private Transform _playerTransform;
         [SerializeField] private Transform _cameraTransform;
-
+        [SerializeField] private PlayerStateMachine _playerStateMachine;
         [Header("Sensitivity Values")]
         [SerializeField] private float sensitivity = 2;
         [SerializeField] private float smoothing = 1.5f;
@@ -55,6 +56,7 @@ namespace _Project.Code.Gameplay.FirstPersonController
         Vector2 rawLook;
         void Update()
         {
+            if (_playerStateMachine.IsInMenu) return;
             rawLook = inputManager.inputActions.Player.Look.ReadValue<Vector2>();
             Vector2 rawLookScale = Vector2.Scale(rawLook, Vector2.one * rawLookMultiply);
 

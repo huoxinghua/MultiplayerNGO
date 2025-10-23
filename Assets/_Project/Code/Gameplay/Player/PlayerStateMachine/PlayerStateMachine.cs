@@ -30,6 +30,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public PlayerCrouchIdleState CrouchIdleState { get; private set; }
         public PlayerCrouchWalkState CrouchWalkState { get; private set; }
         public PlayerInAirState InAirState { get; private set; }
+        public PlayerMenuState MenuState { get; private set; }
+
+        public bool IsInMenu => currentState == MenuState;
+
         public PlayerInputManager InputManager { get; private set; }
         public Vector3 OriginalCenter { get; private set; }
 
@@ -65,6 +69,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             CrouchIdleState = new PlayerCrouchIdleState(this);
             CrouchWalkState = new PlayerCrouchWalkState(this);
             InAirState = new PlayerInAirState(this);
+            MenuState = new PlayerMenuState(this);
             OriginalCenter = CharacterController.center;
             TargetCameraHeight = PlayerSO.StandingCameraHeight;
 
@@ -219,6 +224,11 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             {
                 TransitionTo(InAirState);
             }
+        }
+        public void HandleOpenMenu(bool didOpen)
+        {
+            if (didOpen) TransitionTo(MenuState);
+            else TransitionTo(IdleState);
         }
         void FixedUpdate()
         {
