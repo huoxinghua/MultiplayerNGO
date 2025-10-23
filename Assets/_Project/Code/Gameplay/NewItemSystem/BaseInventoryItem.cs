@@ -1,16 +1,16 @@
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    public class BaseInventoryItem : NetworkBehaviour , IInteractable , IInventoryItem
+    public class BaseInventoryItem : NetworkBehaviour, IInteractable, IInventoryItem
     {
         [SerializeField] protected GameObject _heldVisual;
-        [SerializeField] protected GameObject _heldVisualRPC;
+        //  [SerializeField] protected GameObject _heldVisualRPC;
         [SerializeField] protected BaseItemSO _itemSO;
 
         //casting type to child? to get child specific properties
@@ -26,7 +26,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected bool _isInOwnerHand = false;
 
         protected GameObject _currentHeldVisual;
-        protected GameObject _currentHeldVisualRPC;
+        //  protected GameObject _currentHeldVisualRPC;
         protected float _tranquilValue = 0;
         protected float _violentValue = 0;
         protected float _miscValue = 0;
@@ -66,12 +66,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 //set back
                 Debug.Log("Change back");
             }
-        
+
         }
         public virtual void PickupItem(GameObject player, Transform playerHoldPosition)
         {
-          
-            _owner = player; 
+
+            _owner = player;
             _rb.isKinematic = true;
             _renderer.enabled = false;
             _collider.enabled = false;
@@ -80,14 +80,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
-            Debug.Log("[BaseInventoryItem] PickupItem"+ _currentHeldVisual.name);
+            Debug.Log("[BaseInventoryItem] PickupItem" + _currentHeldVisual.name);
 
         }
-        public virtual void GenerateItemRPC(GameObject player, Transform playerHoldPositionRPC)
-        {
-            _currentHeldVisualRPC = Instantiate(_heldVisualRPC, playerHoldPositionRPC);
-        }
-
+        /*    public virtual void GenerateItemRPC(GameObject player, Transform playerHoldPositionRPC)
+            {
+                _currentHeldVisualRPC = Instantiate(_heldVisualRPC, playerHoldPositionRPC);
+            }
+    */
         public virtual void DropItem(Transform dropPoint)
         {
             _owner = null;
@@ -107,17 +107,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public virtual void UnequipItem()
         {
-     
+
             _currentHeldVisual?.SetActive(false);
             _isInOwnerHand = false;
-            Debug.Log("[BaseInventoryItem] UnequipItem"+ _currentHeldVisual);
+            Debug.Log("[BaseInventoryItem] UnequipItem" + _currentHeldVisual);
         }
         public virtual void EquipItem()
         {
-            
+
             _currentHeldVisual?.SetActive(true);
             _isInOwnerHand = true;
-            Debug.Log("[BaseInventoryItem] EquipItem"+ _currentHeldVisual.name);
+            Debug.Log("[BaseInventoryItem] EquipItem" + _currentHeldVisual.name);
         }
         public virtual string GetItemName()
         {
@@ -130,11 +130,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public virtual GameObject GetHeldVisual()
         {
             return _heldVisual;
-        }public virtual GameObject GetHeldVisualRPC()
+        }
+     /*   public virtual GameObject GetHeldVisualRPC()
         {
             return _currentHeldVisualRPC;
-
-        }
+        }*/
         public virtual Image GetUIImage()
         {
             return _itemSO.ItemUIImage;
