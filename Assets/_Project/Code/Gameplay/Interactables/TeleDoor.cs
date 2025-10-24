@@ -64,6 +64,7 @@ namespace _Project.Code.Gameplay.Interactables
         }
         public void HandleTeleport(GameObject playerTeleporting)
         {
+            if(_linkedDoor == null) { Debug.Log("NoLink"); return; }
             CharacterController cc = playerTeleporting.GetComponent<CharacterController>();
             cc.enabled = false;
             playerTeleporting.transform.position = _linkedDoor.position;
