@@ -52,8 +52,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
             var inv = interactingPlayer.GetComponent<PlayerInventory>();
             if (inv == null) return;
 
-            if (!inv.IsOwner)
-                return;
+            //if (!inv.IsOwner)
+                //return;
             inv.TryPickupItem();
             inv.DoPickup(this);
             //if (interactingPlayer.GetComponent<PlayerInventory>().TryPickupItem())
