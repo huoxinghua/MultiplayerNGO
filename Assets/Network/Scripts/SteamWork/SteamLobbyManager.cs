@@ -30,6 +30,8 @@ namespace Network.Scripts.SteamWork
         private static ELobbyType _lastLobbyType;
 
         public static Dictionary<CSteamID, string> LobbyLists = new Dictionary<CSteamID, string>();
+
+        [SerializeField] private string _sceneName;
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -253,10 +255,7 @@ namespace Network.Scripts.SteamWork
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
             {
-                //NetworkManager.Singleton.SceneManager.LoadScene("LevelGenerationSync", LoadSceneMode.Single);
-               NetworkManager.Singleton.SceneManager.LoadScene("NetWorkLobby", LoadSceneMode.Single);
-              // NetworkManager.Singleton.SceneManager.LoadScene("NWLevelTest", LoadSceneMode.Single);
-                
+              NetworkManager.Singleton.SceneManager.LoadScene(_sceneName, LoadSceneMode.Single);
             }
 
             if (ok)

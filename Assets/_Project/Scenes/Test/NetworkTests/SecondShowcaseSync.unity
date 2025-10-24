@@ -582,6 +582,71 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5de574dc3a90ba547be55ad645d39f9d, type: 3}
+--- !u!1001 &1172723532
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 308247237530158238, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1481413622
+      objectReference: {fileID: 0}
+    - target: {fileID: 308247237530158238, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3591663728
+      objectReference: {fileID: 0}
+    - target: {fileID: 8178180572688874561, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_Name
+      value: DungeonGenerator
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8330884241998923322, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d1b9d7cce078f4d809592b575db33ebb, type: 3}
 --- !u!1001 &1279323169
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -696,164 +761,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 806b87e1843314c449e5e51bf71c7fb0, type: 3}
---- !u!1 &1662115577
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1662115579}
-  - component: {fileID: 1662115578}
-  - component: {fileID: 1662115580}
-  - component: {fileID: 1662115581}
-  m_Layer: 0
-  m_Name: DungeonGenerator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1662115578
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1662115577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 510e6e61902a25245878393904bd5d0d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Generator:
-    allowImmediateRepeats: 0
-    OverlapThreshold: 0.01
-    Padding: 0
-    DisallowOverhangs: 0
-    AvoidCollisionsWithOtherDungeons: 1
-    PlaceTileTriggers: 1
-    Seed: 0
-    ShouldRandomizeSeed: 1
-    MaxAttemptCount: 20
-    UseMaximumPairingAttempts: 0
-    MaxPairingAttempts: 5
-    UpDirection: 4
-    OverrideRepeatMode: 0
-    RepeatMode: 0
-    OverrideAllowTileRotation: 0
-    AllowTileRotation: 0
-    DebugRender: 0
-    LengthMultiplier: 1
-    TriggerPlacement: 1
-    TileTriggerLayer: 2
-    GenerateAsynchronously: 0
-    MaxAsyncFrameMilliseconds: 10
-    PauseBetweenRooms: 0
-    RestrictDungeonToBounds: 0
-    TilePlacementBounds:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 5, y: 5, z: 5}
-    CollisionSettings:
-      DisallowOverhangs: 0
-      OverlapThreshold: 0.01
-      Padding: 0
-      AvoidCollisionsWithOtherDungeons: 0
-    Root: {fileID: 0}
-    DungeonFlow: {fileID: 11400000, guid: d570da778fddf634ba5188f22dc52754, type: 2}
-    fileVersion: 3
-  GenerateOnStart: 0
-  Root: {fileID: 1662115577}
---- !u!4 &1662115579
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1662115577}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -20, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1662115580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1662115577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2082289234
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 0
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
---- !u!114 &1662115581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1662115577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 242c28e937eb647479d1de5e1e115d2c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  generator:
-    allowImmediateRepeats: 0
-    OverlapThreshold: 0.01
-    Padding: 0
-    DisallowOverhangs: 0
-    AvoidCollisionsWithOtherDungeons: 1
-    PlaceTileTriggers: 1
-    Seed: 0
-    ShouldRandomizeSeed: 1
-    MaxAttemptCount: 20
-    UseMaximumPairingAttempts: 0
-    MaxPairingAttempts: 5
-    UpDirection: 2
-    OverrideRepeatMode: 0
-    RepeatMode: 0
-    OverrideAllowTileRotation: 0
-    AllowTileRotation: 0
-    DebugRender: 0
-    LengthMultiplier: 1
-    TriggerPlacement: 1
-    TileTriggerLayer: 2
-    GenerateAsynchronously: 0
-    MaxAsyncFrameMilliseconds: 10
-    PauseBetweenRooms: 0
-    RestrictDungeonToBounds: 0
-    TilePlacementBounds:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 5, y: 5, z: 5}
-    CollisionSettings:
-      DisallowOverhangs: 0
-      OverlapThreshold: 0.01
-      Padding: 0
-      AvoidCollisionsWithOtherDungeons: 0
-    Root: {fileID: 1662115577}
-    DungeonFlow: {fileID: 11400000, guid: d570da778fddf634ba5188f22dc52754, type: 2}
-    fileVersion: 3
 --- !u!1 &1777689747
 GameObject:
   m_ObjectHideFlags: 0
@@ -1035,4 +942,4 @@ SceneRoots:
   - {fileID: 657021976}
   - {fileID: 1867267199}
   - {fileID: 521636747}
-  - {fileID: 1662115579}
+  - {fileID: 1172723532}

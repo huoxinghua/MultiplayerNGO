@@ -110,11 +110,12 @@ namespace _Project.Code.Gameplay.Player
         }
         public void AttemptInteract()
         {
+            Debug.Log("[playerinteractCast]Try to hit");
             RaycastHit hit;
 
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
             {
-                Debug.Log(hit.collider.gameObject.name);
+                Debug.Log("AttemptInteract:" + hit.collider.gameObject.name);
                 if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
                 {
                     if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
