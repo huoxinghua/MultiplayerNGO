@@ -26,7 +26,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         }
         private void OnDisable()
         {
-            EnemySpawnPoints.Instance.RemoveSpawnPoint(this);
+            EnemySpawnPoints.Instance?.RemoveSpawnPoint(this);
         }
         public void DoSpawnEnemy(GameObject EnemyPrefab)
         {

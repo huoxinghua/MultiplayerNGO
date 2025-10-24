@@ -52,7 +52,7 @@ public class CartManager : MonoBehaviour
         }
         else
         {
-            _cartTotal.color = Color.black;
+            _cartTotal.color = Color.white;
         }
     }
     public void HandleBuyCart()
