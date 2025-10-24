@@ -8,7 +8,7 @@ namespace Network.Scripts.UI
     public class NetworkUI : MonoBehaviour
     {
         [SerializeField] private Button hostButton;
-        [SerializeField] private Button _levelLoadButton;
+      //  [SerializeField] private Button _levelLoadButton;
         [SerializeField] private Button clientButton;
         void Start()
         {
@@ -23,13 +23,13 @@ namespace Network.Scripts.UI
             }
        
         }
-        public void LoadGeneratLevel()
-        {
-            if (_levelLoadButton != null)
-            {
-                _levelLoadButton.onClick.AddListener(() => NetworkManager.Singleton.SceneManager.LoadScene("SecondShowcase", LoadSceneMode.Single));
-            }
-        }
+        //public void LoadGeneratLevel()
+        //{
+        //    if (_levelLoadButton != null)
+        //    {
+        //        _levelLoadButton.onClick.AddListener(() => NetworkManager.Singleton.SceneManager.LoadScene("SecondShowcase", LoadSceneMode.Single));
+        //    }
+        //}
     }
 
 
