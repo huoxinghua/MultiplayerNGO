@@ -10,6 +10,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnEnter()
         {
             TryStand(); 
+            Animator.PlayStanding();
+
         }
         public override void OnExit()
         {
@@ -22,10 +24,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void StateUpdate()
         {
             Vector3 move = new Vector3(stateController.MoveInput.x, 0f, stateController.MoveInput.y);
-
+            Animator.PlayWalk(1,1);
             move = stateController.transform.TransformDirection(move);
 
-            characterController.Move(move * playerSO.MoveSpeed * Time.deltaTime);
+            characterController.Move(move * (playerSO.MoveSpeed * Time.deltaTime));
             base.StateUpdate();
         }
         void TryStand()

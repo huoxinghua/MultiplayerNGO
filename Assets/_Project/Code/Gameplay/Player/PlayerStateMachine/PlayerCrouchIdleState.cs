@@ -12,6 +12,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnEnter()
         {
             TryCrouch();
+            Animator.PlayCrouch();
         }
         public override void OnExit()
         {
@@ -20,6 +21,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void StateUpdate()
         {
             base.StateUpdate();
+            Animator.PlayWalk(0,1);
         }
         public override void StateFixedUpdate()
         {
