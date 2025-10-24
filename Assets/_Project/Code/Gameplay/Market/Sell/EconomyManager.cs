@@ -1,5 +1,6 @@
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.Code.Utilities.ServiceLocator;
+using _Project.Code.Utilities.Singletons;
 using _Project.ScriptableObjects.ScriptObjects.MarketSO;
 using UnityEngine;
 

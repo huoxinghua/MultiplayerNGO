@@ -1,6 +1,7 @@
-using UnityEngine;
-
-public class FlashlightCart : BaseCartItem
+namespace _Project.Code.Gameplay.Market.Buy
 {
+    public class FlashlightCart : BaseCartItem
+    {
     
+    }
 }

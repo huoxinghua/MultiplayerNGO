@@ -1,15 +1,19 @@
+using _Project.ScriptableObjects.ScriptObjects.StoreSO;
 using TMPro;
 using UnityEngine;
 
-public class StoreButton : MonoBehaviour
+namespace _Project.Code.Gameplay.Market.Buy
 {
-    [SerializeField] private ItemIds _thisItemID;
-    [SerializeField] private StoreSO _storeSO;
-    [SerializeField] private TMP_Text _priceText;
-    void Start()
+    public class StoreButton : MonoBehaviour
     {
-        _priceText.SetText($"@{_storeSO.GetItemData(_thisItemID).Cost}");
-    }
+        [SerializeField] private ItemIds _thisItemID;
+        [SerializeField] private StoreSO _storeSO;
+        [SerializeField] private TMP_Text _priceText;
+        void Start()
+        {
+            _priceText.SetText($"@{_storeSO.GetItemData(_thisItemID).Cost}");
+        }
 
     
+    }
 }

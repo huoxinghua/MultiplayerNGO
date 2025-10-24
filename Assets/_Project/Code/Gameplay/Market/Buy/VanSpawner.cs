@@ -1,26 +1,28 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VanSpawner : MonoBehaviour
+namespace _Project.Code.Gameplay.Market.Buy
 {
-    private List<BuyOrder> buyOrders = new List<BuyOrder>();
-    [SerializeField] private DeliveryVan _vanPrefab;
-    public void AddBuyOrders(BuyOrder buyOrder)
+    public class VanSpawner : MonoBehaviour
     {
-        buyOrders.Add(buyOrder);
-    }
-    public void SendVan()
-    {
-        DeliveryVan temp = Instantiate(_vanPrefab, transform);
-        foreach(var buyOrder in buyOrders)
+        private List<BuyOrder> buyOrders = new List<BuyOrder>();
+        [SerializeField] private DeliveryVan _vanPrefab;
+        public void AddBuyOrders(BuyOrder buyOrder)
         {
-            temp.AddBuyOrder(buyOrder);
+            buyOrders.Add(buyOrder);
         }
-        ClearBuyOrders();
-    }
-    public void ClearBuyOrders()
-    {
-        buyOrders.Clear();
+        public void SendVan()
+        {
+            DeliveryVan temp = Instantiate(_vanPrefab, transform);
+            foreach(var buyOrder in buyOrders)
+            {
+                temp.AddBuyOrder(buyOrder);
+            }
+            ClearBuyOrders();
+        }
+        public void ClearBuyOrders()
+        {
+            buyOrders.Clear();
+        }
     }
 }

@@ -1,26 +1,29 @@
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class NetworkUI : MonoBehaviour
+namespace Network.NetWorkUT.UI
 {
-
-    [SerializeField] private Button hostButton;
-    [SerializeField]private Button serverButton;
-    [SerializeField] private Button clientButton;
-    void Start()
+    public class NetworkUI : MonoBehaviour
     {
-        if (hostButton != null)
+
+        [SerializeField] private Button hostButton;
+        [SerializeField]private Button serverButton;
+        [SerializeField] private Button clientButton;
+        void Start()
         {
-            hostButton.onClick.AddListener(()=> NetworkManager.Singleton.StartHost());
-        }
-        if (serverButton != null)
-        {
-            serverButton.onClick.AddListener(()=> NetworkManager.Singleton.StartServer());
-        }
-        if (clientButton != null)
-        {
-            clientButton.onClick.AddListener(() => NetworkManager.Singleton.StartClient());
-        }
-    } 
+            if (hostButton != null)
+            {
+                hostButton.onClick.AddListener(()=> NetworkManager.Singleton.StartHost());
+            }
+            if (serverButton != null)
+            {
+                serverButton.onClick.AddListener(()=> NetworkManager.Singleton.StartServer());
+            }
+            if (clientButton != null)
+            {
+                clientButton.onClick.AddListener(() => NetworkManager.Singleton.StartClient());
+            }
+        } 
+    }
 }
