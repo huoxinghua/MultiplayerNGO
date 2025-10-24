@@ -157,10 +157,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             }
             //sync
             TryNotifyClient(item);
-            if (TryGetValidNetworkItem(item, out var netObj))
+         /*   if (TryGetValidNetworkItem(item, out var netObj))
             {
                 SpawnHeldVisualServerRpc(OwnerClientId, new NetworkObjectReference(netObj));
-            }
+            }*/
         }
         private bool TryGetValidNetworkItem(IInventoryItem item, out NetworkObject netObj)
         {
@@ -266,7 +266,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 Debug.LogWarning("[ClientRpc] BaseInventoryItem missing on netObj!");
                 return;
             }
-            //item.GenerateItemRPC(player,inv.HoldTransformRPC);
+ 
             var visual = item.GetHeldVisual();
             visual.transform.localPosition = Vector3.zero;
             visual.transform.localRotation = Quaternion.identity;

@@ -8,49 +8,61 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -828602770910974908, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3755300476237281433, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 3.47
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.049
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 7.6
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.5020572
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.47050375
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.47564167
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0.5480236
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 83.599
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -19.98
       objectReference: {fileID: 0}
     - target: {fileID: 3936523102523606189, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -112.913
       objectReference: {fileID: 0}
     - target: {fileID: 4461526038127156759, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: m_Name
       value: PF_BaseballBatVariant_NW
+      objectReference: {fileID: 0}
+    - target: {fileID: 4461526038127156759, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7032799229665985194, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       propertyPath: _heldVisual
@@ -62,14 +74,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4461526038127156759, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
       insertIndex: 2
-      addedObject: {fileID: -6290733181286780224}
+      addedObject: {fileID: 8852190055366678114}
   m_SourcePrefab: {fileID: 100100000, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
 --- !u!1 &1758684166750029372 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4461526038127156759, guid: 0c5a811ef35aa1b47aef00b6ffe27bbf, type: 3}
   m_PrefabInstance: {fileID: 2702898260171085867}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-6290733181286780224
+--- !u!114 &8852190055366678114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -81,16 +93,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1206191563
+  GlobalObjectIdHash: 1631802436
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
+  AutoObjectParentSync: 0
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
