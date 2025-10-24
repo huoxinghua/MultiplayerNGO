@@ -38,6 +38,7 @@ public struct StoreItem
     public ItemIds ItemID;
     public int Cost;
     public BaseCartItem ItemPrefab;
+    public GameObject PurchasedItemPrefab;
 }
 public enum ItemIds
 {
