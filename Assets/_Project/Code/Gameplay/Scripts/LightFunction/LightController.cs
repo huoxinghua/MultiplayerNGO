@@ -5,6 +5,9 @@ namespace _Project.Code.Gameplay.Scripts.LightFunction
 {
     public class LightController : MonoBehaviour
     {
+        public Material _oldMaterial;
+        public Material _newMaterial;
+        public Renderer _objRenderer;
         private Light _spotLightSource;
         private Light _pointLightSource;
         private bool _isFlickering;
@@ -14,6 +17,7 @@ namespace _Project.Code.Gameplay.Scripts.LightFunction
 
         void Start()
         {
+            _objRenderer = GetComponentInParent<Renderer>();
             _spotLightSource = transform.GetChild(0)?.GetComponent<Light>();
             _pointLightSource = transform.GetChild(1)?.GetComponent<Light>();
         }
@@ -22,12 +26,14 @@ namespace _Project.Code.Gameplay.Scripts.LightFunction
         {
             _pointLightSource.enabled = true;
             _spotLightSource.enabled = true;
+            _objRenderer.material = _oldMaterial;
         }
 
         public void TurnLightOff()
         {
             _pointLightSource.enabled = false;
             _spotLightSource.enabled = false;
+            _objRenderer.material = _newMaterial;
         }
 
         public void StartFlickering()
