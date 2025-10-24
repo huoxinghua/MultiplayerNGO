@@ -1,11 +1,14 @@
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
+using QuickOutline.Scripts;
 using UnityEngine;
 using UnityEngine.UI;
+using Outline = QuickOutline.Scripts.Outline;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
+    [RequireComponent(typeof(Outline))]
     public class BaseInventoryItem : MonoBehaviour , IInteractable , IInventoryItem
     {
         [SerializeField] protected GameObject _heldVisual;
@@ -19,6 +22,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [SerializeField] protected Rigidbody _rb;
         [SerializeField] protected Renderer _renderer;
         [SerializeField] protected Collider _collider;
+        protected Outline OutlineEffect;
         protected GameObject _owner;
         protected bool _hasOwner => _owner != null;
         protected bool _isInOwnerHand = false;
@@ -29,7 +33,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected float _miscValue = 0;
         private void Awake()
         {
-
+            OutlineEffect = GetComponent<Outline>();
+            if(OutlineEffect != null)
+            {
+                OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
+                OutlineEffect.OutlineWidth = 0;
+            }
+            
         }
         private void Update()
         {
@@ -44,19 +54,20 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public virtual void HandleHover(bool isHovering)
         {
-            if (isHovering)
+            if (OutlineEffect != null)
             {
-                Material materialInstance = _renderer.material;
-                //wont work yet I dont think
-                // materialInstance.SetFloat("_GlowFloat", 1);
-                Debug.Log("Change to Glow");
+                if (_hasOwner) { OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden; return; }
+                if (isHovering)
+                {
+                    OutlineEffect.OutlineMode = Outline.Mode.OutlineVisible;
+                    OutlineEffect.OutlineWidth = 2;
+                }
+                else
+                {
+                    OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
+                    OutlineEffect.OutlineWidth = 0;
+                }
             }
-            else
-            {
-                //set back
-                Debug.Log("Change back");
-            }
-        
         }
         public virtual void PickupItem(GameObject player, Transform playerHoldPosition)
         {

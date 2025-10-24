@@ -1,6 +1,7 @@
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Gameplay.Player.UsableItems;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _Project.Code.Gameplay.Player
 {
@@ -18,6 +19,7 @@ namespace _Project.Code.Gameplay.Player
     
         [SerializeField] Transform handTransform;
         public GameObject[] heldItems = new GameObject[5];
+        public Image[] slotDisplay = new Image[5];
         public GameObject currentItem;
         private int currentSlot = 0;
 
@@ -55,6 +57,7 @@ namespace _Project.Code.Gameplay.Player
                 currentItem = null;
             }
         }
+        
         public void Update()
         {
             if (Input.GetMouseButtonDown(0))

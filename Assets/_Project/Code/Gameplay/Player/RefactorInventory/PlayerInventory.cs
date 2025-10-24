@@ -1,7 +1,9 @@
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NewItemSystem;
+using _Project.Code.Gameplay.Player.UsableItems;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
@@ -14,6 +16,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [field: SerializeField] public Transform DropTransform { get; private set; }
         private int _currentIndex;
         [SerializeField] private PlayerInputManager _inputManager;
+        [field: SerializeField] public Image[] SlotDisplay { get; private set; } = new Image[5];
+        [field: SerializeField] public Image[] SlotBackground { get; private set; } = new Image[5];
+        [field: SerializeField] public Image EmptySlot { get; private set; }
         private bool _handsFull => BigItemCarried != null;
         public bool InventoryFull => IsInventoryFull();
         public void Awake()
@@ -32,7 +37,20 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             _inputManager.OnUse -= UseItemInHand;
             _inputManager.OnDropItem -= DropItem;
         }
-
+        public void ChangeUISlotDisplay()
+        {
+            for (int i = 0; i < InventoryItems.Length; i++)
+            {
+                if (InventoryItems[i] == null)
+                {
+                    SlotDisplay[i] = EmptySlot;
+                }
+                else
+                {
+                    SlotDisplay[i] = InventoryItems[i].GetUIImage();
+                }
+            }
+        }
         public bool IsInventoryFull()
         {
             bool isFull = true;
@@ -102,6 +120,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                         {
                             Debug.LogWarning($"mono == null");
                         }
+                        ChangeSlotBackgrounds(_currentIndex);
                         //end network
                     }
                     else
@@ -130,11 +149,12 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     InventoryItems[_currentIndex]?.UnequipItem();
                     item.PickupItem(gameObject, HoldTransform);
                     item.EquipItem();
+                    ChangeSlotBackgrounds(-1);
                 }
-
+                ChangeUISlotDisplay();
             }
-      
-     
+
+
         }
 
         [ClientRpc]
@@ -208,6 +228,21 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex].DropItem(DropTransform);
                 InventoryItems[_currentIndex] = null;
                 //drop current slot if there is one
+            }
+            ChangeUISlotDisplay();
+        }
+        public void ChangeSlotBackgrounds(int selectedItem)
+        {
+            for (int i = 0; i < SlotDisplay.Length; i++)
+            {
+                if (i == selectedItem)
+                {
+                    SlotBackground[i].color = Color.red;
+                }
+                else
+                {
+                    SlotBackground[i].color = Color.white;
+                }
             }
         }
         public void UseItemInHand()
@@ -290,6 +325,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             }
             _currentIndex = indexOf;
             InventoryItems[_currentIndex]?.EquipItem();
+            ChangeUISlotDisplay();
+            ChangeSlotBackgrounds(_currentIndex);
         }
         #region Inputs
         private void HandlePressedSlot(int index)

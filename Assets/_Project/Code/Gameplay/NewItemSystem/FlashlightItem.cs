@@ -1,4 +1,5 @@
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.Flashlight;
+using QuickOutline.Scripts;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
@@ -19,7 +20,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 _currentCharge = flashLight.MaxCharge;
             }
-
+            OutlineEffect = GetComponent<Outline>();
+            if (OutlineEffect != null)
+            {
+                OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
+                OutlineEffect.OutlineWidth = 0;
+            }
         }
         private void Update()
         {

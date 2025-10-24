@@ -69,10 +69,10 @@ PrefabInstance:
       addedObject: {fileID: 530252060658362816}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3755300476237281433}
+      addedObject: {fileID: -828602770910974908}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -828602770910974908}
+      addedObject: {fileID: 420419191236576235}
   m_SourcePrefab: {fileID: 100100000, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
 --- !u!23 &2804188112150216642 stripped
 MeshRenderer:
@@ -123,28 +123,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -1239263250430464157, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
---- !u!95 &3755300476237281433
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4461526038127156759}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 6cb7865c57f6fe74299a6a7092a80365, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!54 &-828602770910974908
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -169,6 +147,24 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 2
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
+--- !u!114 &420419191236576235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4461526038127156759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

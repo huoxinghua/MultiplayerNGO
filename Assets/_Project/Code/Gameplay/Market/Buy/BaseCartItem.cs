@@ -40,4 +40,8 @@ public class BaseCartItem : MonoBehaviour
     {
         return CurrentPrice;
     }
+    public virtual int GetQuantity()
+    {
+        return _quantity;
+    }
 }
