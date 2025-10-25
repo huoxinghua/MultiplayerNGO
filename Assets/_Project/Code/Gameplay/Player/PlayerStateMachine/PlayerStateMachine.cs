@@ -118,7 +118,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public void Start()
         {
             ////test
-            transform.position = new Vector3(57,3,40) + Vector3.up * 3f;
+            //transform.position = new Vector3(57,3,40) + Vector3.up * 3f;// this is for the secoundshow case Art
+            transform.position =  Vector3.up * 3f;//this is for game gym
             //var controller = GetComponent<CharacterController>();
             //controller.enabled = false;
             //StartCoroutine(EnablePlayerController(controller));
