@@ -7,6 +7,7 @@ namespace Network.Scripts.PlayerController
     {
         [SerializeField] private MonoBehaviour[] _componentsToDisable;
         [SerializeField] private GameObject[] _objectsToEnable;
+        [SerializeField] private GameObject[] _objectsToDisable;
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -27,6 +28,13 @@ namespace Network.Scripts.PlayerController
                 if (obj != null)
                 {
                     obj.SetActive(isOwner);
+                }
+            }
+            foreach (var obj in _objectsToDisable)
+            {
+                if (obj != null)
+                {
+                    obj.SetActive(!isOwner);
                 }
             }
         }
