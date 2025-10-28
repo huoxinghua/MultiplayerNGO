@@ -18,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6000019722913479131, guid: 7b4b480a9ae781042b8261bb60f4af51, type: 3}
       propertyPath: m_Name
-      value: PF_Beetle_NW
+      value: PF_BeetleVariant_NW
       objectReference: {fileID: 0}
     - target: {fileID: 8695155024704898581, guid: 7b4b480a9ae781042b8261bb60f4af51, type: 3}
       propertyPath: m_LocalPosition.x
@@ -74,10 +74,10 @@ PrefabInstance:
       addedObject: {fileID: -3508305227787692673}
     - targetCorrespondingSourceObject: {fileID: 6000019722913479131, guid: 7b4b480a9ae781042b8261bb60f4af51, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 925743964629482242}
+      addedObject: {fileID: 1412790372747591672}
     - targetCorrespondingSourceObject: {fileID: 6000019722913479131, guid: 7b4b480a9ae781042b8261bb60f4af51, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1412790372747591672}
+      addedObject: {fileID: 4468027451410757737}
   m_SourcePrefab: {fileID: 100100000, guid: 7b4b480a9ae781042b8261bb60f4af51, type: 3}
 --- !u!114 &1527589514184185222 stripped
 MonoBehaviour:
@@ -166,22 +166,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &925743964629482242
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3104930238327260793}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfdf7b6deaef84642a56876839128122, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  <BeetleSO>k__BackingField: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
-  _ragdollScript: {fileID: 1527589514184185222}
-  BeetleDeadScript: {fileID: 5276161899947557889}
 --- !u!114 &1412790372747591672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,6 +180,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _beetleSO: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
   HostilePlayers: []
+--- !u!114 &4468027451410757737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3104930238327260793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ab81d5246b3fcb448097c325e67b61b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  <BeetleSO>k__BackingField: {fileID: 11400000, guid: c434a7aceaa271d4eaa5dae8351ae2f3, type: 2}
+  _ragdollScript: {fileID: 1527589514184185222}
+  BeetleDeadScript: {fileID: 5276161899947557889}
 --- !u!114 &5276161899947557889 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3560666103813700515, guid: 7b4b480a9ae781042b8261bb60f4af51, type: 3}

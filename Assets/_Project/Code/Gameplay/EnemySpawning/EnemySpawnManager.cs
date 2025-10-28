@@ -19,6 +19,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         {
             int randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
             SpawnViolent(randomSpawnPoint);
+            Debug.Log("NowTranquil");
             randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
             SpawnTranquil(randomSpawnPoint);
         }
@@ -46,12 +47,16 @@ namespace _Project.Code.Gameplay.EnemySpawning
         }
         public void SpawnTranquil(int spawnPoint)
         {
+            Debug.Log($"Tranquil prefab count: {EnemyPrefabs.TranquilPrefabs.Count}");
+            Debug.Log("Spawning tranquil");
             if (EnemyPrefabs.TranquilPrefabs.Count < 1) return;
+            Debug.unityLogger.Log("Here");
             int enemyIndex = Random.Range(0, EnemyPrefabs.TranquilPrefabs.Count);
             EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex]);
         }
         public void SpawnViolent(int spawnPoint)
         {
+
             if (EnemyPrefabs.ViolentPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.ViolentPrefabs.Count);
             EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex]);

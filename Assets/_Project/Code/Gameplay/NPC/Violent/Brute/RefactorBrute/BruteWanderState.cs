@@ -15,17 +15,21 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
             Animator.PlayNormal();
             Agent.speed = BruteSO.WalkSpeed;
+            Agent.updatePosition = false;
             WanderTo();
             Debug.Log("Wander");
         }
         public override void OnExit()
         {
-
+            Agent.updatePosition = true;
         }
 
         public override void StateUpdate()
         {
-        
+            var worldVel = Agent.desiredVelocity;
+            var localVel = StateController.transform.InverseTransformDirection(worldVel);
+            Animator.PlayWalk(localVel.magnitude, Agent.speed);
+          //  Debug.Log($"Agent vel : {Agent.desiredVelocity}");
         }
         public override void StateFixedUpdate()
         {
@@ -33,14 +37,22 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             {
                 StateController.TransitionTo(StateController.IdleState);
             }
-            Animator.PlayWalk(Agent.velocity.magnitude, Agent.speed);
+            
         }
         public override void OnHearPlayer()
         {
             StateController.TransitionTo(StateController.BruteHeardPlayerState);
         }
 
-
+        public override void OnStateAnimatorMove()
+        {
+//            Debug.Log("OnStateAnimatorMove");
+            var delta = Animator.GetAnimator().deltaPosition;
+            StateController.transform.position += delta;               // capsule follows the clip
+            Agent.nextPosition = StateController.transform.position;  // keep agent and capsule in sync
+            StateController.transform.rotation = Animator.GetAnimator().rootRotation;
+            Agent.nextPosition = StateController.transform.position;
+        }
         #region Path Finding
         private Vector3 GetRandomPosition()
         {

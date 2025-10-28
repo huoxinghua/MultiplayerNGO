@@ -1,3 +1,4 @@
+using System;
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Utilities.StateMachine;
@@ -53,13 +54,23 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             _spawnedHeart.transform.SetParent(null);
             HeartPosition = transform;
         }
-        public void Start()
+        /*public void Start()
         {
             if (!IsServer) return;
             TransitionTo(WanderState);
+        }*/
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            if (!IsServer) return;
+            transform.parent = null;
+            TransitionTo(WanderState);
         }
+
         void Update()
         {
+//Debug.Log("Current State: " + CurrentState);
             if (!IsServer) return;
             CurrentState?.StateUpdate();
         }
@@ -107,6 +118,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         
         }
+
+        public void TempAnimMove()
+        {
+            if (!IsServer) return;
+            CurrentState?.OnStateAnimatorMove();
+        }
+
         public void OnHeartDestroyed()
         {
             TransitionTo(BruteHurtIdleState);

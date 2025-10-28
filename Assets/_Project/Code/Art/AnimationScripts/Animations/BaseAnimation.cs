@@ -16,6 +16,10 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hAttack = Animator.StringToHash("attack");
         protected int hAttackType = Animator.StringToHash("attackType");
 
+        public Animator GetAnimator()
+        {
+            return anim;
+        }
 
         protected virtual void Awake()
         {
