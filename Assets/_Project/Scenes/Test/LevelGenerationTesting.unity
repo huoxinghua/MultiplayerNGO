@@ -168,6 +168,12 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  slotDisplay:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   currentItem: {fileID: 0}
 --- !u!114 &267903710
 MonoBehaviour:
@@ -188,8 +194,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4096
   releaseDistance: 0.25
-  pressEText: {fileID: 0}
-  holdEText: {fileID: 0}
 --- !u!114 &267903711 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1899763647885468100, guid: 4545fd920aa2616438d8e166d890e28a, type: 3}
@@ -349,6 +353,7 @@ GameObject:
   m_Component:
   - component: {fileID: 951944275}
   - component: {fileID: 951944274}
+  - component: {fileID: 951944276}
   m_Layer: 0
   m_Name: DungeonGenerator
   m_TagString: Untagged
@@ -388,7 +393,7 @@ MonoBehaviour:
     DebugRender: 0
     LengthMultiplier: 1
     TriggerPlacement: 1
-    TileTriggerLayer: 2
+    TileTriggerLayer: 0
     GenerateAsynchronously: 0
     MaxAsyncFrameMilliseconds: 10
     PauseBetweenRooms: 0
@@ -421,6 +426,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &951944276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 951944272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f76f356143a516846a54607aa83a9ae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Priority: 0
+  BakeMode: 2
+  LayerMask:
+    serializedVersion: 2
+    m_Bits: 1280
+  AddNavMeshLinksBetweenRooms: 1
+  NavMeshAgentTypes:
+  - AgentTypeID: 0
+    AreaTypeID: 0
+    DisableLinkWhenDoorIsClosed: 0
+  NavMeshLinkDistanceFromDoorway: 1.5
+  AutoGenerateFullRebakeSurfaces: 1
+  FullRebakeTargets: []
+  UseAutomaticLinkDistance: 0
+  AutomaticLinkDistanceOffset: 0.1
 --- !u!1 &1329592235
 GameObject:
   m_ObjectHideFlags: 0
