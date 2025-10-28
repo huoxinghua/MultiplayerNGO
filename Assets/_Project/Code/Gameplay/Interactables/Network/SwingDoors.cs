@@ -72,6 +72,32 @@ namespace _Project.Code.Gameplay.Interactables.Network
             _enemyOpenedTimer.Reset(_enemyCloseDelay);
             _openedByEnemy = true;
         }
+        /*public void EnemyOpened()
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            {
+                if (_isOpen.Value) return;
+                ToggleOpen();
+                _enemyOpenedTimer.Reset(_enemyCloseDelay);
+                _openedByEnemy=true;
+            }
+            else
+            {
+                RequestEnemyOpenServerRpc();
+            }
+        }
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestEnemyOpenServerRpc()
+        {
+            Debug.Log("enemy open door server Rpc");
+            if (_isOpen.Value) return;
+            ToggleOpen();
+
+            _isOpen.Value = true;
+            _enemyOpenedTimer.Reset(_enemyCloseDelay);
+            _openedByEnemy = true;
+        }*/
+
         public void ToggleOpen()
         {
             Debug.Log("open door in isOpen=" + _isOpen.Value);
