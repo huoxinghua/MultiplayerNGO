@@ -1,9 +1,10 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Art.AnimationScripts.Animations
 {
-    public abstract class BaseAnimation : MonoBehaviour
+    public abstract class BaseAnimation : NetworkBehaviour
     {
         [SerializeField] protected float walkRunTransition = 1f;
         protected Animator anim;

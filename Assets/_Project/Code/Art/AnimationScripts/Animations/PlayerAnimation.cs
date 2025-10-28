@@ -1,13 +1,13 @@
 using System.Collections;
 using Unity.Netcode.Components;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Art.AnimationScripts.Animations
 {
     public class PlayerAnimation : BaseAnimation
     {
-        [SerializeField] NetworkAnimator netAnim;
-
+        [SerializeField] public NetworkAnimator netAnim;
         protected int hJump = Animator.StringToHash("jump");
         protected int hInAir = Animator.StringToHash("isInAir");
         protected int hIsGround = Animator.StringToHash("isGrounded");
@@ -26,27 +26,52 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
 
+            //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
+            UpdateMovementServerRPC(currentSpeed, maxSpeed);
+        }
+        [ServerRpc]
+        private void UpdateMovementServerRPC(float currentSpeed, float maxSpeed)
+        {
             netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
         }
-
         public void PlayJump()
         {
-            anim.SetTrigger(hJump);
-            netAnim.Animator.SetTrigger(hJump);
+            if(IsOwner)
+            {
+                anim.SetTrigger(hJump);
+                PlayJumpServerRpc();
+            }
+        }
+
+        [ServerRpc]
+        private void PlayJumpServerRpc(ServerRpcParams rpcParams = default)
+        {
+             netAnim.SetTrigger(hJump);
         }
 
         public void PlayCrouch()
         {
             anim.SetBool(hCrouch, true);
+            PlayCrouchServerRpc();
+        }
+
+        [ServerRpc]
+        private void PlayCrouchServerRpc(ServerRpcParams rpcParams = default)
+        {
             netAnim.Animator.SetBool(hCrouch, true);
         }
 
         public void PlayStanding()
         {
             anim.SetBool(hCrouch, false);
-            netAnim.Animator.SetBool(hCrouch, false);
+            PlayStandingServerRpc();
         }
 
+        [ServerRpc]
+        public void PlayStandingServerRpc()
+        {
+            netAnim.Animator.SetBool(hCrouch, false);
+        }
         public override void PlayAttack()
         {
 
@@ -56,6 +81,12 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             anim.SetBool(hInAir, true);
             anim.SetBool(hIsGround, false);
+            PlayInAirServerRPC();
+        }
+
+        [ServerRpc]
+        private void PlayInAirServerRPC()
+        {
             netAnim.Animator.SetBool(hInAir, true);
             netAnim.Animator.SetBool(hIsGround, false);
         }
@@ -63,9 +94,15 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         public void PlayLand()
         {
             anim.ResetTrigger(hJump);
-            netAnim.Animator.ResetTrigger(hJump);
             anim.SetBool(hIsGround, true);
             anim.SetBool(hInAir, false);
+            PlayerLandServerRPC();
+        }
+
+        [ServerRpc]
+        private void PlayerLandServerRPC()
+        {
+            netAnim.Animator.ResetTrigger(hJump);
             netAnim.Animator.SetBool(hIsGround, true);
             netAnim.Animator.SetBool(hInAir, false);
         }
@@ -87,5 +124,6 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             netAnim.Animator.SetFloat(hIsRunning, target);
             currentWalkRunType = target;
         }
+        
     }
 }
