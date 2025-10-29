@@ -9,6 +9,7 @@ namespace Network.Scripts.PlayerController
         [SerializeField] private GameObject[] _objectsToEnable;
         [SerializeField] private Camera _cameraToDisable;
         [SerializeField] private Renderer _renderToDisable;
+        [SerializeField] private Renderer _renderToEnable;
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -39,6 +40,9 @@ namespace Network.Scripts.PlayerController
                         obj.SetActive(!isOwner);
                     }
                 }*/
+            _cameraToDisable.enabled = isOwner;
+            _renderToEnable.enabled = isOwner;
+
             _renderToDisable.enabled = !isOwner;
 
            
