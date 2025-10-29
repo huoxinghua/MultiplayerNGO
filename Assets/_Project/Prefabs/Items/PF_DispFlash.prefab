@@ -9,11 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2986393941876927433}
+  - component: {fileID: 2708235479467889630}
   - component: {fileID: -2561421773714163629}
   - component: {fileID: 3785101570154961571}
   - component: {fileID: 2995521283193962688}
   - component: {fileID: 3126328674173226819}
   - component: {fileID: 7999200766627120062}
+  - component: {fileID: 5122351039474640490}
   m_Layer: 12
   m_Name: PF_DispFlash
   m_TagString: Untagged
@@ -37,6 +39,31 @@ Transform:
   - {fileID: 696305361043939529}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2708235479467889630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6191987581465459003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2876503442
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &-2561421773714163629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49,6 +76,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dbef0cc73274c84ea9fb11d1e74c477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   _heldVisual: {fileID: 6191987581465459003, guid: 044eca1a98c3bf14680a1a0fc31a275c, type: 3}
   _itemSO: {fileID: 11400000, guid: 8110417f5a1b2b742b9d297ffef94fe8, type: 2}
   _rb: {fileID: 2995521283193962688}
@@ -102,7 +130,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 2
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
 --- !u!108 &3126328674173226819
@@ -193,6 +221,24 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &5122351039474640490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6191987581465459003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &7229346729728800673
 PrefabInstance:
   m_ObjectHideFlags: 0

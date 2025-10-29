@@ -14,11 +14,12 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnEnter()
         {
             TryStand();
+            Animator.PlayInAir();
             _isSprinting = stateController.IsSprintHeld;
         }
         public override void OnExit()
         {
-        
+        Animator.PlayLand();
         }
         void TryStand()
         {

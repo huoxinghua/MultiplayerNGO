@@ -12,11 +12,19 @@ namespace _Project.Code.Optimization
             _currentLights = CurrentLights.Instance;
             _currentLights.AddLight(this);
             if (LightComponent == null)
-                LightComponent = GetComponentInChildren<Light>();
+                LightComponent = GetComponent<Light>();
         }
 
         public void SetActive(bool active)
         {
+            if(active == false)
+            {
+                Debug.Log("Deactive");
+            }
+            else
+            {
+                Debug.Log("Active");
+            }
             LightComponent.enabled = active;
         }
     }

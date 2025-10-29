@@ -1,3 +1,4 @@
+using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Utilities.StateMachine;
 using UnityEngine;
@@ -10,11 +11,12 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         protected PlayerSO playerSO;
         protected CharacterController characterController;
         protected bool _jumpRequested = false;
-
+        protected PlayerAnimation Animator;
         public PlayerBaseState(PlayerStateMachine stateController)
         {
             this.stateController = stateController;
             playerSO = stateController.PlayerSO;
+            Animator = stateController.Animator;
             characterController = stateController.CharacterController;
         }
         public override void OnEnter()
@@ -28,12 +30,13 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         public override void StateFixedUpdate()
         {
-        
+
         }
 
         public override void StateUpdate()
         {
-            HandleJump();
+            HandleGravity();
+            //HandleJump();
         }
         public virtual void OnCrouchInput()
         {
@@ -51,6 +54,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public virtual void OnJumpInput(bool isPerformed)
         {
             stateController.JumpRequested = isPerformed;
+            HandleJump();
         
         }
 
@@ -62,10 +66,15 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 if (stateController.VerticalVelocity.y < 0f)
                     stateController.VerticalVelocity.y = -2f;
                 stateController.VerticalVelocity.y = Mathf.Sqrt(playerSO.JumpStrength * -2f * playerSO.PlayerGravity);
+                Animator.PlayJump();
             }
+
+
+        }
+        public virtual void HandleGravity()
+        {
             stateController.VerticalVelocity.y += playerSO.PlayerGravity * Time.deltaTime;
             characterController.Move(stateController.VerticalVelocity * Time.deltaTime);
-
 
         }
     }

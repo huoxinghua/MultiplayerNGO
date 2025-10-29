@@ -1,11 +1,13 @@
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NewItemSystem;
+using _Project.Code.Gameplay.Player.UsableItems;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
-    public class PlayerInventory : NetworkBehaviour
+    public class PlayerInventory : MonoBehaviour
     {
         [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
         public IInventoryItem BigItemCarried { get; private set; }
@@ -14,6 +16,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [field: SerializeField] public Transform DropTransform { get; private set; }
         private int _currentIndex;
         [SerializeField] private PlayerInputManager _inputManager;
+        [field: SerializeField] public Image[] SlotDisplay { get; private set; } = new Image[5];
+        [field: SerializeField] public Image[] SlotBackground { get; private set; } = new Image[5];
+        [field: SerializeField] public Image EmptySlot { get; private set; }
         private bool _handsFull => BigItemCarried != null;
         public bool InventoryFull => IsInventoryFull();
         public void Awake()
@@ -32,7 +37,20 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             _inputManager.OnUse -= UseItemInHand;
             _inputManager.OnDropItem -= DropItem;
         }
-
+        public void ChangeUISlotDisplay()
+        {
+            for (int i = 0; i < InventoryItems.Length; i++)
+            {
+                if (InventoryItems[i] == null)
+                {
+                    SlotDisplay[i] = EmptySlot;
+                }
+                else
+                {
+                    SlotDisplay[i] = InventoryItems[i].GetUIImage();
+                }
+            }
+        }
         public bool IsInventoryFull()
         {
             bool isFull = true;
@@ -64,126 +82,103 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// <param name="item"> the item itself being picked up</param>
         public void DoPickup(IInventoryItem item)
         {
-            if (IsServer)
+
+
+            if (item.IsPocketSize())
             {
-
-                if (item.IsPocketSize())
+                if (InventoryItems[_currentIndex] == null)
                 {
-                    if (InventoryItems[_currentIndex] == null)
-                    {
-                        InventoryItems[_currentIndex] = item;
-                        item.PickupItem(gameObject, HoldTransform);
-                        item.EquipItem();
-                        Debug.Log("server side do Pice up");
-                        //network
-                        NetworkObject netObj = null;
+                    InventoryItems[_currentIndex] = item;
+                    item.PickupItem(gameObject, HoldTransform);
+                    item.EquipItem();
+                    Debug.Log("server side do Pice up");
+                    //network
 
 
-                        var mono = item as MonoBehaviour;
-                        if (mono != null)
-                        {
-                            Debug.LogWarning($"network pick up");
-                            netObj = mono.GetComponent<NetworkObject>();
-                            if (netObj != null)
-                            {
-                                netObj.TrySetParent(HoldTransform);
-                                netObj.transform.localPosition = Vector3.zero;
-                                netObj.transform.localRotation = Quaternion.identity;
-
-
-                                NotifyClientsPickupClientRpc(netObj, OwnerClientId);
-                            }
-                            else
-                            {
-                                Debug.LogWarning($"n NetworkObject no");
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"mono == null");
-                        }
-                        //end network
-                    }
-                    else
-                    {
-                        //should find first available slot? I hope
-                        for (int i = 0; i < InventoryItems.Length; i++)
-                        {
-                            var items = InventoryItems[i];
-                            if (items == null)
-                            {
-                                InventoryItems[i] = item;
-                                item.PickupItem(gameObject, HoldTransform);
-                                item.UnequipItem();
-                                break;
-                            }
-
-                        }
-                    }
-
-
-                    //add to inventory list
+                    ChangeSlotBackgrounds(_currentIndex);
+                    //end network
                 }
                 else
                 {
-                    BigItemCarried = item;
-                    InventoryItems[_currentIndex]?.UnequipItem();
-                    item.PickupItem(gameObject, HoldTransform);
-                    item.EquipItem();
+                    //should find first available slot? I hope
+                    for (int i = 0; i < InventoryItems.Length; i++)
+                    {
+                        var items = InventoryItems[i];
+                        if (items == null)
+                        {
+                            InventoryItems[i] = item;
+                            item.PickupItem(gameObject, HoldTransform);
+                            item.UnequipItem();
+                            break;
+                        }
+
+                    }
                 }
 
+
+                //add to inventory list
             }
-      
-     
+            else
+            {
+                BigItemCarried = item;
+                InventoryItems[_currentIndex]?.UnequipItem();
+                item.PickupItem(gameObject, HoldTransform);
+                item.EquipItem();
+                ChangeSlotBackgrounds(-1);
+            }
+            ChangeUISlotDisplay();
+
+
+
         }
 
-        [ClientRpc]
-        private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
-        {
-            if (NetworkManager.Singleton.LocalClientId == playerId)
-            {
-                Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
-                return;
-            }
+        /*  [ClientRpc]
+          private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
+          {
+              if (NetworkManager.Singleton.LocalClientId == playerId)
+              {
+                  Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
+                  return;
+              }
 
-            Debug.Log("NotifyClientsPickupClientRpc");
-            if (!itemRef.TryGet(out NetworkObject netObj)) return;
+              Debug.Log("NotifyClientsPickupClientRpc");
+              if (!itemRef.TryGet(out NetworkObject netObj)) return;
 
-            var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
-            if (item == null) return;
+              var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
+              if (item == null) return;
 
-            Debug.Log($"[Sync] Item picked up by player {playerId}");
+              Debug.Log($"[Sync] Item picked up by player {playerId}");
 
 
-            var player = FindPlayerById(playerId);
-            if (player == null)
-            {
-                Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
-                return;
-            }
-            var inventory = player.GetComponent<PlayerInventory>();
-            if (inventory == null)
-            {
-                Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
-                return;
-            }
-            netObj.transform.SetParent(inventory.HoldTransform);
-            netObj.transform.localPosition = Vector3.zero;
-            netObj.transform.localRotation = Quaternion.identity;
-            netObj.gameObject.SetActive(true);
-            Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
-        }
-        private GameObject FindPlayerById(ulong clientId)
-        {
-            foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
-            {
-                if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
-                {
-                    return obj.gameObject;
-                }
-            }
-            return null;
-        }
+              var player = FindPlayerById(playerId);
+              if (player == null)
+              {
+                  Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
+                  return;
+              }
+              var inventory = player.GetComponent<PlayerInventory>();
+              if (inventory == null)
+              {
+                  Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
+                  return;
+              }
+              netObj.transform.SetParent(inventory.HoldTransform);
+              netObj.transform.localPosition = Vector3.zero;
+              netObj.transform.localRotation = Quaternion.identity;
+              netObj.gameObject.SetActive(true);
+              Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
+          }
+          private GameObject FindPlayerById(ulong clientId)
+          {
+              foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+              {
+                  if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
+                  {
+                      return obj.gameObject;
+                  }
+              }
+              return null;
+          }*/
 
         /// <summary>
         /// Tells items at current item index to handle drop logic. This is done via input
@@ -208,6 +203,21 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex].DropItem(DropTransform);
                 InventoryItems[_currentIndex] = null;
                 //drop current slot if there is one
+            }
+            ChangeUISlotDisplay();
+        }
+        public void ChangeSlotBackgrounds(int selectedItem)
+        {
+            for (int i = 0; i < SlotDisplay.Length; i++)
+            {
+                if (i == selectedItem)
+                {
+                    SlotBackground[i].color = Color.red;
+                }
+                else
+                {
+                    SlotBackground[i].color = Color.white;
+                }
             }
         }
         public void UseItemInHand()
@@ -290,6 +300,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             }
             _currentIndex = indexOf;
             InventoryItems[_currentIndex]?.EquipItem();
+            ChangeUISlotDisplay();
+            ChangeSlotBackgrounds(_currentIndex);
         }
         #region Inputs
         private void HandlePressedSlot(int index)
