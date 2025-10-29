@@ -32,6 +32,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         public void DoSpawnEnemy(GameObject EnemyPrefab)
         {
             GameObject temp = Instantiate(EnemyPrefab, _spawnPos);
+            temp.GetComponent<NetworkObject>().Spawn();
             temp.transform.parent = null;
         }
     }
