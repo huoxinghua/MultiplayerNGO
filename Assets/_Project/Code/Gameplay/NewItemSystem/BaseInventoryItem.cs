@@ -123,7 +123,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             Destroy(_currentHeldVisual);
             transform.parent = null;
-            DropServerRpc();
+            if (NetworkManager.Singleton.IsClient)
+            {
+                DropServerRpc();
+            }
             _rb.isKinematic = false;
             _collider.enabled = true;
             transform.position = dropPoint.position;
