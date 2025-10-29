@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Market.Buy
 {
-    public class VanSpawner : MonoBehaviour
+    public class VanSpawner : NetworkBehaviour
     {
         private List<BuyOrder> buyOrders = new List<BuyOrder>();
         [SerializeField] private DeliveryVan _vanPrefab;
@@ -13,12 +14,17 @@ namespace _Project.Code.Gameplay.Market.Buy
         }
         public void SendVan()
         {
-            DeliveryVan temp = Instantiate(_vanPrefab, transform);
-            foreach(var buyOrder in buyOrders)
+            if (IsServer)
             {
-                temp.AddBuyOrder(buyOrder);
+                DeliveryVan temp = Instantiate(_vanPrefab, transform);
+                temp.GetComponent<NetworkObject>().Spawn();
+                foreach(var buyOrder in buyOrders)
+                {
+                    temp.AddBuyOrder(buyOrder);
+                }
+                ClearBuyOrders();
             }
-            ClearBuyOrders();
+            
         }
         public void ClearBuyOrders()
         {
