@@ -4,6 +4,7 @@ using _Project.Code.Gameplay.Player;
 using _Project.Code.Utilities.StateMachine;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
@@ -34,7 +35,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
             agent = GetComponent<NavMeshAgent>();
             Animator = GetComponentInChildren<BruteAnimation>();
-            HandleHeartSpawn();
+            //HandleHeartSpawn();
             IdleState = new BruteIdleState(this);
             WanderState = new BruteWanderState(this);
             BruteHurtIdleState = new BruteHurtIdleState(this);
@@ -47,6 +48,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             BruteHitState = new BruteHitState(this);
        
         }
+        
         public void HandleHeartSpawn()
         {
             _spawnedHeart = Instantiate(_heartPrefab, transform);
@@ -63,11 +65,25 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            if (!IsServer) return;
-            transform.parent = null;
-            TransitionTo(WanderState);
+            if (IsServer)
+            {
+                HandleHeartSpawn();//move this called from awake 
+                SpawnHeartClientRpc(transform.position);
+                transform.parent = null;
+                TransitionTo(WanderState);
+            }
         }
+        [ClientRpc]
+        private void SpawnHeartClientRpc(Vector3 brutePosition)
+        {
+            if (IsServer)return;
+          
+            _spawnedHeart = Instantiate(_heartPrefab, brutePosition, Quaternion.identity);
+            _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
+            _spawnedHeart.transform.SetParent(null);
+            HeartPosition = transform;
 
+        }
         void Update()
         {
 //Debug.Log("Current State: " + CurrentState);
