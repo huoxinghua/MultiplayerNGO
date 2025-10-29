@@ -7,29 +7,53 @@ namespace Network.Scripts.UI
 {
     public class NetworkUI : MonoBehaviour
     {
-        [SerializeField] private Button hostButton;
-      //  [SerializeField] private Button _levelLoadButton;
-        [SerializeField] private Button clientButton;
-        void Start()
+        [SerializeField] private Button _hostButton;
+        [SerializeField] private string _loadSceneName;
+        [SerializeField] private Button _clientButton;
+        private void Start()
         {
-            if (hostButton != null)
+            if (_hostButton != null)
             {
-                hostButton.onClick.AddListener(() => NetworkManager.Singleton.StartHost());
+                _hostButton.onClick.AddListener(OnHostClicked);
             }
-        
-            if (clientButton != null)
+
+            if (_clientButton != null)
             {
-                clientButton.onClick.AddListener(() => NetworkManager.Singleton.StartClient());
+                _clientButton.onClick.AddListener(OnClientClicked);
             }
-       
         }
-        //public void LoadGeneratLevel()
-        //{
-        //    if (_levelLoadButton != null)
-        //    {
-        //        _levelLoadButton.onClick.AddListener(() => NetworkManager.Singleton.SceneManager.LoadScene("SecondShowcase", LoadSceneMode.Single));
-        //    }
-        //}
+
+        private void OnHostClicked()
+        {
+            Debug.Log("Host button clicked");
+
+            if (NetworkManager.Singleton.StartHost())
+            {
+                Debug.Log("Host started!");
+               
+                NetworkManager.Singleton.SceneManager.LoadScene(_loadSceneName, LoadSceneMode.Single);
+            }
+            else
+            {
+                Debug.LogError("Failed to start host");
+            }
+        }
+
+        private void OnClientClicked()
+        {
+            Debug.Log("Client button clicked");
+
+            if (NetworkManager.Singleton.StartClient())
+            {
+                Debug.Log("Client started!");
+             
+            }
+            else
+            {
+                Debug.LogError("Failed to start client");
+            }
+        }
+
     }
 
 
