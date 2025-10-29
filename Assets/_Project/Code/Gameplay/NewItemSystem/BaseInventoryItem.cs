@@ -2,6 +2,7 @@ using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
 using QuickOutline.Scripts;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using Outline = QuickOutline.Scripts.Outline;
@@ -9,12 +10,14 @@ using Outline = QuickOutline.Scripts.Outline;
 namespace _Project.Code.Gameplay.NewItemSystem
 {
     [RequireComponent(typeof(Outline))]
-    public class BaseInventoryItem : MonoBehaviour , IInteractable , IInventoryItem
+    public class BaseInventoryItem : NetworkBehaviour , IInteractable , IInventoryItem
     {
         [SerializeField] protected GameObject _heldVisual;
         //  [SerializeField] protected GameObject _heldVisualRPC;
         [SerializeField] protected BaseItemSO _itemSO;
 
+        
+        NetworkVariable<bool> _isHeld = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Server);
         //casting type to child? to get child specific properties
         /*if (item is WeaponSO weapon)
 {
@@ -33,6 +36,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected float _tranquilValue = 0;
         protected float _violentValue = 0;
         protected float _miscValue = 0;
+        public override void OnNetworkSpawn()
+        {
+                _isHeld.OnValueChanged += OnHeldStateChanged;
+        }
+
+        protected virtual void OnHeldStateChanged(bool oldHeld, bool newHeld)
+        {
+            _rb.isKinematic = newHeld;
+            _renderer.enabled = !newHeld;
+            _collider.enabled = !newHeld;
+        }
         private void Awake()
         {
             OutlineEffect = GetComponent<Outline>();
@@ -43,10 +57,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
             
         }
-        private void Update()
-        {
-
-        }
         public virtual void OnInteract(GameObject interactingPlayer)
         {
             var inv = interactingPlayer.GetComponent<PlayerInventory>();
@@ -54,6 +64,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             //if (!inv.IsOwner)
                 //return;
+                if (NetworkManager.Singleton.IsClient)
+                {
+                    // Tell the server we want to pick this up
+                    PickupServerRpc();
+                }
             inv.TryPickupItem();
             inv.DoPickup(this);
             //if (interactingPlayer.GetComponent<PlayerInventory>().TryPickupItem())
@@ -91,13 +106,15 @@ namespace _Project.Code.Gameplay.NewItemSystem
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
             Debug.Log("[BaseInventoryItem] PickupItem" + _currentHeldVisual.name);
-
         }
-        /*    public virtual void GenerateItemRPC(GameObject player, Transform playerHoldPositionRPC)
-            {
-                _currentHeldVisualRPC = Instantiate(_heldVisualRPC, playerHoldPositionRPC);
-            }
-    */
+        
+        [ServerRpc(RequireOwnership = false)]
+        void PickupServerRpc()
+        {
+            Debug.Log("[BaseInventoryItem] PickupServerRpc");
+            _isHeld.Value = true; // <-- automatically triggers OnHeldStateChanged on all clients
+        }
+        
         public virtual void DropItem(Transform dropPoint)
         {
             _owner = null;
@@ -106,11 +123,22 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             Destroy(_currentHeldVisual);
             transform.parent = null;
-
+            if (NetworkManager.Singleton.IsClient)
+            {
+                DropServerRpc();
+            }
             _rb.isKinematic = false;
             _collider.enabled = true;
             transform.position = dropPoint.position;
         }
+        [ServerRpc(RequireOwnership = false)]
+        void DropServerRpc()
+        {
+            _isHeld.Value = false;
+        }
+        
+        
+        
         public virtual void UseItem()
         {
 

@@ -38,17 +38,26 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
             FollowState = new BeetleFollowState(this);
             RunState = new BeetleRunState(this);
         }
-        public void Start()
+        public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+            if (!IsServer) return;
+            Debug.Log("OnNetworkSpawn");
+            transform.parent = null;
             TransitionTo(WanderState);
+            Debug.Log(CurrentState);
+            
         }
         void Update()
         {
+            if (!IsServer) return;
+            Debug.Log(CurrentState);
             FollowCooldown.TimerUpdate(Time.deltaTime);
             CurrentState?.StateUpdate();
         }
         void FixedUpdate()
         {
+            if(!IsServer) return;
             CurrentState?.StateFixedUpdate();
         }
         public void TransitionTo(BeetleBaseState newState)

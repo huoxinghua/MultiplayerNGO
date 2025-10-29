@@ -25,7 +25,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
 
         }
-
+        
         public override void StateUpdate()
         {
 
@@ -37,6 +37,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public virtual void OnHearPlayer()
         {
 
+        }
+        public virtual void OnStateAnimatorMove()
+        {
         }
     }
 }
