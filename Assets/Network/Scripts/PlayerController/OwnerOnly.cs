@@ -7,7 +7,8 @@ namespace Network.Scripts.PlayerController
     {
         [SerializeField] private MonoBehaviour[] _componentsToDisable;
         [SerializeField] private GameObject[] _objectsToEnable;
-        [SerializeField] private GameObject _objectsToDisable;
+        [SerializeField] private Camera _cameraToDisable;
+        [SerializeField] private Renderer _renderToDisable;
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -30,6 +31,7 @@ namespace Network.Scripts.PlayerController
                     obj.SetActive(isOwner);
                 }
             }
+            
             /*    foreach (var obj in _objectsToDisable)
                 {
                     if (obj != null)
@@ -37,9 +39,11 @@ namespace Network.Scripts.PlayerController
                         obj.SetActive(!isOwner);
                     }
                 }*/
+            _renderToDisable.enabled = !isOwner;
 
-            var render = _objectsToDisable.GetComponent<Renderer>();
-            render.enabled = !isOwner;
+           
+           
+           
         }
         public override void OnNetworkDespawn()
         {
