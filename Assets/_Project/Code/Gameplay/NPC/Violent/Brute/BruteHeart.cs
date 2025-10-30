@@ -1,14 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Utilities.Audio;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    public class BruteHeart : MonoBehaviour , IHitable 
+    public class BruteHeart : NetworkBehaviour , IHitable 
     {
         private BruteStateMachine _controller;
         private List<PlayerList> _players = PlayerList.AllPlayers;
@@ -38,15 +41,38 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         }
         public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
         {
+           // if(!IsServer)return;
             _health -= damage;
+           // Debug.Log("on it health:"+ _health);
             if(_health < 0)
             {
                 StopCoroutine(HeartBeat());
                 StopCoroutine(CheckPlayerProximity());
                 _controller.TransitionTo(_controller.BruteHurtIdleState);
-                Destroy(gameObject);
+                var netObj = GetComponent<NetworkObject>();
+                if (netObj != null && netObj.IsSpawned)
+                {
+                    netObj.Despawn(true);
+                }
+                else
+                {
+                    Destroy(gameObject);
+                }
             }
         }
+        
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            StopAllCoroutines();
+
+            // play the heard break sound if have
+            //AudioManager.Instance.PlayByKey3D("HeartBreak", transform.position);
+            if (_controller != null)
+                _controller.OnHeartDestroyed();
+        }
+
+
         IEnumerator HeartBeat()
         {
             while(true)

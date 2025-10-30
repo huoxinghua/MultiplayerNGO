@@ -46,47 +46,36 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             BruteHeardPlayerState = new BruteHeardPlayerState(this);
             BruteDeadState = new BruteDeadState(this);
             BruteHitState = new BruteHitState(this);
-       
         }
-        
+
         public void HandleHeartSpawn()
         {
+            if(!IsServer)return;
             _spawnedHeart = Instantiate(_heartPrefab, transform);
+            var netObj = _spawnedHeart.GetComponent<NetworkObject>();
+            if (netObj != null && !netObj.IsSpawned)
+            {
+                netObj.Spawn();
+            }
             _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
             _spawnedHeart.transform.SetParent(null);
             HeartPosition = transform;
         }
-        /*public void Start()
-        {
-            if (!IsServer) return;
-            TransitionTo(WanderState);
-        }*/
-
+        
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
             if (IsServer)
             {
                 HandleHeartSpawn();//move this called from awake 
-                SpawnHeartClientRpc(transform.position);
                 transform.parent = null;
                 TransitionTo(WanderState);
             }
         }
-        [ClientRpc]
-        private void SpawnHeartClientRpc(Vector3 brutePosition)
-        {
-            if (IsServer)return;
-          
-            _spawnedHeart = Instantiate(_heartPrefab, brutePosition, Quaternion.identity);
-            _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
-            _spawnedHeart.transform.SetParent(null);
-            HeartPosition = transform;
-
-        }
+     
         void Update()
         {
-//Debug.Log("Current State: " + CurrentState);
+            //Debug.Log("Current State: " + CurrentState);
             if (!IsServer) return;
             CurrentState?.StateUpdate();
         }
