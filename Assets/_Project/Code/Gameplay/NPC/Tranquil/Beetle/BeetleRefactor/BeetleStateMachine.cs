@@ -4,7 +4,7 @@ using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using UnityEngine.AI;
-
+using Unity.Netcode;
 namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
 {
     public class BeetleStateMachine : BaseStateController
@@ -51,7 +51,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         void Update()
         {
             if (!IsServer) return;
-            Debug.Log(CurrentState);
+           // Debug.Log(CurrentState);
             FollowCooldown.TimerUpdate(Time.deltaTime);
             CurrentState?.StateUpdate();
         }
@@ -79,20 +79,99 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         }
         public void HandleKnockedOut()
         {
-            BeetleDeadScript.enabled = true;
-            transform.GetChild(1).parent = null;
-            _ragdollScript.EnableRagdoll();
-            Destroy(transform.GetChild(0).gameObject);
-            Destroy(gameObject);
+            Debug.Log("HandleKnockedOut");
+            if (!IsServer)
+            {
+                RequestKnockedOutServerRPC();
+                return;
+            }
+            else
+            {
+                ApplyKnockedOut();
+            }
+           
         }
-        public void HandleDeath()
+        
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestKnockedOutServerRPC()
+        {
+            ApplyKnockedOut();
+        }
+        private void ApplyKnockedOut()
         {
             BeetleDeadScript.enabled = true;
             transform.GetChild(1).parent = null;
             _ragdollScript.EnableRagdoll();
             Destroy(transform.GetChild(0).gameObject);
+            DetachRagdollClientRpc();
+            PlayRagdollClientRpc();
             Destroy(gameObject);
         }
+        public void HandleDeath()
+        {
+            Debug.Log("BeetleStateMachine HandleDeath");
+            if (!IsServer)
+            {
+                RequestHandleDeathServerRPC();
+                return;
+            }
+            else
+            {
+                ApplyDeath();
+            }
+          
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestHandleDeathServerRPC()
+        {
+            Debug.Log("BeetleStateMachine RequestHandleDeathServer");
+        }
+
+        private void ApplyDeath()
+        {
+            Debug.Log("[BeetleStateMachine] ApplyDeath");
+            BeetleDeadScript.enabled = true;
+            transform.GetChild(1).parent = null;
+            _ragdollScript.EnableRagdoll();
+            DetachRagdollClientRpc();
+            PlayRagdollClientRpc();
+            Destroy(transform.GetChild(0).gameObject);
+            Destroy(gameObject,3f);
+        }
+        
+        [ClientRpc]
+        private void DetachRagdollClientRpc()
+        {
+            Debug.Log("[CLIENT] Beetle DetachRagdollClientRpc received");
+
+            if (this == null || transform == null)
+            {
+                Debug.LogWarning("[CLIENT] Beetle already destroyed, skip detach");
+                return;
+            }
+            try
+            {
+                BeetleDeadScript.enabled = true;
+                var child = transform.GetChild(1);
+                child.parent = null;
+                _ragdollScript.EnableRagdoll();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[CLIENT] Failed to detach ragdoll: {e.Message}");
+            }
+        }
+        
+        [ClientRpc]
+        private void PlayRagdollClientRpc()
+        {
+            Debug.Log("[BeetleStateMachine]PlayRagdollClientRpc");
+            BeetleDeadScript.enabled = true;
+            transform.GetChild(1).parent = null;
+            _ragdollScript.EnableRagdoll();
+        }
+
         public void HandleHitByPlayer(GameObject player)
         {
             PlayerToRunFrom = player;

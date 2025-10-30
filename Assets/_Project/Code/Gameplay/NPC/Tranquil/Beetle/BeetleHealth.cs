@@ -42,10 +42,11 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         public void ChangeHealth(float healthChange)
         {
-            Debug.Log("IsBeetle Change health" + healthChange);
             _currentHealth += healthChange;
+            Debug.Log("IsBeetle Change health" + _currentHealth);
             if (_currentHealth < 0)
             {
+                Debug.Log("IsBeetle Change health" + "_currentHealth <0");
                 OnDeath();
             }
         }
@@ -55,35 +56,18 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         public void OnDeath()
         {
-            if(!IsServer)return;
-            Debug.Log("[beetleHealth]OnDeath");
+            Debug.Log("[beetleHealth]OnDeath!!!!!!" + "IsServer"+IsServer +"IsClient" + IsClient);
+            /*if (!IsServer)
+            {
+                Debug.Log("[beetleHealth]OnDeath" + " not server skip  On Death");
+                return;
+            }
+            Debug.Log("[beetleHealth]OnDeath" + "IsServer On Death");*/
             StateMachine.HandleDeath();
-            OnDeathClientRpc();
-
-            
-            var netObj = GetComponent<NetworkObject>();
-            if (netObj != null && netObj.IsSpawned)
-            {
-                netObj.Despawn(true);  
-            }
-            else
-            {
-                Destroy(gameObject); 
-            }
         }
-        [ClientRpc]
-        private void OnDeathClientRpc()
-        {
-            Debug.Log("[CLIENT] Beetle died (sync from server)");
-            
-            var ragdoll = GetComponent<_Project.Code.Art.RagdollScripts.Ragdoll>();
-            if (ragdoll != null)
-                ragdoll.EnableRagdoll();
-            
-        }
+       
         public void ChangeConsciousness(float consciousnessChange)
         {
-            Debug.Log("[beetle health]ChangeConsciousness");
             _currentConsciousness += consciousnessChange;
             if(_currentConsciousness < 0)
             {
@@ -103,7 +87,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
                 return;
             }
 
-         
             ApplyHit(attacker, damage, knockoutPower);
         }
 
