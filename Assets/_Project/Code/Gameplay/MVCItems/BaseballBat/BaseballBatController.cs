@@ -5,10 +5,10 @@ using _Project.Code.Gameplay.Player;
 using _Project.Code.Gameplay.Player.UsableItems;
 using _Project.Code.Utilities.Audio;
 using UnityEngine;
-
+using Unity.Netcode;
 namespace _Project.Code.Gameplay.MVCItems.BaseballBat
 {
-    public class BaseballBatController : MonoBehaviour ,IHeldItem,IInteractable
+    public class BaseballBatController : NetworkBehaviour ,IHeldItem,IInteractable
     {
         private BaseballBatModel model;
         private IView view;
@@ -74,11 +74,38 @@ namespace _Project.Code.Gameplay.MVCItems.BaseballBat
 
             foreach (Collider enemy in hitEnemies)
             {
-                enemy.gameObject.GetComponent<IHitable>()?.OnHit(model.Owner, model.GetDamage(),model.GetKnockoutPower());
+                var netObj = enemy.GetComponent<NetworkObject>();
+                if (netObj != null)
+                {
+                   
+                    RequestHitServerRpc(netObj.NetworkObjectId, model.GetDamage(), model.GetKnockoutPower());
+                    Debug.Log("[BaseballBatController] RequestHitServerRpc");
+                }
+                else
+                {
+                    enemy.gameObject.GetComponent<IHitable>()?.OnHit(model.Owner, model.GetDamage(), model.GetKnockoutPower());
+                    Debug.Log("[BaseballBatController] localHitServerRpc");
+                }
+
                 // Debug.Log(enemy.gameObject.name);
                 //  enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage);
             }
         }
+        
+        [ServerRpc]
+        void RequestHitServerRpc(ulong targetId, float damage, float knockoutPower)
+        {
+            if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(targetId, out var obj))
+            {
+                var hit = obj.GetComponent<IHitable>();
+                if (hit != null)
+                {
+                    hit.OnHit(model.Owner, damage, knockoutPower);
+                    Debug.Log("BaseballBatController] requestHitServerRpc");
+                }
+            }
+        }
+        
         void TryAttack()
         {
             if (_attackCoroutine == null)

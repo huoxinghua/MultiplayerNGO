@@ -106,7 +106,32 @@ namespace _Project.Code.Gameplay.NewItemSystem
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
             Debug.Log("[BaseInventoryItem] PickupItem" + _currentHeldVisual.name);
+            
+            if (!IsServer)
+            {
+                ulong clientId = player.GetComponent<NetworkObject>().OwnerClientId;
+                RequestPickupServerRpc(player.GetComponent<NetworkObject>());
+               
+            }
+            else
+            {
+              
+                NetworkObject.ChangeOwnership(player.GetComponent<NetworkObject>().OwnerClientId);
+            }
         }
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestPickupServerRpc(NetworkObjectReference playerRef)
+        {
+            if (playerRef.TryGet(out NetworkObject playerObj))
+            {
+               
+                ulong clientId = playerObj.OwnerClientId;
+                _owner = playerObj.gameObject;
+                NetworkObject.ChangeOwnership(clientId);
+                Debug.Log($"[ServerRpc] Owner set to {playerObj.name}, clientId = {clientId}");
+            }
+        }
+        
         
         [ServerRpc(RequireOwnership = false)]
         void PickupServerRpc()

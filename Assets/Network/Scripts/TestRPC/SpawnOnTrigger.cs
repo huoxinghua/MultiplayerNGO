@@ -26,7 +26,7 @@ namespace Network.Scripts.TestRPC
             GameObject spawned = Instantiate(prefabToSpawn,transform.position + Vector3.up * 2, Quaternion.identity);
             //sync to all clients
             var netObj = spawned.GetComponent<NetworkObject>();
-            netObj.SpawnWithOwnership(senderId);
+            netObj.Spawn();
           //  StartCoroutine(DespawnAfterSeconds(netObj, 5f));
 
             hasSpawned = true;
