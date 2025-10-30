@@ -31,6 +31,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public GameObject LastHeardPlayer { get; private set; }
         public GameObject PlayerToAttack { get; private set; }
         public int TimesAlerted = 0;
+     
+        // Network sync for player target
+        private readonly NetworkVariable<NetworkObjectReference> _playerTargetRef = new NetworkVariable<NetworkObjectReference>();
+       
+
         public void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
@@ -65,6 +70,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            _playerTargetRef.OnValueChanged += OnPlayerTargetRefChanged;
+            if (!IsServer)
+            {
+                TryResolvePlayerTarget(_playerTargetRef.Value);
+            }
             if (IsServer)
             {
                 HandleHeartSpawn();//move this called from awake 
@@ -72,7 +82,29 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
                 TransitionTo(WanderState);
             }
         }
-     
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            _playerTargetRef.OnValueChanged -= OnPlayerTargetRefChanged;
+        }
+        private void OnPlayerTargetRefChanged(NetworkObjectReference previous, NetworkObjectReference current)
+        {
+            if (!IsServer)
+            {
+                TryResolvePlayerTarget(current);
+            }
+        }
+        
+        private void TryResolvePlayerTarget(NetworkObjectReference playerRef)
+        {
+            if (playerRef.TryGet(out NetworkObject netObj))
+            {
+                PlayerToAttack = netObj.gameObject;
+                Debug.Log($"[Client] Resolved PlayerToAttack -> {PlayerToAttack.name}");
+                return;
+            }
+        }
+       
         void Update()
         {
             //Debug.Log("Current State: " + CurrentState);
@@ -112,12 +144,54 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             LastHeardPlayer = attackingPlayer;
             TransitionTo(BruteChaseState);
         }
-        public void OnAttack(GameObject playerToAttack) 
+        /*public void OnAttack(GameObject playerToAttack) 
         {
             StateBeforeAttack = CurrentState;
             PlayerToAttack = playerToAttack;
             TransitionTo(BruteAttackState);
+        }*/
+        public void OnAttack(GameObject playerToAttack)
+        {
+            StateBeforeAttack = CurrentState;
+            if (!IsServer)
+            {
+                var netObj = playerToAttack.GetComponent<NetworkObject>();
+                if (netObj != null)
+                {
+                    RequestAttackServerRpc(netObj);
+                }
+                return;
+            }
+            ExecuteAttack(playerToAttack);
         }
+        
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestAttackServerRpc(NetworkObjectReference playerRef)
+        {
+            if (playerRef.TryGet(out NetworkObject playerObj))
+            {
+                ExecuteAttack(playerObj.gameObject);
+            }
+        }
+        
+        private void ExecuteAttack(GameObject playerToAttack)
+        {
+            PlayerToAttack = playerToAttack;
+    
+            var netObj = playerToAttack.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                _playerTargetRef.Value = netObj;
+                Debug.Log($"[Server] Brute set target to {playerToAttack.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[Server] Player target missing NetworkObject!");
+            }
+
+            TransitionTo(BruteAttackState);
+        }
+
         public void OnDeath()
         {
 
@@ -140,6 +214,18 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public void OnAttackConnects()
         {
+            if (PlayerToAttack == null)
+            {
+                Debug.LogError("[Brute] PlayerToAttack is null in OnAttackConnects!");
+                return;
+            }
+
+            var health = PlayerToAttack.GetComponent<IPlayerHealth>();
+            if (health == null)
+            {
+                Debug.LogError("[Brute] Target has no IPlayerHealth component!");
+                return;
+            }
             if(Vector3.Distance(transform.position,PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
             {
                 PlayerToAttack.GetComponent<IPlayerHealth>().TakeDamage(BruteSO.Damage);
