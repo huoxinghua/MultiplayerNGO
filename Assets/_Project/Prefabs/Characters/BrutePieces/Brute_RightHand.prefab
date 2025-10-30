@@ -13,7 +13,9 @@ GameObject:
   - component: {fileID: 6688349409751073958}
   - component: {fileID: 3085401856092542338}
   - component: {fileID: 5146363632546447114}
+  - component: {fileID: -8385712488531048714}
   - component: {fileID: 1540948427536671471}
+  - component: {fileID: 2441886508268049777}
   m_Layer: 12
   m_Name: Brute_RightHand
   m_TagString: Untagged
@@ -138,6 +140,31 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -4584401773398092944, guid: 3ca8fae53070d38478c83be0fe3eeaaa, type: 3}
+--- !u!114 &-8385712488531048714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431017610602340111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2876067065
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &1540948427536671471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,8 +177,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4301e7cdda8b6845b313be71f3010ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _heldVisual: {fileID: 431017610602340111, guid: a4987bc8dcb04384482193256923e2dd, type: 3}
+  _itemSO: {fileID: 0}
+  _rb: {fileID: 3085401856092542338}
   _renderer: {fileID: 6688349409751073958}
   _collider: {fileID: 5146363632546447114}
-  _heldVisual: {fileID: 431017610602340111, guid: a4987bc8dcb04384482193256923e2dd, type: 3}
-  _rb: {fileID: 3085401856092542338}
-  _brutePieceSO: {fileID: 11400000, guid: ba34a96aa4b427b4abdd7f1e4cfca017, type: 2}
+--- !u!114 &2441886508268049777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431017610602340111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

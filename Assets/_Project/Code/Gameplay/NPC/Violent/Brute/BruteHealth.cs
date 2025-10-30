@@ -2,10 +2,11 @@ using _Project.Code.Art.RagdollScripts;
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    public class BruteHealth : MonoBehaviour, IHitable
+    public class BruteHealth : NetworkBehaviour, IHitable
     {
         private float _maxHealth;
         private float _currentHealth;
@@ -50,13 +51,40 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 OnDeath();
             }
         }
+  
         public void OnDeath()
         {
+            if (!IsServer) return;
             _stateMachine.OnDeath();
             _ragdoll.EnableRagdoll();
             _ragdolledObj.transform.SetParent(null);
-            Destroy(gameObject);
+            DetachRagdollServerRpc();
+            var netObj = GetComponent<NetworkObject>();
+            if (netObj != null && netObj.IsSpawned)
+            {
+               
+                if (IsServer)
+                    netObj.Despawn(true); 
+            }
+            else
+            {
+               
+                Destroy(gameObject);
+            }
             _bruteDead.enabled = true;
+        }
+        
+        [ServerRpc]
+        void DetachRagdollServerRpc()
+        {
+            DetachRagdollClientRpc();
+        }
+
+        [ClientRpc]
+        void DetachRagdollClientRpc()
+        {
+            _ragdoll.EnableRagdoll();
+            _ragdolledObj.transform.SetParent(null);
         }
     }
 }

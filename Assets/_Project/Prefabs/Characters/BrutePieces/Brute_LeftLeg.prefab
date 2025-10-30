@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 4083468023016792768}
   - component: {fileID: 3024258365877857134}
   - component: {fileID: 2741130947772567210}
+  - component: {fileID: 9072146486065104216}
+  - component: {fileID: -4226690491463515475}
   m_Layer: 12
   m_Name: Brute_LeftLeg
   m_TagString: Untagged
@@ -150,8 +152,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4301e7cdda8b6845b313be71f3010ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _heldVisual: {fileID: 8226197664881664337, guid: 8eb3dc0bb0c6b2240906f17024c55c26, type: 3}
+  _itemSO: {fileID: 0}
+  _rb: {fileID: 4083468023016792768}
   _renderer: {fileID: 4861974260886484313}
   _collider: {fileID: 3024258365877857134}
-  _heldVisual: {fileID: 8226197664881664337, guid: 8eb3dc0bb0c6b2240906f17024c55c26, type: 3}
-  _rb: {fileID: 4083468023016792768}
-  _brutePieceSO: {fileID: 11400000, guid: ba34a96aa4b427b4abdd7f1e4cfca017, type: 2}
+--- !u!114 &9072146486065104216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8226197664881664337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &-4226690491463515475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8226197664881664337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0

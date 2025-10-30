@@ -41,9 +41,8 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         }
         public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
         {
-           // if(!IsServer)return;
             _health -= damage;
-           // Debug.Log("on it health:"+ _health);
+           // Debug.Log("on it health:"+ _health+ damage +"isClient:"+NetworkManager.IsServer +"isClient:"+NetworkManager.IsClient);
             if(_health < 0)
             {
                 StopCoroutine(HeartBeat());

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2076155387267077720}
   - component: {fileID: 5020923703765766236}
   - component: {fileID: 5238973839042786633}
+  - component: {fileID: 849515495214503210}
   m_Layer: 0
   m_Name: PF_ViewBrute_Head
   m_TagString: Untagged
@@ -110,6 +111,31 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -7517785628691044905, guid: 3ca8fae53070d38478c83be0fe3eeaaa, type: 3}
+--- !u!114 &849515495214503210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6084157208081999709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &651749651843542900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -118,6 +144,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 170134182409470988}
     m_Modifications:
+    - target: {fileID: -5439377289872006815, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 771556008
+      objectReference: {fileID: 0}
     - target: {fileID: 1118074979020353822, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
