@@ -57,12 +57,16 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected float _violentValue = 0;
         protected float _miscValue = 0;
 
-        public override void OnNetworkSpawn()
+        /*public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
             CustomNetworkSpawn();
-        }
+            Debug.Log($"OnNetworkSpawn() called on {GetType().Name}");
+        }*/
 
+        /// <summary>
+        /// for custom changes to onnetworkspawn
+        /// </summary>
         protected virtual void CustomNetworkSpawn()
         {
             IsPickedUp.OnValueChanged += OnHeldStateChanged;

@@ -13,6 +13,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private Timer _attackCooldownTimer = new Timer(1);
         private bool _canAttack = true;
         private float attackTime = 2f;
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            Debug.Log("CustomNetworkSpawn called!");
+            // Now add flashlight-specific network setup
+            CustomNetworkSpawn();
+        }
+
         private void Update()
         {
             
