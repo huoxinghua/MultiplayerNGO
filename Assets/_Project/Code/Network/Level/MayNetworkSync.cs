@@ -7,52 +7,62 @@ namespace _Project.Code.Network.Level
     public class MapNetworkSync : NetworkBehaviour
     {
         [SerializeField] private DungeonGenerator generator;
-
-        private NetworkVariable<int> seed = new NetworkVariable<int>(
+        
+        private NetworkVariable<int> syncedSeed = new NetworkVariable<int>(
             default,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
-        private void Start()
-        {
-          
-            //generator.RandomizeSeed() = false;
-            generator.Seed = 70;
-            seed.Value = 70;
-            Debug.Log($"[After Awake] generator.Seed = {generator.Seed}");
-        }
+
         public override void OnNetworkSpawn()
         {
-            Debug.Log("Start() called, generator.Seed = " + generator.Seed);
+            if (generator == null)
+                generator = GetComponent<DungeonGenerator>();
+
             if (IsServer)
             {
-                generator.ShouldRandomizeSeed = false;
-                generator.DungeonFlow = generator.DungeonFlow; 
-                int randomSeed = Random.Range(1, int.MaxValue);
-                generator.Seed = randomSeed;
-                seed.Value = randomSeed;
-
-                Debug.Log($"[Server] seed = {randomSeed}");
-                generator.Generate();
-                /*var serialized = generator.SerializeLayout();
-                SendDungeonLayoutClientRpc(serialized);*/
-            }
-            else//client
-            {
-                seed.OnValueChanged += OnSeedChanged;
+            
+                int seed = Random.Range(0, int.MaxValue);
+                syncedSeed.Value = seed;
+                Debug.Log($"[Server] Chosen seed = {seed}");
 
                 
-                if (seed.Value != default)
+                generator.ShouldRandomizeSeed = false;
+                generator.Seed = seed;
+                generator.Generate();
+            }
+            else
+            {
+
+                syncedSeed.OnValueChanged += OnSeedReceived;
+
+      
+                if (syncedSeed.Value != default)
                 {
-                    OnSeedChanged(default, seed.Value);
+                    OnSeedReceived(default, syncedSeed.Value);
                 }
             }
         }
-        private void OnSeedChanged(int oldSeed, int newSeed)
+
+        private void OnSeedReceived(int oldSeed, int newSeed)
         {
+            Debug.Log($"[Client] Received dungeon seed = {newSeed}");
+
+
+            ClearOldDungeonTiles();
+
+            generator.ShouldRandomizeSeed = false;
             generator.Seed = newSeed;
-            generator.DungeonFlow = generator.DungeonFlow; 
             generator.Generate();
+
+            Debug.Log("[Client] Dungeon generated from shared seed.");
+        }
+
+        private void ClearOldDungeonTiles()
+        {
+            var oldTiles = GameObject.FindGameObjectsWithTag("DungeonTile");
+            foreach (var t in oldTiles)
+                Destroy(t);
         }
      
     }
