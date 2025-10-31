@@ -1,10 +1,11 @@
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NewItemSystem;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory.OriginalGamePlaySave
 {
-    public class PlayerInventory : MonoBehaviour
+    public class PlayerInventory : NetworkBehaviour
     {
         [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
         public IInventoryItem BigItemCarried { get; private set; }
@@ -68,7 +69,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory.OriginalGamePlaySave
                 if (InventoryItems[_currentIndex] == null)
                 {
                     InventoryItems[_currentIndex] = item;
-                    item.PickupItem(gameObject, HoldTransform);
+                    item.PickupItem(gameObject, HoldTransform, NetworkObject);
                     item.EquipItem();
                 }
                 else
@@ -80,7 +81,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory.OriginalGamePlaySave
                         if (items == null)
                         {
                             InventoryItems[i] = item;
-                            item.PickupItem(gameObject, HoldTransform);
+                            item.PickupItem(gameObject, HoldTransform,NetworkObject);
                             item.UnequipItem();
                             break;
                         }
@@ -93,7 +94,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory.OriginalGamePlaySave
             {
                 BigItemCarried = item;
                 InventoryItems[_currentIndex]?.UnequipItem();
-                item.PickupItem(gameObject, HoldTransform);
+                item.PickupItem(gameObject, HoldTransform,NetworkObject);
                 item.EquipItem();
             }
         }

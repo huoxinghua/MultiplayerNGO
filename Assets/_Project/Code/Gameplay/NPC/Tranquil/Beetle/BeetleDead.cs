@@ -1,5 +1,6 @@
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.BeetleSample;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
@@ -25,7 +26,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
                 _beetleSkele.transform.localRotation = Quaternion.Euler(0, 0, 0);
             }
         }
-        public override void PickupItem(GameObject player, Transform playerHoldPosition)
+        public override void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObject)
         {
             _owner = player;
             _rb.isKinematic = true;
