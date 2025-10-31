@@ -4591,6 +4591,10 @@ PrefabInstance:
       value: -0.001
       objectReference: {fileID: 0}
     - target: {fileID: 4214012021163622981, guid: 54c52958bf8e97746afb4216ca47b724, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1809
+      objectReference: {fileID: 0}
+    - target: {fileID: 4214012021163622981, guid: 54c52958bf8e97746afb4216ca47b724, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.404
       objectReference: {fileID: 0}
@@ -6361,24 +6365,30 @@ MonoBehaviour:
   fingerSo: {fileID: 0}
   ikIdle:
     duration: 3
-    startPos: {x: 0, y: 0, z: 0}
-    endPos: {x: 0, y: 0.005, z: 0}
+    waypoints:
+    - {x: 0, y: 0.005, z: 0}
+    - {x: 0, y: -0.005, z: 0}
     loopType: 1
-    easeType: 4
+    easeType: 7
   ikWalk:
-    duration: 0
-    startPos: {x: 0, y: 0, z: 0}
-    midPos: {x: 0, y: 0, z: 0}
-    endPos: {x: 0, y: 0, z: 0}
+    duration: 3
+    waypoints:
+    - {x: -1, y: 0, z: 0}
+    - {x: 0, y: -1, z: 0}
+    - {x: 1, y: 0, z: 0}
+    - {x: 0, y: -1, z: 0}
+    - {x: -1, y: 0, z: 0}
     loopType: 0
-    easeType: 0
+    easeType: 3
+    pathType: 1
+    pathMode: 0
   ikRun:
     duration: 0
-    startPos: {x: 0, y: 0, z: 0}
-    midPos: {x: 0, y: 0, z: 0}
-    endPos: {x: 0, y: 0, z: 0}
+    waypoints: []
     loopType: 0
     easeType: 0
+    pathType: 0
+    pathMode: 0
   ikInteract:
     duration: 0
     startPos: {x: 0, y: 0, z: 0}

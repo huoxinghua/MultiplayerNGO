@@ -29,8 +29,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         public struct IdlePreset
         {
             public float duration;
-            public Vector3 startPos;
-            public Vector3 endPos;
+            public Vector3[] waypoints;
             public LoopType loopType;
             public Ease easeType;
         }
@@ -39,11 +38,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
         public struct MovementPreset
         {
             public float duration;
-            public Vector3 startPos;
-            public Vector3 midPos;
-            public Vector3 endPos;
+            public Vector3[] waypoints;
             public LoopType loopType;
             public Ease easeType;
+            public PathType pathType;
+            public PathMode pathMode;
         }
         
         [System.Serializable]
@@ -78,8 +77,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
         public void PlayIKIdle()
         {
             currentTween?.Kill();
-            transform.localPosition = ikIdle.startPos;
-            currentTween = transform.DOLocalMove(ikIdle.endPos, ikIdle.duration).SetLoops(-1, ikIdle.loopType).SetEase(ikIdle.easeType);
+
+            transform.DOLocalMove(ikIdle.waypoints[0], ikIdle.duration).SetEase(ikIdle.easeType).OnComplete(() =>
+                {
+                    Sequence seq = DOTween.Sequence();
+                    seq.Append(transform.DOLocalMove(ikIdle.waypoints[1], ikIdle.duration).SetEase(ikIdle.easeType)).Append(transform.DOLocalMove(ikIdle.waypoints[0], ikIdle.duration).SetEase(ikIdle.easeType)).SetLoops(-1, ikIdle.loopType);
+                    currentTween = seq;
+                });
         }
 
         public void PlayIKWalk()
