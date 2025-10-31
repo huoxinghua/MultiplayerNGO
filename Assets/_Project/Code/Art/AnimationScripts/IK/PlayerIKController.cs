@@ -12,7 +12,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private Transform handL;
         private Transform handR;
-        private FingerPoseSO fingerSO;
+        private ikInteractSO fingerSO;
 
         public bool IkActive
         {
@@ -66,11 +66,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
             }
         }
 
-        public void IKPos(Transform handLPos, Transform handRPos, FingerPoseSO fingerPose)
+        public void IKPos(Transform handLPos, Transform handRPos, ikInteractSO ikInteract)
         {
             handL = handLPos;
             handR = handRPos;
-            fingerSO = fingerPose;
+            fingerSO = ikInteract;
         }
 
         private void Update()
