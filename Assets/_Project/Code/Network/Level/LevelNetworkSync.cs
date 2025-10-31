@@ -151,7 +151,7 @@ namespace _Project.Code.Network.Level
             }
 
           
-            ClearOldDungeonTiles();
+            //ClearOldDungeonTiles();
 
             RoomInfoList wrapper = JsonUtility.FromJson<RoomInfoList>(json);
             if (wrapper == null || wrapper.rooms == null)
