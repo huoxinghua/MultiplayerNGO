@@ -15,16 +15,19 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private float attackTime = 2f;
         private void Update()
         {
-            if (_hasOwner)
+            
+            /*if (_hasOwner)
             {
                 transform.localPosition = Vector3.zero;
                 transform.localRotation = Quaternion.Euler(0, 0, 0);
-            }
+            }*/
             _attackCooldownTimer.TimerUpdate(Time.deltaTime);
             if (_attackCooldownTimer.IsComplete)
             {
                 _canAttack = true;
             }
+            if (!IsOwner) return; // only the owning player updates
+            UpdateHeldPosition();
         }
      
         void PerformMeleeAttack()

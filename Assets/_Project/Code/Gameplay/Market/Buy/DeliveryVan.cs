@@ -55,9 +55,23 @@ namespace _Project.Code.Gameplay.Market.Buy
 
         public void DestroyAfterSeconds()
         {
-            Destroy(gameObject);
+            if (!IsServer)
+            {
+                VanBegoneServerRpc();
+            }
+            else
+            {
+                NetworkObject.Despawn();
+                Destroy(gameObject);
+            }
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        void VanBegoneServerRpc()
+        {
+            NetworkObject.Despawn();
+            Destroy(gameObject);
+        }
         // Update is called once per frame
         void FixedUpdate()
         {

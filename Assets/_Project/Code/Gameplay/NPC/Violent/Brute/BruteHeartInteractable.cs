@@ -1,5 +1,6 @@
 
 using _Project.Code.Gameplay.NewItemSystem;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
@@ -14,7 +15,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _violentValue = Random.Range(0f, 1f);
             _miscValue = Random.Range(0f, 1f);
         }
-        public override void PickupItem(GameObject player, Transform playerHoldPosition)
+        public override void PickupItem(GameObject player, Transform playerHoldPosition,NetworkObject networkObject)
         {
             _owner = player;
             _rb.isKinematic = true;
