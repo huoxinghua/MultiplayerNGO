@@ -6370,43 +6370,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handR: {fileID: 1534187969}
   handL: {fileID: 974635678}
-  fingerSo: {fileID: 0}
-  ikIdle:
-    transitionDuration: 3
-    loopDuration: 3
-    waypoints:
-    - {x: 0, y: 0.005, z: 0}
-    - {x: 0, y: -0.005, z: 0}
-    loopType: 1
-    easeType: 7
-  ikWalk:
-    transitionDuration: 0.3
-    loopDuration: 0.65
-    waypoints:
-    - {x: -0.01, y: 0, z: 0}
-    - {x: 0, y: -0.003, z: 0}
-    - {x: 0.01, y: 0, z: 0}
-    loopType: 1
-    easeType: 4
-    pathType: 1
-    pathMode: 1
-  ikRun:
-    transitionDuration: 0.2
-    loopDuration: 0.3
-    waypoints:
-    - {x: -0.02, y: 0, z: 0}
-    - {x: 0, y: -0.008, z: 0}
-    - {x: 0.02, y: 0, z: 0}
-    loopType: 1
-    easeType: 4
-    pathType: 1
-    pathMode: 1
-  ikInteract:
-    transitionDuration: 0
-    loopDuration: 0
-    waypoints: []
-    easeAnti: 0
-    easeHit: 0
+  ikInteractSo: {fileID: 11400000, guid: 984a4756a899840f188fcc1fe3a0cc0b, type: 2}
 --- !u!4 &1717670412 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8259520711292204883, guid: ba6cf2cac55764446aa630e1679acfae, type: 3}

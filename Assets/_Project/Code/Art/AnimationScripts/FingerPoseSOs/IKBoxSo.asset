@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f65d32991db45bc428a92ae55c972030, type: 3}
-  m_Name: FingerPoseSO
+  m_Name: IKBoxSo
   m_EditorClassIdentifier: 
   thumbR:
     proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
@@ -52,3 +52,39 @@ MonoBehaviour:
     proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  ikIdle:
+    transitionDuration: 3
+    loopDuration: 3
+    waypoints:
+    - {x: 0, y: 0.005, z: 0}
+    - {x: 0, y: -0.005, z: 0}
+    loopType: 1
+    easeType: 7
+  ikWalk:
+    transitionDuration: 0.3
+    loopDuration: 0.65
+    waypoints:
+    - {x: -0.01, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.01, y: 0, z: 0}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
+  ikRun:
+    transitionDuration: 0.2
+    loopDuration: 0.3
+    waypoints:
+    - {x: -0.02, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.02, y: 0, z: 0}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
+  ikInteract:
+    transitionDuration: 0
+    loopDuration: 0
+    waypoints: []
+    easeAnti: 0
+    easeHit: 0

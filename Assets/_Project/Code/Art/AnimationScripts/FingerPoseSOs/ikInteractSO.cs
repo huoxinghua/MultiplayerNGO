@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
 {
-    [CreateAssetMenu(fileName = "FingerPoseSO", menuName = "FingerPoseSOs/FingerPoseSO")]
+    [CreateAssetMenu(fileName = "ikInteractSO", menuName = "ikInteractSOs/ikInteractSO")]
     public class ikInteractSO : ScriptableObject
     {
         public FingerData thumbR;
