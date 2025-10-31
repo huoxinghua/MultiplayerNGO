@@ -4586,6 +4586,14 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 890412309
       objectReference: {fileID: 0}
+    - target: {fileID: 2942978721585508682, guid: 54c52958bf8e97746afb4216ca47b724, type: 3}
+      propertyPath: far clip plane
+      value: 1000000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2942978721585508682, guid: 54c52958bf8e97746afb4216ca47b724, type: 3}
+      propertyPath: near clip plane
+      value: 0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 4214012021163622981, guid: 54c52958bf8e97746afb4216ca47b724, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.001
@@ -6364,36 +6372,41 @@ MonoBehaviour:
   handL: {fileID: 974635678}
   fingerSo: {fileID: 0}
   ikIdle:
-    duration: 3
+    transitionDuration: 3
+    loopDuration: 3
     waypoints:
     - {x: 0, y: 0.005, z: 0}
     - {x: 0, y: -0.005, z: 0}
     loopType: 1
     easeType: 7
   ikWalk:
-    duration: 3
+    transitionDuration: 0.3
+    loopDuration: 0.65
     waypoints:
-    - {x: -1, y: 0, z: 0}
-    - {x: 0, y: -1, z: 0}
-    - {x: 1, y: 0, z: 0}
-    - {x: 0, y: -1, z: 0}
-    - {x: -1, y: 0, z: 0}
-    loopType: 0
-    easeType: 3
+    - {x: -0.01, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.01, y: 0, z: 0}
+    loopType: 1
+    easeType: 4
     pathType: 1
-    pathMode: 0
+    pathMode: 1
   ikRun:
-    duration: 0
-    waypoints: []
-    loopType: 0
-    easeType: 0
-    pathType: 0
-    pathMode: 0
+    transitionDuration: 0.2
+    loopDuration: 0.3
+    waypoints:
+    - {x: -0.02, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.02, y: 0, z: 0}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
   ikInteract:
-    duration: 0
-    startPos: {x: 0, y: 0, z: 0}
-    endPos: {x: 0, y: 0, z: 0}
-    easeType: 0
+    transitionDuration: 0
+    loopDuration: 0
+    waypoints: []
+    easeAnti: 0
+    easeHit: 0
 --- !u!4 &1717670412 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8259520711292204883, guid: ba6cf2cac55764446aa630e1679acfae, type: 3}
