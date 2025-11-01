@@ -5,6 +5,7 @@ using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
 using QuickOutline.Scripts;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Outline = QuickOutline.Scripts.Outline;
@@ -342,13 +343,18 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Debug.Log($"CurrentHeldVisual: {_currentHeldVisual.name}");*/
             if (_currentHeldVisual == null)
             {
-                OnChangedInHandState(oldState, newState);
+                StartCoroutine(WaitOnCurrentHeldVisual(oldState, newState));
                 return;
             }
             _currentHeldVisual?.SetActive(newState);
             _isInOwnerHand = newState;
         }
 
+        IEnumerator WaitOnCurrentHeldVisual(bool oldState, bool newState)
+        {
+            yield return new WaitUntil(() => _currentHeldVisual != null);
+            OnChangedInHandState(oldState, newState);
+        }
         #region Getters
 
         public virtual string GetItemName()
