@@ -62,15 +62,18 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             var netObj = GetComponent<NetworkObject>();
             if (netObj != null && netObj.IsSpawned)
             {
-               
+
                 if (IsServer)
+                {
+                    Debug.Log("Server:"+ IsServer +_ragdoll.name);
                     netObj.Despawn(true); 
+                }
             }
-            else
+            /*else
             {
                
                 Destroy(gameObject);
-            }
+            }*/
             _bruteDead.enabled = true;
         }
         
@@ -84,6 +87,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         void DetachRagdollClientRpc()
         {
             _ragdoll.EnableRagdoll();
+            Debug.Log("client:"+ IsClient +_ragdoll.name);
             _ragdolledObj.transform.SetParent(null);
         }
     }
