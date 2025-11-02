@@ -2,7 +2,7 @@ using _Project.Code.Utilities.Audio;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
 
-namespace _Project.Code.Gameplay.Interactables
+namespace _Project.Code.Gameplay.Interactables.NoUse
 {
     public class SwingDoors : MonoBehaviour , IInteractable
     {

@@ -1,7 +1,7 @@
 using DunGen;
 using Unity.Netcode;
 using UnityEngine;
-
+using _Project.Code.Gameplay.Interactables;
 namespace _Project.Code.Network.Level
 {
     public class MapNetworkSync : NetworkBehaviour
@@ -18,6 +18,7 @@ namespace _Project.Code.Network.Level
         {
             if (generator == null)
                 generator = GetComponent<DungeonGenerator>();
+      
 
             if (IsServer)
             {
@@ -30,6 +31,8 @@ namespace _Project.Code.Network.Level
                 generator.ShouldRandomizeSeed = false;
                 generator.Seed = seed;
                 generator.Generate();
+                OnDungeonGenerated(generator);
+
             }
             else
             {
@@ -56,6 +59,15 @@ namespace _Project.Code.Network.Level
             generator.Generate();
 
             Debug.Log("[Client] Dungeon generated from shared seed.");
+            foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
+            {
+                var netObj = door.GetComponent<NetworkObject>();
+                if (netObj == null || !netObj.IsSpawned)
+                {
+                    Destroy(door.gameObject);
+                }
+            }
+
         }
 
         private void ClearOldDungeonTiles()
@@ -64,6 +76,18 @@ namespace _Project.Code.Network.Level
             foreach (var t in oldTiles)
                 Destroy(t);
         }
-     
+        void OnDungeonGenerated(DungeonGenerator dungeon)
+        {
+            foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
+            {
+                var netObj = door.GetComponent<NetworkObject>();
+                if (netObj != null && !netObj.IsSpawned)
+                {
+                    netObj.Spawn();
+                    Debug.Log($"[Server] Auto-spawned network door: {door.name}");
+                }
+            }
+        }
+
     }
 }
