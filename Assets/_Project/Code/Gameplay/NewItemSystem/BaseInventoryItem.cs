@@ -353,7 +353,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         IEnumerator WaitOnCurrentHeldVisual(bool oldState, bool newState)
         {
             yield return new WaitUntil(() => _currentHeldVisual != null);
-            OnChangedInHandState(oldState, newState);
+            OnChangedInHandState(!IsInHand.Value,IsInHand.Value);
         }
         #region Getters
 
