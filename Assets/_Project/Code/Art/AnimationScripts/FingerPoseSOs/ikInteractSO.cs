@@ -16,9 +16,11 @@ namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
         public FingerData ringL;
         public FingerData littleL;
 
-        [Space(50),Header("IK Animation Preset")]
+        [Space(50),Header("Object Position")] 
+        public Vector3 fpsObjectPosition;
+        public Vector3 tpsObjectPosition;
+        [Header("IK Animation Preset")]
         public IdlePreset ikIdle;
-
         public MovementPreset ikWalk;
         public MovementPreset ikRun;
         public InteractPreset ikInteract;

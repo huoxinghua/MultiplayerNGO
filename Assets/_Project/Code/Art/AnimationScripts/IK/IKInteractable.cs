@@ -9,11 +9,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
     {
         [Header("Hands and Fingers Position")] 
         [SerializeField] private Transform handR;
-
         [SerializeField] private Transform handL;
-        [SerializeField] private ikInteractSO ikInteractSo;
-        
-
+        [SerializeField] private ikInteractSO ikInteractSo; 
         
         private Tween currentTween;
 
@@ -29,67 +26,74 @@ namespace _Project.Code.Art.AnimationScripts.IK
             ikController.IKPos(null, null, null);
         }
 
-        public void PlayIKIdle()
+        public void PlayIKIdle(bool isFPS)
         {
             currentTween?.Kill();
 
-            transform.DOLocalMove(ikInteractSo.ikIdle.waypoints[0], ikInteractSo.ikIdle.transitionDuration * 0.5f).SetEase(ikInteractSo.ikIdle.easeType)
+            float duration = ikInteractSo.ikIdle.transitionDuration;
+
+            if (transform.localPosition != ApplyOffset(Vector3.zero, isFPS))
+            {
+                duration = ikInteractSo.ikIdle.resetDuration;
+            }
+
+            transform.DOLocalMove(ApplyOffset(ikInteractSo.ikIdle.waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikIdle.easeType)
                 .OnComplete(() =>
                 {
                     var seq = DOTween.Sequence();
-                    seq.Append(transform.DOLocalMove(ikInteractSo.ikIdle.waypoints[1], ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
-                        .Append(
-                            transform.DOLocalMove(ikInteractSo.ikIdle.waypoints[0], ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
+                    seq.Append(transform.DOLocalMove(ApplyOffset(ikInteractSo.ikIdle.waypoints[1], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
+                        .Append(transform.DOLocalMove(ApplyOffset(ikInteractSo.ikIdle.waypoints[0], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
                         .SetLoops(-1, ikInteractSo.ikIdle.loopType);
                     currentTween = seq;
                 });
         }
 
-        public void PlayIKWalk()
+        public void PlayIKWalk(bool isFPS)
         {
-            var revesreWayPoints = new[]
-                { ikInteractSo.ikWalk.waypoints[2], ikInteractSo.ikWalk.waypoints[1], ikInteractSo.ikWalk.waypoints[0] };
-
             currentTween.Kill();
 
-            transform.DOLocalMove(ikInteractSo.ikWalk.waypoints[0], ikInteractSo.ikWalk.transitionDuration * 0.5f).SetEase(ikInteractSo.ikWalk.easeType)
+            transform.DOLocalMove(ApplyOffset(ikInteractSo.ikWalk.waypoints[0], isFPS), ikInteractSo.ikWalk.transitionDuration).SetEase(ikInteractSo.ikWalk.easeType)
                 .OnComplete(() =>
                 {
                     var seq = DOTween.Sequence();
-                    seq.Append(transform
-                            .DOLocalPath(ikInteractSo.ikWalk.waypoints, ikInteractSo.ikWalk.loopDuration, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
+                    seq.Append(transform.DOLocalPath(ApplyOffset(ikInteractSo.ikWalk.waypoints, isFPS), ikInteractSo.ikWalk.loopDuration, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
                             .SetEase(ikInteractSo.ikWalk.easeType))
-                        .SetLoops(-1, ikInteractSo.ikWalk.loopType);
+                            .SetLoops(-1, ikInteractSo.ikWalk.loopType);
                     currentTween = seq;
                 });
         }
 
-        public void PlayIKRun()
+        public void PlayIKRun(bool isFPS)
         {
-            var revesreWayPoints = new[] { ikInteractSo.ikRun.waypoints[2], ikInteractSo.ikRun.waypoints[1], ikInteractSo.ikRun.waypoints[0] };
-
             currentTween.Kill();
 
-            transform.DOLocalMove(ikInteractSo.ikRun.waypoints[0], ikInteractSo.ikRun.transitionDuration * 0.05f).SetEase(ikInteractSo.ikRun.easeType)
+            transform.DOLocalMove(ApplyOffset(ikInteractSo.ikRun.waypoints[0], isFPS), ikInteractSo.ikRun.transitionDuration).SetEase(ikInteractSo.ikRun.easeType)
                 .OnComplete(() =>
                 {
                     var seq = DOTween.Sequence();
-                    seq.Append(transform
-                            .DOLocalPath(ikInteractSo.ikRun.waypoints, ikInteractSo.ikRun.loopDuration, ikInteractSo.ikRun.pathType, ikInteractSo.ikRun.pathMode)
+                    seq.Append(transform.DOLocalPath(ApplyOffset(ikInteractSo.ikRun.waypoints, isFPS), ikInteractSo.ikRun.loopDuration, ikInteractSo.ikRun.pathType, ikInteractSo.ikRun.pathMode)
                             .SetEase(ikInteractSo.ikRun.easeType))
-                        .SetLoops(-1, ikInteractSo.ikRun.loopType);
+                            .SetLoops(-1, ikInteractSo.ikRun.loopType);
                     currentTween = seq;
                 });
         }
 
-        public void PlayIKInteract()
+        public void PlayIKInteract(bool isFPS)
         {
             currentTween.Kill();
             var seq = DOTween.Sequence();
-            seq.Append(transform.DORotate(ikInteractSo.ikInteract.waypoints[0], ikInteractSo.ikInteract.transitionDuration * 2))
-                .SetEase(ikInteractSo.ikInteract.easeAnti)
-                .Append(transform.DOPunchRotation(ikInteractSo.ikInteract.waypoints[0], ikInteractSo.ikInteract.loopDuration))
-                .SetEase(ikInteractSo.ikInteract.easeHit);
+            seq.Append(transform.DOLocalMove(ApplyOffset(ikInteractSo.ikInteract.posWaypoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration))
+                    .SetEase(ikInteractSo.ikInteract.easeAnti)
+                .Join(transform.DOLocalRotate(ApplyOffset(ikInteractSo.ikInteract.rotWaypoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration))
+                    .SetEase(ikInteractSo.ikInteract.easeAnti)
+                .Append(transform.DOLocalMove(ApplyOffset(ikInteractSo.ikInteract.posWaypoints[1], isFPS), ikInteractSo.ikInteract.hitDuration))
+                    .SetEase(ikInteractSo.ikInteract.easeHit)    
+                .Join(transform.DOLocalRotate(ApplyOffset(ikInteractSo.ikInteract.rotWaypoints[1], isFPS), ikInteractSo.ikInteract.hitDuration))
+                    .SetEase(ikInteractSo.ikInteract.easeHit)
+                .Append(transform.DOLocalMove(ApplyOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.hitDuration))
+                    .SetEase(ikInteractSo.ikInteract.easeHit)
+                .Join(transform.DOLocalRotate(ApplyOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.transitionDuration))
+                    .SetEase(ikInteractSo.ikInteract.easeAnti);
         }
 
         public void StopIKAnimation()
@@ -98,7 +102,23 @@ namespace _Project.Code.Art.AnimationScripts.IK
             currentTween = null;
         }
 
-        
+        private Vector3 ApplyOffset(Vector3 point, bool isFPS)
+        {
+            return point + (isFPS? ikInteractSo.fpsObjectPosition : ikInteractSo.tpsObjectPosition);
+        }
+
+        private Vector3[] ApplyOffset(Vector3[] points, bool isFPS)
+        {
+            Vector3 offset = isFPS? ikInteractSo.fpsObjectPosition : ikInteractSo.tpsObjectPosition;
+            Vector3[] result = new Vector3[points.Length];
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                result[i] = points[i] + offset;
+            }
+
+            return result;
+        }
     }
 }
 
@@ -106,6 +126,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 [Serializable]
 public struct IdlePreset
 {
+    public float resetDuration;
     public float transitionDuration;
     public float loopDuration;
     public Vector3[] waypoints;
@@ -128,9 +149,11 @@ public struct MovementPreset
 [Serializable]
 public struct InteractPreset
 {
+    public float resetDuration;
     public float transitionDuration;
-    public float loopDuration;
-    public Vector3[] waypoints;
+    public float hitDuration;
+    public Vector3[] posWaypoints;
+    public Vector3[] rotWaypoints;
     public Ease easeAnti;
     public Ease easeHit;
 }
