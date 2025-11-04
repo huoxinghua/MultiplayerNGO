@@ -35,10 +35,47 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             _beetleSkele.transform.parent = playerHoldPosition;
             _beetleSkele.transform.localPosition = Vector3.zero;
             _beetleSkele.transform.localRotation = Quaternion.Euler(0, 0, 0);
-            _currentHeldVisual = Instantiate(_heldVisual, playerHoldPosition);
+            _currentHeldVisual =Instantiate(_heldVisual, playerHoldPosition);
+           /*
+           if (IsServer)
+           {
+               ApplySpawnHeldBeetle(playerHoldPosition);
+           }
+           */
+
         }
+        
+        /*
+        private void ApplySpawnHeldBeetle(Transform playerHoldPosition)
+        {
+            var obj = Instantiate(_heldVisual, playerHoldPosition);
+            var netObj = obj.GetComponent<NetworkObject>();
+            netObj.Spawn();
+            _currentHeldVisual = netObj.gameObject;
+            StartCoroutine(SyncPositionCoroutine(netObj.transform, playerHoldPosition));
+        }
+        private IEnumerator SyncPositionCoroutine(Transform obj, Transform target)
+        {
+            while (obj != null && target != null)
+            {
+                obj.position = target.position;
+                obj.rotation = target.rotation;
+                yield return null;
+            }
+        }
+        */
+
         public override void DropItem(Transform dropPoint)
         {
+            if (_currentHeldVisual != null)
+            {
+                var netObj = _currentHeldVisual.GetComponent<NetworkObject>();
+                if (netObj != null && netObj.IsSpawned)
+                    netObj.Despawn(true);
+                else
+                    Destroy(_currentHeldVisual);
+            }
+            
             _owner = null;
             _renderer.enabled = true;
             Destroy(_currentHeldVisual);
