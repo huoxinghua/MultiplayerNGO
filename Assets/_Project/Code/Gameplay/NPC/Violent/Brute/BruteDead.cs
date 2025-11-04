@@ -113,6 +113,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         private void SpawnBrutePiecesServerRpc()
         {
             SpawnBrutePiecesServer();
+            var netObj = GetComponentInParent<NetworkObject>();
+            if (netObj != null)
+            {
+                netObj.Despawn();
+            }
         }
 
         private void DestroyBodyServer()
@@ -128,8 +133,10 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             {
                 NetworkRelay.Instance.DestroyCorpseClientRpc("SK_Brute",rag.ParentId);
             }
+            
 
             Destroy(_destroy);
+            
           
             
         }
