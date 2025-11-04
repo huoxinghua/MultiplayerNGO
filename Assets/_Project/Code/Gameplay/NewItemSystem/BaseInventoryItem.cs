@@ -45,7 +45,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected Outline OutlineEffect;
         protected GameObject _owner;
 
-        [SerializeField] Transform CurrentHeldPosition;
+        [SerializeField] protected Transform CurrentHeldPosition;
         protected bool _hasOwner => _owner != null;
         protected bool _isInOwnerHand = false;
 
@@ -77,11 +77,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
             OnHeldStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
         }
 
-        protected void UpdateHeldPosition()
+        protected virtual void UpdateHeldPosition()
         {
             if (_currentHeldVisual == null || CurrentHeldPosition == null) return;
             _currentHeldVisual.transform.position = CurrentHeldPosition.position;
             _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
+            transform.position = CurrentHeldPosition.position;
+            transform.rotation = CurrentHeldPosition.rotation;
         }
 
         /*protected void SetPositionInUpdate()
@@ -93,9 +95,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }*/
         protected virtual void OnHeldStateChanged(bool oldHeld, bool newHeld)
         {
+            _collider.enabled = !newHeld;
             _rb.isKinematic = newHeld;
             _renderer.enabled = !newHeld;
-            _collider.enabled = !newHeld;
+            
         }
 
         private void Awake()
@@ -281,7 +284,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             _rb.isKinematic = false;
             _collider.enabled = true;
-            transform.position = dropPoint.position;
+           // transform.position = dropPoint.position;
         }
 
 
@@ -353,7 +356,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         IEnumerator WaitOnCurrentHeldVisual(bool oldState, bool newState)
         {
             yield return new WaitUntil(() => _currentHeldVisual != null);
-            OnChangedInHandState(oldState, newState);
+            OnChangedInHandState(!IsInHand.Value,IsInHand.Value);
         }
         #region Getters
 
