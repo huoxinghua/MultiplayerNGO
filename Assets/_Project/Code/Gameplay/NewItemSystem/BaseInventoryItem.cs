@@ -45,7 +45,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected Outline OutlineEffect;
         protected GameObject _owner;
 
-        [SerializeField] Transform CurrentHeldPosition;
+        [SerializeField] protected Transform CurrentHeldPosition;
         protected bool _hasOwner => _owner != null;
         protected bool _isInOwnerHand = false;
 
@@ -77,7 +77,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             OnHeldStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
         }
 
-        protected void UpdateHeldPosition()
+        protected virtual void UpdateHeldPosition()
         {
             if (_currentHeldVisual == null || CurrentHeldPosition == null) return;
             _currentHeldVisual.transform.position = CurrentHeldPosition.position;
