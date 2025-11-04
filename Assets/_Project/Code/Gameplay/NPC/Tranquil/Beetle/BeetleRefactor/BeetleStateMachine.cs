@@ -143,27 +143,50 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         {
             Debug.Log("[BeetleStateMachine] ApplyDeath");
             BeetleDeadScript.enabled = true;
-         
             transform.GetChild(1).parent = null;
             _ragdollScript.EnableRagdoll();
             DetachRagdollClientRpc();
             PlayRagdollClientRpc();
+            if(IsServer)
+            {
+                ApplyDisableVisual();
+            }
+            else
+            {
+                DisableVisualClientRPC();
+            }
+                
             /*Destroy(transform.GetChild(0).gameObject);
             Destroy(gameObject,3f);*/
         }
-
         [ClientRpc]
         private void DisableVisualClientRPC()
         {
+            ApplyDisableVisual(); 
+        }
+        
+        private void ApplyDisableVisual()
+        {   
+           Debug.Log("DisableVisualClientRPC");
             var mesh = GetComponent<MeshRenderer>();
             if (mesh != null)
                 mesh.enabled = false;
-
 
             var collider = GetComponent<Collider>();
             if (collider != null)
                 collider.enabled = false;
 
+            var health = GetComponent<BeetleHealth>();
+            if (health != null)
+            {
+                health.enabled = false;
+            }
+            else
+            {
+                Debug.Log("IsServer:"+IsServer + "health sc is null");
+            }
+      
+                
             var agent = GetComponent<NavMeshAgent>();
             if (agent != null && agent.enabled && agent.isOnNavMesh)
             {
@@ -218,11 +241,12 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         [ClientRpc]
         private void PlayRagdollClientRpc()
         {
+            DisableVisualClientRPC();
             Debug.Log("[BeetleStateMachine]PlayRagdollClientRpc");
             BeetleDeadScript.enabled = true;
             /*transform.GetChild(1).parent = null;
             _ragdollScript.EnableRagdoll();*/
-            DisableVisualClientRPC();
+           
         }
 
         public void HandleHitByPlayer(GameObject player)
