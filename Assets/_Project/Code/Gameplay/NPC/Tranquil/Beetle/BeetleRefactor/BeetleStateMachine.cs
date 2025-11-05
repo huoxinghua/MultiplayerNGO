@@ -28,7 +28,10 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         public bool IsFirstFollow { get; set; }
         [SerializeField] private Ragdoll _ragdollScript;
         [SerializeField] private BeetleDead BeetleDeadScript;
-
+        //Nathan CHanged
+        [SerializeField] private BeetleHealth _beetleHealthScript;
+        [SerializeField] private BeetleLineOfSight _beetleLineOfSightScript;
+        //end
         public void Awake()
         {
             IsFirstFollow = true;
@@ -211,6 +214,13 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
             var animator = GetComponent<Animator>();
             if (animator != null)
                 animator.enabled = false;
+            
+            
+            //Nathan Changed
+            _beetleHealthScript.enabled = false;    
+            _beetleLineOfSightScript.enabled = false;
+            this.enabled = false;
+            //end
         }
 
         [ClientRpc]
