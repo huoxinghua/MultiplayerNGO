@@ -3,8 +3,9 @@ using UnityEngine;
 namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
 {
     [CreateAssetMenu(fileName = "ikInteractSO", menuName = "ikInteractSOs/ikInteractSO")]
-    public class ikInteractSO : ScriptableObject
+    public class IkInteractSO : ScriptableObject
     {
+        [Header("Finger Pose")]
         public FingerData thumbR;
         public FingerData indexR;
         public FingerData middleR;
@@ -16,10 +17,11 @@ namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
         public FingerData ringL;
         public FingerData littleL;
 
-        [Space(50),Header("Object Position")] 
-        public Vector3 fpsObjectPosition;
-        public Vector3 tpsObjectPosition;
-        [Header("IK Animation Preset")]
+        [Space(10), Header("Object Position")]
+        public OffsetPos fpsOffset;
+        public OffsetPos tpsOffset;
+        
+        [Space(10), Header("IK Animation Preset")]
         public IdlePreset ikIdle;
         public MovementPreset ikWalk;
         public MovementPreset ikRun;

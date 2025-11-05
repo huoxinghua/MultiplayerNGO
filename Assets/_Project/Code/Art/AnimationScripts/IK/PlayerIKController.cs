@@ -5,14 +5,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
 {
     public class PlayerIKController : MonoBehaviour
     {
-        [SerializeField] IKInteractable interactable;
-
+        [SerializeField] private IKInteractable interactable;
         [SerializeField] private Animator animator;
         [SerializeField] private bool ikActive;
 
         private Transform handL;
         private Transform handR;
-        private ikInteractSO fingerSO;
+        private IkInteractSO fingerSO;
 
         public bool IkActive
         {
@@ -66,23 +65,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
             }
         }
 
-        public void IKPos(Transform handLPos, Transform handRPos, ikInteractSO ikInteract)
+        public void IKPos(IKInteractable obj, Transform handLPos, Transform handRPos, IkInteractSO ikInteract)
         {
+            interactable = obj;
             handL = handLPos;
             handR = handRPos;
             fingerSO = ikInteract;
-        }
-
-        private void Update()
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                interactable.PickupAnimation(this);
-            }
-            if (Input.GetMouseButtonDown(1))
-            {
-                interactable.DropAnimation(this);
-            }
+            Debug.Log(interactable.gameObject.name);
         }
 
         private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)

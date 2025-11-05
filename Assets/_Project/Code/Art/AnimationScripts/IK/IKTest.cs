@@ -1,10 +1,19 @@
+using System;
 using _Project.Code.Art.AnimationScripts.IK;
 using UnityEngine;
 
 public class IKTest : MonoBehaviour
 {
+    [SerializeField] private PlayerIKController fpsController;
+    [SerializeField] private PlayerIKController tpsController;
     [SerializeField] private IKInteractable ik;
     [SerializeField] private bool isFPS;
+
+    private void Awake()
+    {
+        ik.PickupAnimation(isFPS ? fpsController : tpsController, isFPS);
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.L))

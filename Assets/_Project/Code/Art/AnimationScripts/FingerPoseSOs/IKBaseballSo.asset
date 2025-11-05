@@ -52,10 +52,14 @@ MonoBehaviour:
     proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-  fpsObjectPosition: {x: 0, y: 0.18, z: 0}
-  tpsObjectPosition: {x: 0, y: 0.019, z: 0}
+  fpsOffset:
+    posOffset: {x: 0.1461, y: -0.1046, z: 0.0475}
+    rotOffset: {x: -12.564, y: 3.837, z: -107.135}
+  tpsOffset:
+    posOffset: {x: 0.019, y: -0.071, z: -0.098}
+    rotOffset: {x: -12.564, y: 3.837, z: -107.135}
   ikIdle:
-    resetDuration: 0.1
+    resetDuration: 0.5
     transitionDuration: 1
     loopDuration: 3
     waypoints:
@@ -64,36 +68,44 @@ MonoBehaviour:
     loopType: 1
     easeType: 7
   ikWalk:
+    resetDuration: 0.3
     transitionDuration: 0.3
     loopDuration: 0.65
     waypoints:
     - {x: -0.01, y: 0, z: 0}
     - {x: 0, y: -0.003, z: 0}
     - {x: 0.01, y: 0, z: 0}
+    followThrough:
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
     loopType: 1
     easeType: 4
     pathType: 1
     pathMode: 1
   ikRun:
+    resetDuration: 0.1
     transitionDuration: 0.2
     loopDuration: 0.3
     waypoints:
     - {x: -0.02, y: 0, z: 0}
     - {x: 0, y: -0.008, z: 0}
     - {x: 0.02, y: 0, z: 0}
+    followThrough:
+    - {x: 0, y: 0, z: -2}
+    - {x: 0, y: 0, z: 2}
     loopType: 1
     easeType: 4
     pathType: 1
     pathMode: 1
   ikInteract:
-    resetDuration: 0.01
+    resetDuration: 0.1
     transitionDuration: 0.1
     hitDuration: 0.1
     posWaypoints:
-    - {x: 0, y: 0, z: 0}
-    - {x: 0, y: 0, z: 0}
+    - {x: 0.0079, y: 0.0296, z: -0.0265}
+    - {x: -0.1411, y: -0.1514, z: -0.1285}
     rotWaypoints:
-    - {x: 0, y: 0, z: 0}
-    - {x: 0, y: 0, z: 0}
+    - {x: -2.185, y: 4.528, z: -2.115}
+    - {x: 93.349, y: -90.154, z: -32.202}
     easeAnti: 4
-    easeHit: 4
+    easeHit: 13
