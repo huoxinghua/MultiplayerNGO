@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
+namespace _Project.Code.Art.AnimationScripts.IKInteractSOs
 {
     [CreateAssetMenu(fileName = "ikInteractSO", menuName = "ikInteractSOs/ikInteractSO")]
     public class IkInteractSO : ScriptableObject

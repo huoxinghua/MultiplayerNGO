@@ -1,39 +1,54 @@
 using System;
 using _Project.Code.Art.AnimationScripts.IK;
 using UnityEngine;
+using Unity.Netcode;
 
-public class IKTest : MonoBehaviour
+public class IKTest : NetworkBehaviour
 {
     [SerializeField] private PlayerIKController fpsController;
     [SerializeField] private PlayerIKController tpsController;
     [SerializeField] private IKInteractable ik;
+    [SerializeField] private float walkSpeed;
     [SerializeField] private bool isFPS;
 
-    private void Awake()
-    {
-        ik.PickupAnimation(isFPS ? fpsController : tpsController, isFPS);
-    }
+public bool GetOwner => IsOwner;
 
     void Update()
     {
+        Debug.Log("isowner:"+IsOwner);
+        if (!IsOwner)
+        {
+            Debug.Log("isowne fALSE SKIP:");
+            return;
+        }
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            if(IsOwner) ik.PickupAnimation(fpsController, GetOwner);
+            else ik.PickupAnimation(tpsController, !GetOwner);
+        }
+        
         if (Input.GetKeyDown(KeyCode.L))
         {
-            ik.PlayIKIdle(isFPS);
+            if(IsOwner) ik.PlayIKIdle(GetOwner);
+            else ik.PlayIKIdle(!GetOwner);
         }
 
         if (Input.GetKeyDown(KeyCode.V))
         {
-            ik.PlayIKWalk(isFPS);
+            if(IsOwner) ik.PlayIKWalk(walkSpeed, GetOwner);
+            else ik.PlayIKWalk(walkSpeed, !GetOwner);
         }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            ik.PlayIKRun(isFPS);
+            if(IsOwner) ik.PlayIKRun(GetOwner);
+            else ik.PlayIKRun(!GetOwner);
         }
 
         if (Input.GetKeyDown(KeyCode.N))
         {
-            ik.PlayIKInteract(isFPS);
+            if (IsOwner) ik.PlayIKInteract(GetOwner);
+            else ik.PlayIKInteract(!GetOwner);
         }
             
     }

@@ -1,3 +1,4 @@
+using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.Code.Gameplay.Player.UsableItems;
@@ -19,6 +20,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [field: SerializeField] public Image[] SlotDisplay { get; private set; } = new Image[5];
         [field: SerializeField] public Image[] SlotBackground { get; private set; } = new Image[5];
         [field: SerializeField] public Image EmptySlot { get; private set; }
+        [field: SerializeField] public PlayerIKController  PlayerFPSIKController { get; private set; }
+        [field: SerializeField] public PlayerIKController PlayerTPSIKController { get; private set; }
         private bool _handsFull => BigItemCarried != null;
         public bool InventoryFull => IsInventoryFull();
         public void Awake()
@@ -95,7 +98,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     item.EquipItem();
                     Debug.Log("server side do Pice up");
                     //network
-
+                    RequestIKPickupServerRpc(new NetworkBehaviourReference(this));
 
                     ChangeSlotBackgrounds(_currentIndex);
                     //end network
@@ -126,11 +129,16 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex]?.UnequipItem();
                 item.PickupItem(gameObject, HoldTransform, NetworkObject);
                 item.EquipItem();
+                
+                RequestIKPickupServerRpc(new NetworkBehaviourReference(this));
+                
                 ChangeSlotBackgrounds(-1);
             }
             ChangeUISlotDisplay();
 
-
+            
+            
+            
 
         }
 
@@ -195,6 +203,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 BigItemCarried.UnequipItem();
                 BigItemCarried.DropItem(DropTransform);
                 BigItemCarried = null;
+               
+                
             }
             else if (InventoryItems[_currentIndex] != null)
             {
@@ -204,8 +214,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex].UnequipItem();
                 InventoryItems[_currentIndex].DropItem(DropTransform);
                 InventoryItems[_currentIndex] = null;
+                
                 //drop current slot if there is one
             }
+            RequestIKDropServerRpc(new NetworkBehaviourReference(this));
             ChangeUISlotDisplay();
         }
         
@@ -302,12 +314,143 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             if (InventoryItems[_currentIndex] != null)
             {
                 InventoryItems[_currentIndex].UnequipItem();
+               
+                
+                    BaseInventoryItem mb = InventoryItems[_currentIndex] as BaseInventoryItem;
+                    if (mb != null)
+                    {
+                       
+                        mb.GetIKInteractable().DropAnimation(PlayerFPSIKController);
+                        mb.GetIKInteractable().DropAnimation(PlayerTPSIKController);
+                    }
+                    
+                
             }
+            
             _currentIndex = indexOf;
             InventoryItems[_currentIndex]?.EquipItem();
+            
             ChangeUISlotDisplay();
+            RequestIKSwapServerRpc(new NetworkBehaviourReference(this));
             ChangeSlotBackgrounds(_currentIndex);
+            
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        void RequestIKPickupServerRpc(NetworkBehaviourReference reference)
+        {
+            DistributeIKPickupClientRpc(reference);
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        void DistributeIKPickupClientRpc(NetworkBehaviourReference reference)
+        {
+            if (reference.TryGet(out NetworkBehaviour behaviour))
+            {
+                var inv = behaviour as PlayerInventory;
+
+
+                if (BigItemCarried != null)
+                {
+                    BaseInventoryItem mb = inv.BigItemCarried as BaseInventoryItem;
+                    if (mb != null)
+                    {
+
+                        mb.GetIKInteractable().PickupAnimation(PlayerFPSIKController, true);
+                        mb.GetIKInteractable().PickupAnimation(PlayerTPSIKController, false);
+                    }
+                }
+                else if (InventoryItems[_currentIndex] != null)
+                {
+
+                    BaseInventoryItem mb = inv.InventoryItems[_currentIndex] as BaseInventoryItem;
+                    if (mb != null)
+                    {
+
+                        mb.GetIKInteractable().PickupAnimation(PlayerFPSIKController, true);
+                        mb.GetIKInteractable().PickupAnimation(PlayerTPSIKController, false);
+                    }
+
+                }
+            }
+        }
+
+
+        [ServerRpc(RequireOwnership = false)]
+        void RequestIKSwapServerRpc(NetworkBehaviourReference reference)
+        {
+            DistributeIKSwapClientRpc(reference);
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        void DistributeIKSwapClientRpc(NetworkBehaviourReference reference)
+        {
+            if (reference.TryGet(out NetworkBehaviour behaviour))
+            {
+                var inv = behaviour as PlayerInventory;
+
+                if (InventoryItems[_currentIndex] != null)
+                {
+
+                    BaseInventoryItem mb = inv.InventoryItems[_currentIndex] as BaseInventoryItem;
+                    if (mb != null)
+                    {
+
+                        mb.GetIKInteractable().PickupAnimation(PlayerFPSIKController, true);
+                        mb.GetIKInteractable().PickupAnimation(PlayerTPSIKController, false);
+                    }
+
+                }
+                else
+                {
+                    PlayerFPSIKController.IKPos(null, null, null, null);
+                    PlayerTPSIKController.IKPos(null, null, null, null);
+                }
+            }
+        }
+
+
+        [ServerRpc(RequireOwnership = false)]
+        void RequestIKDropServerRpc(NetworkBehaviourReference reference)
+        {
+            DistributeIKDropClientRpc(reference);
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        void DistributeIKDropClientRpc(NetworkBehaviourReference reference)
+        {
+            if (reference.TryGet(out NetworkBehaviour behaviour))
+            {
+                var inv = behaviour as PlayerInventory;
+
+                if (InventoryItems[_currentIndex] != null)
+                {
+                    if (BigItemCarried != null)
+                    {
+                        BaseInventoryItem mb = inv.BigItemCarried as BaseInventoryItem;
+                        if (mb != null)
+                        {
+
+                            mb.GetIKInteractable().DropAnimation(PlayerFPSIKController);
+                            mb.GetIKInteractable().DropAnimation(PlayerTPSIKController);
+                        }
+                    }
+                    else
+                    {
+                        BaseInventoryItem mb = inv.InventoryItems[_currentIndex] as BaseInventoryItem;
+                        if (mb != null)
+                        {
+
+                            mb.GetIKInteractable().DropAnimation(PlayerFPSIKController);
+                            mb.GetIKInteractable().DropAnimation(PlayerTPSIKController);
+                        }
+                    }
+
+
+                }
+            }
+        }
+
         #region Inputs
         private void HandlePressedSlot(int index)
         {

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
@@ -57,7 +58,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected float _tranquilValue = 0;
         protected float _violentValue = 0;
         protected float _miscValue = 0;
-
+        public Timer ItemCooldown{get; private set;} = new Timer();
         /*public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -68,6 +69,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <summary>
         /// for custom changes to onnetworkspawn
         /// </summary>
+        ///
+        ///
+        public IKInteractable GetIKInteractable()
+        {
+            if(_currentHeldVisual == null)return null;
+            return _currentHeldVisual.GetComponentInChildren<IKInteractable>();
+        }
         protected virtual void CustomNetworkSpawn()
         {
             IsPickedUp.OnValueChanged += OnHeldStateChanged;

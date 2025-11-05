@@ -1,4 +1,4 @@
-using _Project.Code.Art.AnimationScripts.FingerPoseSOs;
+using _Project.Code.Art.AnimationScripts.IKInteractSOs;
 using UnityEngine;
 
 namespace _Project.Code.Art.AnimationScripts.IK
