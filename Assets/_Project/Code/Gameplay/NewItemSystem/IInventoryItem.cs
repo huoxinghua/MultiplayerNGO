@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,7 +6,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public interface IInventoryItem 
     {
-        public void PickupItem(GameObject player, Transform playerHoldPosition);
+        public void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObject);
         public void DropItem(Transform dropPoint);
         public void UseItem();
         public void UnequipItem();

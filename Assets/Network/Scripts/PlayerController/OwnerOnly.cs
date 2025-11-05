@@ -8,6 +8,7 @@ namespace Network.Scripts.PlayerController
         [SerializeField] private MonoBehaviour[] _componentsToDisable;
         [SerializeField] private GameObject[] _objectsToEnable;
         [SerializeField] private Camera _cameraToDisable;
+        [SerializeField] private AudioListener _audioListenerToDisable;
         [SerializeField] private Renderer _renderToDisable;
         [SerializeField] private Renderer _renderToEnable;
         public override void OnNetworkSpawn()
@@ -41,6 +42,7 @@ namespace Network.Scripts.PlayerController
                     }
                 }*/
             _cameraToDisable.enabled = isOwner;
+            _audioListenerToDisable.enabled = isOwner;
             _renderToEnable.enabled = isOwner;
 
             _renderToDisable.enabled = !isOwner;

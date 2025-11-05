@@ -13,18 +13,29 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private Timer _attackCooldownTimer = new Timer(1);
         private bool _canAttack = true;
         private float attackTime = 2f;
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            Debug.Log("CustomNetworkSpawn called!");
+            // Now add flashlight-specific network setup
+            CustomNetworkSpawn();
+        }
+
         private void Update()
         {
-            if (_hasOwner)
+            
+            /*if (_hasOwner)
             {
                 transform.localPosition = Vector3.zero;
                 transform.localRotation = Quaternion.Euler(0, 0, 0);
-            }
+            }*/
             _attackCooldownTimer.TimerUpdate(Time.deltaTime);
             if (_attackCooldownTimer.IsComplete)
             {
                 _canAttack = true;
             }
+            if (!IsOwner) return; // only the owning player updates
+            UpdateHeldPosition();
         }
      
         void PerformMeleeAttack()

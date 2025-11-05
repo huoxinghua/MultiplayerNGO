@@ -110,7 +110,7 @@ namespace _Project.Code.Gameplay.Player
         }
         public void AttemptInteract()
         {
-            Debug.Log("[playerinteractCast]Try to hit");
+                Debug.Log("[playerinteractCast]Try to hit");
             RaycastHit hit;
 
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))

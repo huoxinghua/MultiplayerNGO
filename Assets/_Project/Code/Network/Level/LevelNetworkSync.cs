@@ -1,7 +1,7 @@
+using DunGen;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DunGen;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -42,22 +42,38 @@ namespace _Project.Code.Network.Level
                 Debug.LogError(" DungeonGenerator missing!");
                 return;
             }
-
+            if (!IsServer)
+            {
+                ClearOldDungeonTiles();
+            }
             generator.OnGenerationComplete += OnDungeonGenerated;
 
-            Debug.Log(" dungon start="+ generator.Status);
+            Debug.Log(" dungon start=" + generator.Status);
             StartCoroutine(WaitForNetworkAndGenerate());
         }
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
 
+            if (!IsServer)
+            {
+
+                var oldTiles = GameObject.FindGameObjectsWithTag("DungeonTile");
+                foreach (var t in oldTiles)
+                    Destroy(t);
+
+                Debug.Log("[Client] Cleared old dungeon tiles on scene load");
+            }
+        }
         private IEnumerator WaitForNetworkAndGenerate()
         {
             yield return new WaitUntil(() => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening);
 
-            yield return new WaitForSeconds(0.2f); 
+            yield return new WaitForSeconds(0.2f);
 
             if (IsServer)
             {
-                Debug.Log(" Host is generating dungeon now...generator="+ generator.Root);
+                Debug.Log(" Host is generating dungeon now...generator=" + generator.Root);
                 NetworkManager.OnClientConnectedCallback += OnClientConnected;
                 // generator.OnGenerationComplete += OnDungeonGenerated;
                 generator.Generate();
@@ -78,14 +94,14 @@ namespace _Project.Code.Network.Level
         {
             Debug.Log("OnDungeonGenerated");
             if (!IsServer)
-                return; 
+                return;
 
             if (hasGenerated)
             {
                 Debug.Log("[Server] Dungeon already synced once, skipping duplicate generation.");
                 return;
             }
-            Debug.Log("hasGenerated="+ hasGenerated);
+            Debug.Log("hasGenerated=" + hasGenerated);
             hasGenerated = true;
             Debug.Log("hasGenerated=" + hasGenerated);
             Debug.Log("[Server] Dungeon generated automatically, preparing JSON sync...");
@@ -120,11 +136,12 @@ namespace _Project.Code.Network.Level
             if (string.IsNullOrEmpty(lastDungeonJson)) return;
 
             Debug.Log($"[Server] Sending dungeon JSON to newly joined client {clientId}");
-            SendDungeonDataClientRpc(lastDungeonJson,clientId);
+            SendDungeonDataClientRpc(lastDungeonJson, clientId);
         }
- 
+
+
         [ClientRpc]
-        private void SendDungeonDataClientRpc(string json,ulong id)
+        private void SendDungeonDataClientRpc(string json, ulong id)
         {
             Debug.Log($"[ClientRpc] Received call! IsServer={IsServer}, IsClient={IsClient}, length={json?.Length}");
             if (IsServer)
@@ -132,8 +149,9 @@ namespace _Project.Code.Network.Level
                 Debug.Log("server return");
                 return;
             }
-           
-       
+
+          
+            //ClearOldDungeonTiles();
 
             RoomInfoList wrapper = JsonUtility.FromJson<RoomInfoList>(json);
             if (wrapper == null || wrapper.rooms == null)
@@ -144,7 +162,7 @@ namespace _Project.Code.Network.Level
 
             foreach (var room in wrapper.rooms)
             {
-            
+
                 GameObject prefab = Resources.Load<GameObject>(room.prefabName);
                 if (prefab == null)
                 {
@@ -153,10 +171,21 @@ namespace _Project.Code.Network.Level
                 }
 
                 GameObject instance = Instantiate(prefab, room.position, room.rotation);
-      
+
             }
 
             Debug.Log(" Dungeon reconstruction complete on client!");
         }
+        private void ClearOldDungeonTiles()
+        {
+            var oldTiles = GameObject.FindGameObjectsWithTag("DungeonTile");
+            if (oldTiles.Length > 0)
+            {
+                Debug.Log($"Clearing {oldTiles.Length} old dungeon tiles...");
+                foreach (var t in oldTiles)
+                    Destroy(t);
+            }
+        }
     }
+ 
 }

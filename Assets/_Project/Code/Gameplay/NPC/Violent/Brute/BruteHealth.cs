@@ -1,8 +1,10 @@
 using _Project.Code.Art.RagdollScripts;
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.AI;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
@@ -17,6 +19,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [SerializeField] private GameObject _ragdolledObj;
         [SerializeField] private BruteDead _bruteDead;
         [SerializeField] private BruteStateMachine _stateMachine;
+
         public void Awake()
         {
             _maxHealth = _bruteSO.MaxHealth;
@@ -24,11 +27,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _maxConsciousness = _bruteSO.MaxConsciousness;
             _currentConsciousness = _maxConsciousness;
         }
+
         public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
         {
             ChangeHealth(-damage);
             ChangeConsciousness(-knockoutPower);
         }
+
         public void ChangeConsciousness(float consciousnessChange)
         {
             _currentConsciousness += consciousnessChange;
@@ -37,10 +42,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 OnKnockOut();
             }
         }
+
         public void OnKnockOut()
         {
-
         }
+
         public void ChangeHealth(float healthChange)
         {
             _currentHealth += healthChange;
@@ -51,29 +57,68 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 OnDeath();
             }
         }
-  
+
         public void OnDeath()
         {
             if (!IsServer) return;
             _stateMachine.OnDeath();
             _ragdoll.EnableRagdoll();
-            _ragdolledObj.transform.SetParent(null);
+            // _ragdolledObj.transform.SetParent(null);
+            DisableVisualClientRPC();
             DetachRagdollServerRpc();
-            var netObj = GetComponent<NetworkObject>();
+
+
+            /*var netObj = GetComponent<NetworkObject>();
             if (netObj != null && netObj.IsSpawned)
             {
-               
+
                 if (IsServer)
-                    netObj.Despawn(true); 
+                {
+                    Debug.Log("Server:"+ IsServer +_ragdoll.name);
+                    netObj.Despawn(true);
+                }
             }
             else
             {
-               
+
                 Destroy(gameObject);
-            }
+            }*/
             _bruteDead.enabled = true;
         }
-        
+
+        [ClientRpc]
+        void DisableVisualClientRPC()
+        {
+            var mesh = GetComponent<MeshRenderer>();
+            if (mesh != null)
+                mesh.enabled = false;
+
+
+            var collider = GetComponent<Collider>();
+            if (collider != null)
+                collider.enabled = false;
+
+            var agent = GetComponent<NavMeshAgent>();
+            if (agent != null)
+            {
+                agent.ResetPath();       
+                agent.isStopped = true;
+                agent.enabled = false;   
+            }
+
+            var animator = GetComponent<Animator>();
+            if (animator != null)
+                animator.enabled = false;     
+            
+            if (_stateMachine != null)
+            {
+                animator.Rebind();
+                animator.enabled = false;
+            }
+
+           
+        }
+
         [ServerRpc]
         void DetachRagdollServerRpc()
         {
@@ -84,7 +129,8 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         void DetachRagdollClientRpc()
         {
             _ragdoll.EnableRagdoll();
-            _ragdolledObj.transform.SetParent(null);
+            Debug.Log("client:" + IsClient + _ragdoll.name);
+          //  _ragdolledObj.transform.SetParent(null);
         }
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
-    public class PlayerInventory : MonoBehaviour
+    public class PlayerInventory : NetworkBehaviour
     {
         [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
         public IInventoryItem BigItemCarried { get; private set; }
@@ -37,8 +37,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             _inputManager.OnUse -= UseItemInHand;
             _inputManager.OnDropItem -= DropItem;
         }
+        // not setup or tested
         public void ChangeUISlotDisplay()
         {
+            return;
             for (int i = 0; i < InventoryItems.Length; i++)
             {
                 if (InventoryItems[i] == null)
@@ -89,7 +91,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 if (InventoryItems[_currentIndex] == null)
                 {
                     InventoryItems[_currentIndex] = item;
-                    item.PickupItem(gameObject, HoldTransform);
+                    item.PickupItem(gameObject, HoldTransform, NetworkObject);
                     item.EquipItem();
                     Debug.Log("server side do Pice up");
                     //network
@@ -107,7 +109,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                         if (items == null)
                         {
                             InventoryItems[i] = item;
-                            item.PickupItem(gameObject, HoldTransform);
+                            item.PickupItem(gameObject, HoldTransform,NetworkObject);
                             item.UnequipItem();
                             break;
                         }
@@ -122,7 +124,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             {
                 BigItemCarried = item;
                 InventoryItems[_currentIndex]?.UnequipItem();
-                item.PickupItem(gameObject, HoldTransform);
+                item.PickupItem(gameObject, HoldTransform, NetworkObject);
                 item.EquipItem();
                 ChangeSlotBackgrounds(-1);
             }
@@ -206,8 +208,11 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             }
             ChangeUISlotDisplay();
         }
+        
+        //not setup or tested
         public void ChangeSlotBackgrounds(int selectedItem)
         {
+            return;
             for (int i = 0; i < SlotDisplay.Length; i++)
             {
                 if (i == selectedItem)

@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2561421773714163629, guid: 0ce2f2dc35ac69f428079fd749a9bf03, type: 3}
+      propertyPath: _heldVisual
+      value: 
+      objectReference: {fileID: 929268959168934123, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
     - target: {fileID: 2708235479467889630, guid: 0ce2f2dc35ac69f428079fd749a9bf03, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3397678157
@@ -52,6 +56,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2995521283193962688, guid: 0ce2f2dc35ac69f428079fd749a9bf03, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2995521283193962688, guid: 0ce2f2dc35ac69f428079fd749a9bf03, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3785101570154961571, guid: 0ce2f2dc35ac69f428079fd749a9bf03, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 6191987581465459003, guid: 0ce2f2dc35ac69f428079fd749a9bf03, type: 3}
       propertyPath: m_Name
       value: PF_DispFlashVariant_NW
@@ -93,7 +109,7 @@ MonoBehaviour:
   RotationMaxInterpolationTime: 0.1
   ScaleLerpSmoothing: 1
   ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
+  AuthorityMode: 1
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
   SyncPositionX: 1

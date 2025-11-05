@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using _Project.Code.Art.RagdollScripts;
 using _Project.Code.Gameplay.Interactables;
+using _Project.Code.Network.ObjectManager;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -18,11 +20,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [SerializeField] GameObject _destroy;
 
         [SerializeField] float heightOffset;
-
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-        }
+        private ulong _parentId;
+        private Vector3 _deathPosition;
+     
 
         public void OnHold(GameObject player)
         {
@@ -38,33 +38,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             {
                 _isInteracting = false;
                 _heldTime = 0;
-                Debug.Log("PlayerDone");
+                Debug.Log("[BruteDead]Player Done");
             }
         }
+
         public void OnEnable()
         {
             _interactCollider.enabled = true;
         }
 
-        /*
-        public void SpawnBrutePieces()
-        {
-            Instantiate(_brutePiecesPrefab, transform.position + new Vector3(0, heightOffset, 0), Quaternion.identity);
-        }
-        */
-
-        public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
-
-         
-            if (_destroy == null)
-            {
-                _destroy = transform.Find("SK_Brute")?.gameObject;
-                Debug.Log($"[Client {NetworkManager.Singleton.LocalClientId}] Auto-assigned _destroy: {_destroy?.name}");
-            }
-        }
-
+     
         void Update()
         {
             if (_isInteracting)
@@ -85,41 +68,58 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 {
                     RequestBruteDeathServerRpc();
                 }
-               
             }
         }
-        
+
         [ServerRpc(RequireOwnership = false)]
         private void RequestBruteDeathServerRpc()
         {
             HandleBruteDeathServer();
         }
+
         private void HandleBruteDeathServer()
         {
+            if (_destroy != null)
+            {
+                _deathPosition = _destroy.transform.position;
+            }
+            else
+            {
+                _deathPosition = transform.position;
+            }
+                
             SpawnBrutePiecesServer();
             DestroyBodyServer();
         }
+
         private void SpawnBrutePiecesServer()
         {
-            var spawnPos = transform.position + new Vector3(0, heightOffset, 0);
+            
+            var spawnPos = _deathPosition + new Vector3(0, heightOffset, 0);
             var obj = Instantiate(_brutePiecesPrefab, spawnPos, Quaternion.identity);
             var netObj = obj.GetComponent<NetworkObject>();
 
             if (netObj != null)
             {
-                netObj.Spawn(true); 
+                netObj.Spawn(true);
             }
             else
             {
                 Debug.LogWarning($"{_brutePiecesPrefab.name} no NetworkObject comp！");
             }
         }
-        
+
         [ServerRpc(RequireOwnership = false)]
         private void SpawnBrutePiecesServerRpc()
         {
             SpawnBrutePiecesServer();
+            var netObj = GetComponentInParent<NetworkObject>();
+            if (netObj != null)
+            {
+                netObj.Despawn();
+            }
         }
+
         private void DestroyBodyServer()
         {
             if (_destroy == null)
@@ -127,22 +127,20 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 Debug.LogWarning("[Server] _destroy is null!");
                 return;
             }
-            
-            Destroy(_destroy);
-            DestroyBodyClientRpc();
-            Debug.Log($"[Server] Notified all clients to destroy {_destroy.name}");
-        }
-        
-        [ClientRpc]
-        private void DestroyBodyClientRpc()
-        {
-            Debug.Log($"Client {NetworkManager.Singleton.LocalClientId}] DestroyBodyClientRpc received.");
-            if (_destroy != null)
+
+            var rag = GetComponentInParent<Ragdoll>();
+            if (IsServer && NetworkRelay.Instance != null)
             {
-                Destroy(_destroy);
-                Debug.Log($"[Client] Locally destroyed {_destroy.name}");
+                NetworkRelay.Instance.DestroyCorpseClientRpc("SK_Brute",rag.ParentId);
             }
+            
+
+            Destroy(_destroy);
+            
+          
+            
         }
 
+       
     }
 }
