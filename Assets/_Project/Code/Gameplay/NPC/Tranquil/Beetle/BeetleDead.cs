@@ -55,5 +55,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         {
             _collider.enabled = true; 
         }
+        
     }
 }

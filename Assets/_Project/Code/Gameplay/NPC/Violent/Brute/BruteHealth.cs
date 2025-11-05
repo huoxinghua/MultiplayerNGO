@@ -60,12 +60,8 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 
         public void OnDeath()
         {
-            if (!IsServer) return;
-            _stateMachine.OnDeath();
-            _ragdoll.EnableRagdoll();
-            // _ragdolledObj.transform.SetParent(null);
-            DisableVisualClientRPC();
-            DetachRagdollServerRpc();
+           RequestOnDeathServerRpc();
+           DetachRagdollServerRpc();
 
 
             /*var netObj = GetComponent<NetworkObject>();
@@ -83,9 +79,17 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 
                 Destroy(gameObject);
             }*/
-            _bruteDead.enabled = true;
+            
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        void RequestOnDeathServerRpc()
+        {
+            
+            DisableVisualClientRPC();
+            
+            
+        }
         [ClientRpc]
         void DisableVisualClientRPC()
         {
@@ -115,8 +119,10 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 animator.Rebind();
                 animator.enabled = false;
             }
-
-           
+            _stateMachine.OnDeath();
+            _ragdoll.EnableRagdoll();
+           _stateMachine.enabled = false;
+           _bruteDead.enabled = true;
         }
 
         [ServerRpc]
