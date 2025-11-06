@@ -20,6 +20,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             ikController.IkActive = true;
             transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
             transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
+            PlayIKIdle(isFPS);
         }
 
         public void DropAnimation(PlayerIKController ikController)
@@ -30,7 +31,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         public void PlayIKIdle(bool isFPS)
         {
-            currentTween?.Kill();
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
             float duration = ikInteractSo.ikIdle.transitionDuration;
 
             if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikIdle.resetDuration;
@@ -39,6 +44,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
             transform.DOLocalMove(ApplyPosOffset(ikInteractSo.ikIdle.waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikIdle.easeType)
                 .OnComplete(() =>
                 {
+                    if(currentTween != null)
+                    {
+                        currentTween.Kill(true);
+                        currentTween = null;
+                    }
                     var seq = DOTween.Sequence();
                     seq.Append(transform.DOLocalMove(ApplyPosOffset(ikInteractSo.ikIdle.waypoints[1], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType)).Append(transform.DOLocalMove(ApplyPosOffset(ikInteractSo.ikIdle.waypoints[0], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType)).SetLoops(-1, ikInteractSo.ikIdle.loopType);
                     currentTween = seq;
@@ -47,8 +57,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         public void PlayIKWalk(float slowSpeed,bool isFPS)
         {
-            currentTween?.Kill();
-            
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
             float duration = ikInteractSo.ikIdle.transitionDuration * slowSpeed;
             
             if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikWalk.resetDuration;
@@ -58,6 +71,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
             startSeq.Append(transform.DOLocalMove(ApplyPosOffset(ikInteractSo.ikWalk.waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikWalk.easeType)).Join(transform.DOLocalRotate(ApplyRotOffset(ikInteractSo.ikWalk.followThrough[0], isFPS), duration).SetEase(ikInteractSo.ikWalk.easeType))
                 .OnComplete(() =>
                 {
+                    if(currentTween != null)
+                    {
+                        currentTween.Kill(true);
+                        currentTween = null;
+                    }
                     var seq = DOTween.Sequence();
 
                     var moveTween = transform.DOLocalPath(ApplyPosOffset(ikInteractSo.ikWalk.waypoints, isFPS), ikInteractSo.ikWalk.loopDuration, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode).SetEase(ikInteractSo.ikWalk.easeType).SetLoops(-1, ikInteractSo.ikWalk.loopType);
@@ -70,13 +88,17 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     seq.Join(rotateSeq);
 
                     currentTween = seq;
+                    Debug.Log($"[IK] currentTween set, Tween Active: { (currentTween != null && DOTween.IsTweening(currentTween)) }");
                 });
         }
 
         public void PlayIKRun(bool isFPS)
         {
-            currentTween?.Kill();
-            
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
             float duration = ikInteractSo.ikIdle.transitionDuration;
 
             if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikRun.resetDuration;
@@ -86,6 +108,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
             startSeq.Append(transform.DOLocalMove(ApplyPosOffset(ikInteractSo.ikRun.waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikRun.easeType)).Join(transform.DOLocalRotate(ApplyRotOffset(ikInteractSo.ikRun.followThrough[0], isFPS), duration).SetEase(ikInteractSo.ikRun.easeType))
                 .OnComplete(() =>
                 {
+                    if(currentTween != null)
+                    {
+                        currentTween.Kill(true);
+                        currentTween = null;
+                    }
                     var seq = DOTween.Sequence();
 
                     var moveTween = transform.DOLocalPath(ApplyPosOffset(ikInteractSo.ikRun.waypoints, isFPS), ikInteractSo.ikRun.loopDuration, ikInteractSo.ikRun.pathType, ikInteractSo.ikRun.pathMode).SetEase(ikInteractSo.ikRun.easeType).SetLoops(-1, ikInteractSo.ikRun.loopType);
@@ -99,12 +126,16 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
                     currentTween = seq;
                 });
+            
         }
 
         public void PlayIKInteract(bool isFPS)
         {
-            currentTween?.Kill();
-            
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
             float duration = ikInteractSo.ikIdle.transitionDuration;
 
             if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikInteract.resetDuration;
@@ -112,8 +143,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             var seq = DOTween.Sequence();
 
-            seq.Append(transform.DOLocalMove(ApplyPosOffset(Vector3.zero, isFPS), duration)
-                    .SetEase(ikInteractSo.ikInteract.easeAnti)).Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), duration).SetEase(ikInteractSo.ikInteract.easeAnti));
+            seq.Append(transform.DOLocalMove(ApplyPosOffset(Vector3.zero, isFPS), duration).SetEase(ikInteractSo.ikInteract.easeAnti)).Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), duration).SetEase(ikInteractSo.ikInteract.easeAnti));
 
             seq.Append(transform.DOLocalMove(ApplyPosOffset(ikInteractSo.ikInteract.posWaypoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration).SetEase(ikInteractSo.ikInteract.easeAnti)).Join(transform.DOLocalRotate(ApplyRotOffset(ikInteractSo.ikInteract.rotWaypoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration).SetEase(ikInteractSo.ikInteract.easeAnti));
 
@@ -125,10 +155,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         }
 
-        public void OnDisable()
+        public void StopIKAnimation()
         {
-            currentTween?.Kill();
-            currentTween = null;
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
         }
 
         private Vector3 ApplyPosOffset(Vector3 point, bool isFPS)

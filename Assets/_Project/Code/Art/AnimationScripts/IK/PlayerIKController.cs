@@ -12,6 +12,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private Transform handL;
         private Transform handR;
         private IkInteractSO fingerSO;
+        
+        public IKInteractable Interactable => interactable;
 
         public bool IkActive
         {
