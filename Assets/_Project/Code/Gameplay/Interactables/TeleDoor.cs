@@ -39,7 +39,7 @@ namespace _Project.Code.Gameplay.Interactables
                 _linkedDoor = linkDoorEvent.LinkPos;
             }
         }
-        public void Update()
+        public void LateUpdate()
         {
             if (_holdTimers.Count < 1) return;
             for (int i = _holdTimers.Count - 1; i >= 0; i--)
