@@ -1,17 +1,34 @@
+using System;
 using System.Collections;
+using _Project.Code.Art.AnimationScripts.IK;
 using Unity.Netcode.Components;
 using UnityEngine;
 using Unity.Netcode;
 
 namespace _Project.Code.Art.AnimationScripts.Animations
 {
+    public enum AnimationState
+    {
+        Idle,
+        Walk,
+        Run
+    }
     public class PlayerAnimation : BaseAnimation
     {
         [SerializeField] public NetworkAnimator netAnim;
+        [SerializeField] private PlayerIKController fpsIKController;
+        [SerializeField] private PlayerIKController tpsIKController;
         protected int hJump = Animator.StringToHash("jump");
         protected int hInAir = Animator.StringToHash("isInAir");
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
+
+        private AnimationState moveState = AnimationState.Idle;
+
+        private void Update()
+        {
+            Debug.Log(moveState);
+        }
 
         protected override void Awake()
         {
@@ -25,6 +42,34 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected override void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
+            if (fpsIKController.Interactable == null) return;
+
+            // Determine animation state
+            bool isIdle = currentSpeed <= 0.01f;
+            AnimationState targetState = AnimationState.Idle;
+
+            if (!isIdle)
+                targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
+
+            if (moveState == targetState) return;
+            moveState = targetState;
+
+            // Kill previous IK tween
+            fpsIKController.Interactable.StopIKAnimation();
+
+            // Play IK based on movement state
+            switch (moveState)
+            {
+                case AnimationState.Idle:
+                    fpsIKController.Interactable.PlayIKIdle(true);
+                    break;
+                case AnimationState.Walk:
+                    fpsIKController.Interactable.PlayIKWalk(1f, true);
+                    break;
+                case AnimationState.Run:
+                    fpsIKController.Interactable.PlayIKRun(true);
+                    break;
+            }
 
             //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
             UpdateMovementServerRPC(currentSpeed, maxSpeed);
@@ -72,7 +117,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             netAnim.Animator.SetBool(hCrouch, false);
         }
-        public override void PlayAttack()
+        
+        public void PlayInteract()
         {
 
         }

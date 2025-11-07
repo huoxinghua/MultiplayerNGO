@@ -1,10 +1,11 @@
 using UnityEngine;
 
-namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
+namespace _Project.Code.Art.AnimationScripts.IKInteractSOs
 {
-    [CreateAssetMenu(fileName = "FingerPoseSO", menuName = "FingerPoseSOs/FingerPoseSO")]
-    public class FingerPoseSO : ScriptableObject
+    [CreateAssetMenu(fileName = "ikInteractSO", menuName = "ikInteractSOs/ikInteractSO")]
+    public class IkInteractSO : ScriptableObject
     {
+        [Header("Finger Pose")]
         public FingerData thumbR;
         public FingerData indexR;
         public FingerData middleR;
@@ -16,6 +17,15 @@ namespace _Project.Code.Art.AnimationScripts.FingerPoseSOs
         public FingerData ringL;
         public FingerData littleL;
 
+        [Space(10), Header("Object Position")]
+        public OffsetPos fpsOffset;
+        public OffsetPos tpsOffset;
+        
+        [Space(10), Header("IK Animation Preset")]
+        public IdlePreset ikIdle;
+        public MovementPreset ikWalk;
+        public MovementPreset ikRun;
+        public InteractPreset ikInteract;
         private void OnEnable()
         {
             if (thumbR.proximal.w == 0)

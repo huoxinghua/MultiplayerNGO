@@ -14,4 +14,6 @@ public class DollAnimation : EnemyAnimation
         anim.SetFloat(hIdleSlot, Random.Range(0, idleIndex));
         anim.SetTrigger(hRandomIdle);
     }
+    
+    
 }

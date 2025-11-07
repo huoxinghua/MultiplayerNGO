@@ -38,8 +38,6 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             anim.SetFloat(hSpeed, currentSpeed / maxSpeed);
         }
 
-        public abstract void PlayAttack();
-
 
         protected virtual IEnumerator SmoothWalkRun(float target)
         {
