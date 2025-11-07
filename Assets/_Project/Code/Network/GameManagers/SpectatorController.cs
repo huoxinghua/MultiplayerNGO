@@ -5,28 +5,48 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Player;
-using _Project.Code.Gameplay.Player.PlayerStateMachine;
-using _Project.Code.Utilities.Singletons;
+using _Project.Code.Utilities.EventBus;
 using Unity.Cinemachine;
-using UnityEngine.SceneManagement;
+using _Project.Code.Gameplay.FirstPersonController;
+using Unity.Entities;
+
 
 namespace _Project.Code.Network.GameManagers
 {
     public class SpectatorController : Singleton<SpectatorController>
     {
-        [SerializeField] private CinemachineCamera _spectatorCam;
-        private readonly List<Transform> _aliveHeads = new List<Transform>();
+        //[SerializeField] private CinemachineCamera _spectatorCam;
         [SerializeField] private Camera mainCam;
+        private readonly List<Transform> _aliveHeads = new List<Transform>();
+        Vector2 rawLook;
         private int _currentIndex = 0;
+        private PlayerInputManagerSpectator _input;
 
+        [Header("Sensitivity Values")] [SerializeField]
+        private float sensitivity = 2;
 
-        public void EnterSpectatorMode()
+        [SerializeField] private float smoothing = 1.5f;
+        [SerializeField] private float rawLookMultiply = 0.009f;
+        Vector2 velocity;
+        Vector2 frameVelocity;
+        private Transform _currentTarget;
+        private float _yaw;
+        private float _pitch;
+        [SerializeField] private float followDistance = 4f;
+        [SerializeField] private float heightOffset = 1.5f;
+        private void OnEnable()
         {
-          
+            EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
+        }
+
+
+        public void EnterSpectatorMode(PlayerDiedEvent playerDiedEvent)
+        {
             StartCoroutine(DelayedRefresh());
-         
-          //  RefreshAliveList();
-   
+
+
+            //  RefreshAliveList();
+            Debug.Log($"EnterSpectatorMode{playerDiedEvent.deadPlayer}");
 
             if (_aliveHeads.Count == 0)
             {
@@ -34,18 +54,52 @@ namespace _Project.Code.Network.GameManagers
                 FindObjectOfType<NetworkSessionReset>()?.ReturnToMainMenu();
                 return;
             }
-            mainCam.enabled = true;
 
-            _spectatorCam.Priority = 20;
-            SetTarget(_aliveHeads[0]);
+            mainCam.enabled = true;
+            Debug.Log($"mainCam{mainCam.name}");
+            _input = playerDiedEvent.deadPlayer.GetComponent<PlayerInputManagerSpectator>();
+            if (_input == null)
+            {
+                Debug.Log("[Spectator] No PlayerInputManagerSpectator found on dead player.");
+                return;
+            }
+            Debug.Log($"_spectator input found already{_input.name}");
+            _input.EnableSpectatorInput();
+            _input.enabled = true;
+            _input.OnSpectatorLookInput += Look;
+            
+            if (_aliveHeads.Count > 0)
+            {
+                SetTarget(_aliveHeads[0]);
+            }
+
+            _input.OnNext += Next;
+
+            _input.OnPrev += Prev;
+         
+
+
+            //   _spectatorCam.Priority = 20;
+            //SetTarget(_aliveHeads[0]);
         }
+
+        private void OnDisable()
+        {
+            if (_input != null)
+            {
+                _input.OnSpectatorLookInput -= Look;
+                _input.OnNext -= Next;
+                _input.OnPrev -= Prev;
+            }
+            
+        }
+
 
         private void Update()
         {
-            if (_spectatorCam.Priority < 20) return;
+            //  if (_spectatorCam.Priority < 20) return;
 
-            if (Input.GetKeyDown(KeyCode.N)) Next();
-            if (Input.GetKeyDown(KeyCode.B)) Prev();
+            HandleCamera();
         }
 
         private IEnumerator DelayedRefresh()
@@ -82,7 +136,7 @@ namespace _Project.Code.Network.GameManagers
                     continue;
                 }
 
-     
+
                 if (client.ClientId == NetworkManager.Singleton.LocalClientId)
                     continue;
 
@@ -90,7 +144,7 @@ namespace _Project.Code.Network.GameManagers
                 if (health != null && health.IsDead)
                     continue;
 
-                var head = playerObj.transform;
+                var head = playerObj.transform.Find("PlayerCameraRoot");
                 if (head != null)
                 {
                     _aliveHeads.Add(head);
@@ -104,28 +158,33 @@ namespace _Project.Code.Network.GameManagers
 
         private void SetTarget(Transform t)
         {
-           Debug.Log("setTarget"+t);
+            Debug.Log("setTarget" + t);
+            _currentTarget = t;
+            /*
             _spectatorCam.Follow = t;
             _spectatorCam.LookAt = t;
-            if (!_spectatorCam.TryGetComponent(out CinemachineFollow follow))
+            if (!_spectatorCam.TryGetComponent(out CinemachineThirdPersonFollow follow))
             {
-                follow = _spectatorCam.gameObject.AddComponent<CinemachineFollow>();
-                Debug.Log("[Spectator] Added CinemachineFollow (Position Control = Follow)");
+                follow = _spectatorCam.gameObject.AddComponent<CinemachineThirdPersonFollow>();
+                Debug.Log("[Spectator] Added CinemachineThirdPersonFollow (Position Control)");
             }
 
             if (!_spectatorCam.TryGetComponent(out CinemachineRotateWithFollowTarget rotate))
             {
                 rotate = _spectatorCam.gameObject.AddComponent<CinemachineRotateWithFollowTarget>();
-                Debug.Log("[Spectator] Added CinemachineRotateWithFollowTarget (Rotation Control = Rotate With Follow Target)");
+                Debug.Log(
+                    "[Spectator] Added CinemachineRotateWithFollowTarget (Rotation Control = Rotate With Follow Target)");
             }
-            Debug.Log($"Spectating: {t.name}");
-          
-            follow.FollowOffset = new Vector3(0f, 1f, -2f);
-       
-        }
+            */
 
+
+
+            //  follow.FollowOffset = new Vector3(0f, 1f, -2f);
+
+        }
         private void Next()
         {
+            Debug.Log("switch to next spectator came"+ _aliveHeads.Count);
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex + 1) % _aliveHeads.Count;
             SetTarget(_aliveHeads[_currentIndex]);
@@ -133,9 +192,35 @@ namespace _Project.Code.Network.GameManagers
 
         private void Prev()
         {
+            Debug.Log("switch to prev spectator came" +_aliveHeads.Count);
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex - 1 + _aliveHeads.Count) % _aliveHeads.Count;
-            SetTarget(_aliveHeads[_currentIndex]);
+             SetTarget(_aliveHeads[_currentIndex]);
+        }
+
+
+        private void HandleCamera()
+        {
+            if (_currentTarget == null) return;
+
+           
+            _yaw += rawLook.x * sensitivity;
+            _pitch -= rawLook.y * sensitivity;
+            _pitch = Mathf.Clamp(_pitch, -80f, 80f);
+
+
+            Quaternion rot = Quaternion.Euler(_pitch, _yaw, 0f);
+            Vector3 offset = rot * new Vector3(0f, heightOffset, -followDistance);
+
+          
+            mainCam.transform.position = _currentTarget.position + offset;
+            mainCam.transform.rotation = rot;
+
+        }
+
+        private void Look(Vector2 dir)
+        {
+            rawLook = dir;
         }
     }
 }

@@ -37,9 +37,10 @@ namespace _Project.Code.Gameplay.FirstPersonController
         {
             inputActions = new InputSystem_Actions();
         }
+        
         private void OnEnable()
         {
-            inputActions.Enable();
+            SwitchToPlayerMode();
             inputActions.Player.Move.performed += HandleMove;
             inputActions.Player.Move.canceled += HandleMove;
             inputActions.Player.Jump.performed += HandleJump;
@@ -60,7 +61,7 @@ namespace _Project.Code.Gameplay.FirstPersonController
         }
         private void OnDisable()
         {
-            inputActions.Disable();
+            SwitchToSpectatorMode();
 
             inputActions.Player.Move.performed -= HandleMove;
             inputActions.Player.Move.canceled -= HandleMove;
@@ -79,6 +80,19 @@ namespace _Project.Code.Gameplay.FirstPersonController
             inputActions.Player.Interact.performed -= HandleInteract;
             inputActions.Player.Use.performed -= HandleUse;
             inputActions.Player.KeyPressed.performed -= HandleKeyPressed;
+        }
+        public void SwitchToSpectatorMode()
+        {
+            inputActions.Player.Disable();
+            inputActions.Spectator.Enable();
+            Debug.Log("[Input] Switched to Spectator mode");
+        }
+
+        public void SwitchToPlayerMode()
+        {
+            inputActions.Spectator.Disable();
+            inputActions.Player.Enable();
+            Debug.Log("[Input] Switched to Player mode");
         }
         Vector2 moveInput;
         private void HandleMove(InputAction.CallbackContext context)
