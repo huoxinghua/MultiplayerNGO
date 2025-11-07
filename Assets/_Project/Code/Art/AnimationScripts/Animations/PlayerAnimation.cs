@@ -50,6 +50,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         private void UpdateIKMovement(float  currentSpeed, float maxSpeed, bool isRunning)
         {
             if (fpsIKController.Interactable == null) return;
+            if (fpsIKController.Interactable.IsInteract == true) return;
 
             bool isIdle = currentSpeed <= 0.01f;
             AnimationState targetState = AnimationState.Idle;
@@ -79,7 +80,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         [ServerRpc]
         private void UpdateIKMovementServerRPC(float  currentSpeed, float maxSpeed, bool isRunning)
         {
-            if (fpsIKController.Interactable == null) return;
+            if (tpsIKController.Interactable == null) return;
+            if (tpsIKController.Interactable.IsInteract == true) return;
 
             bool isIdle = currentSpeed <= 0.01f;
             AnimationState targetState = AnimationState.Idle;
@@ -88,9 +90,9 @@ namespace _Project.Code.Art.AnimationScripts.Animations
                 targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
 
             if (state == targetState) return;
-            state = targetState;
+            if (state != AnimationState.Interact) state = targetState;
 
-            fpsIKController.Interactable.StopIKAnimation();
+            tpsIKController.Interactable.StopIKAnimation();
 
             switch (state)
             {
@@ -153,7 +155,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         public void PlayInteract()
         {
             if (fpsIKController.Interactable == null) return;
-           // if(state == AnimationState.Interact) return;
+            state = AnimationState.Interact;
+            
             if(IsOwner)
             fpsIKController.Interactable.PlayIKInteract(true);
             PlayInteractServerRpc();
@@ -168,7 +171,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         void DistributeInteractAnimClientRpc()
         {
             if (fpsIKController.Interactable == null) return;
-            //if(state == AnimationState.Interact) return;
+            state = AnimationState.Interact;
+            
             if(!IsOwner)
             tpsIKController.Interactable.PlayIKInteract(false);
         }
