@@ -52,62 +52,74 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             if (fpsIKController.Interactable == null) return;
             if (fpsIKController.Interactable.IsInteract == true) return;
 
-            bool isIdle = currentSpeed <= 0.01f;
-            AnimationState targetState = AnimationState.Idle;
-
-            if (!isIdle)
-                targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
-
-            if (state == targetState) return;
-            state = targetState;
-
-            fpsIKController.Interactable.StopIKAnimation();
-
-            switch (state)
+            if (IsOwner)
             {
-                case AnimationState.Idle:
-                    fpsIKController.Interactable.PlayIKIdle(true);
-                    break;
-                case AnimationState.Walk:
-                    if(anim.GetBool(hCrouch) != true) fpsIKController.Interactable.PlayIKWalk(1f, true);
-                    else fpsIKController.Interactable.PlayIKWalk(2f, true);
-                    Debug.Log(anim.GetBool(hCrouch));
-                    break;
-                case AnimationState.Run:
-                    fpsIKController.Interactable.PlayIKRun(true);
-                    break;
+                bool isIdle = currentSpeed <= 0.01f;
+                AnimationState targetState = AnimationState.Idle;
+
+                if (!isIdle)
+                    targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
+
+                if (state == targetState) return;
+                state = targetState;
+
+                fpsIKController.Interactable.StopIKAnimation();
+
+                switch (state)
+                {
+                    case AnimationState.Idle:
+                        fpsIKController.Interactable.PlayIKIdle(true);
+                        break;
+                    case AnimationState.Walk:
+                        if(anim.GetBool(hCrouch) != true) fpsIKController.Interactable.PlayIKWalk(1f, true);
+                        else fpsIKController.Interactable.PlayIKWalk(2f, true);
+                        Debug.Log(anim.GetBool(hCrouch));
+                        break;
+                    case AnimationState.Run:
+                        fpsIKController.Interactable.PlayIKRun(true);
+                        break;
+                }
             }
         }
         
         [ServerRpc]
         private void UpdateIKMovementServerRPC(float  currentSpeed, float maxSpeed, bool isRunning)
         {
+            DistributeMovementAnimClientRPC(currentSpeed, maxSpeed, isRunning);
+        }
+
+        [ClientRpc]
+        void DistributeMovementAnimClientRPC(float currentSpeed, float maxSpeed, bool isRunning)
+        {
             if (tpsIKController.Interactable == null) return;
             if (tpsIKController.Interactable.IsInteract == true) return;
 
-            bool isIdle = currentSpeed <= 0.01f;
-            AnimationState targetState = AnimationState.Idle;
-
-            if (!isIdle)
-                targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
-
-            if (state == targetState) return;
-            if (state != AnimationState.Interact) state = targetState;
-
-            tpsIKController.Interactable.StopIKAnimation();
-
-            switch (state)
+            if (!IsOwner)
             {
-                case AnimationState.Idle:
-                    tpsIKController.Interactable.PlayIKIdle(false);
-                    break;
-                case AnimationState.Walk:
-                    if(netAnim.Animator.GetBool(hCrouch) != true) tpsIKController.Interactable.PlayIKWalk(1f, true);
-                    else tpsIKController.Interactable.PlayIKWalk(2f, true);
-                    break;
-                case AnimationState.Run:
-                    tpsIKController.Interactable.PlayIKRun(false);
-                    break;
+                bool isIdle = currentSpeed <= 0.01f;
+                AnimationState targetState = AnimationState.Idle;
+
+                if (!isIdle)
+                    targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
+
+                if (state == targetState) return;
+                if (state != AnimationState.Interact) state = targetState;
+
+                tpsIKController.Interactable.StopIKAnimation();
+
+                switch (state)
+                {
+                    case AnimationState.Idle:
+                        tpsIKController.Interactable.PlayIKIdle(false);
+                        break;
+                    case AnimationState.Walk:
+                        if(netAnim.Animator.GetBool(hCrouch) != true) tpsIKController.Interactable.PlayIKWalk(1f, true);
+                        else tpsIKController.Interactable.PlayIKWalk(2f, true);
+                        break;
+                    case AnimationState.Run:
+                        tpsIKController.Interactable.PlayIKRun(false);
+                        break;
+                }
             }
         }
         

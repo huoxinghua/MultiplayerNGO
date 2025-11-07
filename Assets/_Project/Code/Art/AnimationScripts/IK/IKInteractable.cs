@@ -77,7 +77,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     var seq = DOTween.Sequence();
                     seq.Append(transform.DOLocalMove(ApplyPosOffset(isFPS ? ikInteractSo.ikIdle.fpsWaypoints[1] : ikInteractSo.ikIdle.tpsWaypoints[1], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
                         .Append(transform.DOLocalMove(ApplyPosOffset(isFPS ? ikInteractSo.ikIdle.fpsWaypoints[0] : ikInteractSo.ikIdle.tpsWaypoints[0], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
-                        .SetLoops(-1, ikInteractSo.ikIdle.loopType);
+                        .SetLoops(int.MaxValue, ikInteractSo.ikIdle.loopType);
                     currentTween = seq;
                 });
         }
@@ -112,14 +112,14 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
                     var moveTween = transform.DOLocalPath(ApplyPosOffset(isFPS ? ikInteractSo.ikWalk.fpsWaypoints : ikInteractSo.ikWalk.tpsWaypoints, isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
                         .SetEase(ikInteractSo.ikWalk.easeType)
-                        .SetLoops(-1, ikInteractSo.ikWalk.loopType);
+                        .SetLoops(int.MaxValue, ikInteractSo.ikWalk.loopType);
 
                     seq.Append(moveTween);
 
                     var rotateSeq = DOTween.Sequence();
                     rotateSeq.Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikWalk.fpsFollowThrough[1] : ikInteractSo.ikWalk.tpsFollowThrough[1], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
                         .Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikWalk.fpsFollowThrough[0] : ikInteractSo.ikWalk.tpsFollowThrough[0], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
-                        .SetLoops(-1, ikInteractSo.ikWalk.loopType);
+                        .SetLoops(int.MaxValue, ikInteractSo.ikWalk.loopType);
 
                     seq.Join(rotateSeq);
 
@@ -157,14 +157,14 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
                     var moveTween = transform.DOLocalPath(ApplyPosOffset(isFPS ? ikInteractSo.ikRun.fpsWaypoints : ikInteractSo.ikRun.tpsWaypoints, isFPS), ikInteractSo.ikRun.loopDuration, ikInteractSo.ikRun.pathType, ikInteractSo.ikRun.pathMode)
                         .SetEase(ikInteractSo.ikRun.easeType)
-                        .SetLoops(-1, ikInteractSo.ikRun.loopType);
+                        .SetLoops(int.MaxValue, ikInteractSo.ikRun.loopType);
 
                     seq.Append(moveTween);
 
                     var rotateSeq = DOTween.Sequence();
                     rotateSeq.Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikRun.fpsFollowThrough[1] : ikInteractSo.ikRun.tpsFollowThrough[1], isFPS), ikInteractSo.ikRun.loopDuration).SetEase(ikInteractSo.ikRun.easeType))
                         .Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikRun.fpsFollowThrough[0] : ikInteractSo.ikRun.tpsFollowThrough[0], isFPS), ikInteractSo.ikRun.loopDuration).SetEase(ikInteractSo.ikRun.easeType))
-                        .SetLoops(-1, ikInteractSo.ikRun.loopType);
+                        .SetLoops(int.MaxValue, ikInteractSo.ikRun.loopType);
 
                     seq.Join(rotateSeq);
 
