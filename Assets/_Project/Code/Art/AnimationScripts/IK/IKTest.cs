@@ -15,40 +15,34 @@ public bool GetOwner => IsOwner;
 
     void Update()
     {
-        Debug.Log("isowner:"+IsOwner);
-        if (!IsOwner)
-        {
-            Debug.Log("isowne fALSE SKIP:");
-            return;
-        }
         if (Input.GetKeyDown(KeyCode.K))
         {
-            if(IsOwner) ik.PickupAnimation(fpsController, GetOwner);
-            else ik.PickupAnimation(tpsController, !GetOwner);
+            if(IsOwner) ik.PickupAnimation(fpsController, isFPS);
+            else ik.PickupAnimation(tpsController, isFPS);
         }
         
         if (Input.GetKeyDown(KeyCode.L))
         {
-            if(IsOwner) ik.PlayIKIdle(GetOwner);
-            else ik.PlayIKIdle(!GetOwner);
+            if(IsOwner) ik.PlayIKIdle(isFPS);
+            else ik.PlayIKIdle(isFPS);
         }
 
         if (Input.GetKeyDown(KeyCode.V))
         {
-            if(IsOwner) ik.PlayIKWalk(walkSpeed, GetOwner);
-            else ik.PlayIKWalk(walkSpeed, !GetOwner);
+            if(IsOwner) ik.PlayIKWalk(walkSpeed, isFPS);
+            else ik.PlayIKWalk(walkSpeed, isFPS);
         }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if(IsOwner) ik.PlayIKRun(GetOwner);
-            else ik.PlayIKRun(!GetOwner);
+            if(IsOwner) ik.PlayIKRun(isFPS);
+            else ik.PlayIKRun(isFPS);
         }
 
         if (Input.GetKeyDown(KeyCode.N))
         {
-            if (IsOwner) ik.PlayIKInteract(GetOwner);
-            else ik.PlayIKInteract(!GetOwner);
+            if (IsOwner) ik.PlayIKInteract(isFPS);
+            else ik.PlayIKInteract(isFPS);
         }
             
     }

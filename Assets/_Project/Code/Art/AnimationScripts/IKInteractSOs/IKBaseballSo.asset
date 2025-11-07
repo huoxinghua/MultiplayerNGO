@@ -62,20 +62,30 @@ MonoBehaviour:
     resetDuration: 0.05
     transitionDuration: 1
     loopDuration: 3
-    waypoints:
+    fpsWaypoints:
     - {x: 0, y: 0.005, z: 0}
     - {x: 0, y: -0.005, z: 0}
+    tpsWaypoints:
+    - {x: 0, y: 0.003, z: 0}
+    - {x: 0, y: -0.003, z: 0}
     loopType: 1
     easeType: 7
   ikWalk:
     resetDuration: 0.03
     transitionDuration: 0.3
     loopDuration: 0.65
-    waypoints:
+    fpsWaypoints:
     - {x: -0.01, y: 0, z: 0}
     - {x: 0, y: -0.003, z: 0}
     - {x: 0.01, y: 0, z: 0}
-    followThrough:
+    tpsWaypoints:
+    - {x: -0.1, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.01, y: 0, z: 0}
+    fpsFollowThrough:
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
+    tpsFollowThrough:
     - {x: 0, y: 0, z: -1}
     - {x: 0, y: 0, z: 1}
     loopType: 1
@@ -86,11 +96,18 @@ MonoBehaviour:
     resetDuration: 0.01
     transitionDuration: 0.2
     loopDuration: 0.3
-    waypoints:
+    fpsWaypoints:
     - {x: -0.02, y: 0, z: 0}
     - {x: 0, y: -0.008, z: 0}
     - {x: 0.02, y: 0, z: 0}
-    followThrough:
+    tpsWaypoints:
+    - {x: -0.02, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.02, y: 0, z: 0}
+    fpsFollowThrough:
+    - {x: 0, y: 0, z: -2}
+    - {x: 0, y: 0, z: 2}
+    tpsFollowThrough:
     - {x: 0, y: 0, z: -2}
     - {x: 0, y: 0, z: 2}
     loopType: 1
@@ -99,13 +116,19 @@ MonoBehaviour:
     pathMode: 1
   ikInteract:
     resetDuration: 0.01
-    transitionDuration: 0.1
-    hitDuration: 0.1
-    posWaypoints:
+    transitionDuration: 0.2
+    hitDuration: 0.2
+    fpsPosWaypoints:
     - {x: 0.0079, y: 0.0296, z: -0.0265}
     - {x: -0.1411, y: -0.1514, z: -0.1285}
-    rotWaypoints:
+    tpsPosWaypoints:
+    - {x: 0.227, y: 0.454, z: -0.134}
+    - {x: -0.074, y: -0.089, z: 0.034}
+    fpsRotWaypoints:
     - {x: -2.185, y: 4.528, z: -2.115}
     - {x: 93.349, y: -90.154, z: -32.202}
+    tpsRotWaypoints:
+    - {x: -49.329, y: 72.579, z: -63.339}
+    - {x: 80.77, y: -150.12, z: -112.196}
     easeAnti: 4
     easeHit: 13
