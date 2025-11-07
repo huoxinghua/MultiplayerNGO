@@ -18,6 +18,11 @@ namespace _Project.Code.Gameplay.Interactables
         private void Start()
         {
             _isOpen.OnValueChanged += OnDoorStateChanged;
+            var netObj = GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                netObj.Spawn();
+            }
            /* if (NetworkManager.Singleton != null)
             {
                 Debug.Log($"NetworkManager active: " +
