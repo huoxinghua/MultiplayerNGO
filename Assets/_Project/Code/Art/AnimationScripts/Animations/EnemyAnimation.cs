@@ -20,9 +20,9 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             }
         }
 
-        public override void PlayAttack()
+        public virtual void PlayAttack()
         {
-        
+            
         }
 
         public virtual void PlayAlert()

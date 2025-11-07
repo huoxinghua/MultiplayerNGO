@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
@@ -9,6 +11,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Outline = QuickOutline.Scripts.Outline;
+using Timer = _Project.Code.Utilities.Utility.Timer;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
@@ -58,6 +61,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected float _violentValue = 0;
         protected float _miscValue = 0;
 
+        public Timer ItemCooldown = new Timer(0);
         /*public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -68,6 +72,19 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <summary>
         /// for custom changes to onnetworkspawn
         /// </summary>
+        ///
+        ///
+        ///
+        private void LateUpdate()
+        {
+            ItemCooldown.TimerUpdate(Time.deltaTime);
+        }
+
+        public IKInteractable GetIKInteractable()
+        {
+            if(_currentHeldVisual == null)return null;
+            return _currentHeldVisual.GetComponentInChildren<IKInteractable>();
+        }
         protected virtual void CustomNetworkSpawn()
         {
             IsPickedUp.OnValueChanged += OnHeldStateChanged;
@@ -79,6 +96,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected virtual void UpdateHeldPosition()
         {
+          //  Debug.Log($"current held visual {_currentHeldVisual} CurrentHeldPosition {CurrentHeldPosition}");
             if (_currentHeldVisual == null || CurrentHeldPosition == null) return;
             _currentHeldVisual.transform.position = CurrentHeldPosition.position;
             _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
@@ -103,6 +121,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         private void Awake()
         {
+            ItemCooldown.Start();
             OutlineEffect = GetComponent<Outline>();
             if (OutlineEffect != null)
             {
@@ -265,7 +284,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _owner = null;
             _renderer.enabled = true;
             //_currentHeldVisual.GetComponent<NetworkObject>().Despawn();
-            Destroy(_currentHeldVisual);
+           // Destroy(_currentHeldVisual);
 
             if (NetworkManager.Singleton.IsClient)
             {
@@ -299,7 +318,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 var netObj = _currentHeldVisual.GetComponent<NetworkObject>();
                 if (netObj != null && netObj.IsSpawned)
                     netObj.Despawn(true);
-                
+                _currentHeldVisual.GetComponentInChildren<IKInteractable>()?.DropAnimation();
                 _currentHeldVisual = null;
                 NetworkObject.TryRemoveParent();
             }
@@ -316,6 +335,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public virtual void UseItem()
         {
+            if (ItemCooldown.IsComplete)
+            {
+                ItemCooldown.Reset(_itemSO.ItemCooldown);
+            }
+            else
+            {
+                return;
+            }
         }
 
         public virtual void UnequipItem()
@@ -331,7 +358,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             SetInHandServerRpc(true);
             /*_currentHeldVisual?.SetActive(true);
             _isInOwnerHand = true;*/
-            Debug.Log("[BaseInventoryItem] EquipItem" + _currentHeldVisual.name);
+            //Debug.Log("[BaseInventoryItem] EquipItem" + _currentHeldVisual.name);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -349,7 +376,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 StartCoroutine(WaitOnCurrentHeldVisual(oldState, newState));
                 return;
             }
-            _currentHeldVisual?.SetActive(newState);
+
+            if (newState == false)
+            {
+                _currentHeldVisual.GetComponentInChildren<IKInteractable>().DropAnimation();
+            }
+            _currentHeldVisual?.transform.GetChild(0).GetChild(0).gameObject.SetActive(newState);
             _isInOwnerHand = newState;
         }
 

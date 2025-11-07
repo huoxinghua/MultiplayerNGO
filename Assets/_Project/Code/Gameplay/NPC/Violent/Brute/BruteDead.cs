@@ -22,7 +22,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [SerializeField] float heightOffset;
         private ulong _parentId;
         private Vector3 _deathPosition;
-     
+     [SerializeField] private NetworkObject parentNetworkObject;
 
         public void OnHold(GameObject player)
         {
@@ -134,13 +134,18 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 NetworkRelay.Instance.DestroyCorpseClientRpc("SK_Brute",rag.ParentId);
             }
             
-
-            Destroy(_destroy);
+           RequestDespawnServerRpc();
+            //Destroy(_destroy);
             
           
             
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        void RequestDespawnServerRpc()
+        {
+            parentNetworkObject.Despawn(true);
+        }
        
     }
 }

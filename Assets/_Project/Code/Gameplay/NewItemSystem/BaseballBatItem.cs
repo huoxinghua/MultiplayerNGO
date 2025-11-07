@@ -115,6 +115,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
+            base.UseItem();
             Debug.Log("BaseBallBatItem】:UseItem" +"IsServer："+IsServer+"IsHost：="+IsHost+ "IsClient:"+IsClient);
             if (_canAttack)
             {

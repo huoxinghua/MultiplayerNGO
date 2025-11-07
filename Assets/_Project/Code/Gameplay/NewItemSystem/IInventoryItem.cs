@@ -1,7 +1,7 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-
 namespace _Project.Code.Gameplay.NewItemSystem
 {
     public interface IInventoryItem 

@@ -1,18 +1,19 @@
-using _Project.Code.Art.AnimationScripts.FingerPoseSOs;
+using _Project.Code.Art.AnimationScripts.IKInteractSOs;
 using UnityEngine;
 
 namespace _Project.Code.Art.AnimationScripts.IK
 {
     public class PlayerIKController : MonoBehaviour
     {
-        [SerializeField] IKInteractable interactable;
-
+        [SerializeField] private IKInteractable interactable;
         [SerializeField] private Animator animator;
         [SerializeField] private bool ikActive;
 
         private Transform handL;
         private Transform handR;
-        private FingerPoseSO fingerSO;
+        private IkInteractSO fingerSO;
+        
+        public IKInteractable Interactable => interactable;
 
         public bool IkActive
         {
@@ -66,23 +67,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
             }
         }
 
-        public void IKPos(Transform handLPos, Transform handRPos, FingerPoseSO fingerPose)
+        public void IKPos(IKInteractable obj, Transform handLPos, Transform handRPos, IkInteractSO ikInteract)
         {
+            interactable = obj;
             handL = handLPos;
             handR = handRPos;
-            fingerSO = fingerPose;
-        }
-
-        private void Update()
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                interactable.PickupAnimation(this);
-            }
-            if (Input.GetMouseButtonDown(1))
-            {
-                interactable.DropAnimation(this);
-            }
+            fingerSO = ikInteract;
+           // Debug.Log(interactable.gameObject.name);
         }
 
         private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)

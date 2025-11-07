@@ -11,7 +11,13 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         [SerializeField] private GameObject _beetleSkele;
         [SerializeField] private BeetleItemSO _beetleSO;
     
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            Debug.Log("CustomNetworkSpawn called!");
 
+            CustomNetworkSpawn();
+        }
         public void Awake()
         {
             _tranquilValue = Random.Range(0f, 1f);
@@ -20,69 +26,26 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         private void Update()
         {
-            if (_hasOwner)
-            {
-                _beetleSkele.transform.localPosition = Vector3.zero;
-                _beetleSkele.transform.localRotation = Quaternion.Euler(0, 0, 0);
-            }
+            if (!IsOwner) return;
+            UpdateHeldPosition();
+
+        }
+
+        protected override void UpdateHeldPosition()
+        {
+            if (_currentHeldVisual == null || CurrentHeldPosition == null) return;
+            _currentHeldVisual.transform.position = CurrentHeldPosition.position;
+            _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
+            _beetleSkele.transform.position = CurrentHeldPosition.position;
+            _beetleSkele.transform.rotation = CurrentHeldPosition.rotation;
         }
         public override void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObject)
         {
-            _owner = player;
-            _rb.isKinematic = true;
-            _renderer.enabled = false;
-            _collider.enabled = false;
-            _beetleSkele.transform.parent = playerHoldPosition;
-            _beetleSkele.transform.localPosition = Vector3.zero;
-            _beetleSkele.transform.localRotation = Quaternion.Euler(0, 0, 0);
-            _currentHeldVisual =Instantiate(_heldVisual, playerHoldPosition);
-           /*
-           if (IsServer)
-           {
-               ApplySpawnHeldBeetle(playerHoldPosition);
-           }
-           */
-
+            base.PickupItem(player, playerHoldPosition, networkObject);
         }
-        
-        /*
-        private void ApplySpawnHeldBeetle(Transform playerHoldPosition)
-        {
-            var obj = Instantiate(_heldVisual, playerHoldPosition);
-            var netObj = obj.GetComponent<NetworkObject>();
-            netObj.Spawn();
-            _currentHeldVisual = netObj.gameObject;
-            StartCoroutine(SyncPositionCoroutine(netObj.transform, playerHoldPosition));
-        }
-        private IEnumerator SyncPositionCoroutine(Transform obj, Transform target)
-        {
-            while (obj != null && target != null)
-            {
-                obj.position = target.position;
-                obj.rotation = target.rotation;
-                yield return null;
-            }
-        }
-        */
-
         public override void DropItem(Transform dropPoint)
         {
-            if (_currentHeldVisual != null)
-            {
-                var netObj = _currentHeldVisual.GetComponent<NetworkObject>();
-                if (netObj != null && netObj.IsSpawned)
-                    netObj.Despawn(true);
-                else
-                    Destroy(_currentHeldVisual);
-            }
-            
-            _owner = null;
-            _renderer.enabled = true;
-            Destroy(_currentHeldVisual);
-            _beetleSkele.transform.parent = null;
-            _rb.isKinematic = false;
-            _collider.enabled = true;
-            _beetleSkele.transform.position = dropPoint.position;
+            base.DropItem(dropPoint);
         }
         public override void UseItem()
         {
@@ -92,5 +55,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         {
             _collider.enabled = true; 
         }
+        
     }
 }
