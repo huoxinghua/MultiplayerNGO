@@ -993,6 +993,10 @@ PrefabInstance:
       propertyPath: SyncScaleZ
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7827326059578722571, guid: 0788344c66a7ac84da0c2f05e23eaf78, type: 3}
+      propertyPath: AuthorityMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8852190055366678114, guid: 0788344c66a7ac84da0c2f05e23eaf78, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 4055803109
@@ -4178,9 +4182,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2859511880315060904, guid: 3a3babdd781754f5987e0762cdc2f7f3, type: 3}
+      propertyPath: NetworkConfig.PlayerPrefab
+      value: 
+      objectReference: {fileID: 5395632011506178275, guid: 54c52958bf8e97746afb4216ca47b724, type: 3}
     - target: {fileID: 3001842219247144805, guid: 3a3babdd781754f5987e0762cdc2f7f3, type: 3}
       propertyPath: ConnectionData.Port
-      value: 3696
+      value: 3642
       objectReference: {fileID: 0}
     - target: {fileID: 7565573486955090291, guid: 3a3babdd781754f5987e0762cdc2f7f3, type: 3}
       propertyPath: m_Name
@@ -4814,6 +4822,10 @@ PrefabInstance:
     - target: {fileID: 1174442063253802186, guid: 02c6d430700cf4db88ac693f4ded1a7f, type: 3}
       propertyPath: m_Name
       value: PF_HostUI_NW
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852113164485438396, guid: 02c6d430700cf4db88ac693f4ded1a7f, type: 3}
+      propertyPath: _loadSceneName
+      value: Nathan_SecondShowcaseArt
       objectReference: {fileID: 0}
     - target: {fileID: 1973910041239829568, guid: 02c6d430700cf4db88ac693f4ded1a7f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7181,7 +7193,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 798651955169216580, guid: 16a76ce13ef897447866923fee9464df, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1328711093341632465, guid: 16a76ce13ef897447866923fee9464df, type: 3}
       propertyPath: Root

@@ -73,7 +73,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             handL = handLPos;
             handR = handRPos;
             fingerSO = ikInteract;
-            Debug.Log(interactable.gameObject.name);
+           // Debug.Log(interactable.gameObject.name);
         }
 
         private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)

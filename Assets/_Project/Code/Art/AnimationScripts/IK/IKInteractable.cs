@@ -13,20 +13,41 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private IkInteractSO ikInteractSo; 
         
         private Tween currentTween;
-
+        private PlayerIKController _currentFPSIKController;
+        private PlayerIKController _currentTPSIKController;
         public void PickupAnimation(PlayerIKController ikController, bool isFPS)
         {
             ikController.IKPos(this, handL, handR, ikInteractSo);
             ikController.IkActive = true;
+            if (isFPS)
+            {
+                _currentFPSIKController = ikController;
+            }
+            else
+            {
+                _currentTPSIKController = ikController;  
+            }
             transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
             transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
             PlayIKIdle(isFPS);
         }
 
-        public void DropAnimation(PlayerIKController ikController)
+        public void DropAnimation()
         {
-            ikController.IkActive = false;
-            ikController.IKPos(null, null, null, null);
+            if (_currentFPSIKController != null)
+            {
+                _currentFPSIKController.IkActive = false;
+                _currentFPSIKController.IKPos(null, null, null, null);
+                _currentFPSIKController =  null;
+            }
+            if (_currentTPSIKController != null)
+            {
+                _currentTPSIKController.IkActive = false;
+                _currentTPSIKController.IKPos(null, null, null, null);
+                _currentTPSIKController =  null;
+            }
+            
+            
         }
 
         public void PlayIKIdle(bool isFPS)
