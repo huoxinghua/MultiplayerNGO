@@ -1,4 +1,5 @@
 using System.Collections;
+using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NewItemSystem;
@@ -26,6 +27,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [field: SerializeField] public Image EmptySlot { get; private set; }
         [field: SerializeField] public PlayerIKController  PlayerFPSIKController { get; private set; }
         [field: SerializeField] public PlayerIKController PlayerTPSIKController { get; private set; }
+        [field: SerializeField] public PlayerAnimation PlayerAnimation { get; private set; }
         private bool _handsFull => BigItemCarried != null;
         public bool InventoryFull => IsInventoryFull();
         public void Awake()
@@ -373,6 +375,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         }
         public void UseItemInHand()
         {
+            if(InventoryItems[_currentIndex] != null && InventoryItems[_currentIndex].ItemCooldown.IsComplete)
+                PlayerAnimation.PlayInteract();
             if (_handsFull)
             {
                 BigItemCarried?.UseItem();
@@ -381,7 +385,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             {
                 InventoryItems[_currentIndex]?.UseItem();
             }
-
+           
         }
         /// <summary>
         /// Checks if holding a sample in hand. Safety net for TrySell()

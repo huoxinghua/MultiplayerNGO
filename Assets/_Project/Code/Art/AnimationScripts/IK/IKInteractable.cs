@@ -27,8 +27,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
             {
                 _currentTPSIKController = ikController;  
             }
-            transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
-            transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
             transform.localPosition = ApplyStartPos(isFPS);
             transform.localRotation = Quaternion.Euler(ApplyStartRot(isFPS));
             PlayIKIdle(isFPS);

@@ -153,18 +153,23 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         public void PlayInteract()
         {
             if (fpsIKController.Interactable == null) return;
-            if(state == AnimationState.Interact) return;
-            
+           // if(state == AnimationState.Interact) return;
+            if(IsOwner)
             fpsIKController.Interactable.PlayIKInteract(true);
             PlayInteractServerRpc();
         }
-
         [ServerRpc]
-        private void PlayInteractServerRpc(ServerRpcParams rpcParams = default)
+        private void PlayInteractServerRpc()
+        {
+           DistributeInteractAnimClientRpc();
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        void DistributeInteractAnimClientRpc()
         {
             if (fpsIKController.Interactable == null) return;
-            if(state == AnimationState.Interact) return;
-            
+            //if(state == AnimationState.Interact) return;
+            if(!IsOwner)
             tpsIKController.Interactable.PlayIKInteract(false);
         }
 
