@@ -66,6 +66,9 @@ PrefabInstance:
       addedObject: {fileID: 7032799229665985194}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
       insertIndex: 3
+      addedObject: {fileID: 2595147041035992079}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
+      insertIndex: 4
       addedObject: {fileID: 530252060658362816}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
       insertIndex: -1
@@ -96,11 +99,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5934178904436be46a10a8710097994d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   _heldVisual: {fileID: 4461526038127156759, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
   _itemSO: {fileID: 11400000, guid: d782e1fa575371b49b8a0982c2755e4f, type: 2}
   _rb: {fileID: -828602770910974908}
   _renderer: {fileID: 2804188112150216642}
   _collider: {fileID: 530252060658362816}
+  CurrentHeldPosition: {fileID: 0}
+  _currentHeldVisual: {fileID: 0}
+  OwnerID: 0
+--- !u!114 &2595147041035992079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4461526038127156759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!64 &530252060658362816
 MeshCollider:
   m_ObjectHideFlags: 0

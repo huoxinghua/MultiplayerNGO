@@ -104,6 +104,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "SecondaryUse",
+                    "type": "Button",
+                    "id": "f406b919-53be-4390-8b64-dc931afc7090",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -555,6 +564,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "KeyPressed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7bab15c6-46d8-4788-aba9-1696737827d7",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SecondaryUse",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

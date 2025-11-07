@@ -36,6 +36,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
 
             _inputManager.OnUse += UseItemInHand;
+            _inputManager.OnSecondaryUse += SecondaryUseItemInHand;
             _inputManager.OnDropItem += DropItem;
             
         }
@@ -386,6 +387,17 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex]?.UseItem();
             }
            
+        }
+        public void SecondaryUseItemInHand(bool isPerformed)
+        {
+            if (_handsFull)
+            {
+                BigItemCarried?.SecondaryUse(isPerformed);
+            }
+            else
+            {
+                InventoryItems[_currentIndex]?.SecondaryUse(isPerformed);
+            }
         }
         /// <summary>
         /// Checks if holding a sample in hand. Safety net for TrySell()

@@ -20,6 +20,7 @@ namespace _Project.Code.Gameplay.FirstPersonController
         public event Action<PlayerJumpEvent> OnJumpInput;
         public event Action<Vector2> OnLookInput;
         public event Action OnUse;
+        public event Action <bool> OnSecondaryUse;
         public event Action OnChangeWeaponInput;
         public event Action<bool> OnSprintInput;
         public event Action CancelHold;
@@ -56,6 +57,8 @@ namespace _Project.Code.Gameplay.FirstPersonController
             inputActions.Player.DropItem.performed += HandleDropItem;
             inputActions.Player.Interact.performed += HandleInteract;
             inputActions.Player.Use.performed += HandleUse;
+            inputActions.Player.SecondaryUse.performed += HandleSecondaryUse;
+            inputActions.Player.SecondaryUse.canceled += HandleSecondaryUse;
             inputActions.Player.KeyPressed.performed += HandleKeyPressed;
         }
         private void OnDisable()
@@ -78,6 +81,8 @@ namespace _Project.Code.Gameplay.FirstPersonController
             inputActions.Player.DropItem.performed -= HandleDropItem;
             inputActions.Player.Interact.performed -= HandleInteract;
             inputActions.Player.Use.performed -= HandleUse;
+            inputActions.Player.SecondaryUse.performed -= HandleSecondaryUse;
+            inputActions.Player.SecondaryUse.canceled -= HandleSecondaryUse;
             inputActions.Player.KeyPressed.performed -= HandleKeyPressed;
         }
         Vector2 moveInput;
@@ -166,6 +171,17 @@ namespace _Project.Code.Gameplay.FirstPersonController
             if (context.performed)
             {
                 OnUse?.Invoke();
+            }
+        }
+        private void HandleSecondaryUse(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnSecondaryUse?.Invoke(true);
+            }
+            else if (context.canceled)
+            {
+                OnSecondaryUse?.Invoke(false);
             }
         }
         #endregion

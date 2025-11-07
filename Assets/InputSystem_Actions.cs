@@ -190,6 +190,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""SecondaryUse"",
+                    ""type"": ""Button"",
+                    ""id"": ""f406b919-53be-4390-8b64-dc931afc7090"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -641,6 +650,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""KeyPressed"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7bab15c6-46d8-4788-aba9-1696737827d7"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SecondaryUse"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1239,6 +1259,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_DropItem = m_Player.FindAction("DropItem", throwIfNotFound: true);
         m_Player_KeyPressed = m_Player.FindAction("KeyPressed", throwIfNotFound: true);
+        m_Player_SecondaryUse = m_Player.FindAction("SecondaryUse", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1343,6 +1364,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_DropItem;
     private readonly InputAction m_Player_KeyPressed;
+    private readonly InputAction m_Player_SecondaryUse;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1398,6 +1420,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/KeyPressed".
         /// </summary>
         public InputAction @KeyPressed => m_Wrapper.m_Player_KeyPressed;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/SecondaryUse".
+        /// </summary>
+        public InputAction @SecondaryUse => m_Wrapper.m_Player_SecondaryUse;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1457,6 +1483,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @KeyPressed.started += instance.OnKeyPressed;
             @KeyPressed.performed += instance.OnKeyPressed;
             @KeyPressed.canceled += instance.OnKeyPressed;
+            @SecondaryUse.started += instance.OnSecondaryUse;
+            @SecondaryUse.performed += instance.OnSecondaryUse;
+            @SecondaryUse.canceled += instance.OnSecondaryUse;
         }
 
         /// <summary>
@@ -1501,6 +1530,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @KeyPressed.started -= instance.OnKeyPressed;
             @KeyPressed.performed -= instance.OnKeyPressed;
             @KeyPressed.canceled -= instance.OnKeyPressed;
+            @SecondaryUse.started -= instance.OnSecondaryUse;
+            @SecondaryUse.performed -= instance.OnSecondaryUse;
+            @SecondaryUse.canceled -= instance.OnSecondaryUse;
         }
 
         /// <summary>
@@ -1878,6 +1910,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnKeyPressed(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SecondaryUse" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryUse(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
