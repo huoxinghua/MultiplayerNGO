@@ -110,15 +110,15 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     
                     var seq = DOTween.Sequence();
 
-                    var moveTween = transform.DOLocalPath(ApplyPosOffset(isFPS ? ikInteractSo.ikWalk.fpsWaypoints : ikInteractSo.ikWalk.tpsWaypoints, isFPS), ikInteractSo.ikWalk.loopDuration, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
+                    var moveTween = transform.DOLocalPath(ApplyPosOffset(isFPS ? ikInteractSo.ikWalk.fpsWaypoints : ikInteractSo.ikWalk.tpsWaypoints, isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
                         .SetEase(ikInteractSo.ikWalk.easeType)
                         .SetLoops(-1, ikInteractSo.ikWalk.loopType);
 
                     seq.Append(moveTween);
 
                     var rotateSeq = DOTween.Sequence();
-                    rotateSeq.Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikWalk.fpsFollowThrough[1] : ikInteractSo.ikWalk.tpsFollowThrough[1], isFPS), ikInteractSo.ikWalk.loopDuration).SetEase(ikInteractSo.ikWalk.easeType))
-                        .Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikWalk.fpsFollowThrough[0] : ikInteractSo.ikWalk.tpsFollowThrough[0], isFPS), ikInteractSo.ikWalk.loopDuration).SetEase(ikInteractSo.ikWalk.easeType))
+                    rotateSeq.Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikWalk.fpsFollowThrough[1] : ikInteractSo.ikWalk.tpsFollowThrough[1], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
+                        .Append(transform.DOLocalRotate(ApplyRotOffset(isFPS ? ikInteractSo.ikWalk.fpsFollowThrough[0] : ikInteractSo.ikWalk.tpsFollowThrough[0], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
                         .SetLoops(-1, ikInteractSo.ikWalk.loopType);
 
                     seq.Join(rotateSeq);

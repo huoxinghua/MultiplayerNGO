@@ -69,7 +69,9 @@ namespace _Project.Code.Art.AnimationScripts.Animations
                     fpsIKController.Interactable.PlayIKIdle(true);
                     break;
                 case AnimationState.Walk:
-                    fpsIKController.Interactable.PlayIKWalk(1f, true);
+                    if(anim.GetBool(hCrouch) != true) fpsIKController.Interactable.PlayIKWalk(1f, true);
+                    else fpsIKController.Interactable.PlayIKWalk(2f, true);
+                    Debug.Log(anim.GetBool(hCrouch));
                     break;
                 case AnimationState.Run:
                     fpsIKController.Interactable.PlayIKRun(true);
@@ -100,7 +102,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
                     tpsIKController.Interactable.PlayIKIdle(false);
                     break;
                 case AnimationState.Walk:
-                    tpsIKController.Interactable.PlayIKWalk(1f, false);
+                    if(netAnim.Animator.GetBool(hCrouch) != true) tpsIKController.Interactable.PlayIKWalk(1f, true);
+                    else tpsIKController.Interactable.PlayIKWalk(2f, true);
                     break;
                 case AnimationState.Run:
                     tpsIKController.Interactable.PlayIKRun(false);
