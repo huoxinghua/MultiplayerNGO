@@ -11,7 +11,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
     {
         Idle,
         Walk,
-        Run
+        Run,
+        Interact
     }
     public class PlayerAnimation : BaseAnimation
     {
@@ -23,12 +24,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
 
-        private AnimationState moveState = AnimationState.Idle;
+        private AnimationState state = AnimationState.Idle;
 
-        private void Update()
-        {
-            Debug.Log(moveState);
-        }
 
         protected override void Awake()
         {
@@ -42,23 +39,30 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected override void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
+            
+            UpdateIKMovement(currentSpeed, maxSpeed, isRunning);
+            UpdateIKMovementServerRPC(currentSpeed, maxSpeed, isRunning);
+
+            //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
+            UpdateMovementServerRPC(currentSpeed, maxSpeed);
+        }
+
+        private void UpdateIKMovement(float  currentSpeed, float maxSpeed, bool isRunning)
+        {
             if (fpsIKController.Interactable == null) return;
 
-            // Determine animation state
             bool isIdle = currentSpeed <= 0.01f;
             AnimationState targetState = AnimationState.Idle;
 
             if (!isIdle)
                 targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
 
-            if (moveState == targetState) return;
-            moveState = targetState;
+            if (state == targetState) return;
+            state = targetState;
 
-            // Kill previous IK tween
             fpsIKController.Interactable.StopIKAnimation();
 
-            // Play IK based on movement state
-            switch (moveState)
+            switch (state)
             {
                 case AnimationState.Idle:
                     fpsIKController.Interactable.PlayIKIdle(true);
@@ -70,10 +74,38 @@ namespace _Project.Code.Art.AnimationScripts.Animations
                     fpsIKController.Interactable.PlayIKRun(true);
                     break;
             }
-
-            //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
-            UpdateMovementServerRPC(currentSpeed, maxSpeed);
         }
+        
+        [ServerRpc]
+        private void UpdateIKMovementServerRPC(float  currentSpeed, float maxSpeed, bool isRunning)
+        {
+            if (fpsIKController.Interactable == null) return;
+
+            bool isIdle = currentSpeed <= 0.01f;
+            AnimationState targetState = AnimationState.Idle;
+
+            if (!isIdle)
+                targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
+
+            if (state == targetState) return;
+            state = targetState;
+
+            fpsIKController.Interactable.StopIKAnimation();
+
+            switch (state)
+            {
+                case AnimationState.Idle:
+                    tpsIKController.Interactable.PlayIKIdle(false);
+                    break;
+                case AnimationState.Walk:
+                    tpsIKController.Interactable.PlayIKWalk(1f, false);
+                    break;
+                case AnimationState.Run:
+                    tpsIKController.Interactable.PlayIKRun(false);
+                    break;
+            }
+        }
+        
         [ServerRpc]
         private void UpdateMovementServerRPC(float currentSpeed, float maxSpeed)
         {
@@ -120,7 +152,20 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         
         public void PlayInteract()
         {
+            if (fpsIKController.Interactable == null) return;
+            if(state == AnimationState.Interact) return;
+            
+            fpsIKController.Interactable.PlayIKInteract(true);
+            PlayInteractServerRpc();
+        }
 
+        [ServerRpc]
+        private void PlayInteractServerRpc(ServerRpcParams rpcParams = default)
+        {
+            if (fpsIKController.Interactable == null) return;
+            if(state == AnimationState.Interact) return;
+            
+            tpsIKController.Interactable.PlayIKInteract(false);
         }
 
         public void PlayInAir()
