@@ -38,12 +38,12 @@ namespace _Project.Code.Gameplay.Player
                 if (IsOwner)
                 {
                    
-                    var playerInputSpectator = GetComponent<PlayerInputManagerSpectator>();
-                    playerInputSpectator.enabled = true;
+                    /*var playerInputSpectator = GetComponent<PlayerInputManagerSpectator>();
+                    playerInputSpectator.enabled = true;*/
                     var playerInput = GetComponent<PlayerInputManager>();
                     playerInput.SwitchToSpectatorMode();
                    // SpectatorController.Instance.EnterSpectatorMode();
-                
+                   HandleDeathServer();
 
                 
                   //  HandleDeathServer();
@@ -67,9 +67,7 @@ namespace _Project.Code.Gameplay.Player
         [ServerRpc(RequireOwnership = false)]
         private void RequestDespawnDeadPlayerServerRpc()
         {
-           // NetworkObject.Despawn(true);
-           
-         
+            NetworkObject.Despawn(true);
         }
 
         private void DisableComponent()

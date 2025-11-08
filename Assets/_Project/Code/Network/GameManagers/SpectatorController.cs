@@ -42,11 +42,11 @@ namespace _Project.Code.Network.GameManagers
 
         public void EnterSpectatorMode(PlayerDiedEvent playerDiedEvent)
         {
-            StartCoroutine(DelayedRefresh());
+            StartCoroutine(DelayedRefresh(playerDiedEvent));
 
 
             //  RefreshAliveList();
-            Debug.Log($"EnterSpectatorMode{playerDiedEvent.deadPlayer}");
+           // Debug.Log($"EnterSpectatorMode{playerDiedEvent.deadPlayer}");
 
             if (_aliveHeads.Count == 0)
             {
@@ -57,7 +57,7 @@ namespace _Project.Code.Network.GameManagers
 
             mainCam.enabled = true;
             Debug.Log($"mainCam{mainCam.name}");
-            _input = playerDiedEvent.deadPlayer.GetComponent<PlayerInputManagerSpectator>();
+            _input =GetComponent<PlayerInputManagerSpectator>();
             if (_input == null)
             {
                 Debug.Log("[Spectator] No PlayerInputManagerSpectator found on dead player.");
@@ -102,14 +102,14 @@ namespace _Project.Code.Network.GameManagers
             HandleCamera();
         }
 
-        private IEnumerator DelayedRefresh()
+        private IEnumerator DelayedRefresh(PlayerDiedEvent playerDiedEvent)
         {
             const int maxTries = 5;
             const float delayBetweenTries = 0.3f;
 
             for (int i = 0; i < maxTries; i++)
             {
-                RefreshAliveList();
+                RefreshAliveList(playerDiedEvent);
                 if (_aliveHeads.Count > 0) break;
 
                 Debug.Log($"[Spectator] Try {i + 1}: No alive players yet...");
@@ -123,9 +123,12 @@ namespace _Project.Code.Network.GameManagers
             }
         }
 
-        private void RefreshAliveList()
+        private void RefreshAliveList(PlayerDiedEvent playerDiedEvent)
         {
             _aliveHeads.Clear();
+           // Debug.Log("how many player alive:" +NetworkManager.Singleton.ConnectedClientsList);
+            Debug.Log("Connected clients count = " + NetworkManager.Singleton.ConnectedClientsList.Count);
+
 
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
             {
@@ -137,9 +140,10 @@ namespace _Project.Code.Network.GameManagers
                 }
 
 
-                if (client.ClientId == NetworkManager.Singleton.LocalClientId)
+                /*if (client.ClientId == NetworkManager.Singleton.LocalClientId)
+                    continue;*/
+                if (client.PlayerObject == playerDiedEvent.deadPlayer)
                     continue;
-
                 var health = playerObj.GetComponent<PlayerHealth>();
                 if (health != null && health.IsDead)
                     continue;
@@ -160,6 +164,11 @@ namespace _Project.Code.Network.GameManagers
         {
             Debug.Log("setTarget" + t);
             _currentTarget = t;
+            _yaw = t.eulerAngles.y;
+            _pitch = 10f; 
+
+       
+            HandleCamera();
             /*
             _spectatorCam.Follow = t;
             _spectatorCam.LookAt = t;
@@ -184,18 +193,18 @@ namespace _Project.Code.Network.GameManagers
         }
         private void Next()
         {
-            Debug.Log("switch to next spectator came"+ _aliveHeads.Count);
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex + 1) % _aliveHeads.Count;
             SetTarget(_aliveHeads[_currentIndex]);
+            Debug.Log("switch to next spectator came count"+ _aliveHeads.Count+"Index"+_aliveHeads[_currentIndex]);
         }
 
         private void Prev()
         {
-            Debug.Log("switch to prev spectator came" +_aliveHeads.Count);
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex - 1 + _aliveHeads.Count) % _aliveHeads.Count;
              SetTarget(_aliveHeads[_currentIndex]);
+             Debug.Log("switch to prev spectator came count"+ _aliveHeads.Count+"Index"+_aliveHeads[_currentIndex]);
         }
 
 
