@@ -5,15 +5,14 @@ using UnityEngine;
 
 namespace _Project.Code.Network.Level
 {
-    public class MannualGenetate : NetworkBehaviour
+    public class ManualGenerate : NetworkBehaviour
     {
         private RuntimeDungeon generator;
         private void Start()
         {
             generator = GetComponent<RuntimeDungeon>();
         }
-
-
+        
         private NetworkVariable<int> syncedSeed = new NetworkVariable<int>(
             default,
             NetworkVariableReadPermission.Everyone,
@@ -24,8 +23,7 @@ namespace _Project.Code.Network.Level
         {
             if (generator == null)
                 generator = GetComponent<RuntimeDungeon>();
-
-
+            
             if (IsServer)
             {
                 int seed = Random.Range(0, int.MaxValue);
@@ -38,8 +36,6 @@ namespace _Project.Code.Network.Level
             else
             {
                 syncedSeed.OnValueChanged += OnSeedReceived;
-
-
                 if (syncedSeed.Value != default)
                 {
                     OnSeedReceived(default, syncedSeed.Value);
@@ -80,7 +76,6 @@ namespace _Project.Code.Network.Level
                 if (netObj != null && !netObj.IsSpawned)
                 {
                     netObj.Spawn();
-                    Debug.Log($"[Server] Auto-spawned network door: {door.name}");
                 }
             }
         }
