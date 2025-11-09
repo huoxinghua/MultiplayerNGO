@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using _Project.Code.Gameplay.FirstPersonController;
+using UnityEngine;
 
 namespace Network.Scripts.PlayerController
 {
@@ -12,10 +13,7 @@ namespace Network.Scripts.PlayerController
         Vector2 velocity;
         Vector2 frameVelocity;
 
-        void Reset()
-        {
-            character = GetComponentInParent<PlayerMovement>().transform;
-        }
+       
         private void Awake()
         {
             inputManager = GetComponentInParent<PlayerInputManager>();

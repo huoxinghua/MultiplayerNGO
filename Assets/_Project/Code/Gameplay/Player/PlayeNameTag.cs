@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Network.Scripts.PlayerController
+namespace _Project.Code.Gameplay.Player
 {
     public class PlayeNameTag : NetworkBehaviour
     {

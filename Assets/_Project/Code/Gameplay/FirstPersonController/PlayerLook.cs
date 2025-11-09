@@ -16,11 +16,7 @@ namespace _Project.Code.Gameplay.FirstPersonController
         [SerializeField] private float rawLookMultiply = 0.009f;
         Vector2 velocity;
         Vector2 frameVelocity;
-
-        void Reset()
-        {
-            _playerTransform = GetComponentInParent<PlayerMovement>().transform;
-        }
+        
         private void Awake()
         {
             inputManager = GetComponentInParent<PlayerInputManager>();
