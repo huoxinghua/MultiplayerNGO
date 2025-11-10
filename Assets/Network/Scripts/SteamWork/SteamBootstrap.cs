@@ -1,21 +1,15 @@
+using _Project.Code.Core.Patterns;
 using Steamworks;
 using Steamworks.NET;
 using UnityEngine;
 
 namespace Network.Scripts.SteamWork
 {
-    public class SteamBootstrap : MonoBehaviour
+    public class SteamBootstrap : Singleton<SteamBootstrap>
     {
-        public static SteamBootstrap Instance;
         private bool ok;
         void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
             DontDestroyOnLoad(gameObject);
             try
             {

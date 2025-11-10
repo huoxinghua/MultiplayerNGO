@@ -6,16 +6,12 @@ using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Utilities.EventBus;
-using Unity.Cinemachine;
 using _Project.Code.Gameplay.FirstPersonController;
-using Unity.Entities;
-
 
 namespace _Project.Code.Network.GameManagers
 {
     public class SpectatorController : Singleton<SpectatorController>
     {
-        //[SerializeField] private CinemachineCamera _spectatorCam;
         [SerializeField] private Camera mainCam;
         private readonly List<Transform> _aliveHeads = new List<Transform>();
         Vector2 rawLook;

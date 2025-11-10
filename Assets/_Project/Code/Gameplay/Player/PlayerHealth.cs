@@ -2,7 +2,6 @@ using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Network.GameManagers;
 using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Singletons;
-using Network.Scripts.PlayerController;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;

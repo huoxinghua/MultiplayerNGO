@@ -1,3 +1,4 @@
+using _Project.Code.Core.Patterns;
 using Network.Scripts.SteamWork;
 using Steamworks;
 using Steamworks.NET;
@@ -7,9 +8,9 @@ using UnityEngine.UI;
 
 namespace Network.Scripts.UI
 {
-    public class HostUIManager : MonoBehaviour
+    public class HostUIManager : Singleton<HostUIManager>
     {
-        public static HostUIManager Instance { get; private set; }
+
         [SerializeField] private GameObject _panelContainer;
         [SerializeField] private GameObject _multiplayerOption;
         [SerializeField] private GameObject _hostOption;
@@ -38,12 +39,7 @@ namespace Network.Scripts.UI
             isPrivatLobbySelected = _createLobbyToggle.isOn;
             _createLobbyToggle.onValueChanged.AddListener(OnPrivateLobbyChanged);
         }
-
-        private void Awake()
-        {
-            Instance = this;
-        }
-
+        
         private void HidePanels()
         {
             foreach (Transform child in _panelContainer.transform)

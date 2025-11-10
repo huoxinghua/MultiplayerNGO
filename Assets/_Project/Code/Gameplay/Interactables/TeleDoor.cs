@@ -46,7 +46,7 @@ namespace _Project.Code.Gameplay.Interactables
             {
                 var timer = _holdTimers[i];
                 timer.TimerUpdate(Time.deltaTime);
-                Debug.Log(timer.GetElapsed());
+               // Debug.Log(timer.GetElapsed());
 
                 if (timer.IsComplete)
                 {
