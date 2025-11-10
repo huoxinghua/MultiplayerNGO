@@ -1,12 +1,12 @@
 using _Project.Code.Core.Patterns;
-using Network.Scripts.SteamWork;
+using _Project.Code.Network.SteamWork;
 using Steamworks;
 using Steamworks.NET;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Network.Scripts.UI
+namespace _Project.Code.Network.UI
 {
     public class HostUIManager : Singleton<HostUIManager>
     {

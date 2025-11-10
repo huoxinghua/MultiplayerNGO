@@ -1,4 +1,4 @@
-using _Project.Code.Gameplay.Interactables.NoUse;
+using _Project.Code.Gameplay.Interactables;
 using DunGen;
 using Unity.Netcode;
 using UnityEngine;

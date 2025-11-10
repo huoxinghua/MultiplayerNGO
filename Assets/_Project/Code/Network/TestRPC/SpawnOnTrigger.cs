@@ -3,7 +3,7 @@ using _Project.Code.Gameplay.Player;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Network.Scripts.TestRPC
+namespace _Project.Code.Network.TestRPC
 {
     public class SpawnOnTrigger : NetworkBehaviour
     {

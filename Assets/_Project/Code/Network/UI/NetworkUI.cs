@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Network.Scripts.UI
+namespace _Project.Code.Network.UI
 {
     public class NetworkUI : MonoBehaviour
     {

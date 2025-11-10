@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Network.Scripts.TestRPC
+namespace _Project.Code.Network.TestRPC
 {
     public class OnScreenLogger : MonoBehaviour
     {

@@ -3,7 +3,7 @@ using Steamworks;
 using Steamworks.NET;
 using UnityEngine;
 
-namespace Network.Scripts.SteamWork
+namespace _Project.Code.Network.SteamWork
 {
     public class SteamBootstrap : Singleton<SteamBootstrap>
     {

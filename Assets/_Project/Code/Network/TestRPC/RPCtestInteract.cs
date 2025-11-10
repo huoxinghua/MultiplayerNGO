@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Network.Scripts.TestRPC
+namespace _Project.Code.Network.TestRPC
 {
     public class RPCtestInteract : MonoBehaviour
     {

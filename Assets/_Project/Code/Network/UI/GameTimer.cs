@@ -2,7 +2,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Network.Scripts.UI
+namespace _Project.Code.Network.UI
 {
     public class GameTimer : NetworkBehaviour
     {

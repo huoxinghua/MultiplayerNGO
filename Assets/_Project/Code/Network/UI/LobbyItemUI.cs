@@ -2,7 +2,7 @@ using Steamworks;
 using TMPro;
 using UnityEngine;
 
-namespace Network.Scripts.UI
+namespace _Project.Code.Network.UI
 {
     public class LobbyItemUI : MonoBehaviour
     {
