@@ -2,12 +2,12 @@ using FMOD;
 using FMODUnity;
 using UnityEngine;
 
-namespace Network.Scripts.ProximityChat.Voice
+namespace _Project.Code.Network.ProximityChat.Voice
 {
     /// <summary>
     /// Plays 16-bit PCM voice audio as a 3D FMOD sound directly through FMOD's Core Engine.
     /// </summary>
-    public class CoreVoiceEmitter : global::ProximityChat.VoiceEmitter
+    public class CoreVoiceEmitter : VoiceEmitter
     {
         // Sound parameters
         protected ChannelGroup _channelGroup;
@@ -15,7 +15,7 @@ namespace Network.Scripts.ProximityChat.Voice
         protected Vector3 _prevPosition;
 
         /// <inheritdoc />
-        public override void Init(uint sampleRate = 48000, int channelCount = 1, global::ProximityChat.VoiceFormat inputFormat = global::ProximityChat.VoiceFormat.PCM16Samples)
+        public override void Init(uint sampleRate = 48000, int channelCount = 1, VoiceFormat inputFormat = VoiceFormat.PCM16Samples)
         {
             base.Init(sampleRate, channelCount, inputFormat);
             // Play the sound through FMOD's core engine, pausing it to start

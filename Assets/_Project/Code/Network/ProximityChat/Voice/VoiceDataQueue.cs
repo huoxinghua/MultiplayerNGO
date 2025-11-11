@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Network.Scripts.ProximityChat.Voice
+namespace _Project.Code.Network.ProximityChat.Voice
 {
     /// <summary>
     /// A rudimentary queue that supports enqueuing and dequeuing

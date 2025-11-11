@@ -1,7 +1,7 @@
 using System;
 using Concentus.Structs;
 
-namespace Network.Scripts.ProximityChat.Voice
+namespace _Project.Code.Network.ProximityChat.Voice
 {
     public class VoiceDecoder
     {

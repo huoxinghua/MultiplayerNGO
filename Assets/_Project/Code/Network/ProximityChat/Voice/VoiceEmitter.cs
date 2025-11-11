@@ -5,7 +5,7 @@ using FMODUnity;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Network.Scripts.ProximityChat.Voice
+namespace _Project.Code.Network.ProximityChat.Voice
 {
     /// <summary>
     /// Abstract voice emitter. Inherit to play 16-bit PCM voice audio as a 3D FMOD sound.

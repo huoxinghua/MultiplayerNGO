@@ -1,4 +1,4 @@
-namespace Network.Scripts.ProximityChat.Voice
+namespace _Project.Code.Network.ProximityChat.Voice
 {
     /// <summary>
     /// Voice/audio related constants.

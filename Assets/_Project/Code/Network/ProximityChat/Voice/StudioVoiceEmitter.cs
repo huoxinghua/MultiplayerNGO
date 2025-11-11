@@ -9,7 +9,7 @@ using ProximityChat;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Network.Scripts.ProximityChat.Voice
+namespace _Project.Code.Network.ProximityChat.Voice
 {
 
 
