@@ -1,7 +1,6 @@
-﻿using _Project.Code.Gameplay.Player.PlayerStateMachine;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace _Project.Code.Gameplay.FirstPersonController
+namespace _Project.Code.Gameplay.Player.MiscPlayer
 {
     public class PlayerLook : MonoBehaviour
     {
@@ -9,7 +8,7 @@ namespace _Project.Code.Gameplay.FirstPersonController
         [Header("Transforms")]
         [SerializeField] private Transform _playerTransform;
         [SerializeField] private Transform _cameraTransform;
-        [SerializeField] private PlayerStateMachine _playerStateMachine;
+        [SerializeField] private PlayerStateMachine.PlayerStateMachine _playerStateMachine;
         [Header("Sensitivity Values")]
         [SerializeField] private float sensitivity = 2;
         [SerializeField] private float smoothing = 1.5f;

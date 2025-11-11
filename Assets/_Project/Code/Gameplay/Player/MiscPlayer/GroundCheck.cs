@@ -34,7 +34,7 @@ public class EventInvoker : MonoBehaviour
 
 
 
-namespace _Project.Code.Gameplay.FirstPersonController
+namespace _Project.Code.Gameplay.Player.MiscPlayer
 {
     public class GroundCheck : MonoBehaviour
     {

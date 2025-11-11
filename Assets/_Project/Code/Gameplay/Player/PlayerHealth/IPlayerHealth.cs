@@ -1,4 +1,4 @@
-namespace _Project.Code.Gameplay.Player
+namespace _Project.Code.Gameplay.Player.PlayerHealth
 {
    public interface IPlayerHealth
    {

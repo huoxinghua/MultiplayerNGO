@@ -118,14 +118,6 @@ namespace _Project.Code.Gameplay.Player
                 Debug.Log("AttemptInteract:" + hit.collider.gameObject.name);
                 if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
                 {
-                    if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
-                    {
-                        IInOutDoor temp = hit.collider.transform.gameObject.GetComponent<IInOutDoor>();
-                        inOutTransform = temp.UseDoor();
-                        timeToInteract = temp.GetTimeToOpen();
-                        isHolding = true;
-                        startInteractPos = playerObj.transform.position;
-                    }
                     lastInteracted = hit.transform.gameObject;
                     hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
                 }

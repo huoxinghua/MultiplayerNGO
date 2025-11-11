@@ -1,5 +1,5 @@
 using _Project.Code.Art.AnimationScripts.Animations;
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.StateMachine;
 using UnityEngine;
 

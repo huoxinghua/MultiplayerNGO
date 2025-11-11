@@ -63,7 +63,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             else duration = ikInteractSo.ikIdle.transitionDuration;
 
             transform.DOLocalMove(ApplyWaypoints(ikInteractSo.ikIdle, 0, isFPS), duration)
-                        .SetEase(ikInteractSo.ikIdle.easeType)
+                .SetEase(ikInteractSo.ikIdle.easeType)
                 .OnComplete(() =>
                 {
                     if(currentTween != null)
@@ -76,7 +76,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                             .SetEase(ikInteractSo.ikIdle.easeType))
                         .Append(transform.DOLocalMove(ApplyWaypoints(ikInteractSo.ikIdle, 1, isFPS), ikInteractSo.ikIdle.loopDuration)
                             .SetEase(ikInteractSo.ikIdle.easeType))
-                            .SetLoops(-1, ikInteractSo.ikIdle.loopType);
+                        .SetLoops(-1, ikInteractSo.ikIdle.loopType);
                     currentTween = seq;
                 });
         }
@@ -114,11 +114,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     seq.Append(moveTween);
 
                     var rotateSeq = DOTween.Sequence();
-                        rotateSeq.Append(transform.DOLocalRotate(ApplyFollow(ikInteractSo.ikWalk, 1, isFPS), ikInteractSo.ikWalk.loopDuration)
-                                .SetEase(ikInteractSo.ikWalk.easeType))
-                            .Append(transform.DOLocalRotate(ApplyFollow(ikInteractSo.ikWalk, 0, isFPS), ikInteractSo.ikWalk.loopDuration)
-                                .SetEase(ikInteractSo.ikWalk.easeType))
-                            .SetLoops(-1, ikInteractSo.ikWalk.loopType);
+                    rotateSeq.Append(transform.DOLocalRotate(ApplyFollow(ikInteractSo.ikWalk, 1, isFPS), ikInteractSo.ikWalk.loopDuration)
+                            .SetEase(ikInteractSo.ikWalk.easeType))
+                        .Append(transform.DOLocalRotate(ApplyFollow(ikInteractSo.ikWalk, 0, isFPS), ikInteractSo.ikWalk.loopDuration)
+                            .SetEase(ikInteractSo.ikWalk.easeType))
+                        .SetLoops(-1, ikInteractSo.ikWalk.loopType);
 
                     seq.Join(rotateSeq);
 
@@ -163,7 +163,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                             .SetEase(ikInteractSo.ikRun.easeType))
                         .Append(transform.DOLocalRotate(ApplyFollow(ikInteractSo.ikRun, 0, isFPS), ikInteractSo.ikRun.loopDuration)
                             .SetEase(ikInteractSo.ikRun.easeType))
-                            .SetLoops(-1, ikInteractSo.ikRun.loopType);
+                        .SetLoops(-1, ikInteractSo.ikRun.loopType);
 
                     seq.Join(rotateSeq);
 
@@ -231,7 +231,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             return Vector3.zero +  offset; 
         }
 
-       private Vector3 ApplyWaypoints(IdlePreset preset, int index, bool isFPS)
+        private Vector3 ApplyWaypoints(IdlePreset preset, int index, bool isFPS)
         {
             Vector3 offset = isFPS ? ikInteractSo.fpsOffset.posOffset : ikInteractSo.tpsOffset.posOffset;
             Vector3[] points = isFPS ? preset.fpsWaypoints : preset.tpsWaypoints;
@@ -275,53 +275,53 @@ namespace _Project.Code.Art.AnimationScripts.IK
             return rotPoints[index] + rotOffset;
         }
     }
-}
 
-[Serializable]
-public struct OffsetPos
-{
-    public Vector3 posOffset;
-    public Vector3 rotOffset;
-}
+    [Serializable]
+    public struct OffsetPos
+    {
+        public Vector3 posOffset;
+        public Vector3 rotOffset;
+    }
 
-[Serializable]
-public struct IdlePreset
-{
-    public float resetDuration;
-    public float transitionDuration;
-    public float loopDuration;
-    public Vector3[] fpsWaypoints;
-    public Vector3[] tpsWaypoints;
-    public LoopType loopType;
-    public Ease easeType;
-}
+    [Serializable]
+    public struct IdlePreset
+    {
+        public float resetDuration;
+        public float transitionDuration;
+        public float loopDuration;
+        public Vector3[] fpsWaypoints;
+        public Vector3[] tpsWaypoints;
+        public LoopType loopType;
+        public Ease easeType;
+    }
 
-[Serializable]
-public struct MovementPreset
-{
-    public float resetDuration;
-    public float transitionDuration;
-    public float loopDuration;
-    public Vector3[] fpsWaypoints;
-    public Vector3[] tpsWaypoints;
-    public Vector3[] fpsFollowThrough;
-    public Vector3[] tpsFollowThrough;
-    public LoopType loopType;
-    public Ease easeType;
-    public PathType pathType;
-    public PathMode pathMode;
-}
+    [Serializable]
+    public struct MovementPreset
+    {
+        public float resetDuration;
+        public float transitionDuration;
+        public float loopDuration;
+        public Vector3[] fpsWaypoints;
+        public Vector3[] tpsWaypoints;
+        public Vector3[] fpsFollowThrough;
+        public Vector3[] tpsFollowThrough;
+        public LoopType loopType;
+        public Ease easeType;
+        public PathType pathType;
+        public PathMode pathMode;
+    }
 
-[Serializable]
-public struct InteractPreset
-{
-    public float resetDuration;
-    public float transitionDuration;
-    public float hitDuration;
-    public Vector3[] fpsPosWaypoints;
-    public Vector3[] tpsPosWaypoints;
-    public Vector3[] fpsRotWaypoints;
-    public Vector3[] tpsRotWaypoints;
-    public Ease easeAnti;
-    public Ease easeHit;
+    [Serializable]
+    public struct InteractPreset
+    {
+        public float resetDuration;
+        public float transitionDuration;
+        public float hitDuration;
+        public Vector3[] fpsPosWaypoints;
+        public Vector3[] tpsPosWaypoints;
+        public Vector3[] fpsRotWaypoints;
+        public Vector3[] tpsRotWaypoints;
+        public Ease easeAnti;
+        public Ease easeHit;
+    }
 }

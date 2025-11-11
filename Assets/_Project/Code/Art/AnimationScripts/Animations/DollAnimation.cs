@@ -1,19 +1,21 @@
-using _Project.Code.Art.AnimationScripts.Animations;
 using UnityEngine;
 
-public class DollAnimation : EnemyAnimation
+namespace _Project.Code.Art.AnimationScripts.Animations
 {
-    public override void PlayRandomIdle(float currentIdleTime, float idleStart)
+    public class DollAnimation : EnemyAnimation
     {
-        Debug.Log("No random idle animation for brute!");
-    }
+        public override void PlayRandomIdle(float currentIdleTime, float idleStart)
+        {
+            Debug.Log("No random idle animation for brute!");
+        }
 
-    public void PlaySwitchPose()
-    {
-        if (idleIndex == 0) return;
-        anim.SetFloat(hIdleSlot, Random.Range(0, idleIndex));
-        anim.SetTrigger(hRandomIdle);
+        public void PlaySwitchPose()
+        {
+            if (idleIndex == 0) return;
+            anim.SetFloat(hIdleSlot, Random.Range(0, idleIndex));
+            anim.SetTrigger(hRandomIdle);
+        }
+    
+    
     }
-    
-    
 }

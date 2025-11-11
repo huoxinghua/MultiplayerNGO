@@ -1,4 +1,5 @@
 using _Project.Code.Gameplay.Interactables;
+using _Project.Code.Gameplay.Interactables.Network;
 using DunGen;
 using Unity.Netcode;
 using UnityEngine;
