@@ -62,33 +62,12 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         {
            RequestOnDeathServerRpc();
            DetachRagdollServerRpc();
-
-
-            /*var netObj = GetComponent<NetworkObject>();
-            if (netObj != null && netObj.IsSpawned)
-            {
-
-                if (IsServer)
-                {
-                    Debug.Log("Server:"+ IsServer +_ragdoll.name);
-                    netObj.Despawn(true);
-                }
-            }
-            else
-            {
-
-                Destroy(gameObject);
-            }*/
-            
         }
 
         [ServerRpc(RequireOwnership = false)]
         void RequestOnDeathServerRpc()
         {
-            
             DisableVisualClientRPC();
-            
-            
         }
         [ClientRpc]
         void DisableVisualClientRPC()
@@ -135,8 +114,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         void DetachRagdollClientRpc()
         {
             _ragdoll.EnableRagdoll();
-            Debug.Log("client:" + IsClient + _ragdoll.name);
-          //  _ragdolledObj.transform.SetParent(null);
         }
     }
 }

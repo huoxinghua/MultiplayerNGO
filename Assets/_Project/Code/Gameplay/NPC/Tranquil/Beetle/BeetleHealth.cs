@@ -9,7 +9,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
     public class BeetleHealth : NetworkBehaviour,IHitable
     {
         //add players who attacked to list
-
         [SerializeField] private BeetleSO _beetleSO;
         public BeetleStateMachine StateMachine { get; private set; }
         public List<GameObject> HostilePlayers = new List<GameObject>();
@@ -43,10 +42,8 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         public void ChangeHealth(float healthChange)
         {
             _currentHealth += healthChange;
-            Debug.Log("IsBeetle Change health" + _currentHealth);
             if (_currentHealth < 0)
             {
-                Debug.Log("IsBeetle Change health" + "_currentHealth <0");
                 OnDeath();
             }
         }
@@ -56,13 +53,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         public void OnDeath()
         {
-            Debug.Log("[beetleHealth]OnDeath!!!!!!" + "IsServer"+IsServer +"IsClient" + IsClient);
-            /*if (!IsServer)
-            {
-                Debug.Log("[beetleHealth]OnDeath" + " not server skip  On Death");
-                return;
-            }
-            Debug.Log("[beetleHealth]OnDeath" + "IsServer On Death");*/
             StateMachine.HandleDeath();
         }
        
@@ -76,7 +66,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         public void OnHit(GameObject attacker, float damage, float knockoutPower)
         {
-            Debug.Log("【beetleHealth】:onhit" +"IsServer："+IsServer+"IsHost：="+IsHost+ "IsClient:"+IsClient+ damage);
             if (!IsServer)
             {
                 var attackerNetObj = attacker.GetComponent<NetworkObject>();
@@ -92,7 +81,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 
         public void ApplyHit(GameObject attacker, float damage, float knockoutPower)
         {
-            Debug.Log("beetleHealth:onhit" + damage);
             if (attacker.layer == 6)
             {
                 bool isInList = false;
@@ -108,19 +96,12 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             StateMachine.HandleHitByPlayer(attacker);
             ChangeHealth(-damage);
             ChangeConsciousness(-knockoutPower);
-            //   Debug.Log("Was hit");
         }
         [ServerRpc(RequireOwnership = false)]
         private void OnHitServerRpc(NetworkObjectReference attackerRef, float damage, float knockoutPower)
         {
-            Debug.Log("[BeetleHealth]OnHitServerRpc");
             if (!attackerRef.TryGet(out NetworkObject attackerObj)) return;
             ApplyHit(attackerObj.gameObject, damage, knockoutPower);
-        }
- 
-        void Update()
-        {
-        
         }
     }
 }

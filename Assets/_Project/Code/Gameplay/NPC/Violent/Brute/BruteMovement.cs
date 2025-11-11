@@ -26,15 +26,12 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         private float _timeSinceHeardPlayer = 0;
         private float _loseInterestTimeChase => bruteSO.LoseInterestTimeChase;
         private float tempSpeedHold;
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        public void Awake()
+
+        public void Awake()// do they need in on networkspawn?
         {
             agent.speed = _walkSpeed;
         }
-        void Start()
-        {
-
-        }
+    
         public void SetHeartTransform(Transform heart)
         {
             _heartTransform = heart;
@@ -79,7 +76,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             Vector3 nextPos = Vector3.zero;
 
             Vector3 temp = new Vector3(Random.Range(_minWanderDistance, _maxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(_minWanderDistance, _maxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(_minWanderDistance, _maxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
-            // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
+
             if (NavMesh.SamplePosition(_heartTransform.position + temp, out NavMeshHit hit, _maxWanderDistance * 3f, NavMesh.AllAreas))
             {
                 if (GetPathLength(agent, hit.position) == -1)
@@ -143,8 +140,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 agent.speed = _hurtWalkSpeed;
             }
             //get the actual walking distance. Must implement still
-            //float pathLength = GetPathLength(agent, agent.destination);
-            // agent.isStopped = false;
+        
         }
         //Function to return the travel path of agent. Not the straight line dist
         float GetPathLength(NavMeshAgent navAgent, Vector3 targetPosition)
@@ -170,7 +166,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 
         IEnumerator IdleTime()
         {
-            //agent.isStopped = true;
             float randTime = Random.Range(_minIdleTime, _maxIdleTime);
             yield return new WaitForSeconds(randTime);
             stateController.TransitionToBehaviourState(BruteBehaviourStates.Wander);
@@ -192,11 +187,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             agent.velocity = Vector3.zero;
             tempSpeedHold = agent.speed;
             agent.speed = 0;
-            Debug.Log("Stop");
         }
         public void ResumeAfterAttack()
         {
-            Debug.Log("Resume");
             agent.speed = tempSpeedHold;
         }
         public void OnDeathKO()
@@ -206,7 +199,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             agent.ResetPath();
             agent.enabled = false;
         }
-        // Update is called once per frame
         void Update()
         {
             if (stateController.GetAttentionState() == BruteAttentionStates.Dead) return;

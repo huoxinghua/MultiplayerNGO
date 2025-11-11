@@ -15,7 +15,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         KnockedOut
     }
 
-//States for handling the behaviour
+    //States for handling the behaviour
     public enum BruteBehaviourStates
     {
         Idle, //standing still - Occurs in unaware, alert, and hurt
@@ -39,20 +39,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [SerializeField] BruteAnimation _bruteAnimation;
         [SerializeField] float _minIdleNoiseTime;
         [SerializeField] float _maxIdleNoiseTime;
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
+
         void Start()
         {
-            //    HandleHeartSpawn();
             TransitionToAttentionState(BruteAttentionStates.Unaware);
             TransitionToBehaviourState(BruteBehaviourStates.Wander);
         }
-/*    public void HandleHeartSpawn()
-    {
-        _spawnedHeart = Instantiate(_heartPrefab, transform);
-        _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
-        _spawnedHeart.transform.SetParent(null);
-        _bruteMovementScript.SetHeartTransform(_spawnedHeart.transform);
-    }*/
+
         public void TransitionToAttentionState(BruteAttentionStates newState)
         {
             if (_currentBruteAttentionState == newState || _currentBruteAttentionState == BruteAttentionStates.Dead || _currentBruteBehaviour == BruteBehaviourStates.None) return;
@@ -65,7 +58,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             switch (state)
             {
                 case BruteAttentionStates.Unaware:
-                    //       _bruteHearing.OnExitAlertState();
+                    //_bruteHearing.OnExitAlertState();
                     _bruteAnimation.PlayNormal();
                     StartCoroutine(IdleSound());
                     break;
@@ -194,11 +187,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         public BruteBehaviourStates GetBehaviourState()
         {
             return _currentBruteBehaviour;
-        }
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }

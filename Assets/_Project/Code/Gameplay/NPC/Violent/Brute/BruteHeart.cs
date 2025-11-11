@@ -42,7 +42,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         public void OnHit(GameObject attackingPlayer, float damage, float knockoutPower)
         {
             _health -= damage;
-           // Debug.Log("on it health:"+ _health+ damage +"isClient:"+NetworkManager.IsServer +"isClient:"+NetworkManager.IsClient);
             if(_health < 0)
             {
                 StopCoroutine(HeartBeat());
@@ -94,10 +93,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 }
             }
         }
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
+
     }
 }

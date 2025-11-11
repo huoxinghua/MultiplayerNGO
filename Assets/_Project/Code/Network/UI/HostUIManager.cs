@@ -157,7 +157,6 @@ namespace _Project.Code.Network.UI
 
         public void QuitGame()
         {
-            Debug.Log("Quit button pressed. Exiting game...");
             if (Unity.Netcode.NetworkManager.Singleton != null && Unity.Netcode.NetworkManager.Singleton.IsListening)
             {
                 Unity.Netcode.NetworkManager.Singleton.Shutdown();

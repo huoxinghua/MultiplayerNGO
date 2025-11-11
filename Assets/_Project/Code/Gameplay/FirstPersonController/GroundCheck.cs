@@ -1,39 +1,5 @@
 using System;
 using UnityEngine;
-
-
-/*public struct EventStructTest
-{
-    public bool EventBoolean;
-    public int EventInt;
-    public float EventFloat;
-}
-public class EventListener : MonoBehaviour
-{
-    EventInvoker inovke;
-    public void Start()
-    {
-        inovke.OnEvent += FunctionName;
-        bool fromEvent;
-        void FunctionName(EventStructTest structTest)
-        {
-            fromEvent = structTest.EventBoolean;
-        }
-    }
-}
-public class EventInvoker : MonoBehaviour
-{
-    public event Action<EventStructTest> OnEvent;
-    EventStructTest StructTest = new EventStructTest();
-    public void Awake()
-    {
-        StructTest.EventFloat = 1;
-        OnEvent?.Invoke(StructTest);
-    }
-}*/
-
-
-
 namespace _Project.Code.Gameplay.FirstPersonController
 {
     public class GroundCheck : MonoBehaviour

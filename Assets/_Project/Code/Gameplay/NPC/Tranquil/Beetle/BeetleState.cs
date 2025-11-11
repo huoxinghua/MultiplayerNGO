@@ -173,29 +173,21 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         {
             float randTime = Random.Range(_minIdleTime, _maxIdleTime);
             _beetleAnimation.PlayRandomIdle(0, 1);
-            // Debug.Log(randTime);
+   
             float timeDelayAnim = Random.Range(1, randTime - 4);
 
-            //  Debug.Log(timeDelayAnim);
+       
             yield return new WaitForSeconds(timeDelayAnim);
-            // Debug.Log(randTime - timeDelayAnim);
+         
             randTime -= timeDelayAnim;
             _beetleAnimation.PlayRandomIdle(1, 0);
-            //  Debug.Log(randTime);
+
             yield return new WaitForSeconds(randTime);
             if (_currentState == BeetleStates.Idle)
             {
-                //Debug.Log("StartMoving");
                 TransitionToState(BeetleStates.MovePosition);
             }
         }
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
 
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
     }
 }

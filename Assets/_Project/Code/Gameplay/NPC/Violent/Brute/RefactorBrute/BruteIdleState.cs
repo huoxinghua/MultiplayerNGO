@@ -5,7 +5,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
     public class BruteIdleState : BruteBaseState
     {
-
         private Timer _idleTimer;
 
         public BruteIdleState(BruteStateMachine stateController) : base(stateController)
@@ -20,8 +19,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             Animator.PlayNormal();
             Agent.ResetPath();
             _idleTimer.Start();
-
-            Debug.Log("Idle");
         }
         public override void OnExit()
         {

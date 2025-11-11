@@ -32,6 +32,7 @@ namespace _Project.Code.Network.SteamWork
         public static Dictionary<CSteamID, string> LobbyLists = new Dictionary<CSteamID, string>();
 
         [SerializeField] private string _sceneName;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -39,6 +40,7 @@ namespace _Project.Code.Network.SteamWork
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
@@ -77,6 +79,7 @@ namespace _Project.Code.Network.SteamWork
         {
             OnLobbyListRequest?.Invoke();
         }
+
         public static void RaiseCreatePublicLobby()
         {
             OnCreatePublicLobby?.Invoke();
@@ -102,32 +105,28 @@ namespace _Project.Code.Network.SteamWork
         {
             if (NetworkManager.Singleton.IsHost)
             {
-                yield break;//if just the host 
+                yield break; //if just the host 
             }
+
             for (int i = 0; i < 5; i++)
             {
                 int ping = SteamNetworkingUtils.EstimatePingTimeFromLocalHost(ref hostLoc);
                 if (ping >= 0 && HostUIManager.Instance != null)
                 {
-                    //Debug.Log($"[Client] Ping to host: {ping} ms");
                     HostUIManager.Instance.UpdateLobbyPing(lobbyId, ping);
 
                     yield break;
                 }
-
-              //  Debug.Log($"[Client] Ping still -1, retry {i + 1}...");
                 yield return new WaitForSeconds(2f);
             }
-
-          //  Debug.LogWarning("[Client] Failed to get valid ping after retries.");
         }
+
         public void OnLobbyListReceived(LobbyMatchList_t param)
         {
             LobbyLists.Clear();
             int count = (int)param.m_nLobbiesMatching;
             for (int i = 0; i < count; i++)
             {
-
                 CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(i);
                 SteamMatchmaking.RequestLobbyData(lobbyId);
                 string lobbyName = SteamMatchmaking.GetLobbyData(lobbyId, "name");
@@ -148,13 +147,13 @@ namespace _Project.Code.Network.SteamWork
                     LobbyLists[lobbyId] = lobbyName;
                 }
             }
+
             HostUIManager.Instance.GenerateLobbyList();
         }
+
         private void GetLobbyList()
         {
-            // SteamMatchmaking.AddRequestLobbyListStringFilter("tag", "XHTest", ELobbyComparison.k_ELobbyComparisonEqual);
             SteamMatchmaking.RequestLobbyList();
-            //Debug.Log("GetLobbyList ...");
         }
 
         private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)
@@ -164,25 +163,24 @@ namespace _Project.Code.Network.SteamWork
 
         public void CreateFriendOnlyLobby()
         {
-
             Debug.Log("Creat friend only Lobby");
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
             _lastLobbyType = ELobbyType.k_ELobbyTypeFriendsOnly;
         }
+
         public void CreatePrivateLobby()
         {
             Debug.Log("Creat private Lobby");
 
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 4);
         }
+
         public void ClickHostPublic()
         {
             if (SteamManager.Initialized)
             {
-
                 SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 4);
                 _lastLobbyType = ELobbyType.k_ELobbyTypePublic;
-                //Debug.Log("[SteamLobbyManager] Creating PUBLIC lobby...");
             }
             else
             {
@@ -195,26 +193,24 @@ namespace _Project.Code.Network.SteamWork
             if (SteamManager.Initialized)
             {
                 SteamFriends.ActivateGameOverlay("Friends");
-                Debug.Log("Opened Steam Friends Overlay to join a friend");
             }
         }
 
         public static string LastCreatedLobbyName;
         public static CSteamID LastCreatedLobbyId;
+
         private void OnLobbyCreated(LobbyCreated_t callback)
         {
             if (callback.m_eResult == EResult.k_EResultOK)
             {
                 _currentLobbyId = new CSteamID(callback.m_ulSteamIDLobby);
-                //Debug.Log("[SteamLobbyManager] OnLobbyCreated Lobby created: " + _currentLobbyId);
                 string roomName = HostUIManager.Instance.RoomName;
-              
+
 
                 if (_lastLobbyType == ELobbyType.k_ELobbyTypePublic)
                 {
                     SteamMatchmaking.SetLobbyData(_currentLobbyId, "name", roomName);
                     SteamMatchmaking.SetLobbyData(_currentLobbyId, "tag", "XHTest");
-                    //Debug.Log("[SteamLobbyManager] room when create: " + roomName + "ID:" + _currentLobbyId);
 
                     LastCreatedLobbyName = roomName;
                     LastCreatedLobbyId = _currentLobbyId;
@@ -226,20 +222,17 @@ namespace _Project.Code.Network.SteamWork
                     string locStr;
                     SteamNetworkingUtils.ConvertPingLocationToString(ref myLoc, out locStr, 256);
                     SteamMatchmaking.SetLobbyData(_currentLobbyId, "host_location", locStr);
-
-                    // Debug.Log($"Lobby created! Host ping location: {locStr}");
+                    
                     StartCoroutine(UpdateHostLocation());
                 }
+
                 if (_lastLobbyType == ELobbyType.k_ELobbyTypeFriendsOnly)
                 {
-
                     SteamMatchmaking.SetLobbyData(_currentLobbyId, "name", roomName);
                     SteamMatchmaking.SetLobbyData(_currentLobbyId, "tag", "XHTest");
                     SteamFriends.ActivateGameOverlayInviteDialog(_currentLobbyId);
-                    Debug.Log("ActivateGameOverlayInviteDialog" + _currentLobbyId);
                     SteamFriends.ActivateGameOverlay("Friends");
                 }
-
             }
             else
             {
@@ -249,22 +242,20 @@ namespace _Project.Code.Network.SteamWork
 
             Invoke("LoadGamePlayScene", 2f);
         }
+
         public void LoadGamePlayScene()
         {
-            // Debug.Log("LoadGamePlayScene");
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
             {
-              NetworkManager.Singleton.SceneManager.LoadScene(_sceneName, LoadSceneMode.Single);
+                NetworkManager.Singleton.SceneManager.LoadScene(_sceneName, LoadSceneMode.Single);
             }
 
             if (ok)
             {
-                //Debug.Log("Host actually started!");
                 if (_currentLobbyId != null && SteamManager.Initialized)
                 {
                     var myId = SteamUser.GetSteamID().m_SteamID;
-                    //Debug.Log("start host success , my id is" + myId);
                 }
                 else
                 {
@@ -289,12 +280,12 @@ namespace _Project.Code.Network.SteamWork
                     string locStr;
                     SteamNetworkingUtils.ConvertPingLocationToString(ref myLoc, out locStr, 256);
                     SteamMatchmaking.SetLobbyData(_currentLobbyId, "host_location", locStr);
-
-                    // Debug.Log("[Host] Updated host_location: " + locStr);
                 }
+
                 yield return new WaitForSeconds(10f); // update once per 10s
             }
         }
+
         private void OnLobbyEntered(LobbyEnter_t callback)
         {
             CSteamID lobbyId = new CSteamID(callback.m_ulSteamIDLobby);
@@ -302,7 +293,8 @@ namespace _Project.Code.Network.SteamWork
             var myId = SteamUser.GetSteamID();
             if (myId.m_SteamID != hostId.m_SteamID)
             {
-                var transport = (SteamNetworkingSocketsTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
+                var transport =
+                    (SteamNetworkingSocketsTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
 
                 if (lobbyId != null)
                 {
@@ -315,7 +307,6 @@ namespace _Project.Code.Network.SteamWork
                 }
 
                 NetworkManager.Singleton.StartClient();
-
             }
         }
 
@@ -324,7 +315,6 @@ namespace _Project.Code.Network.SteamWork
             if (_currentLobbyId.IsValid())
             {
                 SteamFriends.ActivateGameOverlayInviteDialog(_currentLobbyId);
-                Debug.Log("[SteamLobbyManager] InviteFriends Opened invite dialog");
             }
             else
             {

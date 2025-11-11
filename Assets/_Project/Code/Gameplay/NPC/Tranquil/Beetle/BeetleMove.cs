@@ -41,7 +41,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             agent.ResetPath();
             agent.enabled = false;
         }
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         public void Awake()
         {
             _beetleState = GetComponent<BeetleState>();
@@ -58,7 +57,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             Vector3 nextPos = Vector3.zero;
 
             Vector3 temp = new Vector3(Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1), Random.Range(MinWanderDistance, MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
-            // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
+
             if (NavMesh.SamplePosition(beetleTransform.position + temp, out NavMeshHit hit, MaxWanderDistance * 3f, NavMesh.AllAreas))
             {
                 if (GetPathLength(agent, hit.position) == -1)
@@ -72,7 +71,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
                 return Vector3.zero;
             }
         }
-
 
         public void RunAwayLogic(GameObject threat)
         {
@@ -173,7 +171,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         {
             agent.SetDestination(playerToFollow.position);
         }
-        // Update is called once per frame
+
         void Update()
         {
             if (_beetleState.IsEnemyDead() || _beetleState.IsEnemyKnockedout()) return;

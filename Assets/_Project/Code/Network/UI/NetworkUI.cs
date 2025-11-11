@@ -25,12 +25,8 @@ namespace _Project.Code.Network.UI
 
         private void OnHostClicked()
         {
-            Debug.Log("Host button clicked");
-
             if (NetworkManager.Singleton.StartHost())
             {
-                Debug.Log("Host started!");
-               
                 NetworkManager.Singleton.SceneManager.LoadScene(_loadSceneName, LoadSceneMode.Single);
             }
             else
@@ -41,12 +37,9 @@ namespace _Project.Code.Network.UI
 
         private void OnClientClicked()
         {
-            Debug.Log("Client button clicked");
-
             if (NetworkManager.Singleton.StartClient())
             {
                 Debug.Log("Client started!");
-             
             }
             else
             {
@@ -55,7 +48,4 @@ namespace _Project.Code.Network.UI
         }
 
     }
-
-
-
 }
