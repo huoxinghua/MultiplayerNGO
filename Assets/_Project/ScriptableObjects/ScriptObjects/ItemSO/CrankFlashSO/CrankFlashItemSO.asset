@@ -9,15 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32d86c88fc294b74abf479054061ab57, type: 3}
-  m_Name: MacheteItemSO
+  m_Script: {fileID: 11500000, guid: bf700168da6f4ee408c0db9da7bed8a4, type: 3}
+  m_Name: CrankFlashItemSO
   m_EditorClassIdentifier: 
-  <ItemName>k__BackingField: Machete
+  <ItemName>k__BackingField: Crank FlashLight
   <ItemUIImage>k__BackingField: {fileID: 0}
   <HeldPrefab>k__BackingField: {fileID: 0}
-  <ItemCooldown>k__BackingField: 0.76
+  <ItemCooldown>k__BackingField: 0
   <IsPocketSize>k__BackingField: 1
   <CanBeSold>k__BackingField: 0
-  <Damage>k__BackingField: 10
-  <KnockoutPower>k__BackingField: 0
-  <AttackRadius>k__BackingField: 1
+  MaxCharge: 120
+  ChargeLoseRate: 1
+  <ChargeGainRate>k__BackingField: 2
+  <SoundRange>k__BackingField: 3
+  <InnerLightRadius>k__BackingField: 0
+  <OuterLightRadius>k__BackingField: 0
+  <LightIntensity>k__BackingField: 0
+  <LightRange>k__BackingField: 0

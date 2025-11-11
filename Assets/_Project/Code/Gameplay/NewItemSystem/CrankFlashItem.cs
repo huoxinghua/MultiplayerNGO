@@ -1,27 +1,30 @@
-using _Project.Code.Gameplay.NewItemSystem;
+using System.Collections;
 using _Project.Code.Gameplay.NPC.Violent.Brute;
 using _Project.Code.Utilities.EventBus;
-using System.Collections;
+using _Project.ScriptableObjects.ScriptObjects.ItemSO.CrankFlashSO;
 using UnityEngine;
 
-public class CrankFlashItem : FlashlightItem
+namespace _Project.Code.Gameplay.NewItemSystem
 {
-    private bool _isCracking;
-    public override void SecondaryUse(bool isPerformed)
+    public class CrankFlashItem : FlashlightItem
     {
-        _isCracking = isPerformed;
-    }
-    
-    private IEnumerator CrackingSoundBroadcast()
-    {
-        while (_isCracking)
+        private bool _isCracking;
+        public override void SecondaryUse(bool isPerformed)
         {
-            yield return new WaitForSeconds(.35f);
-            if(_itemSO is CrankFlashSO crankSO)
+            _isCracking = isPerformed;
+        }
+    
+        private IEnumerator CrackingSoundBroadcast()
+        {
+            while (_isCracking)
             {
-                EventBus.Instance.Publish<AlertingSound>(new AlertingSound { WasPlayerSound = true, SoundRange = crankSO.SoundRange, SoundSource = _owner.transform});
-            }
+                yield return new WaitForSeconds(.35f);
+                if(_itemSO is CrankFlashSO crankSO)
+                {
+                    EventBus.Instance.Publish<AlertingSound>(new AlertingSound { WasPlayerSound = true, SoundRange = crankSO.SoundRange, SoundSource = _owner.transform});
+                }
           
+            }
         }
     }
 }

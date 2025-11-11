@@ -1,24 +1,24 @@
 using _Project.Code.Utilities.Audio;
-using _Project.ScriptableObjects.ScriptObjects.ItemSO.MacheteItem;
+using _Project.ScriptableObjects.ScriptObjects.ItemSO.SledgeHammerItem;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    public class MacheteInventoryItem : BaseballBatItem
+    public class SledgeHammerInventoryItem : BaseballBatItem
     {
         protected override void PerformMeleeAttack()
         {
-            if (_itemSO is MacheteItemSO _macheteSO)
+            if (_itemSO is SledgeHammerItemSO _sledgehammerSO)
             {
                 //   Debug.Log("_itemSO is BaseballBatItemSO _baseballBatSO");
                 LayerMask enemyLayer = LayerMask.GetMask("Enemy");
 
                 var player = _owner;
-                var origin = player.transform.position + player.transform.forward * _macheteSO.AttackRadius;
+                var origin = player.transform.position + player.transform.forward * _sledgehammerSO.AttackRadius;
                 Collider[] hitEnemies = Physics.OverlapSphere(
                     origin,
-                    _macheteSO.AttackRadius,
+                    _sledgehammerSO.AttackRadius,
                     LayerMask.GetMask("Enemy"));
 
                 /*Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward
@@ -43,7 +43,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                     {
 
                         RequestHitServerRpc(enemyNetObj, attackerNetObj,
-                            _macheteSO.Damage, _macheteSO.KnockoutPower);
+                            _sledgehammerSO.Damage, _sledgehammerSO.KnockoutPower);
                     }
                     else
                     {
