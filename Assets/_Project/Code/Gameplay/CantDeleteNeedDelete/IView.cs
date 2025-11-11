@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace _Project.Code.Gameplay.MVCItems
+namespace _Project.Code.Gameplay.CantDeleteNeedDelete
 {
     public interface IView
     {

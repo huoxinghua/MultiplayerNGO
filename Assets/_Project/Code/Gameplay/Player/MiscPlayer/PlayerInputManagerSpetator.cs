@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace _Project.Code.Gameplay.FirstPersonController
+namespace _Project.Code.Gameplay.Player.MiscPlayer
 {
     public class PlayerInputManagerSpectator : MonoBehaviour
     {

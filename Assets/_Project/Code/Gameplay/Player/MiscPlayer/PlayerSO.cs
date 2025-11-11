@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace _Project.Code.Gameplay.FirstPersonController
+namespace _Project.Code.Gameplay.Player.MiscPlayer
 {
     [CreateAssetMenu(fileName = "PlayerSO", menuName = "Scriptable Objects/PlayerSO")]
     public class PlayerSO : ScriptableObject

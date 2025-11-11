@@ -1,3 +1,4 @@
+using _Project.Code.Art.AnimationScripts.IK;
 using UnityEngine;
 
 namespace _Project.Code.Art.AnimationScripts.IKInteractSOs

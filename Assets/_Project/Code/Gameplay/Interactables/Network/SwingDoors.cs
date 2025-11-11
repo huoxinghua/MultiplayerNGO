@@ -3,7 +3,7 @@ using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace _Project.Code.Gameplay.Interactables
+namespace _Project.Code.Gameplay.Interactables.Network
 {
     public class SwingDoors : NetworkBehaviour, IInteractable
     {

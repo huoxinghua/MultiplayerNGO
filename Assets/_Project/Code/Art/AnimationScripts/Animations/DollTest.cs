@@ -1,14 +1,17 @@
 using UnityEngine;
 
-public class DollTest : MonoBehaviour
+namespace _Project.Code.Art.AnimationScripts.Animations
 {
-    [SerializeField] private DollAnimation dollAnim;
-    void Update()
+    public class DollTest : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        [SerializeField] private DollAnimation dollAnim;
+        void Update()
         {
-            dollAnim.PlaySwitchPose();
-            Debug.Log("Switch Pose");
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                dollAnim.PlaySwitchPose();
+                Debug.Log("Switch Pose");
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using UnityEngine;
 
 namespace _Project.Code.Utilities.EventBus

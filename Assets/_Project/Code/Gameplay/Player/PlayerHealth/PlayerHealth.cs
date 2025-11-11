@@ -1,11 +1,11 @@
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
-using PlayerInputManager = _Project.Code.Gameplay.FirstPersonController.PlayerInputManager;
-using PlayerLook = _Project.Code.Gameplay.FirstPersonController.PlayerLook;
+using PlayerInputManager = _Project.Code.Gameplay.Player.MiscPlayer.PlayerInputManager;
+using PlayerLook = _Project.Code.Gameplay.Player.MiscPlayer.PlayerLook;
 
-namespace _Project.Code.Gameplay.Player
+namespace _Project.Code.Gameplay.Player.PlayerHealth
 {
     public class PlayerHealth : NetworkBehaviour, IPlayerHealth
     {
