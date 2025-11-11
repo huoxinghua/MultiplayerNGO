@@ -7,7 +7,6 @@ using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Utilities.EventBus;
 using _Project.Code.Gameplay.FirstPersonController;
-
 namespace _Project.Code.Network.GameManagers
 {
     public class SpectatorController : Singleton<SpectatorController>
@@ -20,9 +19,7 @@ namespace _Project.Code.Network.GameManagers
 
         [Header("Sensitivity Values")] [SerializeField]
         private float sensitivity = 2;
-
-        [SerializeField] private float smoothing = 1.5f;
-        [SerializeField] private float rawLookMultiply = 0.009f;
+        
         Vector2 velocity;
         Vector2 frameVelocity;
         private Transform _currentTarget;
@@ -114,7 +111,7 @@ namespace _Project.Code.Network.GameManagers
 
             if (_aliveHeads.Count == 0)
             {
-                Debug.LogWarning("[Spectator] Still no alive players after retries.");
+                Debug.Log("[Spectator] Still no alive players after retries.");
                 yield break;
             }
         }
@@ -162,29 +159,7 @@ namespace _Project.Code.Network.GameManagers
             _currentTarget = t;
             _yaw = t.eulerAngles.y;
             _pitch = 10f; 
-
-       
             HandleCamera();
-            /*
-            _spectatorCam.Follow = t;
-            _spectatorCam.LookAt = t;
-            if (!_spectatorCam.TryGetComponent(out CinemachineThirdPersonFollow follow))
-            {
-                follow = _spectatorCam.gameObject.AddComponent<CinemachineThirdPersonFollow>();
-                Debug.Log("[Spectator] Added CinemachineThirdPersonFollow (Position Control)");
-            }
-
-            if (!_spectatorCam.TryGetComponent(out CinemachineRotateWithFollowTarget rotate))
-            {
-                rotate = _spectatorCam.gameObject.AddComponent<CinemachineRotateWithFollowTarget>();
-                Debug.Log(
-                    "[Spectator] Added CinemachineRotateWithFollowTarget (Rotation Control = Rotate With Follow Target)");
-            }
-            */
-
-
-
-            //  follow.FollowOffset = new Vector3(0f, 1f, -2f);
 
         }
         private void Next()

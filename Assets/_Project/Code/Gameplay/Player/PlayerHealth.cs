@@ -1,10 +1,7 @@
 using _Project.Code.Gameplay.FirstPersonController;
-using _Project.Code.Network.GameManagers;
 using _Project.Code.Utilities.EventBus;
-using _Project.Code.Utilities.Singletons;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using PlayerInputManager = _Project.Code.Gameplay.FirstPersonController.PlayerInputManager;
 using PlayerLook = _Project.Code.Gameplay.FirstPersonController.PlayerLook;
 
@@ -12,84 +9,57 @@ namespace _Project.Code.Gameplay.Player
 {
     public class PlayerHealth : NetworkBehaviour, IPlayerHealth
     {
-        float _currentHealth;
         [SerializeField] float _maxHealth;
-        private bool _isDead;
-        public bool IsDead => _isDead;
+
+        private NetworkVariable<float> _currentHealth = new NetworkVariable<float>();
+
+        private NetworkVariable<bool> _isDead = new NetworkVariable<bool>();
+
+        public bool IsDead => _isDead.Value;
         private PlayerLook _playerLook;
         private PlayerInputManager _playerInput;
         private PlayerInputManagerSpectator _spectatorInput;
-        public void Awake()
+
+        public override void OnNetworkSpawn()
         {
-            _currentHealth = _maxHealth;
+            _currentHealth.Value = _maxHealth;
             _playerLook = GetComponent<PlayerLook>();
-         
         }
+
         public void TakeDamage(float damage)
         {
-            if (_currentHealth <= 0) return;
-            _currentHealth -= damage;
-            if (_currentHealth < 0)
+            if (!IsServer) return; //only the server can deal the health
+            if (_isDead.Value) return;
+
+            _currentHealth.Value -= damage;
+            if (_currentHealth.Value <= 0f)
             {
-                Debug.Log("Player is DEAD");
-                _isDead = true;
-
-                if (IsOwner)
-                {
-                   
-                    /*var playerInputSpectator = GetComponent<PlayerInputManagerSpectator>();
-                    playerInputSpectator.enabled = true;*/
-                    var playerInput = GetComponent<PlayerInputManager>();
-                    playerInput.SwitchToSpectatorMode();
-                   // SpectatorController.Instance.EnterSpectatorMode();
-                   HandleDeathServer();
-
-                
-                  //  HandleDeathServer();
-                    EventBus.Instance.Publish<PlayerDiedEvent>(new PlayerDiedEvent{deadPlayer =this.gameObject});
-                }
-
-              //  CurrentPlayers.Instance.RemovePlayer(gameObject, OwnerClientId);
-
-                // PlayerListManager.Instance.ReportDeathServerRpc(OwnerClientId);
-                // NotifyDeathClientRpc();
+                _currentHealth.Value = 0f;
+                HandleDeath();
+                /*
+                // NotifyDeathClientRpc();*/
             }
         }
 
-        private void HandleDeathServer()
+        private void HandleDeath()
         {
-            Debug.Log($"[Server] Player {OwnerClientId} died");
-            //SpawnCorpseAt transform.position;
-            RequestDespawnDeadPlayerServerRpc();
-        }
+            if (_isDead.Value)
+                return;
 
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestDespawnDeadPlayerServerRpc()
-        {
+            _isDead.Value = true;
+            Debug.Log($"[Server] Player {OwnerClientId} died");
+            HandleDeathClientRpc();
             NetworkObject.Despawn(true);
         }
 
-        private void DisableComponent()
-        {
-            var stateMachine = GetComponent<PlayerStateMachine.PlayerStateMachine>();
-            stateMachine.enabled = false;
-            var renders = GetComponentsInChildren<Renderer>();
-            foreach (var render in renders)
-            {
-                render.enabled = false;
-            }
-
-            var playerLook = GetComponent<PlayerLook>();
-            playerLook.enabled = false;
-        }
-
         [ClientRpc]
-        private void NotifyDeathClientRpc()
+        private void HandleDeathClientRpc()
         {
             if (IsOwner)
             {
-                
-             //   EventBus.Instance.Publish<PlayerDiedEvent>(new PlayerDiedEvent{NameOfPlayer = "sad"});
+                var playerInput = GetComponent<PlayerInputManager>();
+                playerInput.SwitchToSpectatorMode();
+                EventBus.Instance.Publish<PlayerDiedEvent>(new PlayerDiedEvent { deadPlayer = this.gameObject });
             }
         }
     }
