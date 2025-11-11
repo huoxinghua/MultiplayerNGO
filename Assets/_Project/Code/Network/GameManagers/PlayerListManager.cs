@@ -1,21 +1,15 @@
 using System.Collections.Generic;
+using _Project.Code.Core.Patterns;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Network.GameManagers
 {
-    public class PlayerListManager : NetworkBehaviour
+    public class PlayerListManager : NetworkSingleton<PlayerListManager>
     {
-        public static PlayerListManager Instance { get; private set; }
-
         private readonly List<ulong> _alivePlayers = new List<ulong>();
         private readonly List<ulong> _deadPlayers = new List<ulong>();
-
-        private void Awake()
-        {
-            Instance = this;
-        }
-
+        
         public override void OnNetworkSpawn()
         {
             if (IsServer)
@@ -28,7 +22,6 @@ namespace _Project.Code.Network.GameManagers
         private void OnClientConnected(ulong clientId)
         {
             _alivePlayers.Add(clientId);
-            Debug.Log("alive in playerlisht:"+_alivePlayers.Count);
         }
 
         private void OnClientDisconnected(ulong clientId)
@@ -36,18 +29,6 @@ namespace _Project.Code.Network.GameManagers
             _alivePlayers.Remove(clientId);
             _deadPlayers.Remove(clientId);
         }
-
-        /*
-        [ServerRpc(RequireOwnership = false)]
-        public void ReportDeathServerRpc(ulong playerId)
-        {
-            if (!_alivePlayers.Contains(playerId)) return;
-            _alivePlayers.Remove(playerId);
-            _deadPlayers.Add(playerId);
-
-            UpdateAliveListClientRpc(_alivePlayers.ToArray());
-        }
-        */
 
         [ClientRpc]
         private void UpdateAliveListClientRpc(ulong[] newList)

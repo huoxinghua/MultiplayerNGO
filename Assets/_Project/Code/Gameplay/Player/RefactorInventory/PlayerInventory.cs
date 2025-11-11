@@ -72,12 +72,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     InventoryItems[newIndex].GetIKInteractable().PickupAnimation(PlayerFPSIKController, true);
                     InventoryItems[newIndex].GetIKInteractable().PickupAnimation(PlayerTPSIKController, false); 
                 }
-                Debug.Log("SwapLogic");
         }
 
         private void HandlePickupIKLogic(int index)
         {
-                Debug.Log("pickupLogic");
             if (InventoryItems[index] == null)
             {
                StartCoroutine(WaitForCurrentHeldPickupAgain(index));
@@ -90,7 +88,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
         private void HandleDropIKLogic(int index)
         {
-            Debug.Log("DropLogic");
             if (InventoryItems[index] == null)
             {
                StartCoroutine( WaitForCurrentHeldDropAgain(index));
@@ -271,60 +268,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 ChangeSlotBackgrounds(-1);
             }
             ChangeUISlotDisplay();
-
-            
-            
-            
-
         }
-
-        /*  [ClientRpc]
-          private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
-          {
-              if (NetworkManager.Singleton.LocalClientId == playerId)
-              {
-                  Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
-                  return;
-              }
-
-              Debug.Log("NotifyClientsPickupClientRpc");
-              if (!itemRef.TryGet(out NetworkObject netObj)) return;
-
-              var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
-              if (item == null) return;
-
-              Debug.Log($"[Sync] Item picked up by player {playerId}");
-
-
-              var player = FindPlayerById(playerId);
-              if (player == null)
-              {
-                  Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
-                  return;
-              }
-              var inventory = player.GetComponent<PlayerInventory>();
-              if (inventory == null)
-              {
-                  Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
-                  return;
-              }
-              netObj.transform.SetParent(inventory.HoldTransform);
-              netObj.transform.localPosition = Vector3.zero;
-              netObj.transform.localRotation = Quaternion.identity;
-              netObj.gameObject.SetActive(true);
-              Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
-          }
-          private GameObject FindPlayerById(ulong clientId)
-          {
-              foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
-              {
-                  if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
-                  {
-                      return obj.gameObject;
-                  }
-              }
-              return null;
-          }*/
 
         /// <summary>
         /// Tells items at current item index to handle drop logic. This is done via input
@@ -350,8 +294,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex].UnequipItem();
                 InventoryItems[_currentIndex].DropItem(DropTransform);
                 RequestReplaceAtListServerRpc(_currentIndex,new NetworkObjectReference(NetworkObject));
-                //InventoryNetworkRefs[_currentIndex] = 
-               // InventoryItems[_currentIndex] = null;
                 
                 //drop current slot if there is one
             }

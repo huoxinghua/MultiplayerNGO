@@ -1,20 +1,16 @@
+using _Project.Code.Core.Patterns;
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
-    public class EnemySpawnManager : MonoBehaviour
+    public class EnemySpawnManager : Singleton<EnemySpawnManager>
     {
         private Timer _enemySpawnDelay;
         [field: SerializeField] public EnemyPrefabsSO EnemyPrefabs { get; private set; }
         [field: SerializeField] public SpawnDataSO SpawnData { get; private set; }
-
-        private void Awake()
-        {
-            _enemySpawnDelay = new Timer(SpawnData.BaseRandomTimeBetweenSpawns);
-
-        }
+        
         private void Start()
         {
             int randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
