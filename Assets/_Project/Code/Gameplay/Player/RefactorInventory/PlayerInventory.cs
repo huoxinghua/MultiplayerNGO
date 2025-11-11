@@ -1,8 +1,8 @@
 using System.Collections;
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Art.AnimationScripts.IK;
-using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NewItemSystem;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.UsableItems;
 using Unity.Netcode;
 using UnityEngine;
@@ -36,6 +36,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
 
             _inputManager.OnUse += UseItemInHand;
+            _inputManager.OnSecondaryUse += SecondaryUseItemInHand;
             _inputManager.OnDropItem += DropItem;
             
         }
@@ -328,6 +329,17 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex]?.UseItem();
             }
            
+        }
+        public void SecondaryUseItemInHand(bool isPerformed)
+        {
+            if (_handsFull)
+            {
+                BigItemCarried?.SecondaryUse(isPerformed);
+            }
+            else
+            {
+                InventoryItems[_currentIndex]?.SecondaryUse(isPerformed);
+            }
         }
         /// <summary>
         /// Checks if holding a sample in hand. Safety net for TrySell()

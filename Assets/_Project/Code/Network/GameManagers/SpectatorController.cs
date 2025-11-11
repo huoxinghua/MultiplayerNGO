@@ -5,8 +5,10 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Player;
+using _Project.Code.Gameplay.Player.MiscPlayer;
+using _Project.Code.Gameplay.Player.PlayerHealth;
 using _Project.Code.Utilities.EventBus;
-using _Project.Code.Gameplay.FirstPersonController;
+
 namespace _Project.Code.Network.GameManagers
 {
     public class SpectatorController : Singleton<SpectatorController>

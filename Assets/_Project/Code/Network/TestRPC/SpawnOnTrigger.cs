@@ -1,5 +1,6 @@
 using System.Collections;
 using _Project.Code.Gameplay.Player;
+using _Project.Code.Gameplay.Player.PlayerHealth;
 using Unity.Netcode;
 using UnityEngine;
 

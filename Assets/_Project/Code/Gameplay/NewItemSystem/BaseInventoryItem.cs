@@ -344,7 +344,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 return;
             }
         }
-
+        public virtual void SecondaryUse(bool isPerformed)
+        {
+            
+        }
+        
         public virtual void UnequipItem()
         {
             SetInHandServerRpc(false);

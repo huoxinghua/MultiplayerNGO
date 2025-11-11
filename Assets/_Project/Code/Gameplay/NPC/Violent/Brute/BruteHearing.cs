@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using UnityEngine;
 
@@ -113,5 +114,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             yield return new WaitForSeconds(_hearingCooldownTime);
             _isOnHearingCooldown = false;
         }
+    }
+    public struct AlertingSound : IEvent
+    {
+        public float SoundRange;
+        public Transform SoundSource;
+        public bool WasPlayerSound;
     }
 }
