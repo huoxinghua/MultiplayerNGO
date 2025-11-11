@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using _Project.Code.Gameplay.FirstPersonController;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using UnityEngine;
 
