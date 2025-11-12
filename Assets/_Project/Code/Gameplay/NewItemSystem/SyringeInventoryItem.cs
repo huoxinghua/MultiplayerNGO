@@ -1,19 +1,13 @@
+using System.Collections;
+using _Project.ScriptableObjects.ScriptObjects.ItemSO.SyringeItem;
+using QuickOutline.Scripts;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    public class SyringeInventoryItem : MonoBehaviour
+    public class SyringeInventoryItem : BaseInventoryItem
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
         
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
     }
 }
