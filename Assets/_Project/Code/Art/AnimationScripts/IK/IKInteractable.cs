@@ -2,24 +2,139 @@ using System;
 using _Project.Code.Art.AnimationScripts.IKInteractSOs;
 using DG.Tweening;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Art.AnimationScripts.IK
 {
-    public class IKInteractable : MonoBehaviour
+    public enum IKAnimState
+    {
+        Idle,
+        Walk,
+        Run,
+        Interact
+    }
+    public class IKInteractable : NetworkBehaviour
     {
         [Header("Hands and Fingers Position")] 
         [SerializeField] private Transform handR;
         [SerializeField] private Transform handL;
+        [SerializeField] private Transform elbowR;
+        [SerializeField] private Transform elbowL;
         [SerializeField] private IkInteractSO ikInteractSo; 
         
         private Tween currentTween;
+        private bool currentCrouch;
+        private bool currentFPS;
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
-        public bool IsInteract { get; private set; } = false;
         
+        private NetworkVariable<IKAnimState> currentAnimaState = new NetworkVariable<IKAnimState>(
+            IKAnimState.Idle,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
+
+        private NetworkVariable<float> animTime = new NetworkVariable<float>(
+            0f,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
+        
+        private float localAnimTime = 0f;
+        private const float DRIFT_CORRECTION_THRESHOLD = 0.1f;
+        public bool IsInteract { get; private set; } = false;
+
+        private void Update()
+        {
+            if (IsServer && currentAnimaState.Value != IKAnimState.Idle)
+            {
+                animTime.Value += Time.deltaTime;
+            }
+            
+            //Client : Drift Correction
+            if (!IsServer)
+            {
+                float drift = Math.Abs(localAnimTime - animTime.Value);
+
+                if (drift > DRIFT_CORRECTION_THRESHOLD)
+                {
+                    localAnimTime = animTime.Value;
+                    Debug.LogWarning($"IK animation drift corrected: {drift:F3}s");
+                }
+                else
+                {
+                    localAnimTime +=  Time.deltaTime;
+                }
+            }
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            currentAnimaState.OnValueChanged += OnAnimStateChanged;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+
+            currentAnimaState.OnValueChanged -= OnAnimStateChanged;
+        }
+
+        private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
+        {
+            Debug.Log($"[IK] Animation state changed: {oldState} → {newState}");
+
+            bool isFPS = _currentFPSIKController != null;
+
+            switch (newState)
+            {
+                case IKAnimState.Idle:
+                    PlayIKIdle(currentFPS);
+                    break;
+                case IKAnimState.Walk:
+                    PlayIKMove(currentCrouch ? 2f : 1f, currentFPS, false);
+                    break;
+                case IKAnimState.Run:
+                    PlayIKMove(1f, currentFPS, true);
+                    break;
+                case IKAnimState.Interact:
+                    PlayIKInteract(currentFPS);
+                    break;
+            }
+        }
+
+        public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
+        {
+            if (IsInteract && newState != IKAnimState.Interact)
+                return;
+
+            if (currentAnimaState.Value == newState && currentCrouch == isCrouch && currentFPS == isFPS) 
+                return;
+
+            currentAnimaState.Value = newState;
+            currentCrouch = isCrouch;
+            currentFPS = isFPS;
+
+            OnAnimStateChanged(currentAnimaState.Value, newState);
+        }
+        
+        public void SetAnimState(IKAnimState newState, bool isFPS)
+        {
+            if (IsInteract && newState != IKAnimState.Interact)
+                return;
+
+            if (currentAnimaState.Value == newState && currentCrouch && currentFPS == isFPS) 
+                return;
+
+            currentAnimaState.Value = newState;
+            currentFPS = isFPS;
+
+            OnAnimStateChanged(currentAnimaState.Value, newState);
+        }
+
         public void PickupAnimation(PlayerIKController ikController, bool isFPS)
         {
-            ikController.IKPos(this, handL, handR, ikInteractSo);
+            ikController.IKPos(this, handL, handR, elbowL, elbowR, ikInteractSo);
             ikController.IkActive = true;
             if (isFPS)
             {
@@ -39,20 +154,249 @@ namespace _Project.Code.Art.AnimationScripts.IK
             if (_currentFPSIKController != null)
             {
                 _currentFPSIKController.IkActive = false;
-                _currentFPSIKController.IKPos(null, null, null, null);
+                _currentFPSIKController.IKPos(null, null, null, null, null, null);
                 _currentFPSIKController =  null;
             }
             if (_currentTPSIKController != null)
             {
                 _currentTPSIKController.IkActive = false;
-                _currentTPSIKController.IKPos(null, null, null, null);
+                _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController =  null;
             }
-            
-            
         }
 
-        public void PlayIKIdle(bool isFPS)
+        
+
+        private void PlayIKIdle(bool isFPS)
+        {
+            //If !server, send to server
+            if (!IsServer)
+            {
+                PlayIKIdleServerRpc(isFPS);
+                return;
+            }
+            //If server, just run
+            PlayIKIdleServerRpc(isFPS);
+        }
+
+        [ServerRpc]
+        private void PlayIKIdleServerRpc(bool isFPS)
+        {
+            //State Update
+            currentAnimaState.Value = IKAnimState.Interact;
+            animTime.Value = 0f;
+            
+            //Broadcast to Client
+            PlayIKIdleClientRpc(isFPS);
+        }
+
+        [ClientRpc]
+        private void PlayIKIdleClientRpc(bool isFPS)
+        {
+            localAnimTime = 0f;
+            
+            //Play Animation in Local
+            PlayIKIdleLocal(isFPS);
+        }
+
+        private void PlayIKIdleLocal(bool isFPS)
+        {
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
+            
+            var waypoints = isFPS ? ikInteractSo.ikIdle.fpsWaypoints :  ikInteractSo.ikIdle.tpsWaypoints;
+            float duration = ikInteractSo.ikIdle.transitionDuration;
+
+            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikIdle.resetDuration;
+            else duration = ikInteractSo.ikIdle.transitionDuration;
+
+            transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikIdle.easeType)
+                .OnComplete(() =>
+                {
+                    if(currentTween != null)
+                    {
+                        currentTween.Kill(true);
+                        currentTween = null;
+                    }
+                    
+                    var seq = DOTween.Sequence();
+                    seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[1], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
+                        .Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
+                        .SetLoops(int.MaxValue, ikInteractSo.ikIdle.loopType);
+                    currentTween = seq;
+                });
+        }
+        
+        
+
+        private void PlayIKMove(float slowSpeed, bool isFPS, bool isRunning)
+        {
+            //If !server, send to server
+            if (!IsServer)
+            {
+                PlayIKMoveServerRpc(slowSpeed, isFPS, isRunning);
+                return;
+            }
+            //If server, just run
+            PlayIKMoveServerRpc(slowSpeed, isFPS, isRunning);
+        }
+
+        [ServerRpc]
+        private void PlayIKMoveServerRpc(float slowSpeed, bool isFPS, bool isRunning)
+        {
+            //State Update
+            currentAnimaState.Value = isRunning ? IKAnimState.Run :  IKAnimState.Walk;
+            animTime.Value = 0f;
+            
+            //Broadcast to Client
+            PlayIKMoveClientRpc(slowSpeed, isFPS, isRunning);
+        }
+
+        [ClientRpc]
+        private void PlayIKMoveClientRpc(float slowSpeed, bool isFPS, bool isRunning)
+        {
+            localAnimTime = 0f;
+            
+            //Play Animation in Local
+            PlayIKMoveLocal(slowSpeed, isFPS, isRunning);
+        }
+
+        private void PlayIKMoveLocal(float slowSpeed, bool isFPS, bool isRunning)
+        {
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
+
+            var preset = isRunning ? ikInteractSo.ikRun : ikInteractSo.ikWalk;
+            var waypoints = isFPS ? preset.fpsWaypoints : preset.tpsWaypoints;
+            var followThroughs = isFPS ? preset.fpsFollowThrough : preset.tpsFollowThrough;
+            
+            float duration = preset.transitionDuration;
+
+            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = preset.resetDuration;
+            else duration = preset.transitionDuration;
+
+            var startSeq = DOTween.Sequence();
+            startSeq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration)
+                    .SetEase(ikInteractSo.ikWalk.easeType))
+                .Join(transform.DOLocalRotate(ApplyRotOffset(followThroughs[0], isFPS), duration)
+                    .SetEase(ikInteractSo.ikWalk.easeType))
+                .OnComplete(() =>
+                {
+                    if(currentTween != null)
+                    {
+                        currentTween.Kill(true);
+                        currentTween = null;
+                    }
+                    
+                    var seq = DOTween.Sequence();
+
+                    var moveTween = transform.DOLocalPath(ApplyPosOffset(waypoints, isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
+                        .SetEase(ikInteractSo.ikWalk.easeType)
+                        .SetLoops(int.MaxValue, ikInteractSo.ikWalk.loopType);
+
+                    seq.Append(moveTween);
+
+                    var rotateSeq = DOTween.Sequence();
+                    rotateSeq.Append(transform.DOLocalRotate(ApplyRotOffset(followThroughs[1], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
+                        .Append(transform.DOLocalRotate(ApplyRotOffset(followThroughs[0], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
+                        .SetLoops(int.MaxValue, ikInteractSo.ikWalk.loopType);
+
+                    seq.Join(rotateSeq);
+
+                    currentTween = seq;
+                });
+        }
+
+        private void PlayIKInteract(bool isFPS)
+        {
+            //If !server, send to server
+            if (!IsServer)
+            {
+                PlayIKInteractServerRpc(isFPS);
+                return;
+            }
+            //If server, just run
+            PlayIKInteractServerRpc(isFPS);
+        }
+
+        [ServerRpc]
+        private void PlayIKInteractServerRpc(bool isFPS)
+        {
+            //State Update
+            currentAnimaState.Value = IKAnimState.Interact;
+            animTime.Value = 0f;
+            
+            //Broadcast to Client
+            PlayIKInteractClientRpc(isFPS);
+        }
+
+        [ClientRpc]
+        private void PlayIKInteractClientRpc(bool isFPS)
+        {
+            localAnimTime = 0f;
+            
+            //Play Animation in Local
+            PlayIKInteractLocal(isFPS);
+        }
+
+        private void PlayIKInteractLocal(bool isFPS)
+        {
+            if (IsInteract) return;
+            IsInteract = true;
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
+            var waypoints = isFPS ? ikInteractSo.ikInteract.fpsPosWaypoints :  ikInteractSo.ikInteract.tpsPosWaypoints;
+            var RotPoints = isFPS ? ikInteractSo.ikInteract.fpsRotWaypoints : ikInteractSo.ikInteract.tpsRotWaypoints;
+            float duration = ikInteractSo.ikInteract.transitionDuration;
+
+            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikInteract.resetDuration;
+            else duration = ikInteractSo.ikInteract.transitionDuration;
+
+            var seq = DOTween.Sequence();
+
+            seq.Append(transform.DOLocalMove(ApplyPosOffset(Vector3.zero, isFPS), duration)
+                    .SetEase(ikInteractSo.ikInteract.easeAnti))
+                .Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), duration)
+                    .SetEase(ikInteractSo.ikInteract.easeAnti));
+
+            seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration)
+                    .SetEase(ikInteractSo.ikInteract.easeAnti))
+                .Join(transform.DOLocalRotate(ApplyRotOffset(RotPoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration)
+                    .SetEase(ikInteractSo.ikInteract.easeAnti));
+
+            seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[1], isFPS), ikInteractSo.ikInteract.hitDuration)
+                    .SetEase(ikInteractSo.ikInteract.easeHit))
+                .Join(transform.DOLocalRotate(ApplyRotOffset(RotPoints[1], isFPS), ikInteractSo.ikInteract.hitDuration)
+                    .SetEase(ikInteractSo.ikInteract.easeHit));
+
+            seq.Append(transform.DOLocalMove(ApplyPosOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.transitionDuration)
+                    .SetEase(ikInteractSo.ikInteract.easeHit))
+                .Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.transitionDuration)
+                    .SetEase(ikInteractSo.ikInteract.easeHit));
+
+            seq.OnComplete(() => {IsInteract = false;});
+            currentTween = seq;
+        }
+
+        public void StopIKAnimation()
+        {
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
+        }
+        
+        /*public void PlayIKIdle(bool isFPS)
         {
             if(currentTween != null)
             {
@@ -81,7 +425,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     currentTween = seq;
                 });
         }
-
+        
         public void PlayIKWalk(float slowSpeed,bool isFPS)
         {
             if(currentTween != null)
@@ -172,8 +516,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 });
             
         }
-
-        public void PlayIKInteract(bool isFPS)
+        
+        private void PlayIKInteract(bool isFPS)
         {
             if (IsInteract) return;
             IsInteract = true;
@@ -212,16 +556,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             seq.OnComplete(() => {IsInteract = false;});
             currentTween = seq;
-        }
-
-        public void StopIKAnimation()
-        {
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
-        }
+        }*/
         
         private Vector3 ApplyPosOffset(Vector3 point, bool isFPS)
         {
