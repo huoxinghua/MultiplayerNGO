@@ -4,9 +4,11 @@ using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.UsableItems;
+using _Project.Code.UI.Inventory;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
+using _Project.Code.Utilities.EventBus;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
@@ -22,13 +24,11 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [field: SerializeField] public Transform DropTransform { get; private set; }
         private int _currentIndex;
         [SerializeField] private PlayerInputManager _inputManager;
-        [field: SerializeField] public Image[] SlotDisplay { get; private set; } = new Image[5];
-        [field: SerializeField] public Image[] SlotBackground { get; private set; } = new Image[5];
-        [field: SerializeField] public Image EmptySlot { get; private set; }
-        /*[field: SerializeField] public PlayerIKController  PlayerFPSIKController { get; private set; }
-        [field: SerializeField] public PlayerIKController PlayerTPSIKController { get; private set; }*/
+        [field: SerializeField] public Image[] ItemUIDisplay { get; private set; } = new Image[5];
+        [field: SerializeField] public Image[] SlotUIBackground { get; private set; } = new Image[5];
         [field: SerializeField] public PlayerAnimation PlayerAnimation { get; private set; }
         [field: SerializeField] public PlayerIKData ThisPlayerIKData { get; private set; }
+        
         private bool _handsFull => BigItemCarried != null;
         public bool InventoryFull => IsInventoryFull();
         
@@ -91,7 +91,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     Debug.Log("server side do Pice up");
                     //network
                     RequestReplaceAtListServerRpc(_currentIndex, new NetworkObjectReference(item.NetworkObject));
-                    ChangeSlotBackgrounds(_currentIndex);
                     //end network
                 }
                 //For pocket size items and when current slot isnt available - Finds first available slot
@@ -106,6 +105,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                             //InventoryItems[i] = item;
                             item.PickupItem(gameObject, HoldTransform,NetworkObject);
                             item.UnequipItem();
+                            RequestReplaceAtListServerRpc(i, new NetworkObjectReference(item.NetworkObject));
                             break;
                         }
                     }
@@ -118,9 +118,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 InventoryItems[_currentIndex]?.UnequipItem();
                 item.PickupItem(gameObject, HoldTransform, NetworkObject);
                 item.EquipItem();
-                ChangeSlotBackgrounds(-1);
             }
-            ChangeUISlotDisplay();
         }
           
         #endregion
@@ -153,7 +151,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 
                 //drop current slot if there is one
             }
-            ChangeUISlotDisplay();
         }
         #endregion
         
@@ -162,6 +159,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         public void HandleCurrentIndexChange(int oldInt, int newInt)
         {
             _currentIndex = newInt;
+            if (IsOwner)
+            {
+                EventBus.Instance.Publish<InventorySlotIndexChangedEvent>( new InventorySlotIndexChangedEvent {NewIndex = _currentIndex});
+            }
         }
         
         /// <summary>
@@ -180,8 +181,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             _currentIndex = indexOf;
             InventoryItems[_currentIndex]?.EquipItem();
             RequestChangeCurrentIndexServerRpc(_currentIndex);
-            ChangeUISlotDisplay();
-            ChangeSlotBackgrounds(_currentIndex);
             
         }
         #endregion
@@ -239,6 +238,11 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     InventoryItems[i] = itemNetObj.GetComponent<BaseInventoryItem>();
                 }
             }
+
+            if (IsOwner)
+            {
+                EventBus.Instance.Publish<InventoryListModifiedEvent>(new InventoryListModifiedEvent{ NewInventory = InventoryItems});
+            }
         }
         #endregion
 
@@ -263,36 +267,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         
         
         //UI LOGIC IS NOT TESTED, SETUP, OR ANY GOOD. Ignore for now...
-        public void ChangeUISlotDisplay()
-        {
-            return;
-            for (int i = 0; i < InventoryItems.Length; i++)
-            {
-                if (InventoryItems[i] == null)
-                {
-                    SlotDisplay[i] = EmptySlot;
-                }
-                else
-                {
-                    SlotDisplay[i] = InventoryItems[i].GetUIImage();
-                }
-            }
-        }
-        public void ChangeSlotBackgrounds(int selectedItem)
-        {
-            return;
-            for (int i = 0; i < SlotDisplay.Length; i++)
-            {
-                if (i == selectedItem)
-                {
-                    SlotBackground[i].color = Color.red;
-                }
-                else
-                {
-                    SlotBackground[i].color = Color.white;
-                }
-            }
-        }
+       
 
         #endregion
         

@@ -46,7 +46,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected Outline OutlineEffect;
         protected GameObject _owner;
 
-        [SerializeField] protected Transform CurrentHeldPosition;
+        protected Transform CurrentHeldPosition;
         protected bool _hasOwner => _owner != null;
         protected bool _isInOwnerHand = false;
 
@@ -472,7 +472,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
            {
                return _currentHeldVisualRPC;
            }*/
-        public virtual Image GetUIImage()
+        public virtual Sprite GetUIImage()
         {
             return _itemSO.ItemUIImage;
         }
