@@ -9,28 +9,37 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class BaseballBatItem : BaseInventoryItem
     {
-
+        #region Setup + Update
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
             CustomNetworkSpawn();
-        }
-
+        }   
         private void Update()
         {
-            
-            /*if (_hasOwner)
-            {
-                transform.localPosition = Vector3.zero;
-                transform.localRotation = Quaternion.Euler(0, 0, 0);
-            }*/
             if (!IsOwner) return; // only the owning player updates
             UpdateHeldPosition();
         }
-     
-        protected virtual void PerformMeleeAttack()
+        #endregion
+        
+        #region Use Logic
+        public override void UseItem()
+        {
+            base.UseItem();
+
+            if (IsOwner)
+            {
+                RequestAttackServerRpc();
+            }
+        }
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestAttackServerRpc()
+        {
+            PerformMeleeAttack();
+        }
+         protected virtual void PerformMeleeAttack()
         {
          //   Debug.Log("BaseBallBatItem】:PerformMeleeAttack" +"IsServer："+IsServer+"IsHost：="+IsHost+ "IsClient:" +IsClient);
             if (_itemSO is BaseballBatItemSO _baseballBatSO)
@@ -81,7 +90,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogWarning(" false _itemSO is BaseballBatItemSO _baseballBatSO");
             }
         }
-
+         
         [ServerRpc(RequireOwnership = false)]
         protected void RequestHitServerRpc(NetworkObjectReference targetRef, NetworkObjectReference attackerRef,
             float damage, float knockout)
@@ -104,26 +113,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogWarning("[ServerRpc] Failed to resolve target NetworkObjectReference");
             }
         }
+         
+        #endregion
 
-        public override void UseItem()
-        {
-            base.UseItem();
+        
+     
+       
 
-                if (IsOwner)
-                {
-                    RequestAttackServerRpc();
-                }
-                //PerformMeleeAttack();
-               
-              
-        }
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestAttackServerRpc()
-        {
-            Debug.Log("[ServerRpc] BaseballBat Attack Received by Server --- FROM " + OwnerClientId);
+       
 
-            PerformMeleeAttack();
-        }
+        
+        
 
     }
 }

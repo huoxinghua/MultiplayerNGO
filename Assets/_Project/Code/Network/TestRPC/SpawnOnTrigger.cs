@@ -28,8 +28,6 @@ namespace _Project.Code.Network.TestRPC
             //sync to all clients
             var netObj = spawned.GetComponent<NetworkObject>();
             netObj.Spawn();
-          //  StartCoroutine(DespawnAfterSeconds(netObj, 5f));
-
             hasSpawned = true;
         }
 

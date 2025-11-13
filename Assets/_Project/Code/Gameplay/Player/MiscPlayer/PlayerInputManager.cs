@@ -90,14 +90,12 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
         {
             inputActions.Player.Disable();
             inputActions.Spectator.Enable();
-            Debug.Log("[Input] Switched to Spectator mode");
         }
 
         public void SwitchToPlayerMode()
         {
             inputActions.Spectator.Disable();
             inputActions.Player.Enable();
-            Debug.Log("[Input] Switched to Player mode");
         }
         Vector2 moveInput;
         private void HandleMove(InputAction.CallbackContext context)
@@ -134,43 +132,12 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
             OnCrouchInput?.Invoke();
         }
 
-
-        /*    private void HandleChangeWeapon(InputAction.CallbackContext context)
-        {
-
-            if (context.performed)
-            {
-                OnChangeWeaponInput?.Invoke();
-            }
-        }*/
-
         #region Item slots
         private void HandleKeyPressed(InputAction.CallbackContext context)
         {
             var keyValue = int.Parse(context.control.displayName);
             OnNumPressed?.Invoke(keyValue);
         }
-        /* private void HandleNumOne(InputAction.CallbackContext context)
-    {
-
-        OnNumOne?.Invoke();
-    }
-    private void HandleNumTwo(InputAction.CallbackContext context)
-    {
-        OnNumTwo?.Invoke();
-    }
-    private void HandleNumThree(InputAction.CallbackContext context)
-    {
-        OnNumThree?.Invoke();
-    }
-    private void HandleNumFour(InputAction.CallbackContext context) 
-    {
-        OnNumFour?.Invoke();
-    }
-    private void HandleNumFive(InputAction.CallbackContext context)
-    {
-        OnNumFive?.Invoke();
-    }*/
         #endregion
 
 

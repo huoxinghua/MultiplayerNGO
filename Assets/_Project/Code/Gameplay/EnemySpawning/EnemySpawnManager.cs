@@ -10,15 +10,15 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private Timer _enemySpawnDelay;
         [field: SerializeField] public EnemyPrefabsSO EnemyPrefabs { get; private set; }
         [field: SerializeField] public SpawnDataSO SpawnData { get; private set; }
-        
+
         private void Start()
         {
             int randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
             SpawnViolent(randomSpawnPoint);
-            Debug.Log("NowTranquil");
             randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
             SpawnTranquil(randomSpawnPoint);
         }
+
         private void Update()
         {
             _enemySpawnDelay.TimerUpdate(Time.deltaTime);
@@ -28,6 +28,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
                 _enemySpawnDelay.Reset(SpawnData.BaseRandomTimeBetweenSpawns);
             }
         }
+
         //currently just spawns tranquil. Fix and add random chance of each
         public void StartSpawn()
         {
@@ -41,28 +42,31 @@ namespace _Project.Code.Gameplay.EnemySpawning
                 }
             }
         }
+
         public void SpawnTranquil(int spawnPoint)
         {
-            Debug.Log($"Tranquil prefab count: {EnemyPrefabs.TranquilPrefabs.Count}");
-            Debug.Log("Spawning tranquil");
             if (EnemyPrefabs.TranquilPrefabs.Count < 1) return;
-            Debug.unityLogger.Log("Here");
             int enemyIndex = Random.Range(0, EnemyPrefabs.TranquilPrefabs.Count);
-            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex]);
+            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint]
+                .DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex]);
         }
+
         public void SpawnViolent(int spawnPoint)
         {
-
             if (EnemyPrefabs.ViolentPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.ViolentPrefabs.Count);
-            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex]);
+            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint]
+                .DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex]);
         }
+
         public void SpawnHorror(int spawnPoint)
         {
             if (EnemyPrefabs.HorrorPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.HorrorPrefabs.Count);
-            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.HorrorPrefabs[enemyIndex]);
+            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint]
+                .DoSpawnEnemy(EnemyPrefabs.HorrorPrefabs[enemyIndex]);
         }
+
         private void RandomEnemySelection(int spawnPoint)
         {
             float totalWeight = SpawnData.TranquilRandWeight + SpawnData.ViolentRandWeight + SpawnData.HorrorWeight;

@@ -14,13 +14,11 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
 
         private void Awake()
         {
-            Debug.Log("SpectatorInputController awake");
             inputActions = new InputSystem_Actions();
         }
 
         public void EnableSpectatorInput()
         {
-            Debug.Log("SpectatorInputController EnableSpectatorInput enable");
             inputActions.Spectator.Enable();
             inputActions.Player.Disable();
 

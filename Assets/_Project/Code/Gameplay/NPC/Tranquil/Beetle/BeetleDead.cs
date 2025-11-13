@@ -14,8 +14,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-
             CustomNetworkSpawn();
         }
         public void Awake()

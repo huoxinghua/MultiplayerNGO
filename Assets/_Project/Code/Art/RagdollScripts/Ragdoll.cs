@@ -44,11 +44,10 @@ namespace _Project.Code.Art.RagdollScripts
             if (parentNetObj != null)
             {
                 ParentId = parentNetObj.NetworkObjectId;
-                Debug.Log($"✅ [Ragdoll] Found valid parent NetworkObjectId = {ParentId}");
             }
             else
             {
-                Debug.LogWarning("⚠️ [Ragdoll] Still no parent NetworkObject found after waiting");
+                Debug.Log("[Ragdoll] Still no parent NetworkObject found after waiting");
             }
         }
         

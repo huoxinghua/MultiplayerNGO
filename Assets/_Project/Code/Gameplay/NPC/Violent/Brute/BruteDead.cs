@@ -22,11 +22,10 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [SerializeField] float heightOffset;
         private ulong _parentId;
         private Vector3 _deathPosition;
-     [SerializeField] private NetworkObject parentNetworkObject;
+        [SerializeField] private NetworkObject parentNetworkObject;
 
         public void OnHold(GameObject player)
         {
-            Debug.Log("PlayerInt");
             playersInteracting.Add(player);
             _isInteracting = true;
         }
@@ -38,7 +37,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             {
                 _isInteracting = false;
                 _heldTime = 0;
-                Debug.Log("[BruteDead]Player Done");
             }
         }
 
@@ -47,13 +45,12 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _interactCollider.enabled = true;
         }
 
-     
+
         void Update()
         {
             if (_isInteracting)
             {
                 _heldTime += Time.deltaTime;
-                Debug.Log("PlayerInting");
             }
 
             if (_heldTime > _timeToHold && !_hasSpawned)
@@ -87,14 +84,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             {
                 _deathPosition = transform.position;
             }
-                
+
             SpawnBrutePiecesServer();
             DestroyBodyServer();
         }
 
         private void SpawnBrutePiecesServer()
         {
-            
             var spawnPos = _deathPosition + new Vector3(0, heightOffset, 0);
             var obj = Instantiate(_brutePiecesPrefab, spawnPos, Quaternion.identity);
             var netObj = obj.GetComponent<NetworkObject>();
@@ -124,21 +120,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         {
             if (_destroy == null)
             {
-                Debug.LogWarning("[Server] _destroy is null!");
                 return;
             }
 
             var rag = GetComponentInParent<Ragdoll>();
             if (IsServer && NetworkRelay.Instance != null)
             {
-                NetworkRelay.Instance.DestroyCorpseClientRpc("SK_Brute",rag.ParentId);
+                NetworkRelay.Instance.DestroyCorpseClientRpc("SK_Brute", rag.ParentId);
             }
-            
-           RequestDespawnServerRpc();
-            //Destroy(_destroy);
-            
-          
-            
+
+            RequestDespawnServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -146,6 +137,5 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         {
             parentNetworkObject.Despawn(true);
         }
-       
     }
 }

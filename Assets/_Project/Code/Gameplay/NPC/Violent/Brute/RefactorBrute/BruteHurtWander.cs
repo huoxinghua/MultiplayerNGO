@@ -27,7 +27,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             Vector3 temp = new Vector3(Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance)
                                        * (Random.Range(0, 2) * 2 - 1), Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance) *
                                                                        (Random.Range(0, 2) * 2 - 1), Random.Range(BruteSO.MinWanderDistance, BruteSO.MaxWanderDistance) * (Random.Range(0, 2) * 2 - 1));
-            // Debug.Log(temp.x +" "+ temp.y +" " + temp.z);
             if (NavMesh.SamplePosition(StateController.gameObject.transform.position + temp, out NavMeshHit hit, BruteSO.MaxWanderDistance * 3f, NavMesh.AllAreas))
             {
                 if (GetPathLength(Agent, hit.position) == -1)
@@ -94,7 +93,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public override void OnStateAnimatorMove()
         {
-            Debug.Log("OnStateAnimatorMove");
             var delta = Animator.GetAnimator().deltaPosition;
             StateController.transform.position += delta;               // capsule follows the clip
             Agent.nextPosition = StateController.transform.position;  // keep agent and capsule in sync

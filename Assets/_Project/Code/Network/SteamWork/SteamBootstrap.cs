@@ -14,20 +14,21 @@ namespace _Project.Code.Network.SteamWork
             try
             {
                 ok = SteamAPI.Init();
-                Debug.Log("[Steam] SteamAPI.Init() returned: " + ok);
                 if (ok)
                 {
                     var name = SteamFriends.GetPersonaName();
-                 
                 }
                 else
                 {
-                    Debug.LogError("[Steam] Init failed. Common reasons: wrong DLL path/architecture, missing steam_appid.txt in project root, or Steam client not running/logged in.");
+                    Debug.LogError(
+                        "[Steam] Init failed. Common reasons: wrong DLL path/architecture, missing steam_appid.txt in project root, or Steam client not running/logged in.");
                 }
             }
             catch (System.DllNotFoundException e)
             {
-                Debug.LogError("[Steam] steam_api64.dll not found (make sure it is in Assets/Plugins/x86_64/ and CPU is set to x86_64)\n" + e);
+                Debug.LogError(
+                    "[Steam] steam_api64.dll not found (make sure it is in Assets/Plugins/x86_64/ and CPU is set to x86_64)\n" +
+                    e);
             }
             catch (System.Exception e)
             {
@@ -39,15 +40,8 @@ namespace _Project.Code.Network.SteamWork
         {
             if (SteamManager.Initialized)
             {
-                SteamAPI.RunCallbacks();//this is very important, if without this P2P all functions not work
+                SteamAPI.RunCallbacks(); //this is very important, if without this P2P all functions not work
             }
-            /*
-            if (ok && Input.GetKeyDown(KeyCode.F1))
-            {
-                SteamFriends.ActivateGameOverlay("Friends");
-               
-            }
-            */
         }
 
         void OnDestroy()

@@ -101,14 +101,12 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             if (playerRef.TryGet(out NetworkObject netObj))
             {
                 PlayerToAttack = netObj.gameObject;
-                Debug.Log($"[Client] Resolved PlayerToAttack -> {PlayerToAttack.name}");
                 return;
             }
         }
        
         void Update()
         {
-            //Debug.Log("Current State: " + CurrentState);
             if (!IsServer) return;
             CurrentState?.StateUpdate();
         }
@@ -121,7 +119,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
 
             if (playerObj == null){ Debug.Log("LeavingEarly"); return; }
-            //  Debug.Log(playerObj.name);
             LastHeardPlayer = playerObj;
             if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
             {
@@ -145,12 +142,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             LastHeardPlayer = attackingPlayer;
             TransitionTo(BruteChaseState);
         }
-        /*public void OnAttack(GameObject playerToAttack) 
-        {
-            StateBeforeAttack = CurrentState;
-            PlayerToAttack = playerToAttack;
-            TransitionTo(BruteAttackState);
-        }*/
         public void OnAttack(GameObject playerToAttack)
         {
             StateBeforeAttack = CurrentState;
@@ -183,7 +174,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             if (netObj != null)
             {
                 _playerTargetRef.Value = netObj;
-                Debug.Log($"[Server] Brute set target to {playerToAttack.name}");
             }
             else
             {
@@ -217,14 +207,12 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
             if (PlayerToAttack == null)
             {
-                Debug.LogError("[Brute] PlayerToAttack is null in OnAttackConnects!");
                 return;
             }
 
             var health = PlayerToAttack.GetComponent<IPlayerHealth>();
             if (health == null)
             {
-                Debug.LogError("[Brute] Target has no IPlayerHealth component!");
                 return;
             }
             if(Vector3.Distance(transform.position,PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
