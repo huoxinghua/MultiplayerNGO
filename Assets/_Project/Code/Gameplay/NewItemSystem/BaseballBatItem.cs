@@ -9,45 +9,46 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class BaseballBatItem : BaseInventoryItem
     {
-
-        private Timer _attackCooldownTimer = new Timer(1);
-        private bool _canAttack = true;
-        private float attackTime = 2f;
+        #region Setup + Update
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
             CustomNetworkSpawn();
-        }
-
+        }   
         private void Update()
         {
-            
-            /*if (_hasOwner)
-            {
-                transform.localPosition = Vector3.zero;
-                transform.localRotation = Quaternion.Euler(0, 0, 0);
-            }*/
-            _attackCooldownTimer.TimerUpdate(Time.deltaTime);
-            if (_attackCooldownTimer.IsComplete)
-            {
-                _canAttack = true;
-            }
             if (!IsOwner) return; // only the owning player updates
             UpdateHeldPosition();
         }
-     
-        void PerformMeleeAttack()
+        #endregion
+        
+        #region Use Logic
+        public override void UseItem()
         {
-            Debug.Log("BaseBallBatItem】:PerformMeleeAttack" +"IsServer："+IsServer+"IsHost：="+IsHost+ "IsClient:" +IsClient);
+            base.UseItem();
+
+            if (IsOwner)
+            {
+                RequestAttackServerRpc();
+            }
+        }
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestAttackServerRpc()
+        {
+            PerformMeleeAttack();
+        }
+         protected virtual void PerformMeleeAttack()
+        {
+         //   Debug.Log("BaseBallBatItem】:PerformMeleeAttack" +"IsServer："+IsServer+"IsHost：="+IsHost+ "IsClient:" +IsClient);
             if (_itemSO is BaseballBatItemSO _baseballBatSO)
             {
-                Debug.Log("_itemSO is BaseballBatItemSO _baseballBatSO");
+             //   Debug.Log("_itemSO is BaseballBatItemSO _baseballBatSO");
                 LayerMask enemyLayer = LayerMask.GetMask("Enemy");
 
                 var player = _owner; 
-                var origin = player.transform.position + player.transform.forward * 0.8f; 
+                var origin = player.transform.position + player.transform.forward * _baseballBatSO.AttackRadius; 
                 Collider[] hitEnemies = Physics.OverlapSphere(
                     origin,
                     _baseballBatSO.AttackRadius,
@@ -89,9 +90,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogWarning(" false _itemSO is BaseballBatItemSO _baseballBatSO");
             }
         }
-
+         
         [ServerRpc(RequireOwnership = false)]
-        private void RequestHitServerRpc(NetworkObjectReference targetRef, NetworkObjectReference attackerRef,
+        protected void RequestHitServerRpc(NetworkObjectReference targetRef, NetworkObjectReference attackerRef,
             float damage, float knockout)
         {
             Debug.Log("RequestHitServerRpc");
@@ -112,30 +113,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogWarning("[ServerRpc] Failed to resolve target NetworkObjectReference");
             }
         }
+         
+        #endregion
 
-        public override void UseItem()
-        {
-            base.UseItem();
-            Debug.Log("BaseBallBatItem】:UseItem" +"IsServer："+IsServer+"IsHost：="+IsHost+ "IsClient:"+IsClient);
-            if (_canAttack)
-            {
-                if (IsOwner)
-                {
-                    RequestAttackServerRpc();
-                }
-                //PerformMeleeAttack();
-               
-                _attackCooldownTimer.Reset(attackTime);
-                _canAttack = false;
-            }
-        }
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestAttackServerRpc()
-        {
-            Debug.Log("[ServerRpc] BaseballBat Attack Received by Server --- FROM " + OwnerClientId);
+        
+     
+       
 
-            PerformMeleeAttack();
-        }
+       
+
+        
+        
 
     }
 }

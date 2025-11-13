@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
@@ -39,14 +39,14 @@ namespace _Project.Code.Gameplay.Interactables
                 _linkedDoor = linkDoorEvent.LinkPos;
             }
         }
-        public void Update()
+        public void LateUpdate()
         {
             if (_holdTimers.Count < 1) return;
             for (int i = _holdTimers.Count - 1; i >= 0; i--)
             {
                 var timer = _holdTimers[i];
                 timer.TimerUpdate(Time.deltaTime);
-                Debug.Log(timer.GetElapsed());
+               // Debug.Log(timer.GetElapsed());
 
                 if (timer.IsComplete)
                 {

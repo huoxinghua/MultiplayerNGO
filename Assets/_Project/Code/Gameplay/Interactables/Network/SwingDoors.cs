@@ -3,7 +3,7 @@ using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace _Project.Code.Gameplay.Interactables
+namespace _Project.Code.Gameplay.Interactables.Network
 {
     public class SwingDoors : NetworkBehaviour, IInteractable
     {
@@ -18,6 +18,11 @@ namespace _Project.Code.Gameplay.Interactables
         private void Start()
         {
             _isOpen.OnValueChanged += OnDoorStateChanged;
+            var netObj = GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                netObj.Spawn();
+            }
            /* if (NetworkManager.Singleton != null)
             {
                 Debug.Log($"NetworkManager active: " +

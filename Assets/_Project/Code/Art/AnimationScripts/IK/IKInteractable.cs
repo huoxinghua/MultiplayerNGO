@@ -259,53 +259,53 @@ namespace _Project.Code.Art.AnimationScripts.IK
             return result;
         }
     }
-}
 
-[Serializable]
-public struct OffsetPos
-{
-    public Vector3 posOffset;
-    public Vector3 rotOffset;
-}
+    [Serializable]
+    public struct OffsetPos
+    {
+        public Vector3 posOffset;
+        public Vector3 rotOffset;
+    }
 
-[Serializable]
-public struct IdlePreset
-{
-    public float resetDuration;
-    public float transitionDuration;
-    public float loopDuration;
-    public Vector3[] fpsWaypoints;
-    public Vector3[] tpsWaypoints;
-    public LoopType loopType;
-    public Ease easeType;
-}
+    [Serializable]
+    public struct IdlePreset
+    {
+        public float resetDuration;
+        public float transitionDuration;
+        public float loopDuration;
+        public Vector3[] fpsWaypoints;
+        public Vector3[] tpsWaypoints;
+        public LoopType loopType;
+        public Ease easeType;
+    }
 
-[Serializable]
-public struct MovementPreset
-{
-    public float resetDuration;
-    public float transitionDuration;
-    public float loopDuration;
-    public Vector3[] fpsWaypoints;
-    public Vector3[] tpsWaypoints;
-    public Vector3[] fpsFollowThrough;
-    public Vector3[] tpsFollowThrough;
-    public LoopType loopType;
-    public Ease easeType;
-    public PathType pathType;
-    public PathMode pathMode;
-}
+    [Serializable]
+    public struct MovementPreset
+    {
+        public float resetDuration;
+        public float transitionDuration;
+        public float loopDuration;
+        public Vector3[] fpsWaypoints;
+        public Vector3[] tpsWaypoints;
+        public Vector3[] fpsFollowThrough;
+        public Vector3[] tpsFollowThrough;
+        public LoopType loopType;
+        public Ease easeType;
+        public PathType pathType;
+        public PathMode pathMode;
+    }
 
-[Serializable]
-public struct InteractPreset
-{
-    public float resetDuration;
-    public float transitionDuration;
-    public float hitDuration;
-    public Vector3[] fpsPosWaypoints;
-    public Vector3[] tpsPosWaypoints;
-    public Vector3[] fpsRotWaypoints;
-    public Vector3[] tpsRotWaypoints;
-    public Ease easeAnti;
-    public Ease easeHit;
+    [Serializable]
+    public struct InteractPreset
+    {
+        public float resetDuration;
+        public float transitionDuration;
+        public float hitDuration;
+        public Vector3[] fpsPosWaypoints;
+        public Vector3[] tpsPosWaypoints;
+        public Vector3[] fpsRotWaypoints;
+        public Vector3[] tpsRotWaypoints;
+        public Ease easeAnti;
+        public Ease easeHit;
+    }
 }

@@ -7,7 +7,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
     public class BruteHeartInteractable : BaseInventoryItem
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         [SerializeField] private Collider _secondCollider;
         public void Awake()
         {
@@ -47,7 +46,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             Destroy(_currentHeldVisual);
             Destroy(transform.parent.gameObject);
         }
-        // Update is called once per frame
+
         void Update()
         {
             if (_currentHeldVisual == null) return;

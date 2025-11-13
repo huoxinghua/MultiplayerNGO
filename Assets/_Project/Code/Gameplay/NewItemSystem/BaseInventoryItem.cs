@@ -7,7 +7,6 @@ using _Project.Code.Gameplay.Player.RefactorInventory;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
 using QuickOutline.Scripts;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Outline = QuickOutline.Scripts.Outline;
@@ -30,8 +29,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         //to tell server and clients item is in player hand. Render held version.
         NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(false,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-
+        
         #region Casting to type demo
 
         //casting type to child? to get child specific properties
@@ -41,7 +39,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 }*/
 
         #endregion
-
+        
         [SerializeField] protected Rigidbody _rb;
         [SerializeField] protected Renderer _renderer;
         [SerializeField] protected Collider _collider;
@@ -53,7 +51,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected bool _isInOwnerHand = false;
 
         [SerializeField] protected GameObject _currentHeldVisual;
+        protected BaseHeldVisual CurrentHeldVisualScript { get; private set; }
 
+        
+        private PlayerInventory _currentPlayerInventory;
         public ulong OwnerID;
 
         //  protected GameObject _currentHeldVisualRPC;
@@ -62,66 +63,47 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected float _miscValue = 0;
 
         public Timer ItemCooldown = new Timer(0);
-        /*public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
-            CustomNetworkSpawn();
-            Debug.Log($"OnNetworkSpawn() called on {GetType().Name}");
-        }*/
 
-        /// <summary>
-        /// for custom changes to onnetworkspawn
-        /// </summary>
-        ///
-        ///
-        ///
+        #region SetupAndUpdates
+
         private void LateUpdate()
         {
             ItemCooldown.TimerUpdate(Time.deltaTime);
         }
-
-        public IKInteractable GetIKInteractable()
-        {
-            if(_currentHeldVisual == null)return null;
-            return _currentHeldVisual.GetComponentInChildren<IKInteractable>();
-        }
         protected virtual void CustomNetworkSpawn()
         {
-            IsPickedUp.OnValueChanged += OnHeldStateChanged;
+            IsPickedUp.OnValueChanged += OnPickedUpStateChanged;
             IsInHand.OnValueChanged += OnChangedInHandState;
 
             OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
-            OnHeldStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
+            OnPickedUpStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
         }
-
+        
+        /// <summary>
+        /// Call on children in update. Will keep item position locked similar to parenting
+        /// </summary>
         protected virtual void UpdateHeldPosition()
         {
-          //  Debug.Log($"current held visual {_currentHeldVisual} CurrentHeldPosition {CurrentHeldPosition}");
             if (_currentHeldVisual == null || CurrentHeldPosition == null) return;
-            _currentHeldVisual.transform.position = CurrentHeldPosition.position;
-            _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
             transform.position = CurrentHeldPosition.position;
             transform.rotation = CurrentHeldPosition.rotation;
         }
-
-        /*protected void SetPositionInUpdate()
-        {
-            if (_currentHeldVisual != null&& CurrentHeldPosition != null)
-            {
-
-            }
-        }*/
-        protected virtual void OnHeldStateChanged(bool oldHeld, bool newHeld)
+        /// <summary>
+        /// Changes to IsPickedUp state. Not associated with in hand, just in inventory
+        /// </summary>
+        /// <param name="oldHeld">Last pickedup state</param>
+        /// <param name="newHeld">new/current pickedup state</param>
+        protected virtual void OnPickedUpStateChanged(bool oldHeld, bool newHeld)
         {
             _collider.enabled = !newHeld;
             _rb.isKinematic = newHeld;
             _renderer.enabled = !newHeld;
-            
         }
 
         private void Awake()
         {
             ItemCooldown.Start();
+            CurrentHeldVisualScript = _currentHeldVisual.GetComponent<BaseHeldVisual>();
             OutlineEffect = GetComponent<Outline>();
             if (OutlineEffect != null)
             {
@@ -130,6 +112,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
+        #endregion
+        
+        #region Interaction
+
+        /// <summary>
+        /// Called when player interacts with the scene object. Used to handle pickup
+        /// </summary>
+        /// <param name="interactingPlayer">The player obj that has interacted</param>
         public virtual void OnInteract(GameObject interactingPlayer)
         {
             var inv = interactingPlayer.GetComponent<PlayerInventory>();
@@ -139,6 +129,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
             inv.DoPickup(this);
         }
 
+        /// <summary>
+        /// Called on change to player "hovering"/looking directly at the scene object. Changes outline based on hovering or not
+        /// </summary>
+        /// <param name="isHovering">Is the player hovering</param>
         public virtual void HandleHover(bool isHovering)
         {
             if (OutlineEffect != null)
@@ -162,9 +156,20 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
+        #endregion
+        
+        #region PickupLogic
+
+        /// <summary>
+        /// Call to inform the item of pickup. Only happens if inventory has space for item
+        /// </summary>
+        /// <param name="player"> For the players gameobject</param>
+        /// <param name="playerHoldPosition">The position on the player used for holding items</param>
+        /// <param name="networkObjectForPlayer"> The network object for ease of reference and sync</param>
         public virtual void PickupItem(GameObject player, Transform playerHoldPosition,
             NetworkObject networkObjectForPlayer)
         {
+            //setting required variables for pickup
             _owner = player;
             _rb.isKinematic = true;
             _renderer.enabled = false;
@@ -175,122 +180,101 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 // Non-server clients request pickup
                 Debug.Log("RequestSpawnServerRpc");
-                RequestSpawnServerRpc();
+                RequestHandleCurrentVisServerRpc(networkObjectForPlayer);
                 RequestPickupServerRpc(new NetworkObjectReference(networkObjectForPlayer));
             }
             else
             {
                 // Host/server logic
-                PickupServerRpc();
-                _currentHeldVisual = Instantiate(_heldVisual);
-                _currentHeldVisual.GetComponent<NetworkObject>().Spawn();
-                AssignHeldVisualClientRpc(new NetworkObjectReference(_currentHeldVisual.GetComponent<NetworkObject>()));
-                StartCoroutine(WaitForHeld(player,playerHoldPosition, networkObjectForPlayer));
-                
+                RequestSetIsPickedUpServerRpc();
+                HandleCurrentHeldVisualClientRPC(new NetworkObjectReference(networkObjectForPlayer));
+                HandleOwnershipChange(networkObjectForPlayer);
             }
         }
-
-        IEnumerator WaitForHeld(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        
+        
+        /// <summary>
+        ///  Changes ownership of the item when picked up. This one only sets parent to the player interacting
+        /// </summary>
+        /// <param name="networkObjectForPlayer">net obj of the player</param>
+        private void HandleOwnershipChange(NetworkObject networkObjectForPlayer)
         {
-            while (_currentHeldVisual == null)
-            {
-                yield return null;
-            }
-            DoPickup(player, playerHoldPosition, networkObjectForPlayer);
-        }
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestSpawnServerRpc()
-        {
-            Debug.Log("RequestSpawnServerRpc");
-            _currentHeldVisual = Instantiate(_heldVisual);
-            _currentHeldVisual.GetComponent<NetworkObject>().Spawn();
-            AssignHeldVisualClientRpc(new NetworkObjectReference(_currentHeldVisual.GetComponent<NetworkObject>()));
-        }
-        private void DoPickup(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
-        {
-            // Instantiate held visual
-
-            NetworkObject netObj = _currentHeldVisual?.GetComponent<NetworkObject>();
-
-            // Spawn on network
-           // netObj.Spawn();
-            Debug.Log($"New test first ownerships - > playerID {networkObjectForPlayer.OwnerClientId}  old flash id {NetworkObject.OwnerClientId}");
             // Assign ownership to the player
-            netObj?.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
             NetworkObject.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
-            // Parent and position held visual
-            
-            Debug.Log($"New test first ownerships - > playerID {networkObjectForPlayer.OwnerClientId}  new flash id {NetworkObject.OwnerClientId}");
-           // HandleHeldPosition(player.GetComponent<NetworkObject>(), playerHoldPosition);
-
-            // Inform clients to assign their local reference
-            
         }
-
+        
         #region Pickup RPCs
-
+        
+        /// <summary>
+        /// Requests server to call matching client RPC - Relays the networkobj reference
+        /// </summary>
+        /// <param name="netObjRef">The player networkobj reference</param>
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestHandleCurrentVisServerRpc(NetworkObjectReference netObjRef)
+        {
+            HandleCurrentHeldVisualClientRPC(netObjRef);
+        }
+        
+        /// <summary>
+        /// Requests change in ownership to the player picking up - Calls another server RPC (probably could do the other RPC logic in here?)
+        /// </summary>
+        /// <param name="playerRef">The networkobj reference for player</param>
         [ServerRpc(RequireOwnership = false)]
         private void RequestPickupServerRpc(NetworkObjectReference playerRef)
         {
             if (!playerRef.TryGet(out NetworkObject playerObj)) return;
-
             _owner = playerObj.gameObject;
-
             // Use the same method for server/host
-            StartCoroutine(WaitForHeld(playerObj.gameObject, playerObj.transform.GetChild(0).GetChild(1), playerObj));
-            PickupServerRpc();
+            HandleOwnershipChange(playerObj);
+            RequestSetIsPickedUpServerRpc();
         }
-
-        [ClientRpc (RequireOwnership = false)]
-        private void AssignHeldVisualClientRpc(NetworkObjectReference heldVisualRef)
-        {
-            if(IsServer) return;
-            Debug.Log($"Assigning held visual {heldVisualRef}");
-            StartCoroutine(AssignHeldVisualDelayed(heldVisualRef));
-        }
-
-        private IEnumerator AssignHeldVisualDelayed(NetworkObjectReference heldVisualRef)
-        {
-            NetworkObject netObj = null;
-            while (!heldVisualRef.TryGet(out netObj))
-                yield return null;
-                Debug.Log("Should have worked?");
-                if(_currentHeldVisual == null)
-                _currentHeldVisual = netObj.gameObject;
-        }
-
-
-        private void HandleHeldPosition(NetworkObject playerObj, Transform playerHoldPosition)
-        {
-            _currentHeldVisual.transform.SetPositionAndRotation(CurrentHeldPosition.position,
-                CurrentHeldPosition.rotation);
-            transform.position = CurrentHeldPosition.position;
-            _currentHeldVisual.transform.position = CurrentHeldPosition.position;
-            _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
-            OnChangedInHandState(false, false);
-        }
-
+        
+        /// <summary>
+        /// Requests the server to change IsPickedUp to true
+        /// </summary>
         [ServerRpc(RequireOwnership = false)]
-        void PickupServerRpc()
+        void RequestSetIsPickedUpServerRpc()
         {
             IsPickedUp.Value = true;
             // <-- automatically triggers OnHeldStateChanged on all clients
         }
-
+        
+        /// <summary>
+        /// Distributes _currentPlayerInventory to all clients. Sets it to the playerNetObj Refs PlayerInventory
+        /// </summary>
+        /// <param name="playerObjRef">The networkobj reference for player</param>
+        [ClientRpc (RequireOwnership = false)]
+        private void HandleCurrentHeldVisualClientRPC(NetworkObjectReference playerObjRef)
+        {
+            NetworkObject playerNetObj = null;
+            if (playerObjRef.TryGet(out playerNetObj))
+            {
+                PlayerInventory playerInventory = null;
+                if (playerNetObj.TryGetComponent<PlayerInventory>(out playerInventory))
+                {
+                    _currentPlayerInventory =  playerInventory;
+                }
+                
+            }
+        }
         #endregion
-
+        #endregion
+        
+        #region DropLogic
+        
+        
+        /// <summary>
+        /// Call to inform item to drop. Clears Variables associated with being held or in inventory, Informs RPCS, and enables physics
+        /// </summary>
+        /// <param name="dropPoint">Point on player to drop item at</param>
         public virtual void DropItem(Transform dropPoint)
         {
             _owner = null;
             _renderer.enabled = true;
-            //_currentHeldVisual.GetComponent<NetworkObject>().Despawn();
-           // Destroy(_currentHeldVisual);
-
             if (NetworkManager.Singleton.IsClient)
             {
-                DropServerRpc();
+                RequestIsPickedUpDropServerRpc();
             }
-
             if (!IsServer)
             {
                 RequestDropServerRpc();
@@ -298,98 +282,175 @@ namespace _Project.Code.Gameplay.NewItemSystem
             else
             {
                 NetworkObject.RemoveOwnership();
-                NetworkObject.TryRemoveParent();
+                DistributeDropClientRPC();
             }
-
             _rb.isKinematic = false;
             _collider.enabled = true;
-           // transform.position = dropPoint.position;
         }
 
 
         #region DropRPCS
-
+        
+        /// <summary>
+        /// Sets network variable for IsPickUp to false
+        /// </summary>
         [ServerRpc(RequireOwnership = false)]
-        void DropServerRpc()
+        private void RequestIsPickedUpDropServerRpc()
         {
             IsPickedUp.Value = false;
-            if (_currentHeldVisual != null)
-            {
-                var netObj = _currentHeldVisual.GetComponent<NetworkObject>();
-                if (netObj != null && netObj.IsSpawned)
-                    netObj.Despawn(true);
-                _currentHeldVisual.GetComponentInChildren<IKInteractable>()?.DropAnimation();
-                _currentHeldVisual = null;
-                NetworkObject.TryRemoveParent();
-            }
         }
-
+        /// <summary>
+        /// Removes ownership for the items network object 
+        /// </summary>
         [ServerRpc(RequireOwnership = false)]
-        public void RequestDropServerRpc()
+        private void RequestDropServerRpc()
         {
             NetworkObject.RemoveOwnership();
+            DistributeDropClientRPC();
             Debug.Log($"[ServerRpc] Owner set to {NetworkObject.OwnerClientId}");
         }
 
-        #endregion
-
-        public virtual void UseItem()
+        [ClientRpc(RequireOwnership = false)]
+        private void DistributeDropClientRPC()
         {
-            if (ItemCooldown.IsComplete)
-            {
-                ItemCooldown.Reset(_itemSO.ItemCooldown);
-            }
-            else
-            {
-                return;
-            }
+            CurrentHeldPosition = null;
         }
-
+        #endregion
+        #endregion
+        
+        #region SwappingLogic
+        /// <summary>
+        /// Handles unequipping of an item. The function itself requests a server RPC to sync
+        /// </summary>
         public virtual void UnequipItem()
         {
             SetInHandServerRpc(false);
-            /*_currentHeldVisual?.SetActive(false);
-            _isInOwnerHand = false;*/
             Debug.Log("[BaseInventoryItem] UnequipItem" + _currentHeldVisual);
         }
 
+        /// <summary>
+        /// Handles equipping of an item. The function itself requests a server RPC to sync
+        /// </summary>
         public virtual void EquipItem()
         {
             SetInHandServerRpc(true);
-            /*_currentHeldVisual?.SetActive(true);
-            _isInOwnerHand = true;*/
-            //Debug.Log("[BaseInventoryItem] EquipItem" + _currentHeldVisual.name);
         }
 
+        /// <summary>
+        /// Assigns the network variable IsInHand. Only call when item should leave or enter hand 
+        /// </summary>
+        /// <param name="inHand">Set IsInHand to inHand</param>
         [ServerRpc(RequireOwnership = false)]
         private void SetInHandServerRpc(bool inHand)
         {
             IsInHand.Value = inHand;
         }
 
+        /// <summary>
+        /// Called by switches to IsInHand network variable. Its a way to sync and display heldvisual and IK
+        /// </summary>
+        /// <param name="oldState">last value of IsInHand</param>
+        /// <param name="newState">new/current value of IsInHand</param>
         private void OnChangedInHandState(bool oldState, bool newState)
         {
-            /*Debug.Log(_currentHeldVisual);
-            Debug.Log($"CurrentHeldVisual: {_currentHeldVisual.name}");*/
             if (_currentHeldVisual == null)
             {
-                StartCoroutine(WaitOnCurrentHeldVisual(oldState, newState));
+                Debug.Log("SHOULDNT BE POSSIBLE TO PRINT THIS! IF SEEING THIS MAKE SURE YOU ASSIGNED CURRENT HELD VISUAL");
                 return;
             }
-
+            //I am sorry Sean
+            if (_currentPlayerInventory == null)
+            {
+                Debug.Log("Welp, it was needed :(");
+                StartCoroutine(WaitOnCurrentPlayerInventory(oldState, newState));
+                return;
+            }
             if (newState == false)
             {
-                _currentHeldVisual.GetComponentInChildren<IKInteractable>().DropAnimation();
+                CurrentHeldVisualScript.IKUnequipped();
             }
-            _currentHeldVisual?.transform.GetChild(0).GetChild(0).gameObject.SetActive(newState);
+            else
+            {
+                CurrentHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData);
+            }
+            CurrentHeldVisualScript.SetRendererActive(newState);
             _isInOwnerHand = newState;
         }
 
-        IEnumerator WaitOnCurrentHeldVisual(bool oldState, bool newState)
+        /// <summary>
+        /// Waits for the _currentPlayerInventory. Bad but necessary
+        /// </summary>
+        /// <param name="oldState">Should reflect OnChangedInHandState</param>
+        /// <param name="newState">Should reflect OnChangedInHandState</param>
+        /// <returns>Nothing, just waits</returns>
+        IEnumerator WaitOnCurrentPlayerInventory(bool oldState, bool newState)
         {
-            yield return new WaitUntil(() => _currentHeldVisual != null);
-            OnChangedInHandState(!IsInHand.Value,IsInHand.Value);
+            yield return new WaitUntil(() => _currentPlayerInventory != null);
+            OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
         }
+        
+        #endregion
+        
+        #region Junk
+//junk code temp storage
+        /*
+        IEnumerator WaitForHeld(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        {
+            while (_currentHeldVisual == null)
+            {
+                yield return null;
+            }
+
+        }*/
+
+        /*private IEnumerator AssignHeldVisualDelayed(NetworkObjectReference heldVisualRef)
+        {
+            NetworkObject netObj = null;
+            while (!heldVisualRef.TryGet(out netObj))
+                yield return null;
+                Debug.Log("Should have worked?");
+                if(_currentHeldVisual == null)
+                _currentHeldVisual = netObj.gameObject;
+        }*/
+        /*private void HandleHeldPosition(NetworkObject playerObj, Transform playerHoldPosition)
+        {
+            _currentHeldVisual.transform.SetPositionAndRotation(CurrentHeldPosition.position,
+                CurrentHeldPosition.rotation);
+            transform.position = CurrentHeldPosition.position;
+            _currentHeldVisual.transform.position = CurrentHeldPosition.position;
+            _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
+            OnChangedInHandState(false, false);
+        }*/
+        #endregion
+        
+        #region UseFunctions
+        /// <summary>
+        /// The base Use. This exists for children, and handles cooldown. If item has no cooldown, cooldown is ignored
+        /// </summary>
+        public virtual void UseItem()
+        {
+            if (_itemSO.ItemCooldown != 0)
+            {
+                if (ItemCooldown.IsComplete)
+                {
+                    ItemCooldown.Reset(_itemSO.ItemCooldown);
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+        /// <summary>
+        /// Base for secondary use. As of now no secondary use cooldown. They will tend to involve holding the key
+        /// </summary>
+        /// <param name="isPerformed">True = input pressed - False = input released</param>
+        public virtual void SecondaryUse(bool isPerformed)
+        {
+            
+        }
+        #endregion
+        
         #region Getters
 
         public virtual string GetItemName()
@@ -423,6 +484,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #endregion
 
+        #region SellingLogic
         public virtual void WasSold()
         {
             Destroy(_currentHeldVisual);
@@ -437,5 +499,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 KeyName = _itemSO.ItemName
             };
         }
+        #endregion
     }
 }

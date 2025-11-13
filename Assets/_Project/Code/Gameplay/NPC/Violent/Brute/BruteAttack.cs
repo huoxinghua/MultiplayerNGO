@@ -10,11 +10,5 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         private bool _isOnCooldown;
     
         float attackDistance => _bruteSO.AttackDistance;
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-        
-        }
-
     }
 }

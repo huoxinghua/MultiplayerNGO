@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
@@ -120,9 +120,9 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             ////test
             transform.position = new Vector3(57,10,-30) + Vector3.up * 3f;// this is for the secoundshow case Art
             //transform.position =  Vector3.up * 3f;//this is for game gym
-            var controller = GetComponent<CharacterController>();
+            /*var controller = GetComponent<CharacterController>();
             controller.enabled = false;
-            StartCoroutine(EnablePlayerController(controller));
+            StartCoroutine(EnablePlayerController(controller));*/
             //test end
             TransitionTo(IdleState);
         }

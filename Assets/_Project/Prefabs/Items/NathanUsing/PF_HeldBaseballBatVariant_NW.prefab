@@ -188,6 +188,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4461526038127156759, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
       insertIndex: -1
       addedObject: {fileID: -8938416786242596392}
+    - targetCorrespondingSourceObject: {fileID: 4461526038127156759, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1203753834365352508}
   m_SourcePrefab: {fileID: 100100000, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
 --- !u!4 &2438352448952700779 stripped
 Transform:
@@ -270,6 +273,21 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &1203753834365352508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3070632574515140049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a83bce6c2b6c324296c4c207a1c3630, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  <HeldRenderer>k__BackingField: {fileID: 8353744371258627465}
+  <HeldIKInteractable>k__BackingField: {fileID: 6330386755547181747}
 --- !u!1001 &7219239000608377101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -335,5 +353,10 @@ PrefabInstance:
 --- !u!4 &7180245108918709990 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
+  m_PrefabInstance: {fileID: 7219239000608377101}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8353744371258627465 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: d194a9410a30a4a4f91aebbf6d2a2885, type: 3}
   m_PrefabInstance: {fileID: 7219239000608377101}
   m_PrefabAsset: {fileID: 0}

@@ -6,7 +6,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
     {
         [SerializeField] private BeetleLineOfSight _beetleLineOfSight;
         [SerializeField] private SphereCollider _sphereCollider;
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
+
         void Start()
         {
             _sphereCollider.radius = _beetleLineOfSight.viewDistance;
