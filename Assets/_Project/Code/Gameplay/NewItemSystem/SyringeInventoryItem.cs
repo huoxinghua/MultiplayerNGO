@@ -15,8 +15,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Setup + Update
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             if (_itemSO is SyringeItemSO syringeItemSO)
             {
                 _syringeItemSo = syringeItemSO;

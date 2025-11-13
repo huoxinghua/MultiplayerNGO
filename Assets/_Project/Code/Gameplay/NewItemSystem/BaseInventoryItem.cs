@@ -100,7 +100,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _renderer.enabled = !newHeld;
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             ItemCooldown.Start();
             CurrentHeldVisualScript = _currentHeldVisual.GetComponent<BaseHeldVisual>();
