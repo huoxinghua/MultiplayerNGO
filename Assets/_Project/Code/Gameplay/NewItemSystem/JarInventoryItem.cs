@@ -1,26 +1,26 @@
 using System.Collections;
-using _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem;
+using _Project.ScriptableObjects.ScriptObjects.ItemSO.JarItem;
 using QuickOutline.Scripts;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    public class TestTubeInventoryItem : BaseInventoryItem
+    public class JarItem : BaseInventoryItem
     {
         NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        private TestTubeItemSO _testTubeItemSO;
+        private JarItemSO _jarItemSO;
 
         #region Setup + Update
 
         protected override void Awake()
         {
             base.Awake();
-            if (_itemSO is TestTubeItemSO testTubeItemSO)
+            if (_itemSO is JarItemSO jarItemSO)
             {
-                _testTubeItemSO = testTubeItemSO;
+                _jarItemSO = jarItemSO;
             }
         }
 
@@ -48,15 +48,15 @@ namespace _Project.Code.Gameplay.NewItemSystem
             if (IsUsed.Value) return;
             if (IsOwner)
             {
-                UseTestTube();
+                UseJar();
             }
         }
 
-        private void UseTestTube()
+        private void UseJar()
         {
-            /*_testTubeItemSo.EffectDuration;
-            _testTubeItemSo.SpeedBoostAmount;*/
-            Debug.Log("UseTestTube");
+            /*_syringeItemSo.EffectDuration;
+            _syringeItemSo.SpeedBoostAmount;*/
+            Debug.Log("UseJar");
             RequestChangeIsUsedServerRpc();
         }
 
@@ -67,6 +67,5 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
 
         #endregion
-    
     }
 }
