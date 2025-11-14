@@ -7,10 +7,8 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.TranqGunItem
     public class TranqGunItemSO : BaseItemSO
     {
         [field: Header("TranqGun Data")]
-        [field: SerializeField] public float TimeBetweenShots { get; private set; }
         [field: SerializeField] public int AmmoAmount { get; private set; }
         [field: SerializeField] public float SpeedOfDart { get; private set; }
-        [field: SerializeField] public bool HasBeenShot { get; private set; }
     }
 
 }

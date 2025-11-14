@@ -8,10 +8,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class TranqGunInventoryItem : BaseInventoryItem
     {
-        NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
+        private NetworkVariable<int> AmmoLeft = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
         private TranqGunItemSO _tranqGunItemSO;
+        public GameObject _bulletPrefab;
+        public Transform _bulletSpawnPoint;
+        public bool HasAmmoLeft => AmmoLeft.Value > 0;
 
         #region Setup + Update
 
@@ -30,6 +33,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
             CustomNetworkSpawn();
+            AmmoLeft = new NetworkVariable<int>(_tranqGunItemSO.AmmoAmount, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
         }
 
         private void Update()
@@ -45,7 +50,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void UseItem()
         {
             base.UseItem();
-            if (IsUsed.Value) return;
+            if (!ItemCooldown.IsComplete)
+                return;
+            if (!HasAmmoLeft) return;
             if (IsOwner)
             {
                 ShootGun();
@@ -57,13 +64,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
             /*_syringeItemSo.EffectDuration;
             _syringeItemSo.SpeedBoostAmount;*/
             Debug.Log("ShootGun");
-            RequestChangeIsUsedServerRpc();
+            RequestDecreaseAmmoServerRpc();
+            Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.LookRotation(transform.forward, Vector3.up));
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void RequestChangeIsUsedServerRpc()
+        private void RequestDecreaseAmmoServerRpc()
         {
-            IsUsed.Value = true;
+            AmmoLeft.Value--;
         }
 
         #endregion
