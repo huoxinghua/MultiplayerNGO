@@ -15,7 +15,22 @@ namespace _Project.Code.Gameplay.Interactables.Network
         private bool _openedByEnemy = false;
         private Timer _enemyOpenedTimer = new Timer(0);
         [SerializeField] private float _enemyCloseDelay;
+        private Quaternion _closedRot;
+        private Quaternion _openRot;
 
+        private void Start()
+        {
+     
+            _closedRot = transform.rotation;
+        
+      
+            _openRot = _closedRot * Quaternion.Euler(0f, 90f, 0f);
+        }
+        
+        private void ApplyDoorRotation(bool isOpen)
+        {
+            transform.rotation = isOpen ? _openRot : _closedRot;
+        }
         private void OnEnable()
         {
             _isOpen.OnValueChanged += OnDoorStateChanged;
@@ -29,10 +44,10 @@ namespace _Project.Code.Gameplay.Interactables.Network
         {
             ApplyDoorRotation(newValue);
         }
-        private void ApplyDoorRotation(bool isOpen)
+     /*   private void ApplyDoorRotation(bool isOpen)
         {
             transform.localRotation = Quaternion.Euler(0f, isOpen ? 90f : 0f, 0f);
-        }
+        }*/
 
         public void OnInteract(GameObject interactingPlayer)
         {
@@ -91,7 +106,7 @@ namespace _Project.Code.Gameplay.Interactables.Network
         {
             if (!IsServer)
                 return; 
-          //  transform.localRotation = Quaternion.Euler(0f, _isOpen.Value ? 0f : 90f, 0f);
+            transform.localRotation = Quaternion.Euler(0f, _isOpen.Value ? 0f : 90f, 0f);
             _isOpen.Value = !_isOpen.Value;
             AudioManager.Instance.PlayByKey3D("DoorOpen", transform.position);
         }

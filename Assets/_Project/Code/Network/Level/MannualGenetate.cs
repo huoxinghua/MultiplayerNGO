@@ -34,6 +34,7 @@ namespace _Project.Code.Network.Level
                 generator.Generator.ShouldRandomizeSeed = false;
                 generator.Generator.Seed = seed;
                 generator.Generate();
+           
                 OnDungeonGenerated(generator);
             }
             else
@@ -75,15 +76,7 @@ namespace _Project.Code.Network.Level
 
         void OnDungeonGenerated(RuntimeDungeon dungeon)
         {
-            foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
-            {
-                var netObj = door.GetComponent<NetworkObject>();
-                if (netObj != null && !netObj.IsSpawned)
-                {
-                    netObj.Spawn();
-                }
-                serverDoors.Add(netObj);
-            }
+            GetComponent<DoorwayNetworkSpawner>().SpawnDoors(generator);
             
         }
     }
