@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Gameplay.NPC.Violent.Brute;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 {
@@ -59,6 +61,13 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public void OnSoundMade(float soundRange)
         {
             SoundMade?.Invoke(soundRange, gameObject);
+            SendSoundToServerRpc(soundRange);
+        }
+
+        [ServerRpc]
+        void SendSoundToServerRpc(float soundRange)
+        {
+            BruteHearing.ProcessSound(transform.position, soundRange, this);
         }
         private void Awake()
         {
@@ -118,7 +127,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public void Start()
         {
             ////test
-            transform.position = new Vector3(57,10,-30) + Vector3.up * 3f;// this is for the secoundshow case Art
+            transform.position = new Vector3(57,2,20) + Vector3.up * 3f;// this is for the secoundshow case Art
             //transform.position =  Vector3.up * 3f;//this is for game gym
             /*var controller = GetComponent<CharacterController>();
             controller.enabled = false;
