@@ -154,6 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18183a2e72544d44c9aeacef6757b061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   _spawnPos: {fileID: 562460728953131798}
   _safeDistance: 20
 --- !u!1 &2672970369178664949
@@ -166,6 +167,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2225090184202602540}
   - component: {fileID: 455077785585772693}
+  - component: {fileID: -4761257124458793618}
   m_Layer: 0
   m_Name: RT_HallwaySegmentCross_20x20
   m_TagString: DungeonTile
@@ -271,6 +273,19 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0, w: 1}
   fileVersion: 3
+--- !u!114 &-4761257124458793618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2672970369178664949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7a6c8ce458e4a1ab7aa994ac3cff4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &2741958761477079368
 GameObject:
   m_ObjectHideFlags: 0

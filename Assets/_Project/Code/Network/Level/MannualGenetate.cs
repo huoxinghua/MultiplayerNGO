@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Interactables.Network;
 using DunGen;
@@ -8,6 +9,7 @@ namespace _Project.Code.Network.Level
 {
     public class ManualGenerate : NetworkBehaviour
     {
+        private readonly List<NetworkObject> serverDoors = new List<NetworkObject>();
         private RuntimeDungeon generator;
         private void Start()
         {
@@ -54,11 +56,13 @@ namespace _Project.Code.Network.Level
             
             foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
             {
-                var netObj = door.GetComponent<NetworkObject>();
-                if (netObj == null || !netObj.IsSpawned)
+                var netObjDoor = door.GetComponent<NetworkObject>();
+                if (netObjDoor == null || !netObjDoor.IsSpawned)
                 {
-                    Destroy(door.gameObject);
+                    if(!serverDoors.Contains(netObjDoor)) 
+                        Destroy(door);
                 }
+              
             }
         }
 
@@ -78,7 +82,9 @@ namespace _Project.Code.Network.Level
                 {
                     netObj.Spawn();
                 }
+                serverDoors.Add(netObj);
             }
+            
         }
     }
 }

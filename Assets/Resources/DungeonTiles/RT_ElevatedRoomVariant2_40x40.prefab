@@ -617,6 +617,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6937683238968845319}
   - component: {fileID: 8470727314466399138}
+  - component: {fileID: 3493976237291320614}
   m_Layer: 0
   m_Name: RT_ElevatedRoomVariant2_40x40
   m_TagString: DungeonTile
@@ -721,6 +722,19 @@ MonoBehaviour:
     position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0, w: 1}
   fileVersion: 3
+--- !u!114 &3493976237291320614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4373767761506742492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7a6c8ce458e4a1ab7aa994ac3cff4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &4478640605283805350
 GameObject:
   m_ObjectHideFlags: 0
@@ -9210,6 +9224,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6937683238968845319}
     m_Modifications:
+    - target: {fileID: -7420212497529563785, guid: 09c5e39f5a5497f4f845d9de3254ea54, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2936058712
+      objectReference: {fileID: 0}
     - target: {fileID: 7456163804786999464, guid: 09c5e39f5a5497f4f845d9de3254ea54, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.084

@@ -1,51 +1,95 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 namespace _Project.Code.Core.Patterns
 {
     public abstract class NetworkSingleton<T> : NetworkBehaviour where T : NetworkBehaviour
     {
-        private static T _instance;
-        private static bool _isApplicationQuitting;
+        /// <summary>
+        /// Global access point for the singleton instance.
+        /// </summary>
+        public static T Instance { get; private set; }
+
+        /// <summary>
+        /// Whether this singleton should persist between scene loads.
+        /// Override to return false if you want it destroyed on scene change.
+        /// </summary>
         protected virtual bool PersistBetweenScenes => true;
-
-        public static T Instance
-        {
-            get
-            {
-                if (_isApplicationQuitting) return null;
-
-                if (_instance == null)
-                {
-                    _instance = FindFirstObjectByType<T>();
-                    if (_instance == null)
-                    {
-                        GameObject singletonObject = new();
-                        _instance = singletonObject.AddComponent<T>();
-                        singletonObject.name = typeof(T) + " (Singleton)";
-                    }
-                }
-
-                return _instance;
-            }
-        }
-
-
+        protected virtual bool AutoSpawn => true;
         protected virtual void Awake()
         {
-            if (_instance == null)
+            // Check if instance already exists
+            if (Instance != null && Instance != this)
             {
-                _instance = this as T;
-                if (PersistBetweenScenes) DontDestroyOnLoad(gameObject);
-            }
-            else if (_instance != this)
-            {
+                Debug.LogWarning($"[{typeof(T).Name}] Multiple instances detected. Destroying duplicate on {gameObject.name}");
                 Destroy(gameObject);
+                return;
+            }
+
+            // Set instance
+            Instance = this as T;
+
+            // Persist between scenes if configured
+            if (PersistBetweenScenes)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+
+            Debug.Log($"[{typeof(T).Name}] Singleton initialized");
+            if (AutoSpawn)
+                StartCoroutine(AutoNetworkSpawnRoutine());
+        }
+
+        private IEnumerator AutoNetworkSpawnRoutine()
+        {
+       
+            yield return new WaitUntil(() => Unity.Netcode.NetworkManager.Singleton != null);
+            var manager = Unity.Netcode.NetworkManager.Singleton;
+
+       
+            yield return new WaitUntil(() => manager.IsListening);
+
+         
+            yield return new WaitUntil(() => NetworkObject != null);
+            yield return null; 
+
+            if (manager.IsServer && !NetworkObject.IsSpawned)
+            {
+                NetworkObject.Spawn();
             }
         }
 
-        protected virtual void OnApplicationQuit()
+
+        public override void OnDestroy()
         {
-            _isApplicationQuitting = true;
+            base.OnDestroy();
+
+            // Clear instance reference if we're the active instance
+            if (Instance == this)
+            {
+                Instance = null;
+                Debug.Log($"[{typeof(T).Name}] Singleton destroyed");
+            }
+        }
+
+        /// <summary>
+        /// Called when the NetworkObject is spawned.
+        /// Override this to add custom initialization logic.
+        /// </summary>
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            Debug.Log($"[{typeof(T).Name}] Network spawned. IsServer={IsServer}, IsClient={IsClient}");
+        }
+
+        /// <summary>
+        /// Called when the NetworkObject is despawned.
+        /// Override this to add custom cleanup logic.
+        /// </summary>
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            Debug.Log($"[{typeof(T).Name}] Network despawned");
         }
     }
 }

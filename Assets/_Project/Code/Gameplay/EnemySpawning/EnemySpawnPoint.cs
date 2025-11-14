@@ -1,10 +1,11 @@
+using _Project.Code.Network.RegisterNetObj;
 using _Project.Code.Utilities.Singletons;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
-    public class EnemySpawnPoint : MonoBehaviour
+    public class EnemySpawnPoint : NetworkBehaviour
     {
         [SerializeField] private Transform _spawnPos;
         [SerializeField] private float _safeDistance;
@@ -31,6 +32,9 @@ namespace _Project.Code.Gameplay.EnemySpawning
         }
         public void DoSpawnEnemy(GameObject EnemyPrefab)
         {
+            if (!IsServer) return;
+            Debug.Log("[EnemySpawnPoint]do spawn enemy");
+            NetworkPrefabRuntimeRegistry.EnsurePrefabRegistered(EnemyPrefab);
             GameObject temp = Instantiate(EnemyPrefab, _spawnPos);
             temp.GetComponent<NetworkObject>().Spawn();
             temp.transform.parent = null;
