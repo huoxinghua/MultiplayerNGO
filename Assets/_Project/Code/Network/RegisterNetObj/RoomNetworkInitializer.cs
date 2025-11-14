@@ -4,7 +4,7 @@ namespace _Project.Code.Network.RegisterNetObj
 {
     public class RoomNetworkInitializer : NetworkBehaviour
     {
-        public override void  OnNetworkSpawn()
+        /*public override void  OnNetworkSpawn()
         {
             if (NetworkManager.Singleton.IsServer)
             {
@@ -15,6 +15,6 @@ namespace _Project.Code.Network.RegisterNetObj
                         netObj.Spawn();
                 }
             }
-        }
+        }*/
     }
 }

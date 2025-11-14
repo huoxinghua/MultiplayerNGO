@@ -246,6 +246,7 @@ GameObject:
   - component: {fileID: 5085335193256860592}
   - component: {fileID: -3225534458246169442}
   - component: {fileID: 8621043828579305406}
+  - component: {fileID: -8924930470872153118}
   m_Layer: 0
   m_Name: PlayerCharacter_NW
   m_TagString: Untagged
@@ -584,19 +585,18 @@ MonoBehaviour:
   <HoldTransform>k__BackingField: {fileID: 4214012021163622981}
   <DropTransform>k__BackingField: {fileID: 1222635015246635985}
   _inputManager: {fileID: 4648013823145631565}
-  <SlotDisplay>k__BackingField:
+  <ItemUIDisplay>k__BackingField:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  <SlotBackground>k__BackingField:
+  <SlotUIBackground>k__BackingField:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  <EmptySlot>k__BackingField: {fileID: 0}
   <PlayerAnimation>k__BackingField: {fileID: 2759791371960280017}
   <ThisPlayerIKData>k__BackingField: {fileID: 8621043828579305406}
 --- !u!114 &8621043828579305406
@@ -613,6 +613,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <FPSIKController>k__BackingField: {fileID: 5553790917874111374}
   <TPSIKController>k__BackingField: {fileID: 7935702109933517378}
+--- !u!114 &-8924930470872153118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395632011506178275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6b4cdbea4cc400a9cacbfff02661d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  ServerPosition:
+    m_InternalValue: {x: 0, y: 0, z: 0}
 --- !u!1 &6101830775051530877
 GameObject:
   m_ObjectHideFlags: 0
@@ -1654,6 +1669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c3a495091b209b43bd65afdb6be4e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   interactable: {fileID: 0}
   animator: {fileID: 5050647090863487403}
   ikActive: 0
@@ -2881,6 +2897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c3a495091b209b43bd65afdb6be4e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   interactable: {fileID: 0}
   animator: {fileID: 8060382391704820243}
   ikActive: 0

@@ -1,14 +1,15 @@
 using _Project.Code.Network.RegisterNetObj;
 using _Project.Code.Utilities.Singletons;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
-    public class EnemySpawnPoint : NetworkBehaviour
+    public class EnemySpawnPoint : MonoBehaviour
     {
+        //keep this sc to monoBehaviour is important
         [SerializeField] private Transform _spawnPos;
         [SerializeField] private float _safeDistance;
+        public float SafeDistance => _safeDistance;
         public bool CanSpawnEnemy()
         {
             bool canSpawn = true;
@@ -30,14 +31,20 @@ namespace _Project.Code.Gameplay.EnemySpawning
         {
             EnemySpawnPoints.Instance?.RemoveSpawnPoint(this);
         }
+        /*
         public void DoSpawnEnemy(GameObject EnemyPrefab)
         {
-            if (!IsServer) return;
             Debug.Log("[EnemySpawnPoint]do spawn enemy");
             NetworkPrefabRuntimeRegistry.EnsurePrefabRegistered(EnemyPrefab);
             GameObject temp = Instantiate(EnemyPrefab, _spawnPos);
             temp.GetComponent<NetworkObject>().Spawn();
             temp.transform.parent = null;
+        }
+        */
+
+        public Transform GetSpawnPoint()
+        {
+            return _spawnPos;
         }
     }
 }
