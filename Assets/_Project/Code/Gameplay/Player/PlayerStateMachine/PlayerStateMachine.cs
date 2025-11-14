@@ -163,20 +163,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         void Update()
         {
-            //Debug.Log(currentState.ToString());
             currentState?.StateUpdate();
             SmoothCameraTransition();
-            //HandleJump();
         }
-        // bool IsGroundedCheck()
-        // {
-        //
-        //     float radius = CharacterController.radius;
-        //
-        //     float distance = GroundCheckDistance;
-        //     DebugDrawSphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, distance, Color.red);
-        //     return Physics.SphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, out _, distance, groundMask);
-        // }
+
         void DebugDrawSphereCast(Vector3 origin, float radius, Vector3 direction, float distance, Color color)
         {
             Vector3 end = origin + direction.normalized * distance;

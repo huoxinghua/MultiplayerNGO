@@ -27,25 +27,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [field: Header("Scared To Delete")]
         //no idea whats this here
         [field: SerializeField] public float LandingCooldown { get; private set; }
-
-
- 
-
-        //for a reference. Not part of BruteSO
-        //private float _randomT;
-        //public float RandomT
-        //{
-        //    get
-        //    {
-        //        return _randomT;
-        //    }
-        //    private set
-        //    {
-
-        //        _randomT = value;
-        //    }
-        //}
     }
 }
 
-/*//[Range(0,100)]    */
