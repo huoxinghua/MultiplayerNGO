@@ -29,7 +29,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         //to tell server and clients item is in player hand. Render held version.
         NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(false,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-        
+
         #region Casting to type demo
 
         //casting type to child? to get child specific properties
@@ -39,7 +39,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 }*/
 
         #endregion
-        
+
         [SerializeField] protected Rigidbody _rb;
         [SerializeField] protected Renderer _renderer;
         [SerializeField] protected Collider _collider;
@@ -53,7 +53,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [SerializeField] protected GameObject _currentHeldVisual;
         protected BaseHeldVisual CurrentHeldVisualScript { get; private set; }
 
-        
+
         private PlayerInventory _currentPlayerInventory;
         public ulong OwnerID;
 
@@ -70,6 +70,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             ItemCooldown.TimerUpdate(Time.deltaTime);
         }
+
         protected virtual void CustomNetworkSpawn()
         {
             IsPickedUp.OnValueChanged += OnPickedUpStateChanged;
@@ -78,7 +79,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
             OnPickedUpStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
         }
-        
+
         /// <summary>
         /// Call on children in update. Will keep item position locked similar to parenting
         /// </summary>
@@ -88,6 +89,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             transform.position = CurrentHeldPosition.position;
             transform.rotation = CurrentHeldPosition.rotation;
         }
+
         /// <summary>
         /// Changes to IsPickedUp state. Not associated with in hand, just in inventory
         /// </summary>
@@ -103,6 +105,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected virtual void Awake()
         {
             ItemCooldown.Start();
+            ItemCooldown.Reset(_itemSO.ItemCooldown);
             CurrentHeldVisualScript = _currentHeldVisual.GetComponent<BaseHeldVisual>();
             OutlineEffect = GetComponent<Outline>();
             if (OutlineEffect != null)
@@ -113,7 +116,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
 
         #endregion
-        
+
         #region Interaction
 
         /// <summary>
@@ -157,7 +160,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
 
         #endregion
-        
+
         #region PickupLogic
 
         /// <summary>
@@ -175,7 +178,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _renderer.enabled = false;
             _collider.enabled = false;
             CurrentHeldPosition = networkObjectForPlayer.transform.GetChild(0).GetChild(1);
-           
+
             if (!IsServer)
             {
                 // Non-server clients request pickup
@@ -191,8 +194,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 HandleOwnershipChange(networkObjectForPlayer);
             }
         }
-        
-        
+
+
         /// <summary>
         ///  Changes ownership of the item when picked up. This one only sets parent to the player interacting
         /// </summary>
@@ -202,9 +205,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Assign ownership to the player
             NetworkObject.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
         }
-        
+
         #region Pickup RPCs
-        
+
         /// <summary>
         /// Requests server to call matching client RPC - Relays the networkobj reference
         /// </summary>
@@ -214,7 +217,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             HandleCurrentHeldVisualClientRPC(netObjRef);
         }
-        
+
         /// <summary>
         /// Requests change in ownership to the player picking up - Calls another server RPC (probably could do the other RPC logic in here?)
         /// </summary>
@@ -228,7 +231,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             HandleOwnershipChange(playerObj);
             RequestSetIsPickedUpServerRpc();
         }
-        
+
         /// <summary>
         /// Requests the server to change IsPickedUp to true
         /// </summary>
@@ -238,12 +241,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
             IsPickedUp.Value = true;
             // <-- automatically triggers OnHeldStateChanged on all clients
         }
-        
+
         /// <summary>
         /// Distributes _currentPlayerInventory to all clients. Sets it to the playerNetObj Refs PlayerInventory
         /// </summary>
         /// <param name="playerObjRef">The networkobj reference for player</param>
-        [ClientRpc (RequireOwnership = false)]
+        [ClientRpc(RequireOwnership = false)]
         private void HandleCurrentHeldVisualClientRPC(NetworkObjectReference playerObjRef)
         {
             NetworkObject playerNetObj = null;
@@ -252,17 +255,17 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 PlayerInventory playerInventory = null;
                 if (playerNetObj.TryGetComponent<PlayerInventory>(out playerInventory))
                 {
-                    _currentPlayerInventory =  playerInventory;
+                    _currentPlayerInventory = playerInventory;
                 }
-                
             }
         }
+
         #endregion
+
         #endregion
-        
+
         #region DropLogic
-        
-        
+
         /// <summary>
         /// Call to inform item to drop. Clears Variables associated with being held or in inventory, Informs RPCS, and enables physics
         /// </summary>
@@ -275,6 +278,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 RequestIsPickedUpDropServerRpc();
             }
+
             if (!IsServer)
             {
                 RequestDropServerRpc();
@@ -284,13 +288,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 NetworkObject.RemoveOwnership();
                 DistributeDropClientRPC();
             }
+
             _rb.isKinematic = false;
             _collider.enabled = true;
         }
 
 
         #region DropRPCS
-        
+
         /// <summary>
         /// Sets network variable for IsPickUp to false
         /// </summary>
@@ -299,6 +304,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             IsPickedUp.Value = false;
         }
+
         /// <summary>
         /// Removes ownership for the items network object 
         /// </summary>
@@ -315,10 +321,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             CurrentHeldPosition = null;
         }
+
         #endregion
+
         #endregion
-        
+
         #region SwappingLogic
+
         /// <summary>
         /// Handles unequipping of an item. The function itself requests a server RPC to sync
         /// </summary>
@@ -355,9 +364,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             if (_currentHeldVisual == null)
             {
-                Debug.Log("SHOULDNT BE POSSIBLE TO PRINT THIS! IF SEEING THIS MAKE SURE YOU ASSIGNED CURRENT HELD VISUAL");
+                Debug.Log(
+                    "SHOULDNT BE POSSIBLE TO PRINT THIS! IF SEEING THIS MAKE SURE YOU ASSIGNED CURRENT HELD VISUAL");
                 return;
             }
+
             //I am sorry Sean
             if (_currentPlayerInventory == null)
             {
@@ -365,6 +376,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 StartCoroutine(WaitOnCurrentPlayerInventory(oldState, newState));
                 return;
             }
+
             if (newState == false)
             {
                 CurrentHeldVisualScript.IKUnequipped();
@@ -373,6 +385,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 CurrentHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData);
             }
+
             CurrentHeldVisualScript.SetRendererActive(newState);
             _isInOwnerHand = newState;
         }
@@ -388,10 +401,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
             yield return new WaitUntil(() => _currentPlayerInventory != null);
             OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
         }
-        
+
         #endregion
-        
+
         #region Junk
+
 //junk code temp storage
         /*
         IEnumerator WaitForHeld(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
@@ -421,36 +435,48 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
             OnChangedInHandState(false, false);
         }*/
+
         #endregion
-        
+
         #region UseFunctions
+
         /// <summary>
         /// The base Use. This exists for children, and handles cooldown. If item has no cooldown, cooldown is ignored
         /// </summary>
         public virtual void UseItem()
         {
+            if (TryUseItem())   ItemCooldown.Reset(_itemSO.ItemCooldown);
+        }
+
+        protected virtual bool TryUseItem()
+        {
             if (_itemSO.ItemCooldown != 0)
             {
                 if (ItemCooldown.IsComplete)
                 {
-                    ItemCooldown.Reset(_itemSO.ItemCooldown);
+                    return true;
                 }
                 else
                 {
-                    return;
+                    return false;
                 }
             }
+            else
+            {
+                return true;
+            }
         }
+
         /// <summary>
         /// Base for secondary use. As of now no secondary use cooldown. They will tend to involve holding the key
         /// </summary>
         /// <param name="isPerformed">True = input pressed - False = input released</param>
         public virtual void SecondaryUse(bool isPerformed)
         {
-            
         }
+
         #endregion
-        
+
         #region Getters
 
         public virtual string GetItemName()
@@ -485,6 +511,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #endregion
 
         #region SellingLogic
+
         public virtual void WasSold()
         {
             Destroy(_currentHeldVisual);
@@ -499,6 +526,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 KeyName = _itemSO.ItemName
             };
         }
+
         #endregion
     }
 }

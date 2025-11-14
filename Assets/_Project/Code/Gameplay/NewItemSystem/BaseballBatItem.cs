@@ -28,11 +28,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void UseItem()
         {
             base.UseItem();
-
+            if (!TryUseItem()) return;
             if (IsOwner)
             {
                 RequestAttackServerRpc();
             }
+
+  
         }
         [ServerRpc(RequireOwnership = false)]
         private void RequestAttackServerRpc()
