@@ -13,6 +13,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
     {
         protected BruteBaseState CurrentState;
         protected BruteBaseState StateBeforeAttack;
+        protected NetworkVariable<bool> IsHurt = new NetworkVariable<bool>(false, 
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        
         public BruteIdleState IdleState { get; private set; }
         public BruteWanderState WanderState { get; private set; }
         public BruteHurtIdleState BruteHurtIdleState { get; private set; }
@@ -32,7 +35,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public GameObject LastHeardPlayer { get; private set; }
         public GameObject PlayerToAttack { get; private set; }
         public int TimesAlerted = 0;
-     
         // Network sync for player target
         private readonly NetworkVariable<NetworkObjectReference> _playerTargetRef = new NetworkVariable<NetworkObjectReference>();
        
@@ -118,7 +120,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public void OnHearPlayer(GameObject playerObj)
         {
 
-            if (playerObj == null){ Debug.Log("LeavingEarly"); return; }
+            if (playerObj == null || IsHurt.Value){ Debug.Log("LeavingEarly"); return; }
             LastHeardPlayer = playerObj;
             if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
             {
@@ -137,8 +139,15 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
                 CurrentState?.OnHearPlayer();
             }
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestChangeToIsHurtServerRpc()
+        {
+            IsHurt.Value = true;
+        }
         public void HandleDefendHeart(GameObject attackingPlayer)
         {
+            if (IsHurt.Value) return;
             LastHeardPlayer = attackingPlayer;
             TransitionTo(BruteChaseState);
         }
@@ -197,6 +206,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public void OnHeartDestroyed()
         {
+            RequestChangeToIsHurtServerRpc();
             TransitionTo(BruteHurtIdleState);
         }
         public void OnAttackEnd()
