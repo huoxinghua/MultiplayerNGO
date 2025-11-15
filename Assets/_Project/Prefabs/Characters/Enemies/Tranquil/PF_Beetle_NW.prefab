@@ -2282,6 +2282,7 @@ GameObject:
   - component: {fileID: 6142419723238320566}
   - component: {fileID: 6721524477480847085}
   - component: {fileID: 5358771992745151192}
+  - component: {fileID: 4182180210371260671}
   m_Layer: 7
   m_Name: PF_Beetle_NW
   m_TagString: Untagged
@@ -2416,7 +2417,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3927971546
+  GlobalObjectIdHash: 4099458782
   InScenePlacedSourceGlobalObjectIdHash: 2447696494
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2551,6 +2552,33 @@ MonoBehaviour:
     TriggerNameHash: 635746575
     TransitionIndex: 0
   m_Animator: {fileID: 3856976124055914935}
+--- !u!54 &4182180210371260671
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3999525118908241968}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &4001947987693680897
 GameObject:
   m_ObjectHideFlags: 0
@@ -3996,7 +4024,6 @@ MonoBehaviour:
   _rb: {fileID: 5666741383023268653}
   _renderer: {fileID: 2047946669493827127}
   _collider: {fileID: 8145633619368504752}
-  CurrentHeldPosition: {fileID: 0}
   _currentHeldVisual: {fileID: 0}
   OwnerID: 0
   _beetleTransform: {fileID: 2597361935419079917}
