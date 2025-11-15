@@ -44,10 +44,6 @@ namespace _Project.Code.Gameplay.Interactables.Network
         {
             ApplyDoorRotation(newValue);
         }
-     /*   private void ApplyDoorRotation(bool isOpen)
-        {
-            transform.localRotation = Quaternion.Euler(0f, isOpen ? 90f : 0f, 0f);
-        }*/
 
         public void OnInteract(GameObject interactingPlayer)
         {
@@ -76,31 +72,6 @@ namespace _Project.Code.Gameplay.Interactables.Network
             _enemyOpenedTimer.Reset(_enemyCloseDelay);
             _openedByEnemy = true;
         }
-        /*public void EnemyOpened()
-        {
-            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
-            {
-                if (_isOpen.Value) return;
-                ToggleOpen();
-                _enemyOpenedTimer.Reset(_enemyCloseDelay);
-                _openedByEnemy=true;
-            }
-            else
-            {
-                RequestEnemyOpenServerRpc();
-            }
-        }
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestEnemyOpenServerRpc()
-        {
-            Debug.Log("enemy open door server Rpc");
-            if (_isOpen.Value) return;
-            ToggleOpen();
-
-            _isOpen.Value = true;
-            _enemyOpenedTimer.Reset(_enemyCloseDelay);
-            _openedByEnemy = true;
-        }*/
 
         public void ToggleOpen()
         {
