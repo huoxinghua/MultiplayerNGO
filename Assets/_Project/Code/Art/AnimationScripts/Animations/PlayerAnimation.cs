@@ -17,7 +17,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
 
-
+        private IKAnimState newState;
         protected override void Awake()
         {
             base.Awake();
@@ -31,19 +31,19 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
 
-            
-            if(!IsOwner) return;
-            IKAnimState newState;
-            var ikController = IsOwner ? fpsIKController : tpsIKController;
-            if (ikController != null && ikController.Interactable != null)
-            {
-                if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
-                else if (isRunning) newState = IKAnimState.Run;
-                else newState = IKAnimState.Walk;
-                
-                ikController.Interactable.SetAnimState(newState, IsOwner, anim.GetBool(hCrouch));
-            }
 
+            if (IsOwner)
+            {
+                if (fpsIKController != null && fpsIKController.Interactable != null)
+                {
+                    if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
+                    else if (isRunning) newState = IKAnimState.Run;
+                    else newState = IKAnimState.Walk;
+
+                    fpsIKController.Interactable.SetAnimState(newState, true, anim.GetBool(hCrouch));
+                }
+            }
+            
             //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
             UpdateMovementServerRPC(currentSpeed, maxSpeed);
         }

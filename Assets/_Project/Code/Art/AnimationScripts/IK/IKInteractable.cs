@@ -25,7 +25,10 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private Tween interactTween;
         private Tween currentTween;
         private bool currentCrouch;
-        private bool currentFPS;
+        private readonly NetworkVariable<bool> isFPS = new NetworkVariable<bool>(
+            true, 
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
         
@@ -59,7 +62,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 if (drift > DRIFT_CORRECTION_THRESHOLD)
                 {
                     localAnimTime = animTime.Value;
-                    Debug.LogWarning($"IK animation drift corrected: {drift:F3}s");
+                    //Debug.LogWarning($"IK animation drift corrected: {drift:F3}s");
                 }
                 else
                 {
@@ -84,52 +87,73 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
         {
-            Debug.Log($"[IK] Animation state changed: {oldState} → {newState}");
-
-            bool isFPS = _currentFPSIKController != null;
+            //Debug.Log($"[IK] Animation state changed: {oldState} → {newState}");
+            bool localFPS = base.IsOwner;
 
             switch (newState)
             {
                 case IKAnimState.Idle:
-                    PlayIKIdle(currentFPS);
+                    PlayIKIdle(isFPS.Value);
                     break;
                 case IKAnimState.Walk:
-                    PlayIKMove(currentCrouch ? 2f : 1f, currentFPS, false);
+                    PlayIKMove(currentCrouch ? 2f : 1f, isFPS.Value, false);
                     break;
                 case IKAnimState.Run:
-                    PlayIKMove(1f, currentFPS, true);
+                    PlayIKMove(1f, isFPS.Value, true);
                     break;
                 case IKAnimState.Interact:
-                    PlayIKInteract(currentFPS);
+                    PlayIKInteract(isFPS.Value);
                     break;
             }
         }
 
         public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
         {
+            if (!IsServer)
+            {
+                SetAnimStateServerRPC(newState, isFPS, isCrouch);
+            }
+            SetAnimStateServerRPC(newState, isFPS, isCrouch);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void SetAnimStateServerRPC(IKAnimState newState, bool inputFPS, bool isCrouch)
+        {
             if (IsInteract && newState != IKAnimState.Interact)
                 return;
 
-            if (currentAnimaState.Value == newState && currentCrouch == isCrouch && currentFPS == isFPS) 
+            if (currentAnimaState.Value == newState && currentCrouch == isCrouch && isFPS.Value == inputFPS) 
                 return;
 
             currentAnimaState.Value = newState;
             currentCrouch = isCrouch;
-            currentFPS = isFPS;
+            isFPS.Value = inputFPS;
+            
 
             OnAnimStateChanged(currentAnimaState.Value, newState);
         }
         
         public void SetAnimState(IKAnimState newState, bool isFPS)
         {
+            if (!IsServer)
+            {
+                SetAnimStateServerRPC(newState, isFPS);
+            }
+            SetAnimStateServerRPC(newState, isFPS);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void SetAnimStateServerRPC(IKAnimState newState, bool inputFPS)
+        {
             if (IsInteract && newState != IKAnimState.Interact)
                 return;
 
-            if (currentAnimaState.Value == newState && currentCrouch && currentFPS == isFPS) 
+            if (currentAnimaState.Value == newState && isFPS.Value == inputFPS) 
                 return;
 
             currentAnimaState.Value = newState;
-            currentFPS = isFPS;
+            isFPS.Value = inputFPS;
+            
 
             OnAnimStateChanged(currentAnimaState.Value, newState);
         }
@@ -148,7 +172,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             }
             transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
             transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
-            PlayIKIdle(isFPS);
+            SetAnimState(IKAnimState.Idle, isFPS);
         }
 
         public void DropAnimation()
@@ -181,7 +205,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             PlayIKIdleServerRpc(isFPS);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void PlayIKIdleServerRpc(bool isFPS)
         {
             //State Update
@@ -246,7 +270,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             PlayIKMoveServerRpc(slowSpeed, isFPS, isRunning);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void PlayIKMoveServerRpc(float slowSpeed, bool isFPS, bool isRunning)
         {
             //State Update
@@ -327,7 +351,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             PlayIKInteractServerRpc(isFPS);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void PlayIKInteractServerRpc(bool isFPS)
         {
             //State Update
