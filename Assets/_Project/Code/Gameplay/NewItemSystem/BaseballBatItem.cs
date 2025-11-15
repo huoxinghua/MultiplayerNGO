@@ -27,14 +27,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #region Use Logic
         public override void UseItem()
         {
-            base.UseItem();
-            if (!TryUseItem()) return;
+            if (!ItemCooldown.IsComplete) return;
             if (IsOwner)
             {
                 RequestAttackServerRpc();
             }
-
-  
+            base.UseItem();
         }
         [ServerRpc(RequireOwnership = false)]
         private void RequestAttackServerRpc()

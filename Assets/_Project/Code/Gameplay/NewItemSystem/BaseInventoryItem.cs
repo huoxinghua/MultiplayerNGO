@@ -445,27 +445,20 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// </summary>
         public virtual void UseItem()
         {
-            if (TryUseItem())   ItemCooldown.Reset(_itemSO.ItemCooldown);
-        }
-
-        protected virtual bool TryUseItem()
-        {
             if (_itemSO.ItemCooldown != 0)
             {
                 if (ItemCooldown.IsComplete)
                 {
-                    return true;
+                    ItemCooldown.Reset(_itemSO.ItemCooldown);
                 }
                 else
                 {
-                    return false;
+                    return;
                 }
             }
-            else
-            {
-                return true;
-            }
         }
+
+        
 
         /// <summary>
         /// Base for secondary use. As of now no secondary use cooldown. They will tend to involve holding the key
