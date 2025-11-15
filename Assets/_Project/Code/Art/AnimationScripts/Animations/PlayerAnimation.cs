@@ -39,7 +39,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             {
                 if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
                 else if (isRunning) newState = IKAnimState.Run;
-                else newState = IKAnimState.Run;
+                else newState = IKAnimState.Walk;
                 
                 ikController.Interactable.SetAnimState(newState, IsOwner, anim.GetBool(hCrouch));
             }
