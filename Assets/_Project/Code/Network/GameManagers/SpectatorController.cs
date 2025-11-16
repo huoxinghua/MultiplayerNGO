@@ -7,13 +7,17 @@ using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerHealth;
+using _Project.Code.Network.ProximityChat.Voice;
 using _Project.Code.Utilities.EventBus;
+using FMODUnity;
+using VoiceRecorder = ProximityChat.VoiceRecorder;
 
 namespace _Project.Code.Network.GameManagers
 {
     public class SpectatorController : Singleton<SpectatorController>
     {
         [SerializeField] private Camera mainCam;
+        [SerializeField] private GameObject  _voiceNetworkSpectator;
         private readonly List<Transform> _aliveHeads = new List<Transform>();
         Vector2 rawLook;
         private int _currentIndex = 0;
@@ -29,6 +33,12 @@ namespace _Project.Code.Network.GameManagers
         private float _pitch;
         [SerializeField] private float followDistance = 4f;
         [SerializeField] private float heightOffset = 1.5f;
+
+        private void Start()
+        {
+            _voiceNetworkSpectator.SetActive(false);
+        }
+
         private void OnEnable()
         {
             EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
@@ -71,11 +81,25 @@ namespace _Project.Code.Network.GameManagers
             _input.OnNext += Next;
 
             _input.OnPrev += Prev;
-         
+            HandleSpectatorVoice();
+        }
 
-
-            //   _spectatorCam.Priority = 20;
-            //SetTarget(_aliveHeads[0]);
+        private void HandleSpectatorVoice()
+        {
+            Debug.Log("HandleSpectatorVoice");
+          
+            var listener = mainCam. GetComponent<StudioListener>();
+            listener.enabled = true;
+            if (_voiceNetworkSpectator != null)
+            {
+                _voiceNetworkSpectator.SetActive(true);
+                Debug.Log("HandleSpectatorVoice active voice spec");
+            }
+            else
+            {
+                Debug.Log("_voiceNetworkSpectator null ");
+            }
+            
         }
 
         private void OnDisable()

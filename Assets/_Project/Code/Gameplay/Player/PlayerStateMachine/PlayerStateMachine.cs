@@ -34,6 +34,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public PlayerCrouchIdleState CrouchIdleState { get; private set; }
         public PlayerCrouchWalkState CrouchWalkState { get; private set; }
         public PlayerInAirState InAirState { get; private set; }
+        public PlayerDeadState DeadState { get; private set; }
         public PlayerMenuState MenuState { get; private set; }
 
         public bool IsInMenu => currentState == MenuState;
@@ -81,6 +82,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             CrouchWalkState = new PlayerCrouchWalkState(this);
             InAirState = new PlayerInAirState(this);
             MenuState = new PlayerMenuState(this);
+            DeadState = new PlayerDeadState(this);
             OriginalCenter = CharacterController.center;
             TargetCameraHeight = PlayerSO.StandingCameraHeight;
 

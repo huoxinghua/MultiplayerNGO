@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6382426175582650873
+--- !u!1 &561017406043080830
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,25 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3734887208763739228}
-  - component: {fileID: 8164479873239045920}
-  - component: {fileID: 7083596890833254176}
-  - component: {fileID: 7479315633560515239}
-  - component: {fileID: 5769602482175273553}
+  - component: {fileID: 526873197556925748}
+  - component: {fileID: 8690595243005367425}
+  - component: {fileID: 7223354096268918606}
+  - component: {fileID: 123900357526001071}
   m_Layer: 6
-  m_Name: PF_Voice Networker (Studio)
+  m_Name: PF_Voice Networker (Studio)_Spectator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3734887208763739228
+--- !u!4 &526873197556925748
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382426175582650873}
+  m_GameObject: {fileID: 561017406043080830}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1.37, z: 0}
@@ -35,41 +34,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8164479873239045920
+--- !u!114 &8690595243005367425
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382426175582650873}
+  m_GameObject: {fileID: 561017406043080830}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8b3125cb38633e47acf40fc67372bf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7083596890833254176
+--- !u!114 &7223354096268918606
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382426175582650873}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b72c023a150755e468877555e71f1c9f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  _voiceRecorder: {fileID: 5769602482175273553}
-  _voiceEmitter: {fileID: 7479315633560515239}
-  _playbackOwnVoice: 1
---- !u!114 &7479315633560515239
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382426175582650873}
+  m_GameObject: {fileID: 561017406043080830}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3b1b2ec863cea8458dc7f22da8e5f7b, type: 3}
@@ -82,13 +65,13 @@ MonoBehaviour:
       Data3: -413656167
       Data4: -1871617778
     Path: event:/VoiceChat/PlayerVoice3DMax
---- !u!114 &5769602482175273553
+--- !u!114 &123900357526001071
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382426175582650873}
+  m_GameObject: {fileID: 561017406043080830}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f8fe2753b8c4604e8af33d281de73bf, type: 3}

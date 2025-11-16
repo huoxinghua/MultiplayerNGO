@@ -36,8 +36,6 @@ namespace _Project.Code.Gameplay.Player.PlayerHealth
             {
                 _currentHealth.Value = 0f;
                 HandleDeath();
-                /*
-                // NotifyDeathClientRpc();*/
             }
         }
 
@@ -47,6 +45,11 @@ namespace _Project.Code.Gameplay.Player.PlayerHealth
                 return;
 
             _isDead.Value = true;
+            var sm = GetComponent<PlayerStateMachine.PlayerStateMachine>();
+            if (sm != null)
+            {
+                sm.TransitionTo(sm.DeadState);
+            }
             Debug.Log($"[Server] Player {OwnerClientId} died");
             HandleDeathClientRpc();
             NetworkObject.Despawn(true);
