@@ -1,43 +1,94 @@
+using System.Collections;
+using _Project.Code.Gameplay.Player.MiscPlayer;
+using _Project.Code.Gameplay.Player.PlayerHealth;
 using _Project.Code.Network.ProximityChat.Voice;
+using _Project.Code.Utilities.EventBus;
+using _Project.Code.Utilities.Singletons;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 {
     public class PlayerDeadState : PlayerBaseState
     {
-        public PlayerDeadState(PlayerStateMachine stateController) : base(stateController)
-        {
-            
-        }
+        public PlayerDeadState(PlayerStateMachine stateController) : base(stateController) { }
+        private const float DespawnDelaySeconds = 2f;
+        private Coroutine _despawnRoutine;
+
         public override void OnEnter()
         {
-            Debug.Log("PlayerDeadState OnEnter");
-            var recorder = stateController.gameObject.GetComponentInChildren<VoiceRecorder>();
+            var netObject = stateController.GetComponent<NetworkObject>();
+            bool isOwner = netObject != null && netObject.IsOwner;
+
+            stateController.VerticalVelocity = Vector3.zero;
+
+            if (stateController.CharacterController != null)
+                stateController.CharacterController.enabled = false;
+
+            CurrentPlayers.Instance?.RemovePlayer(stateController.gameObject);
+            PlayerStateMachine.AllPlayers.Remove(stateController);
+
+            bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+
+            if (isServer && netObject != null && _despawnRoutine == null)
+                _despawnRoutine = stateController.StartCoroutine(DespawnAfterDelay(netObject));
+
+            if (!isOwner)
+                return;
+
+            stateController.InputManager?.SwitchToSpectatorMode();
+            if (stateController.InputManager != null)
+                stateController.InputManager.enabled = false;
+
+            var spectatorInput = stateController.GetComponent<PlayerInputManagerSpectator>();
+            spectatorInput?.EnableSpectatorInput();
+
+            var recorder = stateController.GetComponentInChildren<VoiceRecorder>();
             if (recorder != null)
             {
                 recorder.StopRecording();
                 recorder.enabled = false;
             }
-            
-            // 2. Trigger spectator mode
-            // remove the player in the list
-       
-            
+
+            EventBus.Instance?.Publish(new PlayerDiedEvent { deadPlayer = stateController.gameObject });
         }
+
         public override void OnExit()
         {
-     
+            if (_despawnRoutine != null)
+            {
+                stateController.StopCoroutine(_despawnRoutine);
+                _despawnRoutine = null;
+            }
+
+            if (stateController.CharacterController != null)
+                stateController.CharacterController.enabled = true;
+
+            if (stateController.InputManager != null)
+            {
+                stateController.InputManager.enabled = true;
+                stateController.InputManager.SwitchToPlayerMode();
+            }
+
+            var spectatorInput = stateController.GetComponent<PlayerInputManagerSpectator>();
+            if (spectatorInput != null)
+                spectatorInput.enabled = false;
         }
 
-        public override void StateFixedUpdate()
+        public override void StateFixedUpdate() { }
+
+        public override void StateUpdate() { }
+
+        private static IEnumerator DespawnAfterDelay(NetworkObject netObject)
         {
+            yield return new WaitForSeconds(DespawnDelaySeconds);
 
+            if (netObject != null && netObject.IsSpawned)
+                netObject.Despawn(true);
         }
-
-        public override void StateUpdate()
-        {
-  
-          
-        }
+    }
+    public class PlayerDiedEvent : IEvent
+    {
+        public GameObject deadPlayer;
     }
 }

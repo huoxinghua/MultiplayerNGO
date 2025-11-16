@@ -23,6 +23,12 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public override void StateUpdate()
         {
+            if (StateController.PlayerToAttack == null)
+            {
+                StateController.TransitionTo(StateController.IdleState);
+                return;
+            }
+
             Vector3 direction = (StateController.PlayerToAttack.transform.position - StateController.transform.position).normalized;
             direction.y = 0f;
 

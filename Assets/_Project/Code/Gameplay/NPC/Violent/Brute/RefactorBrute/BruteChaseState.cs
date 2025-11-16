@@ -33,7 +33,14 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public override void StateFixedUpdate()
         {
-            Agent.SetDestination(StateController.LastHeardPlayer.transform.position);//need add check,make sure if player die not call anymore
+            //add safe check when play was dead
+            if (StateController.LastHeardPlayer == null)
+            {
+                StateController.TransitionTo(StateController.IdleState);
+                return;
+            }
+            
+            Agent.SetDestination(StateController.LastHeardPlayer.transform.position);
             foreach (PlayerList player in PlayerList.AllPlayers)
             {
                 if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
