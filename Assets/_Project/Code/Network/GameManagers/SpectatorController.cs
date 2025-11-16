@@ -48,27 +48,20 @@ namespace _Project.Code.Network.GameManagers
         public void EnterSpectatorMode(PlayerDiedEvent playerDiedEvent)
         {
             StartCoroutine(DelayedRefresh(playerDiedEvent));
-
-
-            //  RefreshAliveList();
-           // Debug.Log($"EnterSpectatorMode{playerDiedEvent.deadPlayer}");
+            
 
             if (_aliveHeads.Count == 0)
             {
-                Debug.Log("No alive players to spectate.");
                 FindObjectOfType<NetworkSessionReset>()?.ReturnToMainMenu();
                 return;
             }
 
             mainCam.enabled = true;
-            Debug.Log($"mainCam{mainCam.name}");
             _input =GetComponent<PlayerInputManagerSpectator>();
             if (_input == null)
             {
-                Debug.Log("[Spectator] No PlayerInputManagerSpectator found on dead player.");
                 return;
             }
-            Debug.Log($"_spectator input found already{_input.name}");
             _input.EnableSpectatorInput();
             _input.enabled = true;
             _input.OnSpectatorLookInput += Look;
@@ -86,14 +79,11 @@ namespace _Project.Code.Network.GameManagers
 
         private void HandleSpectatorVoice()
         {
-            Debug.Log("HandleSpectatorVoice");
-          
             var listener = mainCam. GetComponent<StudioListener>();
             listener.enabled = true;
             if (_voiceNetworkSpectator != null)
             {
                 _voiceNetworkSpectator.SetActive(true);
-                Debug.Log("HandleSpectatorVoice active voice spec");
             }
             else
             {
@@ -130,14 +120,11 @@ namespace _Project.Code.Network.GameManagers
             {
                 RefreshAliveList(playerDiedEvent);
                 if (_aliveHeads.Count > 0) break;
-
-                Debug.Log($"[Spectator] Try {i + 1}: No alive players yet...");
                 yield return new WaitForSeconds(delayBetweenTries);
             }
 
             if (_aliveHeads.Count == 0)
             {
-                Debug.Log("[Spectator] Still no alive players after retries.");
                 yield break;
             }
         }
@@ -145,16 +132,12 @@ namespace _Project.Code.Network.GameManagers
         private void RefreshAliveList(PlayerDiedEvent playerDiedEvent)
         {
             _aliveHeads.Clear();
-           // Debug.Log("how many player alive:" +NetworkManager.Singleton.ConnectedClientsList);
-            Debug.Log("Connected clients count = " + NetworkManager.Singleton.ConnectedClientsList.Count);
-
-
+            
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
             {
                 var playerObj = client.PlayerObject;
                 if (playerObj == null)
                 {
-                    Debug.LogWarning($"[Spectator] PlayerObject is null for client {client.ClientId}");
                     continue;
                 }
 
@@ -171,17 +154,13 @@ namespace _Project.Code.Network.GameManagers
                 if (head != null)
                 {
                     _aliveHeads.Add(head);
-                    Debug.Log($"[Spectator] Added alive player head: {head.name}");
                 }
             }
-
-            Debug.Log($"[Spectator] Found {_aliveHeads.Count} alive players.");
         }
 
 
         private void SetTarget(Transform t)
         {
-            Debug.Log("setTarget" + t);
             _currentTarget = t;
             _yaw = t.eulerAngles.y;
             _pitch = 10f; 
@@ -193,7 +172,6 @@ namespace _Project.Code.Network.GameManagers
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex + 1) % _aliveHeads.Count;
             SetTarget(_aliveHeads[_currentIndex]);
-            Debug.Log("switch to next spectator came count"+ _aliveHeads.Count+"Index"+_aliveHeads[_currentIndex]);
         }
 
         private void Prev()
@@ -201,7 +179,7 @@ namespace _Project.Code.Network.GameManagers
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex - 1 + _aliveHeads.Count) % _aliveHeads.Count;
              SetTarget(_aliveHeads[_currentIndex]);
-             Debug.Log("switch to prev spectator came count"+ _aliveHeads.Count+"Index"+_aliveHeads[_currentIndex]);
+
         }
 
 

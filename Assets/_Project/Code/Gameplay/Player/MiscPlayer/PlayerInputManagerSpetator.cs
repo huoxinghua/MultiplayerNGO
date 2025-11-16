@@ -25,7 +25,7 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
             inputActions.Spectator.Look.performed += HandleLook;
             inputActions.Spectator.Look.canceled += HandleLook;
 
-            inputActions.Spectator.SwitchPrevPlayer.performed += HandleSwitchNextPlayer;
+            inputActions.Spectator.SwitchNextPlayer.performed += HandleSwitchNextPlayer;
             inputActions.Spectator.SwitchPrevPlayer.performed += HandleSwitchPrevPlayer;
         }
 
@@ -35,7 +35,7 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
             inputActions.Spectator.Look.performed -= HandleLook;
             inputActions.Spectator.Look.canceled -= HandleLook;
 
-            inputActions.Spectator.SwitchPrevPlayer.performed -= HandleSwitchNextPlayer;
+            inputActions.Spectator.SwitchNextPlayer.performed -= HandleSwitchNextPlayer;
             inputActions.Spectator.SwitchPrevPlayer.performed -= HandleSwitchPrevPlayer;
         }
         

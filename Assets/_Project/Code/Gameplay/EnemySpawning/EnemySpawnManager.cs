@@ -156,9 +156,6 @@ namespace _Project.Code.Gameplay.EnemySpawning
             Vector3 pos = spawnTransform.position;
             Quaternion rot = spawnTransform.rotation;
 
-            Debug.Log($"[EnemySpawnManager] Spawning {enemyPF.name} at {pos}");
-
-
             NetworkPrefabRuntimeRegistry.EnsurePrefabRegistered(enemyPF);
 
             GameObject temp = Object.Instantiate(enemyPF, pos, rot);
