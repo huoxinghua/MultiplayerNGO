@@ -54,17 +54,6 @@ namespace _Project.Code.Network.Level
             generator.Generator.ShouldRandomizeSeed = false;
             generator.Generator.Seed = newSeed;
             generator.Generate();
-            
-            foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
-            {
-                var netObjDoor = door.GetComponent<NetworkObject>();
-                if (netObjDoor == null || !netObjDoor.IsSpawned)
-                {
-                    if(!serverDoors.Contains(netObjDoor)) 
-                        Destroy(door);
-                }
-              
-            }
         }
 
         private void ClearOldDungeonTiles()
