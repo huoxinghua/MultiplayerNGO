@@ -115,8 +115,6 @@ namespace _Project.Code.Gameplay.EnemySpawning
             if (EnemyPrefabs.TranquilPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.TranquilPrefabs.Count);
             DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex], spawnPoint);
-         
-            
         }
 
         public void SpawnViolent(EnemySpawnPoint spawnPoint)
@@ -137,7 +135,6 @@ namespace _Project.Code.Gameplay.EnemySpawning
 
         private void DoSpawnEnemy(GameObject enemyPF, EnemySpawnPoint spawnPoint)
         {
-
             if (!IsServer) return;
 
             if (enemyPF == null)
