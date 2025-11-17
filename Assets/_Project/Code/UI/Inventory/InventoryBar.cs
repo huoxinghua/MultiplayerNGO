@@ -78,5 +78,10 @@ namespace _Project.Code.UI.Inventory
         public BaseInventoryItem[] NewInventory;
     }
 
+    public struct ItemSoldEvent : IEvent
+    {
+        public ScienceData SoldItemData;
+    }
+
     #endregion
 }
