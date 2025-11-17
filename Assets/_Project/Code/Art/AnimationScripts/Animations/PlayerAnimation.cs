@@ -94,9 +94,16 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         
         public void PlayInteract()
         {
-            if (fpsIKController.Interactable == null) return;
-            
+            Debug.Log($"[PlayerAnimation] PlayInteract() called - FPS Interactable null: {fpsIKController.Interactable == null}, TPS Interactable null: {tpsIKController.Interactable == null}");
+
+            if (fpsIKController.Interactable == null)
+            {
+                Debug.LogWarning("[PlayerAnimation] PlayInteract() blocked - fpsIKController.Interactable is null!");
+                return;
+            }
+
             var ikController = IsOwner ? fpsIKController : tpsIKController;
+            Debug.Log($"[PlayerAnimation] Setting anim state to Interact on {(IsOwner ? "FPS" : "TPS")} controller");
             ikController.Interactable.SetAnimState(IKAnimState.Interact, IsOwner);
         }
 

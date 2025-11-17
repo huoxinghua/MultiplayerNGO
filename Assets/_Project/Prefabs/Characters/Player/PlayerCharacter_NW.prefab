@@ -572,33 +572,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  NetworkCurrentIndex:
+    m_InternalValue: 0
   InventoryItems:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  NetworkCurrentIndex:
-    m_InternalValue: 0
-  <InventorySlots>k__BackingField: 5
-  <HoldTransform>k__BackingField: {fileID: 4214012021163622981}
-  <DropTransform>k__BackingField: {fileID: 1222635015246635985}
+  InventorySlots: 5
+  HoldTransform: {fileID: 4214012021163622981}
+  DropTransform: {fileID: 8331689132506838084}
   _inputManager: {fileID: 4648013823145631565}
-  <SlotDisplay>k__BackingField:
+  PlayerAnimation: {fileID: 2759791371960280017}
+  ThisPlayerIKData: {fileID: 8621043828579305406}
+  ItemUIDisplay:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  <SlotBackground>k__BackingField:
+  SlotUIBackground:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  <EmptySlot>k__BackingField: {fileID: 0}
-  <PlayerAnimation>k__BackingField: {fileID: 2759791371960280017}
-  <ThisPlayerIKData>k__BackingField: {fileID: 8621043828579305406}
 --- !u!114 &8621043828579305406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1654,6 +1653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c3a495091b209b43bd65afdb6be4e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   interactable: {fileID: 0}
   animator: {fileID: 5050647090863487403}
   ikActive: 0
@@ -2881,6 +2881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c3a495091b209b43bd65afdb6be4e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   interactable: {fileID: 0}
   animator: {fileID: 8060382391704820243}
   ikActive: 0

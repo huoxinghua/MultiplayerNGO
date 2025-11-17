@@ -1,217 +1,364 @@
-using System.Collections;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.Flashlight;
 using QuickOutline.Scripts;
 using Unity.Netcode;
-using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
+    /// <summary>
+    /// Clean Rewrite: Flashlight item that can be toggled on/off with battery charge.
+    /// KEY FIX: Server drains charge in Update() instead of RPC spam every frame.
+    /// </summary>
     public class FlashlightItem : BaseInventoryItem
     {
-        [field: Header("Flashlight Specific")] [SerializeField]
+        #region Serialized Fields
+
+        [Header("Flashlight Specific")]
+        [SerializeField] [Tooltip("Light component on world item (visible when dropped)")]
         private Light _sceneLight;
 
-        [SerializeField] Light _lightComponent;
+        [SerializeField] [Tooltip("Light component on held visual (visible when held)")]
+        private Light _lightComponent;
+
+        #endregion
+
+        #region Network State
+
+        /// <summary>
+        /// Server-authoritative: Is flashlight currently on?
+        /// </summary>
+        private NetworkVariable<bool> FlashOnNetworkVariable = new NetworkVariable<bool>(
+            false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        /// <summary>
+        /// Server-authoritative: Current battery charge (0 to MaxCharge).
+        /// </summary>
+        private NetworkVariable<float> _currentChargeNetVar = new NetworkVariable<float>(
+            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        #endregion
+
+        #region Private Fields
+
+        /// <summary>
+        /// Typed reference to FlashItemSO for easy access to flashlight-specific data.
+        /// </summary>
         private FlashItemSO _flashItemSO;
-        private bool _lastFlashState = true;
-        private bool _hasCharge => _currentChargeNetVar.Value >= 0;
 
-        NetworkVariable<bool> FlashOnNetworkVariable = new NetworkVariable<bool>(false,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        /// <summary>
+        /// Returns true if flashlight has charge remaining.
+        /// </summary>
+        private bool _hasCharge => _currentChargeNetVar.Value > 0;
 
-        private NetworkVariable<float> _currentChargeNetVar = new NetworkVariable<float>(0f,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        #endregion
 
-        #region Setup + Update
+        #region Initialization
 
-        protected override void CustomNetworkSpawn()
+        protected override void Awake()
         {
-            // Call base so pickup/equip syncing still happens
-            base.CustomNetworkSpawn();
+            base.Awake();
+
+            // Disable scene light by default
+            if (_sceneLight != null)
+            {
+                _sceneLight.enabled = false;
+            }
+
+            // Cache typed SO reference
+            if (_itemSO is FlashItemSO flashItemSO)
+            {
+                _flashItemSO = flashItemSO;
+            }
+            else
+            {
+                Debug.LogError("[FlashlightItem] ItemSO is not FlashItemSO!");
+            }
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-            // Now add flashlight-specific network setup
-            CustomNetworkSpawn();
-            RequestSetCurrentChargeServerRpc(_flashItemSO.MaxCharge);
-            _currentChargeNetVar.OnValueChanged += OnChargeValueChanged;
-            OnFlashStateChanged(!FlashOnNetworkVariable.Value, FlashOnNetworkVariable.Value);
-        }
 
-        protected override void OnNetworkPostSpawn()
-        {
-            base.OnNetworkPostSpawn();
+            // Server initializes charge to max
+            if (IsServer)
+            {
+                _currentChargeNetVar.Value = _flashItemSO != null ? _flashItemSO.MaxCharge : 100f;
+            }
+
+            // Register NetworkVariable callbacks
             FlashOnNetworkVariable.OnValueChanged += OnFlashStateChanged;
-            // immediately sync current value
+            _currentChargeNetVar.OnValueChanged += OnChargeValueChanged;
+
+            // Apply initial values for late joiners
             OnFlashStateChanged(!FlashOnNetworkVariable.Value, FlashOnNetworkVariable.Value);
-            Debug.Log("CustomNetworkPostSpawn called!");
-        }
-
-
-        protected override void Awake()
-        {
-            base.Awake();
-            _sceneLight.enabled = false;
-
-            if (_itemSO is FlashItemSO flashLight)
-            {
-                _flashItemSO = flashLight;
-            }
-
-            OutlineEffect = GetComponent<Outline>();
-            if (OutlineEffect != null)
-            {
-                OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
-                OutlineEffect.OutlineWidth = 0;
-            }
-        }
-
-        private void Update()
-        {
-            //Maybe IsServer handles?
-            if (IsOwner && FlashOnNetworkVariable.Value)
-                RequestSubtractCurrentChargeServerRpc(_flashItemSO.ChargeLoseRate * Time.deltaTime);
-            
-            if (!IsOwner) return; // only the owning player updates
-            UpdateHeldPosition();
         }
 
         #endregion
 
-        #region Pickup Logic
+        #region Update - Charge Drain (Server-Only)
 
-        public override void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObject)
+        /// <summary>
+        /// CRITICAL FIX: Server drains charge directly in Update(), not via RPC spam!
+        /// Also updates item position when held by owner.
+        /// </summary>
+        protected override void LateUpdate()
         {
-            base.PickupItem(player, playerHoldPosition, networkObject);
-            RequestFlashPickupServerRpc();
-            _sceneLight.enabled = false;
-        }
+            base.LateUpdate();
 
-        [ServerRpc(RequireOwnership = false)]
-        void RequestFlashPickupServerRpc()
-        {
-            _lightComponent.enabled = FlashOnNetworkVariable.Value;
-            _sceneLight.enabled = false;
-            SendLightCompByClientRpc(new NetworkObjectReference(_currentHeldVisual.GetComponent<NetworkObject>()));
-        }
+            // SERVER-ONLY: Drain charge when flashlight is on
+            // This prevents 60+ RPCs per second that old version had!
+            if (IsServer && FlashOnNetworkVariable.Value && _hasCharge)
+            {
+                _currentChargeNetVar.Value -= _flashItemSO.ChargeLoseRate * Time.deltaTime;
 
-        [ClientRpc(RequireOwnership = false)]
-        void SendLightCompByClientRpc(NetworkObjectReference heldRef)
-        {
-            if (!heldRef.TryGet(out NetworkObject heldObj)) return;
-            _lightComponent.enabled = FlashOnNetworkVariable.Value;
-            _sceneLight.enabled = false;
+                // Clamp to 0
+                if (_currentChargeNetVar.Value < 0)
+                {
+                    _currentChargeNetVar.Value = 0;
+                }
+            }
+
+            // Owner updates held position
+            if (IsOwner)
+            {
+                UpdateHeldPosition();
+            }
         }
 
         #endregion
 
-        #region Drop Logic
+        #region Pickup/Drop/Equip Override
 
+        /// <summary>
+        /// Override pickup to disable scene light when picked up.
+        /// </summary>
+        public override void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        {
+            base.PickupItem(player, playerHoldPosition, networkObjectForPlayer);
+
+            // Server-only: Disable scene light, enable held light if flashlight is on
+            if (IsServer)
+            {
+                if (_sceneLight != null)
+                {
+                    _sceneLight.enabled = false;
+                }
+
+                if (_lightComponent != null)
+                {
+                    _lightComponent.enabled = FlashOnNetworkVariable.Value;
+                }
+
+                // Sync light state to all clients
+                SyncLightStateClientRpc(FlashOnNetworkVariable.Value, false);
+            }
+        }
+
+        /// <summary>
+        /// Override drop to enable scene light when dropped.
+        /// </summary>
         public override void DropItem(Transform dropPoint)
         {
             base.DropItem(dropPoint);
-            _sceneLight.enabled = FlashOnNetworkVariable.Value;
-            _lightComponent.enabled = false;
+
+            // Server-only: Enable scene light if flashlight is on, disable held light
+            if (IsServer)
+            {
+                if (_sceneLight != null)
+                {
+                    _sceneLight.enabled = FlashOnNetworkVariable.Value;
+                }
+
+                if (_lightComponent != null)
+                {
+                    _lightComponent.enabled = false;
+                }
+
+                // Sync light state to all clients
+                SyncLightStateClientRpc(false, FlashOnNetworkVariable.Value);
+            }
         }
 
-        #endregion
-
-        #region Swap Logic
-
+        /// <summary>
+        /// Override equip to enable held light when equipped.
+        /// </summary>
         public override void EquipItem()
         {
             base.EquipItem();
-            if (_lightComponent == null) return;
-            _lightComponent.enabled = FlashOnNetworkVariable.Value;
-            //_isInOwnerHand = true;
+
+            // Server-only: Enable held light if flashlight is on
+            if (IsServer && _lightComponent != null)
+            {
+                _lightComponent.enabled = FlashOnNetworkVariable.Value;
+                SyncLightStateClientRpc(FlashOnNetworkVariable.Value, false);
+            }
         }
 
+        /// <summary>
+        /// Override unequip to disable held light when unequipped.
+        /// </summary>
         public override void UnequipItem()
         {
             base.UnequipItem();
-            if (_lightComponent == null) return;
-            _lightComponent.enabled = false;
-            // _isInOwnerHand = false;
+
+            // Server-only: Disable held light
+            if (IsServer && _lightComponent != null)
+            {
+                _lightComponent.enabled = false;
+                SyncLightStateClientRpc(false, false);
+            }
+        }
+
+        /// <summary>
+        /// Syncs light component states to all clients.
+        /// </summary>
+        /// <param name="heldLightState">State of held light</param>
+        /// <param name="sceneLightState">State of scene light</param>
+        [ClientRpc]
+        private void SyncLightStateClientRpc(bool heldLightState, bool sceneLightState)
+        {
+            if (_lightComponent != null)
+            {
+                _lightComponent.enabled = heldLightState;
+            }
+
+            if (_sceneLight != null)
+            {
+                _sceneLight.enabled = sceneLightState;
+            }
         }
 
         #endregion
 
-        #region Use Logic
+        #region Item Usage - Toggle Flashlight
 
-        private void ToggleFlashLight()
-        {
-            if (!_hasCharge)
-            {
-                return;
-            }
-
-            SetFlashStateServerRpc(!FlashOnNetworkVariable.Value);
-        }
-
+        /// <summary>
+        /// Primary use: Toggle flashlight on/off (if has charge).
+        /// </summary>
         public override void UseItem()
         {
+            // Call base to handle cooldown
             base.UseItem();
+
+            // Check cooldown
+            if (!TryUseItem()) return;
+
+            // Toggle flashlight
             ToggleFlashLight();
         }
 
-        #endregion
-
-        #region NetVar Logic
-
-        protected override void OnPickedUpStateChanged(bool oldHeld, bool newHeld)
+        /// <summary>
+        /// Toggles flashlight on/off state.
+        /// Sends ServerRpc to update NetworkVariable.
+        /// </summary>
+        private void ToggleFlashLight()
         {
-            base.OnPickedUpStateChanged(oldHeld, newHeld);
+            // Can't turn on if no charge
+            if (!FlashOnNetworkVariable.Value && !_hasCharge)
+            {
+                Debug.Log("[FlashlightItem] No charge remaining");
+                return;
+            }
+
+            // Request toggle from server
+            SetFlashStateServerRpc(!FlashOnNetworkVariable.Value);
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        void SetFlashStateServerRpc(bool flashState)
+        /// <summary>
+        /// SERVER-ONLY: Sets flashlight on/off state.
+        /// </summary>
+        [ServerRpc]
+        private void SetFlashStateServerRpc(bool flashState)
         {
             FlashOnNetworkVariable.Value = flashState;
         }
 
-        void OnFlashStateChanged(bool oldState, bool newState)
+        #endregion
+
+        #region NetworkVariable Callbacks
+
+        /// <summary>
+        /// Callback when flashlight on/off state changes.
+        /// Enables/disables light components based on state.
+        /// </summary>
+        private void OnFlashStateChanged(bool oldState, bool newState)
         {
-            if (_currentHeldVisual == null)
+            // Update light component based on whether item is picked up
+            if (_lightComponent != null)
             {
-                Debug.Log("No CurrentheldVisual");
-                return;
+                _lightComponent.enabled = newState;
             }
-
-            _lightComponent.enabled = newState;
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestSubtractCurrentChargeServerRpc(float chargeSubtract)
-        {
-            _currentChargeNetVar.Value -= chargeSubtract;
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestAddCurrentChargeServerRpc(float chargeAdd)
-        {
-            _currentChargeNetVar.Value += chargeAdd;
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestSetCurrentChargeServerRpc(float newCharge)
-        {
-            _currentChargeNetVar.Value = newCharge;
-        }
-
+        /// <summary>
+        /// Callback when charge value changes.
+        /// Turns off flashlight if charge reaches 0.
+        /// </summary>
         private void OnChargeValueChanged(float oldValue, float newValue)
         {
-            if (newValue <= 0)
+            // Turn off flashlight if charge depleted
+            if (newValue <= 0 && FlashOnNetworkVariable.Value)
             {
-                SetFlashStateServerRpc(false);
+                // Only server can change network state
+                if (IsServer)
+                {
+                    FlashOnNetworkVariable.Value = false;
+                }
             }
-            else if (newValue >= _flashItemSO.MaxCharge)
+
+            // Clamp to max charge
+            if (newValue > _flashItemSO.MaxCharge)
             {
-                RequestSubtractCurrentChargeServerRpc(_flashItemSO.MaxCharge);
+                if (IsServer)
+                {
+                    _currentChargeNetVar.Value = _flashItemSO.MaxCharge;
+                }
             }
+        }
+
+        #endregion
+
+        #region Public API (For Charging Stations)
+
+        /// <summary>
+        /// Adds charge to flashlight. Can be called by charging stations.
+        /// </summary>
+        /// <param name="chargeAmount">Amount of charge to add</param>
+        public void AddCharge(float chargeAmount)
+        {
+            if (IsServer)
+            {
+                _currentChargeNetVar.Value = Mathf.Min(_currentChargeNetVar.Value + chargeAmount, _flashItemSO.MaxCharge);
+            }
+            else
+            {
+                AddChargeServerRpc(chargeAmount);
+            }
+        }
+
+        /// <summary>
+        /// SERVER-ONLY: Adds charge to flashlight.
+        /// </summary>
+        [ServerRpc(RequireOwnership = false)]
+        private void AddChargeServerRpc(float chargeAmount)
+        {
+            _currentChargeNetVar.Value = Mathf.Min(_currentChargeNetVar.Value + chargeAmount, _flashItemSO.MaxCharge);
+        }
+
+        /// <summary>
+        /// Gets current charge value (read-only).
+        /// </summary>
+        public float GetCurrentCharge()
+        {
+            return _currentChargeNetVar.Value;
+        }
+
+        /// <summary>
+        /// Gets max charge value (read-only).
+        /// </summary>
+        public float GetMaxCharge()
+        {
+            return _flashItemSO != null ? _flashItemSO.MaxCharge : 100f;
         }
 
         #endregion

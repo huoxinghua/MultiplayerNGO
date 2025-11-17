@@ -1,69 +1,129 @@
-using System.Collections;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.SyringeItem;
-using QuickOutline.Scripts;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
+    /// <summary>
+    /// Clean Rewrite: Syringe item that provides temporary speed boost.
+    /// Single-use item - becomes unusable after injection.
+    /// </summary>
     public class SyringeInventoryItem : BaseInventoryItem
     {
-        NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
+        #region Network State
 
-        private SyringeItemSO _syringeItemSo;
+        /// <summary>
+        /// Server-authoritative: Has this syringe been used?
+        /// Once used, cannot be used again.
+        /// </summary>
+        private NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(
+            false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-        #region Setup + Update
+        #endregion
+
+        #region Private Fields
+
+        /// <summary>
+        /// Typed reference to SyringeItemSO for easy access to syringe-specific data.
+        /// </summary>
+        private SyringeItemSO _syringeItemSO;
+
+        #endregion
+
+        #region Initialization
 
         protected override void Awake()
         {
             base.Awake();
+
+            // Cache typed SO reference
             if (_itemSO is SyringeItemSO syringeItemSO)
             {
-                _syringeItemSo = syringeItemSO;
+                _syringeItemSO = syringeItemSO;
+            }
+            else
+            {
+                Debug.LogError("[SyringeInventoryItem] ItemSO is not SyringeItemSO!");
             }
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-            // Now add flashlight-specific network setup
-            CustomNetworkSpawn();
+            // Base class handles all callback registration
         }
 
+        #endregion
+
+        #region Position Update
+
+        /// <summary>
+        /// Manually locks item position to hold transform.
+        /// Called every frame when owner is holding the item.
+        /// </summary>
         private void Update()
         {
-            if (!IsOwner) return; // only the owning player updates
+            if (!IsOwner) return;
             UpdateHeldPosition();
         }
 
         #endregion
 
-        #region UseLogic
+        #region Item Usage - Inject Syringe
 
+        /// <summary>
+        /// Primary use: Inject syringe to apply effect.
+        /// Can only be used once - syringe becomes unusable after injection.
+        /// </summary>
         public override void UseItem()
         {
+            // Call base to handle cooldown
             base.UseItem();
-            if (IsUsed.Value) return;
+
+            // Check if already used
+            if (IsUsed.Value)
+            {
+                Debug.Log("[SyringeInventoryItem] Syringe already used");
+                return;
+            }
+
+            // Check cooldown
+            if (!TryUseItem()) return;
+
+            // Owner requests injection from server
             if (IsOwner)
             {
-                InjectSyringe();
+                InjectSyringeServerRpc();
             }
         }
 
-        private void InjectSyringe()
+        /// <summary>
+        /// SERVER-ONLY: Injects syringe and applies effect to player.
+        /// Marks syringe as used.
+        /// </summary>
+        [ServerRpc]
+        private void InjectSyringeServerRpc()
         {
-            /*_syringeItemSo.EffectDuration;
-            _syringeItemSo.SpeedBoostAmount;*/
-            Debug.Log("InjectSyringe");
-            RequestChangeIsUsedServerRpc();
-        }
+            // Validate not already used
+            if (IsUsed.Value)
+            {
+                return;
+            }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestChangeIsUsedServerRpc()
-        {
+            // Mark as used
             IsUsed.Value = true;
+
+            // TODO: Apply effect to player
+            // This would typically:
+            // 1. Get player's movement controller
+            // 2. Apply speed boost for EffectDuration
+            // 3. Visual feedback (injection animation, particle effects)
+
+            // For now, just log
+            Debug.Log($"[Server] Syringe injected! Speed boost: {_syringeItemSO.SpeedBoostAmount} for {_syringeItemSO.EffectDuration}s");
+
+            // TODO: Start coroutine or timer to remove effect after EffectDuration
+            // TODO: Visual feedback via ClientRpc
         }
 
         #endregion
