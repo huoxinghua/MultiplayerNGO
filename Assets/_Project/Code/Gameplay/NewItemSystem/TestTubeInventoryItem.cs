@@ -8,7 +8,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class TestTubeInventoryItem : BaseInventoryItem
     {
-        NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
+        NetworkVariable<bool> HasCollected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
         private TestTubeItemSO _testTubeItemSO;
@@ -28,8 +28,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
-            // Now add flashlight-specific network setup
+            
             CustomNetworkSpawn();
+            HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
         }
 
         private void Update()
@@ -44,12 +46,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
-            base.UseItem();
-            if (IsUsed.Value) return;
+            if (!HasCollected.Value) return;
             if (IsOwner)
             {
                 UseTestTube();
             }
+            base.UseItem();
         }
 
         private void UseTestTube()
@@ -63,7 +65,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
-            IsUsed.Value = true;
+            HasCollected.Value = true;
         }
 
         #endregion

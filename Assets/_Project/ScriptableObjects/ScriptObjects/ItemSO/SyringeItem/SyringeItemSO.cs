@@ -9,6 +9,6 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.SyringeItem
         [field: Header("Syringe Data")]
         [field: SerializeField] public float SpeedBoostAmount { get; private set; }
         [field: SerializeField] public float EffectDuration { get; private set; }
-
+        [field: SerializeField] public bool IsUsed { get; private set; }
     }
 }

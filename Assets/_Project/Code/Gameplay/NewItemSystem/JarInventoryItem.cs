@@ -8,7 +8,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class JarItem : BaseInventoryItem
     {
-        NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
+        NetworkVariable<bool> HasCollected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+        NetworkVariable<float> CollectedAmount = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
         private JarItemSO _jarItemSO;
@@ -30,6 +32,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
             CustomNetworkSpawn();
+            HasCollected = new NetworkVariable<bool>(_jarItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+            CollectedAmount = new NetworkVariable<float>(_jarItemSO.CollectedAmount, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
         }
 
         private void Update()
@@ -44,12 +50,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
-            base.UseItem();
-            if (IsUsed.Value) return;
+            if (HasCollected.Value) return;
             if (IsOwner)
             {
                 UseJar();
             }
+            base.UseItem();
         }
 
         private void UseJar()
@@ -63,7 +69,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
-            IsUsed.Value = true;
+            HasCollected.Value = true;
         }
 
         #endregion

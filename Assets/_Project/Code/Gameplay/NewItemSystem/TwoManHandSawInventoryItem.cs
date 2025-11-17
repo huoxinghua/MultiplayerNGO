@@ -8,7 +8,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class TwoManHandSawInventoryItem : BaseInventoryItem
     {
-        NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
+        NetworkVariable<float> SawTimeAmount = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+        NetworkVariable<bool> PlayerCloseBy = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
         private TwoManHandSawItemSO _twoManHandSawItemSO;
@@ -45,7 +47,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void UseItem()
         {
             base.UseItem();
-            if (IsUsed.Value) return;
+            if (PlayerCloseBy.Value) return;
             if (IsOwner)
             {
                 UseTwoManSaw();
@@ -58,12 +60,16 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _syringeItemSo.SpeedBoostAmount;*/
             Debug.Log("UseTwoManSaw");
             RequestChangeIsUsedServerRpc();
+            SawTimeAmount = new NetworkVariable<float>(_twoManHandSawItemSO.SawTimeAmount, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+            PlayerCloseBy = new NetworkVariable<bool>(_twoManHandSawItemSO.PlayerCloseBy, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
-            IsUsed.Value = true;
+            
         }
 
         #endregion

@@ -8,7 +8,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
 {
     public class HandSawInventoryItem : BaseInventoryItem
     {
-        NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
+        NetworkVariable<float> SawTimeAmount = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+        NetworkVariable<bool> BeingUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
         private HandSawItemSO _handSawItemSO;
@@ -30,6 +32,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
             CustomNetworkSpawn();
+            SawTimeAmount = new NetworkVariable<float>(_handSawItemSO.SawTimeAmount, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+            BeingUsed = new NetworkVariable<bool>(_handSawItemSO.BeingUsed, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
         }
 
         private void Update()
@@ -44,18 +50,15 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
-            base.UseItem();
-            if (IsUsed.Value) return;
             if (IsOwner)
             {
                 UseSaw();
             }
+            base.UseItem();
         }
 
         private void UseSaw()
         {
-            /*_syringeItemSo.EffectDuration;
-            _syringeItemSo.SpeedBoostAmount;*/
             Debug.Log("UseSaw");
             RequestChangeIsUsedServerRpc();
         }
@@ -63,7 +66,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
-            IsUsed.Value = true;
+            
         }
 
         #endregion

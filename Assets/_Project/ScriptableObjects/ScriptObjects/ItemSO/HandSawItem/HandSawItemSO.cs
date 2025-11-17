@@ -7,6 +7,7 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.HandSawItem
     public class HandSawItemSO : BaseItemSO
     {
         [field: Header("HandSaw Data")]
-        [field: SerializeField] public float SawingTime { get; private set; }
+        [field: SerializeField] public float SawTimeAmount { get; private set; }
+        [field: SerializeField] public bool BeingUsed { get; private set; }
     }
 }

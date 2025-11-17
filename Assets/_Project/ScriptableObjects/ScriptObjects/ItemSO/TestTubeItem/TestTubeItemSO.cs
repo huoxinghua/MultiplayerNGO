@@ -7,7 +7,6 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem
     public class TestTubeItemSO : BaseItemSO
     {
         [field: Header("TestTube Data")]
-        [field: SerializeField] public float AmountOfSubstance { get; private set; }
         [field: SerializeField] public bool HasCollected  { get; private set; }
     }
 

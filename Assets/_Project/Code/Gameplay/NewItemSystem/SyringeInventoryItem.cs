@@ -10,6 +10,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
     {
         NetworkVariable<bool> IsUsed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
+        NetworkVariable<float> SpeedBoostAmount = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+        NetworkVariable<float> EffectDuration = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
 
         private SyringeItemSO _syringeItemSo;
 
@@ -28,8 +32,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
-            // Now add flashlight-specific network setup
+            
             CustomNetworkSpawn();
+            IsUsed = new NetworkVariable<bool>(_syringeItemSo.IsUsed, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+            SpeedBoostAmount = new NetworkVariable<float>(_syringeItemSo.SpeedBoostAmount, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+            EffectDuration = new NetworkVariable<float>(_syringeItemSo.EffectDuration, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
         }
 
         private void Update()
@@ -44,12 +54,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
-            base.UseItem();
             if (IsUsed.Value) return;
             if (IsOwner)
             {
                 InjectSyringe();
             }
+            base.UseItem();
         }
 
         private void InjectSyringe()

@@ -7,7 +7,7 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.JarItem
     public class JarItemSO : BaseItemSO
     {
         [field: Header("Jar Data")]
-        [field: SerializeField] public float AmountOfSubstance { get; private set; }
+        [field: SerializeField] public float CollectedAmount { get; private set; }
         [field: SerializeField] public bool HasCollected  { get; private set; }
     }
 

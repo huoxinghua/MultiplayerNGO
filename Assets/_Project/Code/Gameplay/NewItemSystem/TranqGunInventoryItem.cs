@@ -31,7 +31,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
-            // Now add flashlight-specific network setup
+            
             CustomNetworkSpawn();
             AmmoLeft = new NetworkVariable<int>(_tranqGunItemSO.AmmoAmount, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
@@ -49,7 +49,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
-            base.UseItem();
             if (!ItemCooldown.IsComplete)
                 return;
             if (!HasAmmoLeft) return;
@@ -57,6 +56,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 ShootGun();
             }
+            base.UseItem();
         }
 
         private void ShootGun()
