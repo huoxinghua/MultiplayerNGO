@@ -30,7 +30,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private PlayerIKController _currentTPSIKController;
         
         
-        private NetworkVariable<IKAnimState> currentAnimaState = new NetworkVariable<IKAnimState>(
+        private NetworkVariable<IKAnimState> currentAnimState = new NetworkVariable<IKAnimState>(
             IKAnimState.Idle,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Owner);
@@ -44,12 +44,12 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private const float DRIFT_CORRECTION_THRESHOLD = 0.1f;
         private bool IsFPS => _currentFPSIKController != null;
         
-        public bool IsInteract { get; private set; } = false;
+        private bool isInteract = false;
 
 
         private void Update()
         {
-            if (IsServer && currentAnimaState.Value != IKAnimState.Idle)
+            if (IsServer && currentAnimState.Value != IKAnimState.Idle)
             {
                 animTime.Value += Time.deltaTime;
             }
@@ -75,14 +75,14 @@ namespace _Project.Code.Art.AnimationScripts.IK
         {
             base.OnNetworkSpawn();
 
-            currentAnimaState.OnValueChanged += OnAnimStateChanged;
+            currentAnimState.OnValueChanged += OnAnimStateChanged;
         }
 
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
 
-            currentAnimaState.OnValueChanged -= OnAnimStateChanged;
+            currentAnimState.OnValueChanged -= OnAnimStateChanged;
         }
 
         private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
@@ -110,29 +110,29 @@ namespace _Project.Code.Art.AnimationScripts.IK
         {
             if (!IsServer)
             {
-                // Client เรียกให้ Server ทำงานแทน
+                //If !server, send to server
                 SetAnimStateServerRPC(newState, isCrouch);
                 return;
             }
 
-            // Server ทำเอง
+            //If server, just run
             SetAnimStateServerRPC(newState, isCrouch);
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void SetAnimStateServerRPC(IKAnimState newState, bool isCrouch)
         {
-            if (IsInteract && newState != IKAnimState.Interact)
+            if (isInteract && newState != IKAnimState.Interact)
                 return;
 
-            if (currentAnimaState.Value == newState && currentCrouch == isCrouch) 
+            if (currentAnimState.Value == newState && currentCrouch == isCrouch) 
                 return;
 
-            currentAnimaState.Value = newState;
+            currentAnimState.Value = newState;
             currentCrouch = isCrouch;
             
 
-            OnAnimStateChanged(currentAnimaState.Value, newState);
+            OnAnimStateChanged(currentAnimState.Value, newState);
         }
         
         public void SetAnimState(IKAnimState newState)
@@ -150,16 +150,16 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [ServerRpc(RequireOwnership = false)]
         private void SetAnimStateServerRPC(IKAnimState newState)
         {
-            if (IsInteract && newState != IKAnimState.Interact)
+            if (isInteract && newState != IKAnimState.Interact)
                 return;
 
-            if (currentAnimaState.Value == newState) 
+            if (currentAnimState.Value == newState) 
                 return;
 
-            currentAnimaState.Value = newState;
+            currentAnimState.Value = newState;
             
 
-            OnAnimStateChanged(currentAnimaState.Value, newState);
+            OnAnimStateChanged(currentAnimState.Value, newState);
         }
 
         public void PickupAnimation(PlayerIKController ikController)
@@ -216,7 +216,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private void PlayIKIdleServerRpc()
         {
             //State Update
-            currentAnimaState.Value = IKAnimState.Idle;
+            currentAnimState.Value = IKAnimState.Idle;
             animTime.Value = 0f;
             
             //Broadcast to Client
@@ -281,7 +281,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private void PlayIKMoveServerRpc(float slowSpeed, bool isRunning)
         {
             //State Update
-            currentAnimaState.Value = isRunning ? IKAnimState.Run :  IKAnimState.Walk;
+            currentAnimState.Value = isRunning ? IKAnimState.Run :  IKAnimState.Walk;
             animTime.Value = 0f;
             
             //Broadcast to Client
@@ -362,7 +362,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private void PlayIKInteractServerRpc()
         {
             //State Update
-            currentAnimaState.Value = IKAnimState.Interact;
+            currentAnimState.Value = IKAnimState.Interact;
             animTime.Value = 0f;
             
             //Broadcast to Client
@@ -380,8 +380,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private void PlayIKInteractLocal(bool isFPS)
         {
-            if (IsInteract) return;
-                    IsInteract = true;
+            if (isInteract) return;
+                    isInteract = true;
                     if(interactTween != null)
                     {
                         interactTween.Kill(true);
@@ -416,7 +416,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                         .Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.transitionDuration)
                             .SetEase(ikInteractSo.ikInteract.easeHit));
 
-                    seq.OnComplete(() => {IsInteract = false;});
+                    seq.OnComplete(() => {isInteract = false;});
                     interactTween = seq;
         }
         

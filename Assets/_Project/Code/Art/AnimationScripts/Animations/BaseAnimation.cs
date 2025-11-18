@@ -4,12 +4,17 @@ using Unity.Netcode;
 
 namespace _Project.Code.Art.AnimationScripts.Animations
 {
+    public enum walkRunType
+    {
+        walk,
+        Run
+    }
     public abstract class BaseAnimation : NetworkBehaviour
     {
         [SerializeField] protected float walkRunTransition = 1f;
         protected Animator anim;
 
-        protected float currentWalkRunType = 0;
+        protected float currentWalkRunType = (float)walkRunType.walk;
 
         protected int hSpeed = Animator.StringToHash("speed");
         protected int hIsRunning = Animator.StringToHash("locomotionType");
@@ -33,8 +38,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
 
         protected virtual void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
-            if (isRunning) StartCoroutine(SmoothWalkRun(1));
-            else StartCoroutine(SmoothWalkRun(0));
+            if (isRunning) StartCoroutine(SmoothWalkRun((float)walkRunType.Run));
+            else StartCoroutine(SmoothWalkRun((float)walkRunType.walk));
             anim.SetFloat(hSpeed, currentSpeed / maxSpeed);
         }
 

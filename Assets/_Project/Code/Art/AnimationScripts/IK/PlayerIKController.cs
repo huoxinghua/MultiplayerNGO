@@ -13,7 +13,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private bool ikActive;
 
         private Transform handL, handR, elbowL, elbowR;
-        private IkInteractSO fingerSO;
+        private IkInteractSO interactSO;
         
         public IKInteractable Interactable => interactable;
 
@@ -27,19 +27,16 @@ namespace _Project.Code.Art.AnimationScripts.IK
         {
             if(layerIndex != 0) return;
             if(animator == null) return;
-            
-            // ไม่ต้องใช้ rootTransform ในการคำนวณ Rotation แล้ว
+
 
             if (ikActive)
             {
-                // World Position
                 Vector3 finalHandRPosition = handR != null ? handR.position : Vector3.zero;
                 Vector3 finalElbowRPosition = elbowR != null ? elbowR.position : Vector3.zero;
                 
                 Vector3 finalHandLPosition = handL != null ? handL.position : Vector3.zero;
                 Vector3 finalElbowLPosition = elbowL != null ? elbowL.position : Vector3.zero;
 
-                // World Rotation (ใช้ World Rotation จาก Target Transform โดยตรง)
                 Quaternion finalHandRRotation = handR != null ? handR.rotation : Quaternion.identity;
                 Quaternion finalHandLRotation = handL != null ? handL.rotation : Quaternion.identity;
                 
@@ -47,7 +44,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
-                    animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 0); // <-- ปิด Hint เพื่อทดสอบ Rotation
+                    animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 0);
 
                     animator.SetIKPosition(AvatarIKGoal.RightHand, finalHandRPosition);
                     animator.SetIKRotation(AvatarIKGoal.RightHand, finalHandRRotation);
@@ -56,15 +53,15 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     if (IsOwner)
                     {
                         ApplyFinger(HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate,
-                                    HumanBodyBones.RightThumbDistal, fingerSO.thumbR);
+                                    HumanBodyBones.RightThumbDistal, interactSO.thumbR);
                         ApplyFinger(HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate,
-                                    HumanBodyBones.RightIndexDistal, fingerSO.indexR);
+                                    HumanBodyBones.RightIndexDistal, interactSO.indexR);
                         ApplyFinger(HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate,
-                                    HumanBodyBones.RightMiddleDistal, fingerSO.middleR);
+                                    HumanBodyBones.RightMiddleDistal, interactSO.middleR);
                         ApplyFinger(HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate,
-                                    HumanBodyBones.RightRingDistal, fingerSO.ringR);
+                                    HumanBodyBones.RightRingDistal, interactSO.ringR);
                         ApplyFinger(HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate,
-                                    HumanBodyBones.RightLittleDistal, fingerSO.littleR);
+                                    HumanBodyBones.RightLittleDistal, interactSO.littleR);
                     }
                 }
 
@@ -72,7 +69,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
-                    animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 0); // <-- ปิด Hint เพื่อทดสอบ Rotation
+                    animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 0);
 
                     animator.SetIKPosition(AvatarIKGoal.LeftHand, finalHandLPosition);
                     animator.SetIKRotation(AvatarIKGoal.LeftHand, finalHandLRotation);
@@ -81,15 +78,15 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     if (IsOwner)
                     {
                         ApplyFinger(HumanBodyBones.LeftThumbProximal, HumanBodyBones.LeftThumbIntermediate,
-                                    HumanBodyBones.LeftThumbDistal, fingerSO.thumbL);
+                                    HumanBodyBones.LeftThumbDistal, interactSO.thumbL);
                         ApplyFinger(HumanBodyBones.LeftIndexProximal, HumanBodyBones.LeftIndexIntermediate,
-                                    HumanBodyBones.LeftIndexDistal, fingerSO.indexL);
+                                    HumanBodyBones.LeftIndexDistal, interactSO.indexL);
                         ApplyFinger(HumanBodyBones.LeftMiddleProximal, HumanBodyBones.LeftMiddleIntermediate,
-                                    HumanBodyBones.LeftMiddleDistal, fingerSO.middleL);
+                                    HumanBodyBones.LeftMiddleDistal, interactSO.middleL);
                         ApplyFinger(HumanBodyBones.LeftRingProximal, HumanBodyBones.LeftRingIntermediate,
-                                    HumanBodyBones.LeftRingDistal, fingerSO.ringL);
+                                    HumanBodyBones.LeftRingDistal, interactSO.ringL);
                         ApplyFinger(HumanBodyBones.LeftLittleProximal, HumanBodyBones.LeftLittleIntermediate,
-                                    HumanBodyBones.LeftLittleDistal, fingerSO.littleL);
+                                    HumanBodyBones.LeftLittleDistal, interactSO.littleL);
                     }
                 }
             }
@@ -111,7 +108,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             handR = handRPos;
             elbowL = elbowLPos;
             elbowR = elbowRPos;
-            fingerSO = ikInteract;
+            interactSO = ikInteract;
         }
 
         private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)
