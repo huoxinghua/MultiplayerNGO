@@ -97,7 +97,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             RequestKillPlayerServerRpc(new NetworkObjectReference(playerToKill.GetComponent<NetworkObject>()));
         }
 
-        public void HandeHuntingTimerDone()
+        public void HandleHuntingTimerDone()
         {
             //if enemy is looked at when timer is done, it will go to hunting state anyways. This prevents enemy moving when it should not
             if(CurrentState == LookedAtState) return;
