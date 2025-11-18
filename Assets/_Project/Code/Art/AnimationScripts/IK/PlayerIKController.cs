@@ -15,58 +15,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private Transform handL, handR, elbowL, elbowR;
         private IkInteractSO fingerSO;
         
-        private NetworkVariable<Vector3> netHandRPosition = new  NetworkVariable<Vector3>(
-            Vector3.zero,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
-        
-        private NetworkVariable<Quaternion> netHandRRotation = new  NetworkVariable<Quaternion>(
-            Quaternion.identity,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
-        
-        private NetworkVariable<Vector3> netElbowRPosition = new  NetworkVariable<Vector3>(
-            Vector3.zero,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
-        
-        private NetworkVariable<Vector3> netHandLPosition = new  NetworkVariable<Vector3>(
-            Vector3.zero,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
-        
-        private NetworkVariable<Quaternion> netHandLRotation = new  NetworkVariable<Quaternion>(
-            Quaternion.identity,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
-        
-        private NetworkVariable<Vector3> netElbowLPosition = new  NetworkVariable<Vector3>(
-            Vector3.zero,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
-        
         public IKInteractable Interactable => interactable;
-
-        private void Update()
-        {
-            if (!IsOwner) return;
-
-            Transform rootTransform = transform; // PlayerCharacter_NW Root
-
-            if (handR != null)
-            {
-                netHandRPosition.Value = rootTransform.InverseTransformPoint(handR.position);
-                netHandRRotation.Value = Quaternion.Inverse(rootTransform.rotation) * handR.rotation;
-                netElbowRPosition.Value = rootTransform.InverseTransformPoint(elbowR.position);
-            }
-
-            if (handL != null)
-            {
-                netHandLPosition.Value = rootTransform.InverseTransformPoint(handL.position);
-                netHandLRotation.Value = Quaternion.Inverse(rootTransform.rotation) * handL.rotation;
-                netElbowLPosition.Value = rootTransform.InverseTransformPoint(elbowL.position);
-            }
-        }
 
         public bool IkActive
         {
@@ -79,49 +28,31 @@ namespace _Project.Code.Art.AnimationScripts.IK
             if(layerIndex != 0) return;
             if(animator == null) return;
             
-            Transform rootTransform = transform; // PlayerCharacter_NW Root
+            // ไม่ต้องใช้ rootTransform ในการคำนวณ Rotation แล้ว
 
             if (ikActive)
             {
-                Vector3 finalHandRPosition;
-                Quaternion finalHandRRotation;
-                Vector3 finalElbowRPosition;
+                // World Position
+                Vector3 finalHandRPosition = handR != null ? handR.position : Vector3.zero;
+                Vector3 finalElbowRPosition = elbowR != null ? elbowR.position : Vector3.zero;
                 
-                Vector3 finalHandLPosition;
-                Quaternion finalHandLRotation;
-                Vector3 finalElbowLPosition;
+                Vector3 finalHandLPosition = handL != null ? handL.position : Vector3.zero;
+                Vector3 finalElbowLPosition = elbowL != null ? elbowL.position : Vector3.zero;
 
-                if (IsOwner)
-                {
-                    finalHandRPosition = handR != null ? handR.position : Vector3.zero;
-                    finalHandRRotation = handR != null ? handR.rotation : Quaternion.identity;
-                    finalElbowRPosition = elbowR != null ? elbowR.position : Vector3.zero;
-                    
-                    finalHandLPosition = handL != null ? handL.position : Vector3.zero;
-                    finalHandLRotation = handL != null ? handL.rotation : Quaternion.identity;
-                    finalElbowLPosition = elbowL != null ? elbowL.position : Vector3.zero;
-                }
-                else
-                {
-                    finalHandRPosition = rootTransform.TransformPoint(netHandRPosition.Value);
-                    finalHandRRotation = rootTransform.rotation * netHandRRotation.Value;
-                    finalElbowRPosition = rootTransform.TransformPoint(netElbowRPosition.Value);
-                    
-                    finalHandLPosition = rootTransform.TransformPoint(netHandLPosition.Value);
-                    finalHandLRotation = rootTransform.rotation * netHandLRotation.Value;
-                    finalElbowLPosition = rootTransform.TransformPoint(netElbowLPosition.Value);
-                }
-
-                if (IsOwner && handR != null || !IsOwner) 
+                // World Rotation (ใช้ World Rotation จาก Target Transform โดยตรง)
+                Quaternion finalHandRRotation = handR != null ? handR.rotation : Quaternion.identity;
+                Quaternion finalHandLRotation = handL != null ? handL.rotation : Quaternion.identity;
+                
+                if (handR != null) 
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
-                    animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 1);
+                    animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 0); // <-- ปิด Hint เพื่อทดสอบ Rotation
 
                     animator.SetIKPosition(AvatarIKGoal.RightHand, finalHandRPosition);
                     animator.SetIKRotation(AvatarIKGoal.RightHand, finalHandRRotation);
                     animator.SetIKHintPosition(AvatarIKHint.RightElbow, finalElbowRPosition);
-
+                    
                     if (IsOwner)
                     {
                         ApplyFinger(HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate,
@@ -137,11 +68,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     }
                 }
 
-                if (IsOwner && handL != null || !IsOwner)
+                if (handL != null)
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
-                    animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 1);
+                    animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 0); // <-- ปิด Hint เพื่อทดสอบ Rotation
 
                     animator.SetIKPosition(AvatarIKGoal.LeftHand, finalHandLPosition);
                     animator.SetIKRotation(AvatarIKGoal.LeftHand, finalHandLRotation);

@@ -32,20 +32,23 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
 
 
-            if (IsOwner)
-            {
-                if (fpsIKController != null && fpsIKController.Interactable != null)
-                {
-                    if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
-                    else if (isRunning) newState = IKAnimState.Run;
-                    else newState = IKAnimState.Walk;
-
-                    fpsIKController.Interactable.SetAnimState(newState, true, anim.GetBool(hCrouch));
-                }
-            }
+            if (!IsOwner) return; 
+            IKHandle(currentSpeed, isRunning);
             
             //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
             UpdateMovementServerRPC(currentSpeed, maxSpeed);
+        }
+
+        private void IKHandle(float currentSpeed, bool isRunning)
+        {
+            if (fpsIKController != null && fpsIKController.Interactable != null)
+            {
+                if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
+                else if (isRunning) newState = IKAnimState.Run;
+                else newState = IKAnimState.Walk;
+
+                fpsIKController.Interactable.SetAnimState(newState, anim.GetBool(hCrouch));
+            }
         }
         
         [ServerRpc]
@@ -96,8 +99,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             if (fpsIKController.Interactable == null) return;
             
-            var ikController = IsOwner ? fpsIKController : tpsIKController;
-            ikController.Interactable.SetAnimState(IKAnimState.Interact, IsOwner);
+            fpsIKController.Interactable.SetAnimState(IKAnimState.Interact, IsOwner);
         }
 
         public void PlayInAir()

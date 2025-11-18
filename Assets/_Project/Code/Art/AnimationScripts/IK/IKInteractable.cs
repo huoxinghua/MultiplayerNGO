@@ -25,10 +25,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private Tween interactTween;
         private Tween currentTween;
         private bool currentCrouch;
-        private readonly NetworkVariable<bool> isFPS = new NetworkVariable<bool>(
-            true, 
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Owner);
+
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
         
@@ -45,7 +42,10 @@ namespace _Project.Code.Art.AnimationScripts.IK
         
         private float localAnimTime = 0f;
         private const float DRIFT_CORRECTION_THRESHOLD = 0.1f;
+        private bool IsFPS => _currentFPSIKController != null;
+        
         public bool IsInteract { get; private set; } = false;
+
 
         private void Update()
         {
@@ -88,91 +88,98 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
         {
             //Debug.Log($"[IK] Animation state changed: {oldState} → {newState}");
-            bool localFPS = base.IsOwner;
 
             switch (newState)
             {
                 case IKAnimState.Idle:
-                    PlayIKIdle(isFPS.Value);
+                    PlayIKIdle();
                     break;
                 case IKAnimState.Walk:
-                    PlayIKMove(currentCrouch ? 2f : 1f, isFPS.Value, false);
+                    PlayIKMove(currentCrouch ? 2f : 1f, false);
                     break;
                 case IKAnimState.Run:
-                    PlayIKMove(1f, isFPS.Value, true);
+                    PlayIKMove(1f, true);
                     break;
                 case IKAnimState.Interact:
-                    PlayIKInteract(isFPS.Value);
+                    PlayIKInteract();
                     break;
             }
         }
 
-        public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
+        public void SetAnimState(IKAnimState newState, bool isCrouch)
         {
             if (!IsServer)
             {
-                SetAnimStateServerRPC(newState, isFPS, isCrouch);
+                // Client เรียกให้ Server ทำงานแทน
+                SetAnimStateServerRPC(newState, isCrouch);
+                return;
             }
-            SetAnimStateServerRPC(newState, isFPS, isCrouch);
+
+            // Server ทำเอง
+            SetAnimStateServerRPC(newState, isCrouch);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void SetAnimStateServerRPC(IKAnimState newState, bool inputFPS, bool isCrouch)
+        private void SetAnimStateServerRPC(IKAnimState newState, bool isCrouch)
         {
             if (IsInteract && newState != IKAnimState.Interact)
                 return;
 
-            if (currentAnimaState.Value == newState && currentCrouch == isCrouch && isFPS.Value == inputFPS) 
+            if (currentAnimaState.Value == newState && currentCrouch == isCrouch) 
                 return;
 
             currentAnimaState.Value = newState;
             currentCrouch = isCrouch;
-            isFPS.Value = inputFPS;
             
 
             OnAnimStateChanged(currentAnimaState.Value, newState);
         }
         
-        public void SetAnimState(IKAnimState newState, bool isFPS)
+        public void SetAnimState(IKAnimState newState)
         {
             if (!IsServer)
             {
-                SetAnimStateServerRPC(newState, isFPS);
+                //If !server, send to server
+                SetAnimStateServerRPC(newState);
+                return;
             }
-            SetAnimStateServerRPC(newState, isFPS);
+            //If server, just run
+            SetAnimStateServerRPC(newState);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void SetAnimStateServerRPC(IKAnimState newState, bool inputFPS)
+        private void SetAnimStateServerRPC(IKAnimState newState)
         {
             if (IsInteract && newState != IKAnimState.Interact)
                 return;
 
-            if (currentAnimaState.Value == newState && isFPS.Value == inputFPS) 
+            if (currentAnimaState.Value == newState) 
                 return;
 
             currentAnimaState.Value = newState;
-            isFPS.Value = inputFPS;
             
 
             OnAnimStateChanged(currentAnimaState.Value, newState);
         }
 
-        public void PickupAnimation(PlayerIKController ikController, bool isFPS)
+        public void PickupAnimation(PlayerIKController ikController)
         {
             ikController.IKPos(this, handL, handR, elbowL, elbowR, ikInteractSo);
             ikController.IkActive = true;
-            if (isFPS)
+            if (ikController.IsOwner)
             {
                 _currentFPSIKController = ikController;
+                _currentTPSIKController = null;
             }
             else
             {
-                _currentTPSIKController = ikController;  
+                _currentTPSIKController = ikController;
+                _currentFPSIKController = null;
             }
-            transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
-            transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
-            SetAnimState(IKAnimState.Idle, isFPS);
+            transform.localPosition = ApplyPosOffset(Vector3.zero, IsFPS);
+            transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, IsFPS));
+            SetAnimState(IKAnimState.Idle, IsFPS);
+            Debug.Log($"[PickupAnimation] {gameObject.name} | IKname {ikController} | current isFPS(after): {IsFPS} | Owner: {NetworkObject.OwnerClientId}");
         }
 
         public void DropAnimation()
@@ -193,36 +200,36 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         
 
-        private void PlayIKIdle(bool isFPS)
+        private void PlayIKIdle()
         {
-            //If !server, send to server
             if (!IsServer)
             {
-                PlayIKIdleServerRpc(isFPS);
+                //If !server, send to server
+                PlayIKIdleServerRpc();
                 return;
             }
             //If server, just run
-            PlayIKIdleServerRpc(isFPS);
+            PlayIKIdleServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void PlayIKIdleServerRpc(bool isFPS)
+        private void PlayIKIdleServerRpc()
         {
             //State Update
             currentAnimaState.Value = IKAnimState.Idle;
             animTime.Value = 0f;
             
             //Broadcast to Client
-            PlayIKIdleClientRpc(isFPS);
+            PlayIKIdleClientRpc();
         }
 
         [ClientRpc]
-        private void PlayIKIdleClientRpc(bool isFPS)
+        private void PlayIKIdleClientRpc()
         {
             localAnimTime = 0f;
             
             //Play Animation in Local
-            PlayIKIdleLocal(isFPS);
+            PlayIKIdleLocal(IsFPS);
         }
 
         private void PlayIKIdleLocal(bool isFPS)
@@ -258,36 +265,36 @@ namespace _Project.Code.Art.AnimationScripts.IK
         
         
 
-        private void PlayIKMove(float slowSpeed, bool isFPS, bool isRunning)
+        private void PlayIKMove(float slowSpeed, bool isRunning)
         {
-            //If !server, send to server
             if (!IsServer)
             {
-                PlayIKMoveServerRpc(slowSpeed, isFPS, isRunning);
+                //If !server, send to server
+                PlayIKMoveServerRpc(slowSpeed, isRunning);
                 return;
             }
             //If server, just run
-            PlayIKMoveServerRpc(slowSpeed, isFPS, isRunning);
+            PlayIKMoveServerRpc(slowSpeed, isRunning);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void PlayIKMoveServerRpc(float slowSpeed, bool isFPS, bool isRunning)
+        private void PlayIKMoveServerRpc(float slowSpeed, bool isRunning)
         {
             //State Update
             currentAnimaState.Value = isRunning ? IKAnimState.Run :  IKAnimState.Walk;
             animTime.Value = 0f;
             
             //Broadcast to Client
-            PlayIKMoveClientRpc(slowSpeed, isFPS, isRunning);
+            PlayIKMoveClientRpc(slowSpeed, isRunning);
         }
 
         [ClientRpc]
-        private void PlayIKMoveClientRpc(float slowSpeed, bool isFPS, bool isRunning)
+        private void PlayIKMoveClientRpc(float slowSpeed, bool isRunning)
         {
             localAnimTime = 0f;
             
             //Play Animation in Local
-            PlayIKMoveLocal(slowSpeed, isFPS, isRunning);
+            PlayIKMoveLocal(slowSpeed, IsFPS, isRunning);
         }
 
         private void PlayIKMoveLocal(float slowSpeed, bool isFPS, bool isRunning)
@@ -339,36 +346,36 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 });
         }
         
-        private void PlayIKInteract(bool isFPS)
+        private void PlayIKInteract()
         {
-            //If !server, send to server
             if (!IsServer)
             {
-                PlayIKInteractServerRpc(isFPS);
+                //If !server, send to server
+                PlayIKInteractServerRpc();
                 return;
             }
             //If server, just run
-            PlayIKInteractServerRpc(isFPS);
+            PlayIKInteractServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void PlayIKInteractServerRpc(bool isFPS)
+        private void PlayIKInteractServerRpc()
         {
             //State Update
             currentAnimaState.Value = IKAnimState.Interact;
             animTime.Value = 0f;
             
             //Broadcast to Client
-            PlayIKInteractClientRpc(isFPS);
+            PlayIKInteractClientRpc();
         }
 
         [ClientRpc]
-        private void PlayIKInteractClientRpc(bool isFPS)
+        private void PlayIKInteractClientRpc()
         {
             localAnimTime = 0f;
             
             //Play Animation in Local
-            PlayIKInteractLocal(isFPS);
+            PlayIKInteractLocal(IsFPS);
         }
 
         private void PlayIKInteractLocal(bool isFPS)
