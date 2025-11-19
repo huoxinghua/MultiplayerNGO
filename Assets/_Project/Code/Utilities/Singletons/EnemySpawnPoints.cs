@@ -4,7 +4,7 @@ using _Project.Code.Gameplay.EnemySpawning;
 
 namespace _Project.Code.Utilities.Singletons
 {
-    public class EnemySpawnPoints : Singleton<EnemySpawnPoints>
+    public class EnemySpawnPoints : NetworkSingleton<EnemySpawnPoints>
     {
         public List<EnemySpawnPoint> ActiveEnemySpawnPoints = new List<EnemySpawnPoint>();
         public void AddSpawnPoint(EnemySpawnPoint enemySpawnPoint)

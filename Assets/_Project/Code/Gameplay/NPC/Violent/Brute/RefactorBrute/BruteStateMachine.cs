@@ -13,6 +13,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
     {
         protected BruteBaseState CurrentState;
         protected BruteBaseState StateBeforeAttack;
+        protected NetworkVariable<bool> IsHurt = new NetworkVariable<bool>(false, 
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        
         public BruteIdleState IdleState { get; private set; }
         public BruteWanderState WanderState { get; private set; }
         public BruteHurtIdleState BruteHurtIdleState { get; private set; }
@@ -32,11 +35,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public GameObject LastHeardPlayer { get; private set; }
         public GameObject PlayerToAttack { get; private set; }
         public int TimesAlerted = 0;
-     
         // Network sync for player target
         private readonly NetworkVariable<NetworkObjectReference> _playerTargetRef = new NetworkVariable<NetworkObjectReference>();
-       
-
+        //handle heart spawn
+        private Vector3 _originalLocation;
+        private float _heartSafeDistance = 2f;
+        private bool _isHeartSpawned;
+ 
         public void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
@@ -56,7 +61,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public void HandleHeartSpawn()
         {
-            if(!IsServer)return;
             _spawnedHeart = Instantiate(_heartPrefab, transform);
             var netObj = _spawnedHeart.GetComponent<NetworkObject>();
             if (netObj != null && !netObj.IsSpawned)
@@ -71,15 +75,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            _originalLocation = transform.position;
+            
             _playerTargetRef.OnValueChanged += OnPlayerTargetRefChanged;
             if (!IsServer)
             {
                 TryResolvePlayerTarget(_playerTargetRef.Value);
             }
+            
             if (IsServer)
             {
-                HandleHeartSpawn();//move this called from awake 
-                transform.parent = null;
                 TransitionTo(WanderState);
             }
         }
@@ -109,16 +114,28 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
             if (!IsServer) return;
             CurrentState?.StateUpdate();
+            
         }
         void FixedUpdate()
         {
             if (!IsServer) return;
             CurrentState?.StateFixedUpdate();
+
+            if (!IsServer || _isHeartSpawned)
+            {
+                return;
+            }
+            if (Vector3.Distance(transform.position, _originalLocation) >= _heartSafeDistance)
+            {
+                HandleHeartSpawn();
+                _isHeartSpawned = true;
+            }
+
         }
         public void OnHearPlayer(GameObject playerObj)
         {
 
-            if (playerObj == null){ Debug.Log("LeavingEarly"); return; }
+            if (playerObj == null || IsHurt.Value){ Debug.Log("LeavingEarly"); return; }
             LastHeardPlayer = playerObj;
             if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
             {
@@ -137,8 +154,15 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
                 CurrentState?.OnHearPlayer();
             }
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestChangeToIsHurtServerRpc()
+        {
+            IsHurt.Value = true;
+        }
         public void HandleDefendHeart(GameObject attackingPlayer)
         {
+            if (IsHurt.Value) return;
             LastHeardPlayer = attackingPlayer;
             TransitionTo(BruteChaseState);
         }
@@ -197,6 +221,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public void OnHeartDestroyed()
         {
+            RequestChangeToIsHurtServerRpc();
             TransitionTo(BruteHurtIdleState);
         }
         public void OnAttackEnd()

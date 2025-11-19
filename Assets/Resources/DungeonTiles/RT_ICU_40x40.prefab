@@ -823,6 +823,7 @@ GameObject:
   - component: {fileID: 5907678955940796579}
   - component: {fileID: 6880768634498965133}
   - component: {fileID: 4117773064713859519}
+  - component: {fileID: -1643831140359789834}
   m_Layer: 0
   m_Name: RT_ICU_40x40
   m_TagString: DungeonTile
@@ -1244,6 +1245,19 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-1643831140359789834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8263055202676356104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7a6c8ce458e4a1ab7aa994ac3cff4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &8905823176759735686
 GameObject:
   m_ObjectHideFlags: 0
@@ -7903,6 +7917,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5907678955940796579}
     m_Modifications:
+    - target: {fileID: -7420212497529563785, guid: 09c5e39f5a5497f4f845d9de3254ea54, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3631019687
+      objectReference: {fileID: 0}
     - target: {fileID: 7456163804786999464, guid: 09c5e39f5a5497f4f845d9de3254ea54, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.283

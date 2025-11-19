@@ -7,13 +7,16 @@ using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerHealth;
+using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using _Project.Code.Utilities.EventBus;
+using FMODUnity;
 
 namespace _Project.Code.Network.GameManagers
 {
     public class SpectatorController : Singleton<SpectatorController>
     {
         [SerializeField] private Camera mainCam;
+        [SerializeField] private GameObject  _voiceNetworkSpectator;
         private readonly List<Transform> _aliveHeads = new List<Transform>();
         Vector2 rawLook;
         private int _currentIndex = 0;
@@ -21,44 +24,67 @@ namespace _Project.Code.Network.GameManagers
 
         [Header("Sensitivity Values")] [SerializeField]
         private float sensitivity = 2;
-        
-        Vector2 velocity;
-        Vector2 frameVelocity;
+
         private Transform _currentTarget;
         private float _yaw;
         private float _pitch;
         [SerializeField] private float followDistance = 4f;
         [SerializeField] private float heightOffset = 1.5f;
-        private void OnEnable()
+ 
+
+        private void Start()
         {
-            EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
+            if (_voiceNetworkSpectator != null)
+            {
+                _voiceNetworkSpectator.SetActive(false);
+            }
+            else
+            {
+                Debug.Log("_voiceNetworkSpectator need set in inspector");
+            }
+            
         }
 
+        private void OnEnable()
+        {
+            if (EventBus.Instance != null)
+            {
+                EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
+            }
+            
+        }
 
+        private void OnDisable()
+        {
+            if (EventBus.Instance != null)
+            {
+                EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
+            }
+
+            if (_input != null)
+            {
+                _input.OnSpectatorLookInput -= Look;
+                _input.OnNext -= Next;
+                _input.OnPrev -= Prev;
+            }
+        }
+        
         public void EnterSpectatorMode(PlayerDiedEvent playerDiedEvent)
         {
             StartCoroutine(DelayedRefresh(playerDiedEvent));
-
-
-            //  RefreshAliveList();
-           // Debug.Log($"EnterSpectatorMode{playerDiedEvent.deadPlayer}");
-
+            
             if (_aliveHeads.Count == 0)
             {
-                Debug.Log("No alive players to spectate.");
                 FindObjectOfType<NetworkSessionReset>()?.ReturnToMainMenu();
                 return;
             }
 
             mainCam.enabled = true;
-            Debug.Log($"mainCam{mainCam.name}");
             _input =GetComponent<PlayerInputManagerSpectator>();
             if (_input == null)
             {
-                Debug.Log("[Spectator] No PlayerInputManagerSpectator found on dead player.");
                 return;
             }
-            Debug.Log($"_spectator input found already{_input.name}");
             _input.EnableSpectatorInput();
             _input.enabled = true;
             _input.OnSpectatorLookInput += Look;
@@ -71,29 +97,25 @@ namespace _Project.Code.Network.GameManagers
             _input.OnNext += Next;
 
             _input.OnPrev += Prev;
-         
-
-
-            //   _spectatorCam.Priority = 20;
-            //SetTarget(_aliveHeads[0]);
+            HandleSpectatorVoice();
         }
 
-        private void OnDisable()
+        private void HandleSpectatorVoice()
         {
-            if (_input != null)
+            var listener = mainCam. GetComponent<StudioListener>();
+            listener.enabled = true;
+            if (_voiceNetworkSpectator != null)
             {
-                _input.OnSpectatorLookInput -= Look;
-                _input.OnNext -= Next;
-                _input.OnPrev -= Prev;
+                _voiceNetworkSpectator.SetActive(true);
             }
-            
+            else
+            {
+                Debug.Log("_voiceNetworkSpectator null ");
+            }
         }
-
 
         private void Update()
         {
-            //  if (_spectatorCam.Priority < 20) return;
-
             HandleCamera();
         }
 
@@ -106,14 +128,10 @@ namespace _Project.Code.Network.GameManagers
             {
                 RefreshAliveList(playerDiedEvent);
                 if (_aliveHeads.Count > 0) break;
-
-                Debug.Log($"[Spectator] Try {i + 1}: No alive players yet...");
                 yield return new WaitForSeconds(delayBetweenTries);
             }
-
             if (_aliveHeads.Count == 0)
             {
-                Debug.Log("[Spectator] Still no alive players after retries.");
                 yield break;
             }
         }
@@ -121,22 +139,15 @@ namespace _Project.Code.Network.GameManagers
         private void RefreshAliveList(PlayerDiedEvent playerDiedEvent)
         {
             _aliveHeads.Clear();
-           // Debug.Log("how many player alive:" +NetworkManager.Singleton.ConnectedClientsList);
-            Debug.Log("Connected clients count = " + NetworkManager.Singleton.ConnectedClientsList.Count);
-
-
+            var networkManager = NetworkManager.Singleton;
+            if (networkManager == null) return;
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
             {
                 var playerObj = client.PlayerObject;
                 if (playerObj == null)
                 {
-                    Debug.LogWarning($"[Spectator] PlayerObject is null for client {client.ClientId}");
                     continue;
                 }
-
-
-                /*if (client.ClientId == NetworkManager.Singleton.LocalClientId)
-                    continue;*/
                 if (client.PlayerObject == playerDiedEvent.deadPlayer)
                     continue;
                 var health = playerObj.GetComponent<PlayerHealth>();
@@ -147,29 +158,24 @@ namespace _Project.Code.Network.GameManagers
                 if (head != null)
                 {
                     _aliveHeads.Add(head);
-                    Debug.Log($"[Spectator] Added alive player head: {head.name}");
                 }
             }
-
-            Debug.Log($"[Spectator] Found {_aliveHeads.Count} alive players.");
         }
-
 
         private void SetTarget(Transform t)
         {
-            Debug.Log("setTarget" + t);
             _currentTarget = t;
             _yaw = t.eulerAngles.y;
             _pitch = 10f; 
             HandleCamera();
 
         }
+        
         private void Next()
         {
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex + 1) % _aliveHeads.Count;
             SetTarget(_aliveHeads[_currentIndex]);
-            Debug.Log("switch to next spectator came count"+ _aliveHeads.Count+"Index"+_aliveHeads[_currentIndex]);
         }
 
         private void Prev()
@@ -177,23 +183,18 @@ namespace _Project.Code.Network.GameManagers
             if (_aliveHeads.Count == 0) return;
             _currentIndex = (_currentIndex - 1 + _aliveHeads.Count) % _aliveHeads.Count;
              SetTarget(_aliveHeads[_currentIndex]);
-             Debug.Log("switch to prev spectator came count"+ _aliveHeads.Count+"Index"+_aliveHeads[_currentIndex]);
         }
-
-
+        
         private void HandleCamera()
         {
             if (_currentTarget == null) return;
-
-           
+            
             _yaw += rawLook.x * sensitivity;
             _pitch -= rawLook.y * sensitivity;
             _pitch = Mathf.Clamp(_pitch, -80f, 80f);
 
-
             Quaternion rot = Quaternion.Euler(_pitch, _yaw, 0f);
             Vector3 offset = rot * new Vector3(0f, heightOffset, -followDistance);
-
           
             mainCam.transform.position = _currentTarget.position + offset;
             mainCam.transform.rotation = rot;

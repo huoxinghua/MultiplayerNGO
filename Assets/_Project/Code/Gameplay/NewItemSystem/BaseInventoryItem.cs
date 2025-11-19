@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
@@ -8,102 +5,162 @@ using _Project.ScriptableObjects.ScriptObjects.ItemSO;
 using QuickOutline.Scripts;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
-using Outline = QuickOutline.Scripts.Outline;
 using Timer = _Project.Code.Utilities.Utility.Timer;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
+    /// <summary>
+    /// Clean Rewrite: Base class for all inventory items in multiplayer game.
+    /// Implements server-authoritative pickup/drop/equip with proper NetworkVariable patterns.
+    /// All visual/physics changes driven by NetworkVariable callbacks for perfect sync.
+    /// </summary>
     [RequireComponent(typeof(Outline))]
     public class BaseInventoryItem : NetworkBehaviour, IInteractable, IInventoryItem
     {
-        [SerializeField] protected GameObject _heldVisual;
+        #region Serialized Fields
 
-        //  [SerializeField] protected GameObject _heldVisualRPC;
-        [SerializeField] protected BaseItemSO _itemSO;
+        [Header("Item Configuration")]
+        [SerializeField] [Tooltip("ScriptableObject containing item data")]
+        protected BaseItemSO _itemSO;
 
-        //To tell server and clients item is in player inventory. Do not render, collide, etc
-        NetworkVariable<bool> IsPickedUp = new NetworkVariable<bool>(false,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        [Header("Visual Components")]
+        [SerializeField] [Tooltip("Visual representation when held (spawned for player)")]
+        protected GameObject _heldVisual;
 
-        //to tell server and clients item is in player hand. Render held version.
-        NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(false,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-        
-        #region Casting to type demo
+        [SerializeField] [Tooltip("Current instance of held visual (spawned at runtime)")]
+        protected GameObject _currentHeldVisual;
 
-        //casting type to child? to get child specific properties
-        /*if (item is WeaponSO weapon)
-{
-        Debug.Log("Damage: " + weapon.damage);
-}*/
-
-        #endregion
-        
+        [Header("Physics Components")]
         [SerializeField] protected Rigidbody _rb;
         [SerializeField] protected Renderer _renderer;
         [SerializeField] protected Collider _collider;
-        protected Outline OutlineEffect;
+
+        #endregion
+
+        #region Network State (Server-Authoritative)
+
+        /// <summary>
+        /// Server-authoritative: Is this item picked up by a player?
+        /// When true: physics disabled, renderer hidden, collider disabled.
+        /// </summary>
+        private NetworkVariable<bool> IsPickedUp = new NetworkVariable<bool>(
+            false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        /// <summary>
+        /// Server-authoritative: Is this item currently equipped in player's hand?
+        /// When true: held visual shown, IK applied.
+        /// </summary>
+        private NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(
+            false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        #endregion
+
+        #region Server-Only State
+
+        /// <summary>
+        /// Server-only: GameObject of player who owns this item.
+        /// Only valid on server, null on clients.
+        /// </summary>
         protected GameObject _owner;
 
-        [SerializeField] protected Transform CurrentHeldPosition;
-        protected bool _hasOwner => _owner != null;
-        protected bool _isInOwnerHand = false;
+        /// <summary>
+        /// Server-only: Transform where item should be held.
+        /// Only valid on server, null on clients.
+        /// </summary>
+        protected Transform CurrentHeldPosition;
 
-        [SerializeField] protected GameObject _currentHeldVisual;
+        /// <summary>
+        /// Returns true if item has an owner (server-only).
+        /// </summary>
+        protected bool _hasOwner => _owner != null;
+
+        #endregion
+
+        #region Component References
+
+        /// <summary>
+        /// Outline effect for hover indication.
+        /// </summary>
+        protected Outline OutlineEffect;
+
+        /// <summary>
+        /// Script on held visual that manages IK and rendering.
+        /// </summary>
         protected BaseHeldVisual CurrentHeldVisualScript { get; private set; }
 
-        
+        /// <summary>
+        /// Player inventory reference (set via ClientRpc when picked up).
+        /// </summary>
         private PlayerInventory _currentPlayerInventory;
-        public ulong OwnerID;
 
-        //  protected GameObject _currentHeldVisualRPC;
+        #endregion
+
+        #region Item Values (For Selling)
+
+        /// <summary>
+        /// Item's tranquil research value (generated on server for enemy drops).
+        /// </summary>
         protected float _tranquilValue = 0;
+
+        /// <summary>
+        /// Item's violent research value (generated on server for enemy drops).
+        /// </summary>
         protected float _violentValue = 0;
+
+        /// <summary>
+        /// Item's miscellaneous research value (generated on server for enemy drops).
+        /// </summary>
         protected float _miscValue = 0;
 
+        #endregion
+
+        #region Cooldown System
+
+        /// <summary>
+        /// Cooldown timer for item usage.
+        /// Initialized from _itemSO.ItemCooldown in Awake().
+        /// </summary>
         public Timer ItemCooldown = new Timer(0);
 
-        #region SetupAndUpdates
+        #endregion
 
-        private void LateUpdate()
-        {
-            ItemCooldown.TimerUpdate(Time.deltaTime);
-        }
-        protected virtual void CustomNetworkSpawn()
-        {
-            IsPickedUp.OnValueChanged += OnPickedUpStateChanged;
-            IsInHand.OnValueChanged += OnChangedInHandState;
-
-            OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
-            OnPickedUpStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
-        }
-        
-        /// <summary>
-        /// Call on children in update. Will keep item position locked similar to parenting
-        /// </summary>
-        protected virtual void UpdateHeldPosition()
-        {
-            if (_currentHeldVisual == null || CurrentHeldPosition == null) return;
-            transform.position = CurrentHeldPosition.position;
-            transform.rotation = CurrentHeldPosition.rotation;
-        }
-        /// <summary>
-        /// Changes to IsPickedUp state. Not associated with in hand, just in inventory
-        /// </summary>
-        /// <param name="oldHeld">Last pickedup state</param>
-        /// <param name="newHeld">new/current pickedup state</param>
-        protected virtual void OnPickedUpStateChanged(bool oldHeld, bool newHeld)
-        {
-            _collider.enabled = !newHeld;
-            _rb.isKinematic = newHeld;
-            _renderer.enabled = !newHeld;
-        }
+        #region Initialization
 
         protected virtual void Awake()
         {
-            ItemCooldown.Start();
-            CurrentHeldVisualScript = _currentHeldVisual.GetComponent<BaseHeldVisual>();
+            // Initialize cooldown duration (but don't start timer yet - only starts on first use)
+            if (_itemSO != null)
+            {
+                Debug.Log($"[{gameObject.name}] BEFORE ForceComplete - SODuration:{_itemSO.ItemCooldown}");
+                ItemCooldown.Reset(_itemSO.ItemCooldown);
+                ItemCooldown.ForceComplete(); // Mark as complete so item can be used immediately
+                Debug.Log($"[{gameObject.name}] AFTER ForceComplete - IsComplete:{ItemCooldown.IsComplete}");
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] _itemSO is null in Awake()");
+            }
+
+            // Get held visual script reference
+            if (_currentHeldVisual != null)
+            {
+                CurrentHeldVisualScript = _currentHeldVisual.GetComponent<BaseHeldVisual>();
+                if (CurrentHeldVisualScript == null)
+                {
+                    Debug.LogWarning($"[{gameObject.name}] _currentHeldVisual missing BaseHeldVisual component");
+                }
+                else
+                {
+                    // IMPORTANT: Ensure held visual starts disabled (defensive coding)
+                    CurrentHeldVisualScript.SetRendererActive(false);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] _currentHeldVisual not assigned in Inspector");
+            }
+
+            // Initialize outline effect
             OutlineEffect = GetComponent<Outline>();
             if (OutlineEffect != null)
             {
@@ -112,224 +169,212 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            // Register NetworkVariable callbacks
+            IsPickedUp.OnValueChanged += OnPickedUpStateChanged;
+            IsInHand.OnValueChanged += OnChangedInHandState;
+
+            // Apply initial state for late joiners
+            OnPickedUpStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
+            OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
+        }
+
+        protected virtual void LateUpdate()
+        {
+            // Update cooldown timer
+            ItemCooldown.TimerUpdate(Time.deltaTime);
+        }
+
         #endregion
-        
-        #region Interaction
+
+        #region Position Update (Override in Child Classes)
 
         /// <summary>
-        /// Called when player interacts with the scene object. Used to handle pickup
+        /// Override this in child classes to update item position when held.
+        /// Call this in Update() only if IsOwner.
+        /// Used to manually lock position to hand transform (alternative to parenting).
         /// </summary>
-        /// <param name="interactingPlayer">The player obj that has interacted</param>
+        protected virtual void UpdateHeldPosition()
+        {
+            if (_currentHeldVisual == null || CurrentHeldPosition == null)
+            {
+                return;
+            }
+
+            transform.position = CurrentHeldPosition.position;
+            transform.rotation = CurrentHeldPosition.rotation;
+        }
+
+        #endregion
+
+        #region IInteractable Implementation (Player Interaction)
+
+        /// <summary>
+        /// Called when player interacts with this item in the world.
+        /// Attempts to pick up the item if player has space.
+        /// </summary>
+        /// <param name="interactingPlayer">GameObject of player interacting</param>
         public virtual void OnInteract(GameObject interactingPlayer)
         {
-            var inv = interactingPlayer.GetComponent<PlayerInventory>();
-            if (inv == null) return;
+            PlayerInventory inv = interactingPlayer.GetComponent<PlayerInventory>();
+            if (inv == null)
+            {
+                Debug.LogWarning("[BaseInventoryItem] Interacting player has no PlayerInventory component");
+                return;
+            }
 
-            inv.TryPickupItem();
-            inv.DoPickup(this);
+            // Check if player has space (local check, server does final validation)
+            if (inv.TryPickupItem())
+            {
+                inv.DoPickup(this);
+            }
         }
 
         /// <summary>
-        /// Called on change to player "hovering"/looking directly at the scene object. Changes outline based on hovering or not
+        /// Called when player hovers over (looks at) this item.
+        /// Enables/disables outline effect for visual feedback.
         /// </summary>
-        /// <param name="isHovering">Is the player hovering</param>
+        /// <param name="isHovering">True if player is looking at item</param>
         public virtual void HandleHover(bool isHovering)
         {
-            if (OutlineEffect != null)
+            if (OutlineEffect == null)
             {
-                if (_hasOwner)
-                {
-                    OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
-                    return;
-                }
+                return;
+            }
 
-                if (isHovering)
+            // Don't show outline if item is picked up
+            if (_hasOwner)
+            {
+                OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
+                return;
+            }
+
+            if (isHovering)
+            {
+                OutlineEffect.OutlineMode = Outline.Mode.OutlineVisible;
+                OutlineEffect.OutlineWidth = 2;
+            }
+            else
+            {
+                OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
+                OutlineEffect.OutlineWidth = 0;
+            }
+        }
+
+        #endregion
+
+        #region Server-Only Pickup Logic
+
+        /// <summary>
+        /// SERVER-ONLY: Executes pickup logic on server.
+        /// Sets ownership, updates network state, distributes held visual reference.
+        /// Visual/physics changes handled by OnPickedUpStateChanged callback.
+        /// </summary>
+        /// <param name="player">GameObject of player picking up item</param>
+        /// <param name="playerHoldPosition">Transform where item should be held</param>
+        /// <param name="networkObjectForPlayer">Player's NetworkObject for ownership transfer</param>
+        public virtual void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        {
+            // Guard: This method should ONLY run on server
+            if (!IsServer)
+            {
+                Debug.LogError("[BaseInventoryItem] PickupItem() called on client! This should only run on server.");
+                return;
+            }
+
+            // Server-only logic
+            _owner = player;
+            CurrentHeldPosition = playerHoldPosition;
+
+            // Transfer ownership to player
+            NetworkObject.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
+
+            // Distribute held visual reference to all clients via ClientRpc
+            DistributeHeldVisualReferenceClientRpc(new NetworkObjectReference(networkObjectForPlayer));
+
+            // Set picked up state - callback will handle physics/rendering on all clients
+            IsPickedUp.Value = true;
+        }
+
+        /// <summary>
+        /// Distributes player inventory reference to all clients.
+        /// Needed so item can access IK data when equipped.
+        /// </summary>
+        /// <param name="playerObjRef">NetworkObjectReference to player</param>
+        [ClientRpc(RequireOwnership = false)]
+        private void DistributeHeldVisualReferenceClientRpc(NetworkObjectReference playerObjRef)
+        {
+            if (playerObjRef.TryGet(out NetworkObject playerNetObj))
+            {
+                if (playerNetObj.TryGetComponent<PlayerInventory>(out PlayerInventory playerInventory))
                 {
-                    OutlineEffect.OutlineMode = Outline.Mode.OutlineVisible;
-                    OutlineEffect.OutlineWidth = 2;
+                    _currentPlayerInventory = playerInventory;
                 }
                 else
                 {
-                    OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
-                    OutlineEffect.OutlineWidth = 0;
+                    Debug.LogWarning("[BaseInventoryItem] Player NetworkObject has no PlayerInventory component");
                 }
             }
         }
 
         #endregion
-        
-        #region PickupLogic
+
+        #region Server-Only Drop Logic
 
         /// <summary>
-        /// Call to inform the item of pickup. Only happens if inventory has space for item
+        /// SERVER-ONLY: Executes drop logic on server.
+        /// Clears ownership, updates network state, spawns item in world.
+        /// Visual/physics changes handled by OnPickedUpStateChanged callback.
         /// </summary>
-        /// <param name="player"> For the players gameobject</param>
-        /// <param name="playerHoldPosition">The position on the player used for holding items</param>
-        /// <param name="networkObjectForPlayer"> The network object for ease of reference and sync</param>
-        public virtual void PickupItem(GameObject player, Transform playerHoldPosition,
-            NetworkObject networkObjectForPlayer)
-        {
-            //setting required variables for pickup
-            _owner = player;
-            _rb.isKinematic = true;
-            _renderer.enabled = false;
-            _collider.enabled = false;
-            CurrentHeldPosition = networkObjectForPlayer.transform.GetChild(0).GetChild(1);
-           
-            if (!IsServer)
-            {
-                // Non-server clients request pickup
-                Debug.Log("RequestSpawnServerRpc");
-                RequestHandleCurrentVisServerRpc(networkObjectForPlayer);
-                RequestPickupServerRpc(new NetworkObjectReference(networkObjectForPlayer));
-            }
-            else
-            {
-                // Host/server logic
-                RequestSetIsPickedUpServerRpc();
-                HandleCurrentHeldVisualClientRPC(new NetworkObjectReference(networkObjectForPlayer));
-                HandleOwnershipChange(networkObjectForPlayer);
-            }
-        }
-        
-        
-        /// <summary>
-        ///  Changes ownership of the item when picked up. This one only sets parent to the player interacting
-        /// </summary>
-        /// <param name="networkObjectForPlayer">net obj of the player</param>
-        private void HandleOwnershipChange(NetworkObject networkObjectForPlayer)
-        {
-            // Assign ownership to the player
-            NetworkObject.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
-        }
-        
-        #region Pickup RPCs
-        
-        /// <summary>
-        /// Requests server to call matching client RPC - Relays the networkobj reference
-        /// </summary>
-        /// <param name="netObjRef">The player networkobj reference</param>
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestHandleCurrentVisServerRpc(NetworkObjectReference netObjRef)
-        {
-            HandleCurrentHeldVisualClientRPC(netObjRef);
-        }
-        
-        /// <summary>
-        /// Requests change in ownership to the player picking up - Calls another server RPC (probably could do the other RPC logic in here?)
-        /// </summary>
-        /// <param name="playerRef">The networkobj reference for player</param>
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestPickupServerRpc(NetworkObjectReference playerRef)
-        {
-            if (!playerRef.TryGet(out NetworkObject playerObj)) return;
-            _owner = playerObj.gameObject;
-            // Use the same method for server/host
-            HandleOwnershipChange(playerObj);
-            RequestSetIsPickedUpServerRpc();
-        }
-        
-        /// <summary>
-        /// Requests the server to change IsPickedUp to true
-        /// </summary>
-        [ServerRpc(RequireOwnership = false)]
-        void RequestSetIsPickedUpServerRpc()
-        {
-            IsPickedUp.Value = true;
-            // <-- automatically triggers OnHeldStateChanged on all clients
-        }
-        
-        /// <summary>
-        /// Distributes _currentPlayerInventory to all clients. Sets it to the playerNetObj Refs PlayerInventory
-        /// </summary>
-        /// <param name="playerObjRef">The networkobj reference for player</param>
-        [ClientRpc (RequireOwnership = false)]
-        private void HandleCurrentHeldVisualClientRPC(NetworkObjectReference playerObjRef)
-        {
-            NetworkObject playerNetObj = null;
-            if (playerObjRef.TryGet(out playerNetObj))
-            {
-                PlayerInventory playerInventory = null;
-                if (playerNetObj.TryGetComponent<PlayerInventory>(out playerInventory))
-                {
-                    _currentPlayerInventory =  playerInventory;
-                }
-                
-            }
-        }
-        #endregion
-        #endregion
-        
-        #region DropLogic
-        
-        
-        /// <summary>
-        /// Call to inform item to drop. Clears Variables associated with being held or in inventory, Informs RPCS, and enables physics
-        /// </summary>
-        /// <param name="dropPoint">Point on player to drop item at</param>
+        /// <param name="dropPoint">Transform where item should be dropped</param>
         public virtual void DropItem(Transform dropPoint)
         {
-            _owner = null;
-            _renderer.enabled = true;
-            if (NetworkManager.Singleton.IsClient)
-            {
-                RequestIsPickedUpDropServerRpc();
-            }
+            // Guard: This method should ONLY run on server
             if (!IsServer)
             {
-                RequestDropServerRpc();
+                Debug.LogError("[BaseInventoryItem] DropItem() called on client! This should only run on server.");
+                return;
             }
-            else
+
+            // Server-only logic
+            _owner = null;
+
+            // Remove ownership (becomes server-owned)
+            NetworkObject.RemoveOwnership();
+
+            // Position item at drop point
+            if (dropPoint != null)
             {
-                NetworkObject.RemoveOwnership();
-                DistributeDropClientRPC();
+                transform.position = dropPoint.position;
+                transform.rotation = dropPoint.rotation;
             }
-            _rb.isKinematic = false;
-            _collider.enabled = true;
-        }
 
+            // Clear held position reference on all clients
+            ClearHeldPositionClientRpc();
 
-        #region DropRPCS
-        
-        /// <summary>
-        /// Sets network variable for IsPickUp to false
-        /// </summary>
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestIsPickedUpDropServerRpc()
-        {
+            // Set picked up state to false - callback will handle physics/rendering on all clients
             IsPickedUp.Value = false;
         }
-        /// <summary>
-        /// Removes ownership for the items network object 
-        /// </summary>
-        [ServerRpc(RequireOwnership = false)]
-        private void RequestDropServerRpc()
-        {
-            NetworkObject.RemoveOwnership();
-            DistributeDropClientRPC();
-            Debug.Log($"[ServerRpc] Owner set to {NetworkObject.OwnerClientId}");
-        }
 
+        /// <summary>
+        /// Clears CurrentHeldPosition on all clients.
+        /// </summary>
         [ClientRpc(RequireOwnership = false)]
-        private void DistributeDropClientRPC()
+        private void ClearHeldPositionClientRpc()
         {
             CurrentHeldPosition = null;
         }
+
         #endregion
-        #endregion
-        
-        #region SwappingLogic
-        /// <summary>
-        /// Handles unequipping of an item. The function itself requests a server RPC to sync
-        /// </summary>
-        public virtual void UnequipItem()
-        {
-            SetInHandServerRpc(false);
-            Debug.Log("[BaseInventoryItem] UnequipItem" + _currentHeldVisual);
-        }
+
+        #region Server-Only Equip/Unequip Logic
 
         /// <summary>
-        /// Handles equipping of an item. The function itself requests a server RPC to sync
+        /// Equips this item (shows in hand, applies IK).
+        /// Sends ServerRpc to set IsInHand to true.
         /// </summary>
         public virtual void EquipItem()
         {
@@ -337,168 +382,210 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
 
         /// <summary>
-        /// Assigns the network variable IsInHand. Only call when item should leave or enter hand 
+        /// Unequips this item (hides from hand, removes IK).
+        /// Sends ServerRpc to set IsInHand to false.
         /// </summary>
-        /// <param name="inHand">Set IsInHand to inHand</param>
+        public virtual void UnequipItem()
+        {
+            SetInHandServerRpc(false);
+        }
+
+        /// <summary>
+        /// SERVER-ONLY: Sets IsInHand NetworkVariable.
+        /// NetworkVariable callback will handle visual/IK changes on all clients.
+        /// </summary>
+        /// <param name="inHand">True to equip, false to unequip</param>
         [ServerRpc(RequireOwnership = false)]
         private void SetInHandServerRpc(bool inHand)
         {
+            // Validate item is picked up before equipping
+            if (!IsPickedUp.Value && inHand)
+            {
+                Debug.LogWarning("[Server] Attempting to equip item that isn't picked up");
+                return;
+            }
+
             IsInHand.Value = inHand;
         }
 
+        #endregion
+
+        #region NetworkVariable Callbacks (Visual/Physics Sync)
+
         /// <summary>
-        /// Called by switches to IsInHand network variable. Its a way to sync and display heldvisual and IK
+        /// Callback when IsPickedUp changes.
+        /// Enables/disables physics and rendering based on pickup state.
+        /// Runs on all clients for perfect sync.
         /// </summary>
-        /// <param name="oldState">last value of IsInHand</param>
-        /// <param name="newState">new/current value of IsInHand</param>
+        /// <param name="oldState">Previous pickup state</param>
+        /// <param name="newState">New pickup state</param>
+        protected virtual void OnPickedUpStateChanged(bool oldState, bool newState)
+        {
+            // When picked up: disable collision, enable kinematic, hide renderer
+            // When dropped: enable collision, disable kinematic, show renderer
+            _collider.enabled = !newState;
+            _rb.isKinematic = newState;
+            _renderer.enabled = !newState;
+        }
+
+        /// <summary>
+        /// Callback when IsInHand changes.
+        /// Shows/hides held visual and applies/removes IK.
+        /// Runs on all clients for perfect sync.
+        /// </summary>
+        /// <param name="oldState">Previous equipped state</param>
+        /// <param name="newState">New equipped state</param>
         private void OnChangedInHandState(bool oldState, bool newState)
         {
+            // Validate held visual exists
             if (_currentHeldVisual == null)
             {
-                Debug.Log("SHOULDNT BE POSSIBLE TO PRINT THIS! IF SEEING THIS MAKE SURE YOU ASSIGNED CURRENT HELD VISUAL");
+                Debug.LogWarning($"[{gameObject.name}] CurrentHeldVisual is null - ensure it's assigned in Inspector");
                 return;
             }
-            //I am sorry Sean
+
+            // Validate player inventory reference exists
             if (_currentPlayerInventory == null)
             {
-                Debug.Log("Welp, it was needed :(");
-                StartCoroutine(WaitOnCurrentPlayerInventory(oldState, newState));
+                Debug.LogWarning($"[{gameObject.name}] CurrentPlayerInventory not set yet (waiting for ClientRpc)");
                 return;
             }
-            if (newState == false)
+
+            // Apply or remove IK
+            if (newState)
             {
-                CurrentHeldVisualScript.IKUnequipped();
+                CurrentHeldVisualScript?.IKEquipped(_currentPlayerInventory.ThisPlayerIKData);
             }
             else
             {
-                CurrentHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData);
-            }
-            CurrentHeldVisualScript.SetRendererActive(newState);
-            _isInOwnerHand = newState;
-        }
-
-        /// <summary>
-        /// Waits for the _currentPlayerInventory. Bad but necessary
-        /// </summary>
-        /// <param name="oldState">Should reflect OnChangedInHandState</param>
-        /// <param name="newState">Should reflect OnChangedInHandState</param>
-        /// <returns>Nothing, just waits</returns>
-        IEnumerator WaitOnCurrentPlayerInventory(bool oldState, bool newState)
-        {
-            yield return new WaitUntil(() => _currentPlayerInventory != null);
-            OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
-        }
-        
-        #endregion
-        
-        #region Junk
-//junk code temp storage
-        /*
-        IEnumerator WaitForHeld(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
-        {
-            while (_currentHeldVisual == null)
-            {
-                yield return null;
+                CurrentHeldVisualScript?.IKUnequipped();
             }
 
-        }*/
+            // Show or hide held visual renderer
+            CurrentHeldVisualScript?.SetRendererActive(newState);
+        }
 
-        /*private IEnumerator AssignHeldVisualDelayed(NetworkObjectReference heldVisualRef)
-        {
-            NetworkObject netObj = null;
-            while (!heldVisualRef.TryGet(out netObj))
-                yield return null;
-                Debug.Log("Should have worked?");
-                if(_currentHeldVisual == null)
-                _currentHeldVisual = netObj.gameObject;
-        }*/
-        /*private void HandleHeldPosition(NetworkObject playerObj, Transform playerHoldPosition)
-        {
-            _currentHeldVisual.transform.SetPositionAndRotation(CurrentHeldPosition.position,
-                CurrentHeldPosition.rotation);
-            transform.position = CurrentHeldPosition.position;
-            _currentHeldVisual.transform.position = CurrentHeldPosition.position;
-            _currentHeldVisual.transform.rotation = CurrentHeldPosition.rotation;
-            OnChangedInHandState(false, false);
-        }*/
         #endregion
-        
-        #region UseFunctions
+
+        #region Item Usage (Override in Child Classes)
+
         /// <summary>
-        /// The base Use. This exists for children, and handles cooldown. If item has no cooldown, cooldown is ignored
+        /// Primary use of item. Override in child classes for item-specific behavior.
+        /// Base implementation handles cooldown check and reset.
+        /// Child classes should call base.UseItem() first, then add custom logic.
         /// </summary>
         public virtual void UseItem()
         {
-            if (_itemSO.ItemCooldown != 0)
+            // Check cooldown - early return if not ready
+            if (!TryUseItem())
             {
-                if (ItemCooldown.IsComplete)
-                {
-                    ItemCooldown.Reset(_itemSO.ItemCooldown);
-                }
-                else
-                {
-                    return;
-                }
+                Debug.Log($"[{gameObject.name}] UseItem blocked - item on cooldown");
+                return;
             }
+
+            // Reset cooldown timer for next use
+            ItemCooldown.Reset(_itemSO.ItemCooldown);
         }
+
         /// <summary>
-        /// Base for secondary use. As of now no secondary use cooldown. They will tend to involve holding the key
+        /// Checks if item can be used (cooldown complete).
         /// </summary>
-        /// <param name="isPerformed">True = input pressed - False = input released</param>
+        /// <returns>True if item can be used</returns>
+        protected virtual bool TryUseItem()
+        {
+            bool noCooldown = _itemSO.ItemCooldown == 0;
+            bool isComplete = ItemCooldown.IsComplete;
+            bool result = noCooldown || isComplete;
+            Debug.Log($"[{gameObject.name}] TryUseItem - SOCooldown:{_itemSO.ItemCooldown}, NoCooldown:{noCooldown}, IsComplete:{isComplete}, Result:{result}");
+            return result;
+        }
+
+        /// <summary>
+        /// Secondary use of item (hold/release pattern).
+        /// Override in child classes for item-specific behavior.
+        /// </summary>
+        /// <param name="isPerformed">True when button pressed, false when released</param>
         public virtual void SecondaryUse(bool isPerformed)
         {
-            
+            // Base implementation does nothing - override in child classes
         }
-        #endregion
-        
-        #region Getters
 
+        #endregion
+
+        #region IInventoryItem Interface Implementation
+
+        /// <summary>
+        /// Gets item name from ScriptableObject.
+        /// </summary>
         public virtual string GetItemName()
         {
-            return _itemSO.ItemName;
+            return _itemSO != null ? _itemSO.ItemName : "Unknown Item";
         }
 
+        /// <summary>
+        /// Gets whether item is pocket-size (goes in inventory) or big (held in hands).
+        /// </summary>
         public virtual bool IsPocketSize()
         {
-            return _itemSO.IsPocketSize;
+            return _itemSO != null && _itemSO.IsPocketSize;
         }
 
+        /// <summary>
+        /// Gets held visual GameObject.
+        /// </summary>
         public virtual GameObject GetHeldVisual()
         {
             return _heldVisual;
         }
 
-        /*   public virtual GameObject GetHeldVisualRPC()
-           {
-               return _currentHeldVisualRPC;
-           }*/
-        public virtual Image GetUIImage()
+        /// <summary>
+        /// Gets UI sprite for inventory display.
+        /// </summary>
+        public virtual Sprite GetUIImage()
         {
-            return _itemSO.ItemUIImage;
+            return _itemSO != null ? _itemSO.ItemUIImage : null;
         }
 
+        /// <summary>
+        /// Gets whether item can be sold.
+        /// </summary>
         public virtual bool CanBeSold()
         {
-            return _itemSO.CanBeSold;
+            return _itemSO != null && _itemSO.CanBeSold;
         }
 
         #endregion
 
-        #region SellingLogic
+        #region Selling Logic
+
+        /// <summary>
+        /// SERVER-ONLY: Called when item is sold.
+        /// Destroys held visual and item GameObject.
+        /// </summary>
         public virtual void WasSold()
         {
-            Destroy(_currentHeldVisual);
+            if (_currentHeldVisual != null)
+            {
+                Destroy(_currentHeldVisual);
+            }
             Destroy(gameObject);
         }
 
+        /// <summary>
+        /// Gets item's science values for selling.
+        /// </summary>
+        /// <returns>ScienceData struct with item values</returns>
         public virtual ScienceData GetValueStruct()
         {
             return new ScienceData
             {
-                RawTranquilValue = _tranquilValue, RawMiscValue = _miscValue, RawViolentValue = _violentValue,
-                KeyName = _itemSO.ItemName
+                RawTranquilValue = _tranquilValue,
+                RawViolentValue = _violentValue,
+                RawMiscValue = _miscValue,
+                KeyName = GetItemName()
             };
         }
+
         #endregion
     }
 }

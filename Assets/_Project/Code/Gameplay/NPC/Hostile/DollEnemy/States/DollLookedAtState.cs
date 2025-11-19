@@ -1,0 +1,34 @@
+namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
+{
+    public class DollLookedAtState : DollBaseState
+    {
+        public DollLookedAtState(DollStateMachine stateMachine) : base(stateMachine)
+        {
+        
+        }
+        public override void OnEnter()
+        {
+            //set speed to 0
+            //stop agents pathfinding
+            //Ensure ZERO movement
+            Agent.stoppingDistance = DollSO.StoppingDist;
+            Agent.speed = 0;
+            Agent.isStopped = true;
+        }
+
+        public override void OnExit()
+        {
+        
+        }
+
+        public override void StateFixedUpdate()
+        {
+        
+        }
+
+        public override void StateUpdate()
+        {
+        
+        }
+    }
+}

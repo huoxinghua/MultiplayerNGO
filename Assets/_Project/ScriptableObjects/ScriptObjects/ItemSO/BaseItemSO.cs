@@ -8,7 +8,7 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO
     {
         [field: Header("Base Item Details")]
         [field: SerializeField] public string ItemName { get; private set; }
-        [field: SerializeField] public Image ItemUIImage { get; private set; }
+        [field: SerializeField] public Sprite ItemUIImage { get; private set; }
         [field: SerializeField] public GameObject HeldPrefab { get; private set; }
         [field: SerializeField] public float ItemCooldown { get; private set; }
 

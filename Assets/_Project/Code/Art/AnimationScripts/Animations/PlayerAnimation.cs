@@ -7,13 +7,6 @@ using Unity.Netcode;
 
 namespace _Project.Code.Art.AnimationScripts.Animations
 {
-    public enum AnimationState
-    {
-        Idle,
-        Walk,
-        Run,
-        Interact
-    }
     public class PlayerAnimation : BaseAnimation
     {
         [SerializeField] public NetworkAnimator netAnim;
@@ -23,8 +16,6 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hInAir = Animator.StringToHash("isInAir");
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
-
-        private AnimationState state = AnimationState.Idle;
 
 
         protected override void Awake()
@@ -39,71 +30,22 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected override void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
+
             
-            UpdateIKMovement(currentSpeed, maxSpeed, isRunning);
-            UpdateIKMovementServerRPC(currentSpeed, maxSpeed, isRunning);
+            if(!IsOwner) return;
+            IKAnimState newState;
+            var ikController = IsOwner ? fpsIKController : tpsIKController;
+            if (ikController != null && ikController.Interactable != null)
+            {
+                if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
+                else if (isRunning) newState = IKAnimState.Run;
+                else newState = IKAnimState.Run;
+                
+                ikController.Interactable.SetAnimState(newState, IsOwner, anim.GetBool(hCrouch));
+            }
 
             //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
             UpdateMovementServerRPC(currentSpeed, maxSpeed);
-        }
-
-        private void UpdateIKMovement(float  currentSpeed, float maxSpeed, bool isRunning)
-        {
-            if (fpsIKController.Interactable == null) return;
-
-            bool isIdle = currentSpeed <= 0.01f;
-            AnimationState targetState = AnimationState.Idle;
-
-            if (!isIdle)
-                targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
-
-            if (state == targetState) return;
-            state = targetState;
-
-            fpsIKController.Interactable.StopIKAnimation();
-
-            switch (state)
-            {
-                case AnimationState.Idle:
-                    fpsIKController.Interactable.PlayIKIdle(true);
-                    break;
-                case AnimationState.Walk:
-                    fpsIKController.Interactable.PlayIKWalk(1f, true);
-                    break;
-                case AnimationState.Run:
-                    fpsIKController.Interactable.PlayIKRun(true);
-                    break;
-            }
-        }
-        
-        [ServerRpc]
-        private void UpdateIKMovementServerRPC(float  currentSpeed, float maxSpeed, bool isRunning)
-        {
-            if (fpsIKController.Interactable == null) return;
-
-            bool isIdle = currentSpeed <= 0.01f;
-            AnimationState targetState = AnimationState.Idle;
-
-            if (!isIdle)
-                targetState = isRunning ? AnimationState.Run : AnimationState.Walk;
-
-            if (state == targetState) return;
-            state = targetState;
-
-            fpsIKController.Interactable.StopIKAnimation();
-
-            switch (state)
-            {
-                case AnimationState.Idle:
-                    tpsIKController.Interactable.PlayIKIdle(false);
-                    break;
-                case AnimationState.Walk:
-                    tpsIKController.Interactable.PlayIKWalk(1f, false);
-                    break;
-                case AnimationState.Run:
-                    tpsIKController.Interactable.PlayIKRun(false);
-                    break;
-            }
         }
         
         [ServerRpc]
@@ -152,25 +94,17 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         
         public void PlayInteract()
         {
-            if (fpsIKController.Interactable == null) return;
-           // if(state == AnimationState.Interact) return;
-            if(IsOwner)
-            fpsIKController.Interactable.PlayIKInteract(true);
-            PlayInteractServerRpc();
-        }
-        [ServerRpc]
-        private void PlayInteractServerRpc()
-        {
-           DistributeInteractAnimClientRpc();
-        }
+            Debug.Log($"[PlayerAnimation] PlayInteract() called - FPS Interactable null: {fpsIKController.Interactable == null}, TPS Interactable null: {tpsIKController.Interactable == null}");
 
-        [ClientRpc(RequireOwnership = false)]
-        void DistributeInteractAnimClientRpc()
-        {
-            if (fpsIKController.Interactable == null) return;
-            //if(state == AnimationState.Interact) return;
-            if(!IsOwner)
-            tpsIKController.Interactable.PlayIKInteract(false);
+            if (fpsIKController.Interactable == null)
+            {
+                Debug.LogWarning("[PlayerAnimation] PlayInteract() blocked - fpsIKController.Interactable is null!");
+                return;
+            }
+
+            var ikController = IsOwner ? fpsIKController : tpsIKController;
+            Debug.Log($"[PlayerAnimation] Setting anim state to Interact on {(IsOwner ? "FPS" : "TPS")} controller");
+            ikController.Interactable.SetAnimState(IKAnimState.Interact, IsOwner);
         }
 
         public void PlayInAir()

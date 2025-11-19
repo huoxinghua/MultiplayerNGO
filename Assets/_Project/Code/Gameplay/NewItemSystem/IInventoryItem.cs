@@ -14,7 +14,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public string GetItemName();
         public bool IsPocketSize();
         public GameObject GetHeldVisual();
-        public Image GetUIImage();
+        public Sprite GetUIImage();
         public bool CanBeSold();
         public void WasSold();
         //change to raw value struct

@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Gameplay.NPC.Violent.Brute;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 {
@@ -32,6 +34,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public PlayerCrouchIdleState CrouchIdleState { get; private set; }
         public PlayerCrouchWalkState CrouchWalkState { get; private set; }
         public PlayerInAirState InAirState { get; private set; }
+        public PlayerDeadState DeadState { get; private set; }
         public PlayerMenuState MenuState { get; private set; }
 
         public bool IsInMenu => currentState == MenuState;
@@ -59,6 +62,13 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public void OnSoundMade(float soundRange)
         {
             SoundMade?.Invoke(soundRange, gameObject);
+            SendSoundToServerRpc(soundRange);
+        }
+
+        [ServerRpc]
+        void SendSoundToServerRpc(float soundRange)
+        {
+            BruteHearing.ProcessSound(transform.position, soundRange, this);
         }
         private void Awake()
         {
@@ -72,6 +82,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             CrouchWalkState = new PlayerCrouchWalkState(this);
             InAirState = new PlayerInAirState(this);
             MenuState = new PlayerMenuState(this);
+            DeadState = new PlayerDeadState(this);
             OriginalCenter = CharacterController.center;
             TargetCameraHeight = PlayerSO.StandingCameraHeight;
 
@@ -118,7 +129,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public void Start()
         {
             ////test
-            transform.position = new Vector3(57,10,-30) + Vector3.up * 3f;// this is for the secoundshow case Art
+            transform.position = new Vector3(57,2,20) + Vector3.up * 3f;// this is for the secoundshow case Art
             //transform.position =  Vector3.up * 3f;//this is for game gym
             /*var controller = GetComponent<CharacterController>();
             controller.enabled = false;
@@ -163,20 +174,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         void Update()
         {
-            //Debug.Log(currentState.ToString());
             currentState?.StateUpdate();
             SmoothCameraTransition();
-            //HandleJump();
         }
-        // bool IsGroundedCheck()
-        // {
-        //
-        //     float radius = CharacterController.radius;
-        //
-        //     float distance = GroundCheckDistance;
-        //     DebugDrawSphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, distance, Color.red);
-        //     return Physics.SphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, out _, distance, groundMask);
-        // }
+
         void DebugDrawSphereCast(Vector3 origin, float radius, Vector3 direction, float distance, Color color)
         {
             Vector3 end = origin + direction.normalized * distance;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Interactables.Network;
 using DunGen;
@@ -8,6 +9,7 @@ namespace _Project.Code.Network.Level
 {
     public class ManualGenerate : NetworkBehaviour
     {
+        private readonly List<NetworkObject> serverDoors = new List<NetworkObject>();
         private RuntimeDungeon generator;
         private void Start()
         {
@@ -32,6 +34,7 @@ namespace _Project.Code.Network.Level
                 generator.Generator.ShouldRandomizeSeed = false;
                 generator.Generator.Seed = seed;
                 generator.Generate();
+           
                 OnDungeonGenerated(generator);
             }
             else
@@ -51,15 +54,6 @@ namespace _Project.Code.Network.Level
             generator.Generator.ShouldRandomizeSeed = false;
             generator.Generator.Seed = newSeed;
             generator.Generate();
-            
-            foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
-            {
-                var netObj = door.GetComponent<NetworkObject>();
-                if (netObj == null || !netObj.IsSpawned)
-                {
-                    Destroy(door.gameObject);
-                }
-            }
         }
 
         private void ClearOldDungeonTiles()
@@ -71,14 +65,8 @@ namespace _Project.Code.Network.Level
 
         void OnDungeonGenerated(RuntimeDungeon dungeon)
         {
-            foreach (var door in Object.FindObjectsByType<SwingDoors>(FindObjectsSortMode.None))
-            {
-                var netObj = door.GetComponent<NetworkObject>();
-                if (netObj != null && !netObj.IsSpawned)
-                {
-                    netObj.Spawn();
-                }
-            }
+            GetComponent<DoorwayNetworkSpawner>().SpawnDoors(generator);
+            
         }
     }
 }

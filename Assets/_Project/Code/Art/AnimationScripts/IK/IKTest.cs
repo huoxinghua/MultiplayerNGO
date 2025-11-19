@@ -15,7 +15,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.K))
+            /*if (Input.GetKeyDown(KeyCode.K))
             {
                 if(IsOwner) ik.PickupAnimation(fpsController, isFPS);
                 else ik.PickupAnimation(tpsController, isFPS);
@@ -43,7 +43,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             {
                 if (IsOwner) ik.PlayIKInteract(isFPS);
                 else ik.PlayIKInteract(isFPS);
-            }
+            }*/
             
         }
     }
