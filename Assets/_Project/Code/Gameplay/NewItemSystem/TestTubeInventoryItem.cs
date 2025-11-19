@@ -29,7 +29,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
             
-            CustomNetworkSpawn();
             HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
