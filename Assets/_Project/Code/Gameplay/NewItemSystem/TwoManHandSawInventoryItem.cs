@@ -31,7 +31,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
-            CustomNetworkSpawn();
         }
 
         private void Update()

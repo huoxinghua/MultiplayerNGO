@@ -31,8 +31,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             base.OnNetworkSpawn();
             Debug.Log("CustomNetworkSpawn called!");
-            
-            CustomNetworkSpawn();
             AmmoLeft = new NetworkVariable<int>(_tranqGunItemSO.AmmoAmount, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
