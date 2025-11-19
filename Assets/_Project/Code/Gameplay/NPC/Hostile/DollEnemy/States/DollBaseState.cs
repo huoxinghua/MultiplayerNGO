@@ -6,16 +6,16 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 {
     public class DollBaseState : BaseState
     {
-        protected DollStateMachine StateController;
+        protected DollStateMachine StateMachine;
         protected DollAnimation Animator;
         protected NavMeshAgent Agent;
-        // protected DollSO DollSO; (Needed)
+        protected DollSO DollSO;
         public DollBaseState(DollStateMachine stateMachine)
         {
-            this.StateController = stateMachine;
+            this.StateMachine = stateMachine;
             Animator = stateMachine.Animator;
             Agent = stateMachine.Agent;
-            //  DollSO = stateController.DollSO;
+            DollSO = stateMachine.DollSO;
         }
         public override void OnEnter()
         {

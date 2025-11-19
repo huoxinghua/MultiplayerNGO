@@ -11,6 +11,9 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             //set speed to 0
             //stop agents pathfinding
             //Ensure ZERO movement
+            Agent.stoppingDistance = DollSO.StoppingDist;
+            Agent.speed = 0;
+            Agent.isStopped = true;
         }
 
         public override void OnExit()
