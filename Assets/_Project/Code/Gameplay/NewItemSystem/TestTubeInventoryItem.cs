@@ -1,4 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
+using _Project.Code.Gameplay.NewItemSystem.SampleItem;
+using _Project.Code.Gameplay.NewItemSystem.TestTub;
+using _Project.Code.Gameplay.Scripts.MVCItems.SampleJar;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -12,7 +16,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             NetworkVariableWritePermission.Server);
 
         private TestTubeItemSO _testTubeItemSO;
-
+        private Dictionary<string, List<SampleData>> samplesContainer = new Dictionary<string, List<SampleData>>();
+        private float _detectDistance = 50f;
+        [SerializeField] private LayerMask lM;
         #region Setup + Update
 
         protected override void Awake()
@@ -27,8 +33,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-            
             HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
@@ -45,26 +49,60 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public override void UseItem()
         {
-            if (!HasCollected.Value) return;
+            base.UseItem();
+            if (HasCollected.Value) return;
             if (IsOwner)
             {
                 UseTestTube();
             }
-            base.UseItem();
+            else
+            {
+                Debug.Log("UseItem：not owner");
+            }
+          
         }
 
         private void UseTestTube()
         {
             /*_testTubeItemSo.EffectDuration;
             _testTubeItemSo.SpeedBoostAmount;*/
-            Debug.Log("UseTestTube");
+
+            RaycastHit hit;
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance,lM))
+            {
+                var sample = hit.transform.GetComponent<SampleObjTest>();
+                if (sample != null)
+                {
+                    var currentSample = sample.GetSample();
+                    CollectSample(currentSample);
+                }
+                if (sample.gameObject != null)
+                {
+                    Destroy(sample.gameObject);
+                }
+
+            }
             RequestChangeIsUsedServerRpc();
+        }
+
+        public void CollectSample(SampleSO value)
+        {
+            Debug.Log("Save sample:" + value.name + "money:" + value.GetRandomMoneyValue() + "research" + value.GetRandomResearchValue());
+            SampleData data = new SampleData(value.GetRandomResearchValue(),
+                value.GetRandomMoneyValue());
+            if (!samplesContainer.ContainsKey(value.SampleType))
+            {
+                samplesContainer[value.SampleType] = new List<SampleData>();
+            }
+            samplesContainer[value.SampleType].Add(data);
+            Debug.Log("sample container:" + samplesContainer.Count);
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
             HasCollected.Value = true;
+         
         }
 
         #endregion
