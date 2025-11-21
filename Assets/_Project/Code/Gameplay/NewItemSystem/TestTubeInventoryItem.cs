@@ -17,7 +17,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         private TestTubeItemSO _testTubeItemSO;
         private Dictionary<string, List<SampleData>> samplesContainer = new Dictionary<string, List<SampleData>>();
-        private float _detectDistance = 50f;
+        [SerializeField] private float _detectDistance = 50f;
         [SerializeField] private LayerMask lM;
         #region Setup + Update
 
@@ -61,13 +61,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
           
         }
-
         private void UseTestTube()
         {
             /*_testTubeItemSo.EffectDuration;
             _testTubeItemSo.SpeedBoostAmount;*/
 
             RaycastHit hit;
+            Debug.Log($"[Raycast] Starting | Origin={Camera.main?.transform.position} | Dir={Camera.main?.transform.forward} | Dist={_detectDistance} | Mask={lM.value}");
             if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance,lM))
             {
                 var sample = hit.transform.GetComponent<SampleObjTest>();
@@ -81,6 +81,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
                     Destroy(sample.gameObject);
                 }
 
+            }
+            else
+            {
+                Debug.Log("cast fail");
             }
             RequestChangeIsUsedServerRpc();
         }

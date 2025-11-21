@@ -99,7 +99,7 @@ namespace _Project.Code.Network.GameManagers
         Debug.Log("StartMission"+missionScene);
         SelectedMissionScene = missionScene;
        // DespawnAllPlayers();
-        LoadScene("SecondShowcase_v3_XH");
+        LoadScene("SecondShowcase_v1_Build");
      
 
     }
