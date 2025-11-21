@@ -70,7 +70,6 @@ namespace _Project.Code.Gameplay.Interactables.Truck
             Debug.Log("open Door");
 
             _openState.Value = !_openState.Value;
-            GameFlowManager.Instance.StartMission("SecondShowcase_v1_Build");
         }
 
         private void OnDoorStateChanged(bool previous, bool next)

@@ -72,24 +72,6 @@ namespace _Project.Code.Core.Patterns
             }
         }
 
-        /// <summary>
-        /// Called when the NetworkObject is spawned.
-        /// Override this to add custom initialization logic.
-        /// </summary>
-        public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
-            Debug.Log($"[{typeof(T).Name}] Network spawned. IsServer={IsServer}, IsClient={IsClient}");
-        }
 
-        /// <summary>
-        /// Called when the NetworkObject is despawned.
-        /// Override this to add custom cleanup logic.
-        /// </summary>
-        public override void OnNetworkDespawn()
-        {
-            base.OnNetworkDespawn();
-            Debug.Log($"[{typeof(T).Name}] Network despawned");
-        }
     }
 }

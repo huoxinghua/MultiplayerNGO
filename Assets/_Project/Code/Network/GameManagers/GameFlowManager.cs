@@ -70,13 +70,13 @@ namespace _Project.Code.Network.GameManagers
       
     }
 
-    /*private void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
             StartMission(SelectedMissionScene);
         }
-    }*/
+    }
 
     public void LoadScene(string sceneName)
     {
