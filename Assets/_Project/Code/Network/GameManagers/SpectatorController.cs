@@ -47,19 +47,19 @@ namespace _Project.Code.Network.GameManagers
 
         private void OnEnable()
         {
-            if (EventBus.Instance != null)
+            /*if (EventBus.Instance != null)
             {
                 EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
-            }
+            }*/
             
         }
 
         private void OnDisable()
         {
-            if (EventBus.Instance != null)
+            /*if (EventBus.Instance != null)
             {
                 EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
-            }
+            }*/
 
             if (_input != null)
             {
@@ -69,9 +69,9 @@ namespace _Project.Code.Network.GameManagers
             }
         }
         
-        public void EnterSpectatorMode(PlayerDiedEvent playerDiedEvent)
+        public void EnterSpectatorMode( )
         {
-            StartCoroutine(DelayedRefresh(playerDiedEvent));
+         //   StartCoroutine(DelayedRefresh(playerDiedEvent));
             
             if (_aliveHeads.Count == 0)
             {
@@ -119,7 +119,7 @@ namespace _Project.Code.Network.GameManagers
             HandleCamera();
         }
 
-        private IEnumerator DelayedRefresh(PlayerDiedEvent playerDiedEvent)
+        /*private IEnumerator DelayedRefresh(PlayerDiedEvent playerDiedEvent)
         {
             const int maxTries = 5;
             const float delayBetweenTries = 0.3f;
@@ -134,9 +134,9 @@ namespace _Project.Code.Network.GameManagers
             {
                 yield break;
             }
-        }
+        }*/
 
-        private void RefreshAliveList(PlayerDiedEvent playerDiedEvent)
+        /*private void RefreshAliveList(PlayerDiedEvent playerDiedEvent)
         {
             _aliveHeads.Clear();
             var networkManager = NetworkManager.Singleton;
@@ -160,7 +160,7 @@ namespace _Project.Code.Network.GameManagers
                     _aliveHeads.Add(head);
                 }
             }
-        }
+        }*/
 
         private void SetTarget(Transform t)
         {

@@ -1,6 +1,7 @@
 using System.Collections;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerHealth;
+using _Project.Code.Network.GameManagers;
 using _Project.Code.Network.ProximityChat.Voice;
 using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Singletons;
@@ -17,6 +18,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         public override void OnEnter()
         {
+           
             var netObject = stateController.GetComponent<NetworkObject>();
             bool isOwner = netObject != null && netObject.IsOwner;
 
@@ -49,8 +51,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 recorder.StopRecording();
                 recorder.enabled = false;
             }
-
-            EventBus.Instance?.Publish(new PlayerDiedEvent { deadPlayer = stateController.gameObject });
+            PlayerListManager.Instance?.OnPlayerDied(stateController);
+          //  EventBus.Instance?.Publish(new PlayerDiedEvent { deadPlayer = stateController.gameObject });
         }
 
         public override void OnExit()
@@ -87,8 +89,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 netObject.Despawn(true);
         }
     }
-    public class PlayerDiedEvent : IEvent
+    /*public class PlayerDiedEvent : IEvent
     {
         public GameObject deadPlayer;
-    }
+    }*/
 }

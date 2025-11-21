@@ -70,6 +70,15 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         {
             BruteHearing.ProcessSound(transform.position, soundRange, this);
         }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            if (IsOwner)
+                DontDestroyOnLoad(gameObject);
+        
+        }
+
         private void Awake()
         {
             InputManager = GetComponent<PlayerInputManager>();
@@ -128,14 +137,30 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public void Start()
         {
+            
             ////test
-            transform.position = new Vector3(57,2,20) + Vector3.up * 3f;// this is for the secoundshow case Art
+         //   transform.position = new Vector3(57,2,20) + Vector3.up * 3f;// this is for the secoundshow case Art
             //transform.position =  Vector3.up * 3f;//this is for game gym
             /*var controller = GetComponent<CharacterController>();
             controller.enabled = false;
             StartCoroutine(EnablePlayerController(controller));*/
             //test end
             TransitionTo(IdleState);
+        }
+        [ServerRpc(RequireOwnership = false)]
+        public void SetPositionServerRpc(Vector3 pos, Quaternion rot)
+        {
+         Debug.Log("SetPositionServerRpc player state machine");
+            transform.SetPositionAndRotation(pos, rot);
+
+           
+            var nt = GetComponent<Unity.Netcode.Components.NetworkTransform>();
+            if (nt != null)
+            {
+                nt.Teleport(pos, rot, Vector3.one);
+            }
+
+    
         }
         //test
         private IEnumerator EnablePlayerController(CharacterController con)
