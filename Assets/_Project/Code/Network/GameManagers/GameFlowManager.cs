@@ -1,5 +1,6 @@
 using System;
 using _Project.Code.Core.Patterns;
+using _Project.Code.Gameplay.Interactables.Truck;
 using _Project.Code.Gameplay.Market.Buy;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using Unity.Netcode;
@@ -69,13 +70,13 @@ namespace _Project.Code.Network.GameManagers
       
     }
 
-    private void Update()
+    /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
             StartMission(SelectedMissionScene);
         }
-    }
+    }*/
 
     public void LoadScene(string sceneName)
     {
@@ -133,7 +134,7 @@ namespace _Project.Code.Network.GameManagers
             var playerObj =
                 NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
             if (playerObj == null) continue;
-            var vanSpawner = FindAnyObjectByType<TruckSpawnPoints>();
+            var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
             if (vanSpawner != null)
                 truckSpawnPoints = vanSpawner.spawnPoints;
             Debug.Log("SpawnHubPlayers length："+truckSpawnPoints.Length);
@@ -148,7 +149,7 @@ namespace _Project.Code.Network.GameManagers
     private void SpawnMissionPlayers()
     {
         Debug.Log("SpawnMissionPlayers");
-        var vanSpawner = FindAnyObjectByType<TruckSpawnPoints>();
+        var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
         if (vanSpawner != null)
             truckSpawnPoints = vanSpawner.spawnPoints;
         Debug.Log("SpawnHubPlayers length："+truckSpawnPoints.Length);

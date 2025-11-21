@@ -404,7 +404,8 @@ GameObject:
   - component: {fileID: 6274262041579540813}
   - component: {fileID: 8668321735869428516}
   - component: {fileID: 7771845271572388503}
-  m_Layer: 0
+  - component: {fileID: 8610817160141379081}
+  m_Layer: 12
   m_Name: Truck_RearDoor_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -500,6 +501,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.296949, y: 3.4001977, z: 0.31242332}
   m_Center: {x: -1.082381, y: -0.00000071525574, z: 0.0812193}
+--- !u!114 &8610817160141379081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7443108810513554948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 523b7faeab74e4debacdeeb0a9db484e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  openAngle: 110
+  speed: 3
 --- !u!1 &7579007932586998922
 GameObject:
   m_ObjectHideFlags: 0
@@ -976,6 +992,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 52f853136ba417c49826fda71f202721, type: 2}
+    - target: {fileID: 6138379134363046062, guid: fcd103c409fd72c41ba79356017572ea, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 6471123430950674977, guid: fcd103c409fd72c41ba79356017572ea, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -1135,6 +1155,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6138379134363046062, guid: fcd103c409fd72c41ba79356017572ea, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6412868405456340378}
+    - targetCorrespondingSourceObject: {fileID: 6138379134363046062, guid: fcd103c409fd72c41ba79356017572ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3295660917946124765}
+    - targetCorrespondingSourceObject: {fileID: 6138379134363046062, guid: fcd103c409fd72c41ba79356017572ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2260221543887670991}
   m_SourcePrefab: {fileID: 100100000, guid: fcd103c409fd72c41ba79356017572ea, type: 3}
 --- !u!1 &724258271020929173 stripped
 GameObject:
@@ -1435,6 +1461,46 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.296949, y: 3.4001977, z: 0.31242332}
   m_Center: {x: -1.082381, y: -0.00000071525574, z: 0.0812193}
+--- !u!114 &3295660917946124765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5305365450932206467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &2260221543887670991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5305365450932206467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 523b7faeab74e4debacdeeb0a9db484e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  openAngle: -110
+  speed: 3
 --- !u!1001 &2328272207357137552
 PrefabInstance:
   m_ObjectHideFlags: 0
