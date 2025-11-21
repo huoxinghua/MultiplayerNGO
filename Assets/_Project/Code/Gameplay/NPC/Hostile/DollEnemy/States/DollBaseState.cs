@@ -10,22 +10,21 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         protected DollAnimation Animator;
         protected NavMeshAgent Agent;
         protected DollSO DollSO;
-        public DollBaseState(DollStateMachine stateMachine)
+        protected StateEnum ThisStateEnum;
+        public DollBaseState(DollStateMachine stateMachine, StateEnum stateEnum)
         {
             this.StateMachine = stateMachine;
             Animator = stateMachine.Animator;
             Agent = stateMachine.Agent;
             DollSO = stateMachine.DollSO;
+            ThisStateEnum = stateEnum;
         }
         public override void OnEnter()
         {
         
         }
 
-        public override void OnExit()
-        {
-        
-        }
+        public override void OnExit(){ }
 
         public override void StateFixedUpdate()
         {

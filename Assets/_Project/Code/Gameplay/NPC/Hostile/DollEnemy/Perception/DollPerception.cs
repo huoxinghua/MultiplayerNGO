@@ -183,7 +183,7 @@ public class DollPerception : NetworkBehaviour
 
     private void HandlePlayerListChange(NetworkListEvent<NetworkObjectReference> networkListEvent)
     {
-        if (!RebuildCameraList() && DollStateMachine.GetCurrentState() != DollStateMachine.WanderState)
+        if (!RebuildCameraList() && DollStateMachine.GetCurrentState() != StateEnum.WanderState)
         {
             //Handles going back to wander state if not in wander state. With no valid players, the hunt ends.
             DollStateMachine.HandleNoValidPlayers();

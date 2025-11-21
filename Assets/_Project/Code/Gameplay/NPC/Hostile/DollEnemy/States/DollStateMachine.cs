@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
@@ -13,12 +14,13 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         #region State Variables
 
         protected DollBaseState CurrentState;
-        public DollBaseState WanderState { get; private set; }
+        /*public DollBaseState WanderState { get; private set; }
         public DollBaseState HuntingState { get; private set; }
-        public DollBaseState LookedAtState { get; private set; }
+        public DollBaseState LookedAtState { get; private set; }*/
 
         #endregion
 
+        public Dictionary<StateEnum,DollBaseState> StateDictionary = new  Dictionary<StateEnum, DollBaseState>();
         [field: SerializeField] public DollSO DollSO { get; private set; }
 
         #region Component References
@@ -32,7 +34,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         public Transform CurrentPlayerToHunt {get; private set;}
 
         #region NetworkVariables
-        protected NetworkVariable<int> CurrentStateAsInt = new NetworkVariable<int>(0,
+        protected NetworkVariable<StateEnum> CurrentStateAsEnum = new NetworkVariable<StateEnum>(0,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         // ^ syncing the currentState itself ^
         
@@ -43,10 +45,9 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 
         private void Awake()
         {
-            WanderState = new DollWanderState(this);
-            HuntingState = new DollHuntingState(this);
-            LookedAtState = new DollLookedAtState(this);
-
+            StateDictionary.Add(StateEnum.WanderState, new DollWanderState(this, StateEnum.WanderState));
+            StateDictionary.Add(StateEnum.HuntingState,  new DollHuntingState(this, StateEnum.HuntingState));
+            StateDictionary.Add(StateEnum.LookedAtState, new DollLookedAtState(this, StateEnum.LookedAtState));
             Agent = GetComponent<NavMeshAgent>();
             Animator = GetComponentInChildren<DollAnimation>();
         }
@@ -56,10 +57,10 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             base.OnNetworkSpawn();
             if (IsServer)
             {
-                TransitionTo(WanderState);
+                TransitionTo(StateEnum.WanderState);
             }
 
-            CurrentStateAsInt.OnValueChanged += HandleCurrentStateAsIntChange;
+            CurrentStateAsEnum.OnValueChanged += HandleCurrentStateAsIntChange;
         }
 
         public override void OnNetworkDespawn()
@@ -73,31 +74,31 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 
         public void HandleLookedAt()
         {
-            TransitionTo(LookedAtState);
+            TransitionTo(StateEnum.LookedAtState);
         }
 
         public void HandleLookAway()
         {
             //always hunting when looking away
-            TransitionTo(HuntingState);
+            TransitionTo(StateEnum.HuntingState);
         }
 
         public void HandleNoValidPlayers()
         {
-            TransitionTo(WanderState);
+            TransitionTo(StateEnum.WanderState);
         }
         public void HandleInKillDistance(GameObject playerToKill)
         {
             //only kill in hunting state. 
-            if (CurrentState != HuntingState) return;
+            if (CurrentState != StateDictionary[StateEnum.HuntingState]) return;
             RequestKillPlayerServerRpc(new NetworkObjectReference(playerToKill.GetComponent<NetworkObject>()));
         }
 
         public void HandleHuntingTimerDone()
         {
             //if enemy is looked at when timer is done, it will go to hunting state anyways. This prevents enemy moving when it should not
-            if(CurrentState == LookedAtState) return;
-            TransitionTo(HuntingState);
+            if(CurrentState == StateDictionary[StateEnum.LookedAtState]) return;
+            TransitionTo(StateEnum.HuntingState);
             //set hunter player
         }
 
@@ -123,63 +124,22 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 
 
         [ServerRpc(RequireOwnership = false)]
-        public void RequestChangeNetStateServerRpc(DollStatesAsInt netStatesAsInt)
+        public void RequestChangeNetStateServerRpc(StateEnum netState)
         {
-            if(CurrentStateAsInt.Value == (int)netStatesAsInt)  return;
-            CurrentStateAsInt.Value = (int)netStatesAsInt;
+            if(CurrentStateAsEnum.Value == netState ) return;
+            CurrentStateAsEnum.Value = netState;
         }
 
-        private void HandleCurrentStateAsIntChange(int oldState, int newState)
+        private void HandleCurrentStateAsIntChange(StateEnum oldState, StateEnum newState)
         {
             if (!IsServer)
             {
-                CurrentState = FromStateEnum((DollStatesAsInt)newState);
+                CurrentState = StateDictionary[newState];
             }
         }
         #endregion
         
-        #region States As Enum Util
-        public DollBaseState FromStateEnum(DollStatesAsInt state)
-        {
-            switch (state)
-            {
-                case DollStatesAsInt.WanderState:
-                    return WanderState;
-
-                case DollStatesAsInt.HuntingState:
-                    return HuntingState;
-
-                case DollStatesAsInt.LookedAtState:
-                    return LookedAtState;
-
-                default:
-                    Debug.Log("Unknown state");
-                    return null;
-                    break;
-            }
-        }
-
-        public DollStatesAsInt ToStateEnum(DollBaseState state)
-        {
-            if (state == WanderState)
-            {
-                return DollStatesAsInt.WanderState;
-            }
-            else if (state == HuntingState)
-            {
-                return DollStatesAsInt.HuntingState;
-            }
-            else if (state == LookedAtState)
-            {
-                return DollStatesAsInt.LookedAtState;
-            }
-            else
-            {
-                return default;  
-            }
-        }
-        #endregion
-        
+    
         #region StateMachine Basics
 
         private void Update()
@@ -194,24 +154,24 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             CurrentState.StateFixedUpdate();
         }
 
-        public virtual void TransitionTo(DollBaseState newState)
+        public virtual void TransitionTo(StateEnum newState)
         {
             if (!IsServer) return;
-            if (newState == CurrentState) return;
+            if (StateDictionary[newState] == CurrentState) return;
             CurrentState?.OnExit();
-            CurrentState = newState;
-            RequestChangeNetStateServerRpc(ToStateEnum(newState));
+            CurrentState = StateDictionary[newState];
+            RequestChangeNetStateServerRpc(newState);
             CurrentState.OnEnter();
         }
 
         #endregion
 
-        public DollBaseState GetCurrentState()
+        public StateEnum GetCurrentState()
         {
-            return CurrentState;
+            return CurrentStateAsEnum.Value;
         }
     }
-    public enum DollStatesAsInt
+    public enum StateEnum
     {
         WanderState = 0,
         HuntingState = 1,

@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy
 {
+    [CreateAssetMenu(fileName = "DollSO", menuName = "Enemy/DollSO")]
     public class DollSO : BaseEnemySO 
     {
         [field: Header("Doll Timers")]

@@ -2,7 +2,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 {
     public class DollLookedAtState : DollBaseState
     {
-        public DollLookedAtState(DollStateMachine stateMachine) : base(stateMachine)
+        public DollLookedAtState(DollStateMachine stateMachine, StateEnum stateEnum) : base(stateMachine, stateEnum)
         {
         
         }
