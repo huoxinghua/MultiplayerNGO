@@ -1,3 +1,4 @@
+using _Project.Code.Network.GameManagers;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,7 +9,7 @@ namespace _Project.Code.Network.UI
     public class NetworkUI : MonoBehaviour
     {
         [SerializeField] private Button _hostButton;
-        [SerializeField] private string _loadSceneName;
+      //  [SerializeField] private string _loadSceneName;
         [SerializeField] private Button _clientButton;
         private void Start()
         {
@@ -27,7 +28,9 @@ namespace _Project.Code.Network.UI
         {
             if (NetworkManager.Singleton.StartHost())
             {
-                NetworkManager.Singleton.SceneManager.LoadScene(_loadSceneName, LoadSceneMode.Single);
+                GameFlowManager.Instance.ShowLoadMenu();
+                var name = GameFlowManager.SceneName.HubScene;
+                NetworkManager.Singleton.SceneManager.LoadScene(name, LoadSceneMode.Single);
             }
             else
             {

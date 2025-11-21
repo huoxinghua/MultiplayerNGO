@@ -59,6 +59,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public static List<PlayerStateMachine> AllPlayers = new List<PlayerStateMachine>();
         public static event Action<PlayerStateMachine> OnPlayerAdded;
         public static event Action<PlayerStateMachine> OnPlayerRemoved;
+        private CharacterController _controller;
         public void OnSoundMade(float soundRange)
         {
             SoundMade?.Invoke(soundRange, gameObject);
@@ -137,38 +138,31 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public void Start()
         {
-            
-            ////test
-         //   transform.position = new Vector3(57,2,20) + Vector3.up * 3f;// this is for the secoundshow case Art
-            //transform.position =  Vector3.up * 3f;//this is for game gym
-            /*var controller = GetComponent<CharacterController>();
-            controller.enabled = false;
-            StartCoroutine(EnablePlayerController(controller));*/
-            //test end
-            TransitionTo(IdleState);
+             _controller = GetComponent<CharacterController>();
+            _controller.enabled = false;
         }
+        
         [ServerRpc(RequireOwnership = false)]
         public void SetPositionServerRpc(Vector3 pos, Quaternion rot)
         {
-         Debug.Log("SetPositionServerRpc player state machine");
             transform.SetPositionAndRotation(pos, rot);
-
            
             var nt = GetComponent<Unity.Netcode.Components.NetworkTransform>();
             if (nt != null)
             {
-                nt.Teleport(pos+new Vector3(0,1f,0), rot, Vector3.one);
+                nt.Teleport(pos, rot, Vector3.one);
+                StartCoroutine(EnablePlayerController(_controller));
+                TransitionTo(IdleState); 
             }
-
-    
+            
         }
-        //test
+       
         private IEnumerator EnablePlayerController(CharacterController con)
         {
             yield return new WaitForSeconds(1f);
             con.enabled = true;
         }
-        //test end
+    
         #region Inputs
         public void OnMoveInput(Vector2 movement)
         {

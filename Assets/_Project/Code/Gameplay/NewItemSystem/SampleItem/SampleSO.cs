@@ -14,7 +14,17 @@ namespace _Project.Code.Gameplay.Scripts.MVCItems.SampleJar
         [Header("Money Value Range")]
         public int minMoneyValue = 20;
         public int maxMoneyValue = 50;
+        
+        /*[Header("Tranquil Range")]
+        [field: Range(0,1), SerializeField ] public float MinTranquilRange { get; private set; }
+        [field:Range(0,1),  SerializeField] public float MaxTranquilRange { get; private set; }
 
+        [Header("Violent Range")] 
+        [field: Range(0,1), SerializeField] public float MinViolentRange { get; private set; }
+        [field: Range(0,1), SerializeField] public float MaxViolentRange { get; private set; }
+        [Header("Misc Range")]
+        [field: Range(0,1), SerializeField] public float MinMiscRange { get; private set; }
+        [field: Range(0,1), SerializeField] public float MaxMiscRange { get; private set; }*/
    
         public int GetRandomResearchValue()
         {
