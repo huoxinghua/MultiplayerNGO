@@ -21,6 +21,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private Transform elbowR;
         [SerializeField] private Transform elbowL;
         [SerializeField] private IKItemAnimation ikAnim;
+        [SerializeField] public bool IsFPS { get; set; }
         
         private bool currentCrouch;
 
@@ -42,7 +43,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         
         private float localAnimTime = 0f;
         private const float DRIFT_CORRECTION_THRESHOLD = 0.1f;
-        private bool IsFPS => _currentFPSIKController != null;
+        //private bool IsFPS => _currentFPSIKController != null;
         
         private void Update()
         {
@@ -163,7 +164,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
         {
             ikController.IKPos(this, handL, handR, elbowL, elbowR, ikAnim.ikInteractSo);
             ikController.IkActive = true;
-            if (ikController.IsOwner)
+            //if (ikController.IsOwner)
+            if (IsFPS)
             {
                 _currentFPSIKController = ikController;
                 _currentTPSIKController = null;

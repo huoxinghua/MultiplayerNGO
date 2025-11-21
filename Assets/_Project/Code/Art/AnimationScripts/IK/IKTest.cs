@@ -19,6 +19,12 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                ik.IsFPS = !ik.IsFPS;
+                testAsFPS = !testAsFPS;
+                Debug.Log("testAsFPS: " + testAsFPS);
+            }
             // PICKUP ANIMATION
             if (Input.GetKeyDown(KeyCode.K))
             {
