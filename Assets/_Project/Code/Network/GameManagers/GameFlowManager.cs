@@ -165,7 +165,6 @@ namespace _Project.Code.Network.GameManagers
             if (playerObj == null) continue;
           
             var spawn = truckSpawnPoints[i % truckSpawnPoints.Length];
-            DespawnAllNonPlayerObjects();
              var newPlayer = Instantiate(missionPlayerPrefab, spawn.position,
                  spawn.rotation);
 
@@ -173,18 +172,7 @@ namespace _Project.Code.Network.GameManagers
 
         }
     }
-
-    private void DespawnAllNonPlayerObjects()
-    {
-        foreach (var netObj in
-                 NetworkManager.Singleton.SpawnManager.SpawnedObjectsList)
-        {
-            if (netObj.IsPlayerObject)
-                continue;
-
-            netObj.Despawn(true);
-        }
-    }
+    
 
     }
 }

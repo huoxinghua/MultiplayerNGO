@@ -37,11 +37,25 @@ namespace _Project.Code.Network.Level
                 var doorNetObj = door.GetComponent<NetworkObject>();
              
                 doorNetObj.Spawn();
+                spawnedDoors.Add(doorNetObj);
 
                
                 Destroy(sp.gameObject);
             }
 
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            foreach (var door in spawnedDoors)
+            {
+                if (door != null && door.IsSpawned)
+                {
+                    door.Despawn(true);
+                }
+            }
+            spawnedDoors.Clear();
         }
     }
 }
