@@ -25,8 +25,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
       /// <param name="ikData">Class containing the players IKControllers</param>
       public void IKEquipped(PlayerIKData ikData)
       {
-        HeldIKInteractable.PickupAnimation(ikData.FPSIKController,true);
-        HeldIKInteractable.PickupAnimation(ikData.TPSIKController,false);
+         if(IsOwner) HeldIKInteractable.PickupAnimation(ikData.FPSIKController);
+        else HeldIKInteractable.PickupAnimation(ikData.TPSIKController);
       }
 /// <summary>
 /// Handles "drop"/unequip for IK

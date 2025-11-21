@@ -163,10 +163,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: PF_HeldDispFlashVariant_NW
       objectReference: {fileID: 0}
+    - target: {fileID: 3858599412685448599, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.125
+      objectReference: {fileID: 0}
+    - target: {fileID: 3858599412685448599, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.169
+      objectReference: {fileID: 0}
+    - target: {fileID: 3858599412685448599, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.123
+      objectReference: {fileID: 0}
     - target: {fileID: 6935276844158905451, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
       propertyPath: elbowR
       value: 
       objectReference: {fileID: 8942303713788953658}
+    - target: {fileID: 6935276844158905451, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+      propertyPath: ikAnim
+      value: 
+      objectReference: {fileID: 3355012523841787709}
     - target: {fileID: 8105067145129140761, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -210,8 +226,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8018628094237399675, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3355012523841787709}
   m_SourcePrefab: {fileID: 100100000, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+--- !u!1 &2797559615021480918 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8018628094237399675, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}
+  m_PrefabInstance: {fileID: 5302159949121036717}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3355012523841787709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2797559615021480918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 111ff32142ee0e946b4408e7043f31ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <ikInteractSo>k__BackingField: {fileID: 11400000, guid: 095c3a4364025654ebe67245af2bb9e6, type: 2}
 --- !u!4 &4174825593029067700 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8105067145129140761, guid: 73af95f520f4444df9aa9449cd3e050d, type: 3}

@@ -4,14 +4,14 @@ using DG.Tweening;
 
 namespace _Project.Code.Art.AnimationScripts.IK
 {
-    public class IKItemAnimation : MonoBehaviour
+    public abstract class IKItemAnimation : MonoBehaviour
     {
         [field: SerializeField] public IkInteractSO ikInteractSo { get; private set; }
         private Tween interactTween;
         private Tween currentTween;
         public bool isInteract { get; private set; } = false;
 
-        public void PlayIKIdleLocal(bool isFPS)
+        public virtual void PlayIKIdleLocal(bool isFPS)
         {
             if (currentTween != null)
             {
@@ -47,7 +47,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 });
         }
 
-        public void PlayIKMoveLocal(float slowSpeed, bool isFPS, bool isRunning)
+        public virtual void PlayIKMoveLocal(float slowSpeed, bool isFPS, bool isRunning)
         {
             if (currentTween != null)
             {
@@ -102,7 +102,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 });
         }
 
-        public void PlayIKInteractLocal(bool isFPS)
+        public virtual void PlayIKInteractLocal(bool isFPS)
         {
             if (isInteract) return;
             isInteract = true;
@@ -155,7 +155,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             return point + (isFPS ? ikInteractSo.fpsOffset.posOffset : ikInteractSo.tpsOffset.posOffset);
         }
 
-        private Vector3[] ApplyPosOffset(Vector3[] points, bool isFPS)
+        public Vector3[] ApplyPosOffset(Vector3[] points, bool isFPS)
         {
             Vector3 offset = isFPS ? ikInteractSo.fpsOffset.posOffset : ikInteractSo.tpsOffset.posOffset;
             Vector3[] result = new Vector3[points.Length];

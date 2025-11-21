@@ -21,12 +21,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private Transform elbowR;
         [SerializeField] private Transform elbowL;
         [SerializeField] private IKItemAnimation ikAnim;
-
         
         private bool currentCrouch;
 
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
+        
+        public IKItemAnimation IKAnim => ikAnim;
         
         
         private NetworkVariable<IKAnimState> currentAnimState = new NetworkVariable<IKAnimState>(
@@ -43,9 +44,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private const float DRIFT_CORRECTION_THRESHOLD = 0.1f;
         private bool IsFPS => _currentFPSIKController != null;
         
-        
-
-
         private void Update()
         {
             if (IsServer && currentAnimState.Value != IKAnimState.Idle)
@@ -195,10 +193,9 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController =  null;
             }
+            Debug.Log($"DropAnimation Called | Owner={IsOwner} | FPS={_currentFPSIKController} | TPS={_currentTPSIKController}");
         }
-
         
-
         private void PlayIKIdle()
         {
             if (!IsServer)
@@ -230,11 +227,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             //Play Animation in Local
             ikAnim.PlayIKIdleLocal(IsFPS);
         }
-
         
-        
-        
-
         private void PlayIKMove(float slowSpeed, bool isRunning)
         {
             if (!IsServer)
@@ -267,8 +260,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
             ikAnim.PlayIKMoveLocal(slowSpeed, IsFPS, isRunning);
         }
 
-        
-        
         private void PlayIKInteract()
         {
             if (!IsServer)
@@ -300,10 +291,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
             //Play Animation in Local
             ikAnim.PlayIKInteractLocal(IsFPS);
         }
-
-        
-        
-        
     }
 
     [Serializable]
