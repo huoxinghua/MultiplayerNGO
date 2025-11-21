@@ -1,5 +1,6 @@
 using System;
 using _Project.Code.Core.Patterns;
+using _Project.Code.Gameplay.EnemySpawning;
 using _Project.Code.Gameplay.Interactables.Truck;
 using _Project.Code.Gameplay.Market.Buy;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
@@ -107,6 +108,7 @@ namespace _Project.Code.Network.GameManagers
     public void ReturnToHub()
     {
         Debug.Log("ReturnToHub");
+        EnemySpawnManager.Instance.DespawnAllEnemies();
         LoadScene("HubScene");
     }
 
