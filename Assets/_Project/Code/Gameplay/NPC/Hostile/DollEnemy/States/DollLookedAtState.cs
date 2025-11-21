@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 {
     public class DollLookedAtState : DollBaseState
@@ -11,7 +13,9 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             //set speed to 0
             //stop agents pathfinding
             //Ensure ZERO movement
+            Debug.Log("Entering lookedat");
             Agent.stoppingDistance = DollSO.StoppingDist;
+            Agent.velocity = Vector3.zero;
             Agent.speed = 0;
             Agent.isStopped = true;
         }
@@ -29,6 +33,15 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         public override void StateUpdate()
         {
         
+        }
+
+        public override void StateLookedAway()
+        {
+            StateMachine.TransitionTo(StateEnum.HuntingState);
+        }
+        public override void StateNoValidPlayer()
+        {
+            StateMachine.TransitionTo(StateEnum.WanderState);
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Gameplay.Player.PlayerHealth;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
@@ -74,31 +75,37 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 
         public void HandleLookedAt()
         {
-            TransitionTo(StateEnum.LookedAtState);
+            if(!IsServer) return;
+          //  Debug.Log("HandleLookedAt");
+            CurrentState.StateLookedAt();
         }
 
         public void HandleLookAway()
         {
+            if(!IsServer) return;
             //always hunting when looking away
-            TransitionTo(StateEnum.HuntingState);
+          //  Debug.Log("HandleLookAway");
+
+            CurrentState.StateLookedAway();
         }
 
         public void HandleNoValidPlayers()
         {
-            TransitionTo(StateEnum.WanderState);
+            if(!IsServer) return;
+            CurrentState.StateNoValidPlayer();
         }
         public void HandleInKillDistance(GameObject playerToKill)
         {
+            if(!IsServer) return;
             //only kill in hunting state. 
-            if (CurrentState != StateDictionary[StateEnum.HuntingState]) return;
-            RequestKillPlayerServerRpc(new NetworkObjectReference(playerToKill.GetComponent<NetworkObject>()));
+            CurrentState.StateAttemptKill();
         }
 
         public void HandleHuntingTimerDone()
         {
+            if(!IsServer) return;
             //if enemy is looked at when timer is done, it will go to hunting state anyways. This prevents enemy moving when it should not
-            if(CurrentState == StateDictionary[StateEnum.LookedAtState]) return;
-            TransitionTo(StateEnum.HuntingState);
+           CurrentState.StateHuntTimerComplete();
             //set hunter player
         }
 
@@ -107,14 +114,25 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         {
             CurrentPlayerToHunt = player;
         }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestKillPlayerServerRpc(NetworkObjectReference playerObjRef)
+        
+        public void RequestKill(GameObject playerObj)
         {
-            if (playerObjRef.TryGet(out NetworkObject playerNetObj))
+            if(!IsServer) return;
+            Debug.Log("Trying to kill");
+            if (playerObj == null)
             {
-                //call a bajillion damage on player
+                Debug.Log("Failed playerObj is null");
+                return;
             }
+
+            var health = playerObj.GetComponent<IPlayerHealth>();
+            if (health == null)
+            {
+                Debug.Log("Failed health is null");
+                return;
+            }
+            //magically big number :)
+            health.TakeDamage(100000f);
         }
 
         #endregion
@@ -161,6 +179,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             CurrentState?.OnExit();
             CurrentState = StateDictionary[newState];
             RequestChangeNetStateServerRpc(newState);
+            Debug.Log($"Current state is {CurrentState}");
             CurrentState.OnEnter();
         }
 

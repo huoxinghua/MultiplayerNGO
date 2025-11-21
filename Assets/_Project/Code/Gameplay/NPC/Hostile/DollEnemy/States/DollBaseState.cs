@@ -35,5 +35,30 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         {
         
         }
+
+        public virtual void StateLookedAt()
+        {
+            
+        }
+
+        public virtual void StateLookedAway()
+        {
+            
+        }
+
+        public virtual void StateAttemptKill()
+        {
+            
+        }
+
+        public virtual void StateNoValidPlayer()
+        {
+            
+        }
+
+        public virtual void StateHuntTimerComplete()
+        {
+            
+        }
     }
 }
