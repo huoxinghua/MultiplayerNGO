@@ -157,7 +157,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             var nt = GetComponent<Unity.Netcode.Components.NetworkTransform>();
             if (nt != null)
             {
-                nt.Teleport(pos, rot, Vector3.one);
+                nt.Teleport(pos+new Vector3(0,1f,0), rot, Vector3.one);
             }
 
     
