@@ -122,7 +122,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                         animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 1);
                         animator.SetIKPosition(AvatarIKGoal.LeftHand, handL.position);
                         animator.SetIKRotation(AvatarIKGoal.LeftHand, handL.rotation);
-                        animator.SetIKHintPosition(AvatarIKHint.LeftElbow, elbowR.position);
+                        animator.SetIKHintPosition(AvatarIKHint.LeftElbow, elbowL.position);
                     }
                     else
                     {
@@ -171,7 +171,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)
         {
             Transform proximal = animator.GetBoneTransform(proximalBone);
-            Transform intermediate = animator.GetBoneTransform(intermediateBone);
+            Transform intermediate = animator.GetBoneTransform(intermediateBone );
             Transform distal = animator.GetBoneTransform(distalBone);
 
             if (proximal != null) animator.SetBoneLocalRotation(proximalBone, proximal.localRotation *= finger.proximal);

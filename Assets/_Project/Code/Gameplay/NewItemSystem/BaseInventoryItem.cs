@@ -23,11 +23,19 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [SerializeField] [Tooltip("ScriptableObject containing item data")]
         protected BaseItemSO _itemSO;
 
-        [Header("Visual Components")]
-        [SerializeField] [Tooltip("Visual representation when held (spawned for player)")]
-        protected GameObject _heldVisual;
+        [Header("Visual Components - Pre-assigned Children")]
+        [SerializeField] [Tooltip("FPS held visual child GameObject (pre-assigned on item prefab)")]
+        protected GameObject _fpsHeldVisualChild;
 
-        [SerializeField] [Tooltip("Current instance of held visual (spawned at runtime)")]
+        [SerializeField] [Tooltip("TPS held visual child GameObject (pre-assigned on item prefab)")]
+        protected GameObject _tpsHeldVisualChild;
+
+        protected BaseHeldVisual _fpsHeldVisualScript;
+        protected BaseHeldVisual _tpsHeldVisualScript;
+
+        // Legacy fields for backward compatibility
+        [Header("Legacy - Deprecated")]
+        [SerializeField] protected GameObject _heldVisual;
         protected GameObject _currentHeldVisual;
 
         [Header("Physics Components")]
@@ -84,11 +92,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected Outline OutlineEffect;
 
         /// <summary>
-        /// Script on held visual that manages IK and rendering.
-        /// </summary>
-        protected BaseHeldVisual CurrentHeldVisualScript { get; private set; }
-
-        /// <summary>
         /// Player inventory reference (set via ClientRpc when picked up).
         /// </summary>
         private PlayerInventory _currentPlayerInventory;
@@ -141,23 +144,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogWarning($"[{gameObject.name}] _itemSO is null in Awake()");
             }
 
-            // Get held visual script reference
-            if (_currentHeldVisual != null)
+            // Validate held visual prefab assignment
+            if (_heldVisual == null)
             {
-                CurrentHeldVisualScript = _currentHeldVisual.GetComponent<BaseHeldVisual>();
-                if (CurrentHeldVisualScript == null)
-                {
-                    Debug.LogWarning($"[{gameObject.name}] _currentHeldVisual missing BaseHeldVisual component");
-                }
-                else
-                {
-                    // IMPORTANT: Ensure held visual starts disabled (defensive coding)
-                    CurrentHeldVisualScript.SetRendererActive(false);
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[{gameObject.name}] _currentHeldVisual not assigned in Inspector");
+                Debug.LogWarning($"[{gameObject.name}] _heldVisual not assigned in Inspector");
             }
 
             // Initialize outline effect
@@ -167,6 +157,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 OutlineEffect.OutlineMode = Outline.Mode.OutlineHidden;
                 OutlineEffect.OutlineWidth = 0;
             }
+
+            // Hide held visuals initially (only shown when picked up and equipped)
+            if (_fpsHeldVisualChild != null) _fpsHeldVisualChild.SetActive(false);
+            if (_tpsHeldVisualChild != null) _tpsHeldVisualChild.SetActive(false);
         }
 
         public override void OnNetworkSpawn()
@@ -270,13 +264,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         /// <summary>
         /// SERVER-ONLY: Executes pickup logic on server.
-        /// Sets ownership, updates network state, distributes held visual reference.
+        /// Sets ownership, updates network state, spawns dual held visuals.
         /// Visual/physics changes handled by OnPickedUpStateChanged callback.
         /// </summary>
         /// <param name="player">GameObject of player picking up item</param>
-        /// <param name="playerHoldPosition">Transform where item should be held</param>
+        /// <param name="fpsItemParent">Transform on FPS model where item is parented</param>
+        /// <param name="tpsItemParent">Transform on TPS model where item is parented</param>
         /// <param name="networkObjectForPlayer">Player's NetworkObject for ownership transfer</param>
-        public virtual void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        public virtual void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent, NetworkObject networkObjectForPlayer)
         {
             // Guard: This method should ONLY run on server
             if (!IsServer)
@@ -287,13 +282,19 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             // Server-only logic
             _owner = player;
-            CurrentHeldPosition = playerHoldPosition;
+            CurrentHeldPosition = fpsItemParent; // Keep for backward compatibility (parenting to FPS)
 
             // Transfer ownership to player
             NetworkObject.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
 
-            // Distribute held visual reference to all clients via ClientRpc
+            // Parent item to FPS transform (primary parent)
+            transform.SetParent(fpsItemParent);
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+
+            // Distribute player inventory reference and setup held visuals on server
             DistributeHeldVisualReferenceClientRpc(new NetworkObjectReference(networkObjectForPlayer));
+            SetupHeldVisualsServerSide(networkObjectForPlayer);
 
             // Set picked up state - callback will handle physics/rendering on all clients
             IsPickedUp.Value = true;
@@ -320,13 +321,120 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
+        /// <summary>
+        /// Spawns FPS and TPS held visual instances on all clients.
+        /// Sets visibility based on ownership (FPS for owner, TPS for others).
+        /// </summary>
+        /// <param name="playerObjRef">NetworkObjectReference to player</param>
+        private void SetupHeldVisualsServerSide(NetworkObject playerNetObj)
+        {
+            if (!IsServer) return;
+
+            PlayerInventory playerInv = playerNetObj.GetComponent<PlayerInventory>();
+            if (playerInv == null)
+            {
+                Debug.LogError($"[{gameObject.name}] Player NetworkObject has no PlayerInventory component");
+                return;
+            }
+
+            // Validate pre-assigned children
+            if (_fpsHeldVisualChild == null || _tpsHeldVisualChild == null)
+            {
+                Debug.LogError($"[{gameObject.name}] FPS or TPS held visual children not assigned in Inspector!");
+                return;
+            }
+
+            // Get hold transforms from player
+            Transform fpsParent = playerInv.GetFPSItemParent();
+            Transform tpsParent = playerInv.GetTPSItemParent();
+
+            if (fpsParent == null || tpsParent == null)
+            {
+                Debug.LogError($"[{gameObject.name}] FPS or TPS ItemParent is null on player");
+                return;
+            }
+
+            // Reparent FPS held visual to player's FPS hand
+            _fpsHeldVisualChild.transform.SetParent(fpsParent);
+            _fpsHeldVisualChild.transform.localPosition = Vector3.zero;
+            _fpsHeldVisualChild.transform.localRotation = Quaternion.identity;
+            _fpsHeldVisualScript = _fpsHeldVisualChild.GetComponent<BaseHeldVisual>();
+
+            // Reparent TPS held visual to player's TPS hand
+            _tpsHeldVisualChild.transform.SetParent(tpsParent);
+            _tpsHeldVisualChild.transform.localPosition = Vector3.zero;
+            _tpsHeldVisualChild.transform.localRotation = Quaternion.identity;
+            _tpsHeldVisualScript = _tpsHeldVisualChild.GetComponent<BaseHeldVisual>();
+
+            // Sync visibility to all clients
+            SyncHeldVisualVisibilityClientRpc(new NetworkObjectReference(playerNetObj));
+
+            Debug.Log($"[{gameObject.name}] Reparented held visuals to player hands");
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        private void SyncHeldVisualVisibilityClientRpc(NetworkObjectReference playerRef)
+        {
+            if (!playerRef.TryGet(out NetworkObject playerNetObj))
+            {
+                Debug.LogError($"[{gameObject.name}] Failed to resolve player NetworkObject in SyncHeldVisualVisibilityClientRpc");
+                return;
+            }
+
+            PlayerInventory playerInv = playerNetObj.GetComponent<PlayerInventory>();
+            if (playerInv == null)
+            {
+                Debug.LogError($"[{gameObject.name}] Player has no PlayerInventory component");
+                return;
+            }
+
+            // Get player's hand transforms
+            Transform fpsParent = playerInv.GetFPSItemParent();
+            Transform tpsParent = playerInv.GetTPSItemParent();
+
+            if (fpsParent == null || tpsParent == null)
+            {
+                Debug.LogError($"[{gameObject.name}] FPS or TPS ItemParent is null on player");
+                return;
+            }
+
+            // Reparent FPS held visual to player's FPS hand (on ALL clients)
+            if (_fpsHeldVisualChild != null)
+            {
+                _fpsHeldVisualChild.transform.SetParent(fpsParent);
+                _fpsHeldVisualChild.transform.localPosition = Vector3.zero;
+                _fpsHeldVisualChild.transform.localRotation = Quaternion.identity;
+                _fpsHeldVisualScript = _fpsHeldVisualChild.GetComponent<BaseHeldVisual>();
+            }
+
+            // Reparent TPS held visual to player's TPS hand (on ALL clients)
+            if (_tpsHeldVisualChild != null)
+            {
+                _tpsHeldVisualChild.transform.SetParent(tpsParent);
+                _tpsHeldVisualChild.transform.localPosition = Vector3.zero;
+                _tpsHeldVisualChild.transform.localRotation = Quaternion.identity;
+                _tpsHeldVisualScript = _tpsHeldVisualChild.GetComponent<BaseHeldVisual>();
+            }
+
+            // Set visibility based on ownership
+            bool isOwner = playerNetObj.IsOwner;
+            _fpsHeldVisualChild.SetActive(isOwner);   // Owner sees FPS
+            _tpsHeldVisualChild.SetActive(!isOwner);  // Others see TPS
+
+            // Ensure renderers start disabled (will be enabled when equipped)
+            if (_fpsHeldVisualScript != null) _fpsHeldVisualScript.SetRendererActive(false);
+            if (_tpsHeldVisualScript != null) _tpsHeldVisualScript.SetRendererActive(false);
+
+            Debug.Log($"[{gameObject.name}] Reparented and synced held visuals - FPS active: {isOwner}, TPS active: {!isOwner}");
+        }
+
         #endregion
 
         #region Server-Only Drop Logic
 
         /// <summary>
         /// SERVER-ONLY: Executes drop logic on server.
-        /// Clears ownership, updates network state, spawns item in world.
+        /// Clears ownership, updates network state, destroys held visuals, spawns item in world.
         /// Visual/physics changes handled by OnPickedUpStateChanged callback.
         /// </summary>
         /// <param name="dropPoint">Transform where item should be dropped</param>
@@ -345,12 +453,18 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Remove ownership (becomes server-owned)
             NetworkObject.RemoveOwnership();
 
+            // Unparent from player
+            transform.SetParent(null);
+
             // Position item at drop point
             if (dropPoint != null)
             {
                 transform.position = dropPoint.position;
                 transform.rotation = dropPoint.rotation;
             }
+
+            // Reset held visuals back to item on server
+            ResetHeldVisualsServerSide();
 
             // Clear held position reference on all clients
             ClearHeldPositionClientRpc();
@@ -366,6 +480,45 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private void ClearHeldPositionClientRpc()
         {
             CurrentHeldPosition = null;
+        }
+
+        /// <summary>
+        /// Reparents held visuals back to item and hides them.
+        /// </summary>
+        private void ResetHeldVisualsServerSide()
+        {
+            if (!IsServer) return;
+
+            if (_fpsHeldVisualChild == null || _tpsHeldVisualChild == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] Held visual children are null, cannot reset");
+                return;
+            }
+
+            // Reparent FPS held visual back to item
+            _fpsHeldVisualChild.transform.SetParent(transform);
+            _fpsHeldVisualChild.transform.localPosition = Vector3.zero;
+            _fpsHeldVisualChild.transform.localRotation = Quaternion.identity;
+
+            // Reparent TPS held visual back to item
+            _tpsHeldVisualChild.transform.SetParent(transform);
+            _tpsHeldVisualChild.transform.localPosition = Vector3.zero;
+            _tpsHeldVisualChild.transform.localRotation = Quaternion.identity;
+
+            // Hide both visuals on all clients
+            HideHeldVisualsClientRpc();
+
+            Debug.Log($"[{gameObject.name}] Reset held visuals back to item");
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        private void HideHeldVisualsClientRpc()
+        {
+            if (_fpsHeldVisualChild != null) _fpsHeldVisualChild.SetActive(false);
+            if (_tpsHeldVisualChild != null) _tpsHeldVisualChild.SetActive(false);
+
+            _fpsHeldVisualScript = null;
+            _tpsHeldVisualScript = null;
         }
 
         #endregion
@@ -430,20 +583,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         /// <summary>
         /// Callback when IsInHand changes.
-        /// Shows/hides held visual and applies/removes IK.
+        /// Shows/hides FPS and TPS held visuals and applies/removes IK to each.
         /// Runs on all clients for perfect sync.
         /// </summary>
         /// <param name="oldState">Previous equipped state</param>
         /// <param name="newState">New equipped state</param>
         private void OnChangedInHandState(bool oldState, bool newState)
         {
-            // Validate held visual exists
-            if (_currentHeldVisual == null)
-            {
-                Debug.LogWarning($"[{gameObject.name}] CurrentHeldVisual is null - ensure it's assigned in Inspector");
-                return;
-            }
-
             // Validate player inventory reference exists
             if (_currentPlayerInventory == null)
             {
@@ -451,18 +597,47 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 return;
             }
 
-            // Apply or remove IK
-            if (newState)
+            // Apply or remove IK for both FPS and TPS visuals
+            if (newState) // Equipped
             {
-                CurrentHeldVisualScript?.IKEquipped(_currentPlayerInventory.ThisPlayerIKData);
-            }
-            else
-            {
-                CurrentHeldVisualScript?.IKUnequipped();
-            }
+                // Setup FPS held visual
+                if (_fpsHeldVisualScript != null)
+                {
+                    _fpsHeldVisualScript.SetRendererActive(true);
+                    _fpsHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData.FPSIKController, isFPS: true);
+                }
+                else
+                {
+                    Debug.LogWarning($"[{gameObject.name}] FPS held visual script is null");
+                }
 
-            // Show or hide held visual renderer
-            CurrentHeldVisualScript?.SetRendererActive(newState);
+                // Setup TPS held visual
+                if (_tpsHeldVisualScript != null)
+                {
+                    _tpsHeldVisualScript.SetRendererActive(true);
+                    _tpsHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData.TPSIKController, isFPS: false);
+                }
+                else
+                {
+                    Debug.LogWarning($"[{gameObject.name}] TPS held visual script is null");
+                }
+            }
+            else // Unequipped
+            {
+                // Cleanup FPS held visual
+                if (_fpsHeldVisualScript != null)
+                {
+                    _fpsHeldVisualScript.SetRendererActive(false);
+                    _fpsHeldVisualScript.IKUnequipped();
+                }
+
+                // Cleanup TPS held visual
+                if (_tpsHeldVisualScript != null)
+                {
+                    _tpsHeldVisualScript.SetRendererActive(false);
+                    _tpsHeldVisualScript.IKUnequipped();
+                }
+            }
         }
 
         #endregion

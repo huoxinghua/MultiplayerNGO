@@ -82,29 +82,29 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
         {
-
-
             bool isFPS = _currentFPSIKController != null;
 
             switch (newState)
             {
                 case IKAnimState.Idle:
-                    PlayIKIdle(currentFPS);
+                    PlayIKIdleLocal(currentFPS);
                     break;
                 case IKAnimState.Walk:
-                    PlayIKMove(currentCrouch ? 2f : 1f, currentFPS, false);
+                    PlayIKMoveLocal(currentCrouch ? 2f : 1f, currentFPS, false);
                     break;
                 case IKAnimState.Run:
-                    PlayIKMove(1f, currentFPS, true);
+                    PlayIKMoveLocal(1f, currentFPS, true);
                     break;
                 case IKAnimState.Interact:
-                    PlayIKInteract(currentFPS);
+                    PlayIKInteractLocal(currentFPS);
                     break;
             }
         }
 
         public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
         {
+            if (!IsOwner) return;
+
             if (IsInteract && newState != IKAnimState.Interact)
                 return;
 
@@ -114,12 +114,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
             currentCrouch = isCrouch;
             currentFPS = isFPS;
 
-            // Setting NetworkVariable will trigger OnAnimStateChanged callback automatically
             currentAnimaState.Value = newState;
         }
 
         public void SetAnimState(IKAnimState newState, bool isFPS)
         {
+            if (!IsOwner) return;
+
             if (IsInteract && newState != IKAnimState.Interact)
                 return;
 
@@ -128,7 +129,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             currentFPS = isFPS;
 
-            // Setting NetworkVariable will trigger OnAnimStateChanged callback automatically
             currentAnimaState.Value = newState;
         }
 
@@ -179,7 +179,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             PlayIKIdleServerRpc(isFPS);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void PlayIKIdleServerRpc(bool isFPS)
         {
             //State Update
@@ -244,7 +244,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             PlayIKMoveServerRpc(slowSpeed, isFPS, isRunning);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void PlayIKMoveServerRpc(float slowSpeed, bool isFPS, bool isRunning)
         {
             //State Update
@@ -325,7 +325,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             PlayIKInteractServerRpc(isFPS);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         private void PlayIKInteractServerRpc(bool isFPS)
         {
             //State Update

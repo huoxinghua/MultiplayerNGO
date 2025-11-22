@@ -67,8 +67,11 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         private int InventorySlots = 5;
 
         [Header("Transform References")]
-        [SerializeField] [Tooltip("Transform where held items are positioned")]
-        private Transform HoldTransform;
+        [SerializeField] [Tooltip("Transform on FPS model where items are parented")]
+        private Transform FPSItemParent;
+
+        [SerializeField] [Tooltip("Transform on TPS model where items are parented")]
+        private Transform TPSItemParent;
 
         [SerializeField] [Tooltip("Transform where dropped items spawn")]
         private Transform DropTransform;
@@ -105,6 +108,16 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// </summary>
         public bool InventoryFull => IsInventoryFull();
 
+        /// <summary>
+        /// Gets the FPS model's item parent transform.
+        /// </summary>
+        public Transform GetFPSItemParent() => FPSItemParent;
+
+        /// <summary>
+        /// Gets the TPS model's item parent transform.
+        /// </summary>
+        public Transform GetTPSItemParent() => TPSItemParent;
+
         #endregion
 
         #region Initialization
@@ -120,9 +133,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 Debug.LogError($"[PlayerInventory] InventorySlots must be 5, currently set to {InventorySlots}");
             }
 
-            if (HoldTransform == null || DropTransform == null)
+            if (FPSItemParent == null || TPSItemParent == null || DropTransform == null)
             {
-                Debug.LogError("[PlayerInventoryV2] HoldTransform or DropTransform not assigned in Inspector!");
+                Debug.LogError("[PlayerInventory] FPSItemParent, TPSItemParent, or DropTransform not assigned in Inspector!");
             }
 
             // Register input event handlers
@@ -274,7 +287,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 }
 
                 // Server executes pickup on the item (server-only method)
-                item.PickupItem(gameObject, HoldTransform, NetworkObject);
+                item.PickupItem(gameObject, FPSItemParent, TPSItemParent, NetworkObject);
 
                 // Update NetworkList - this triggers HandleInventoryListChange on all clients
                 InventoryNetworkRefs[targetSlot] = itemRef;
@@ -299,7 +312,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 }
 
                 // Server executes pickup
-                item.PickupItem(gameObject, HoldTransform, NetworkObject);
+                item.PickupItem(gameObject, FPSItemParent, TPSItemParent, NetworkObject);
                 item.EquipItem();
 
                 // Update NetworkVariable for big item - triggers HandleBigItemChanged on all clients

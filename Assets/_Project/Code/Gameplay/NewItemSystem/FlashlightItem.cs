@@ -132,9 +132,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <summary>
         /// Override pickup to disable scene light when picked up.
         /// </summary>
-        public override void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        public override void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent, NetworkObject networkObjectForPlayer)
         {
-            base.PickupItem(player, playerHoldPosition, networkObjectForPlayer);
+            base.PickupItem(player, fpsItemParent, tpsItemParent, networkObjectForPlayer);
 
             // Server-only: Disable scene light, enable held light if flashlight is on
             if (IsServer)
