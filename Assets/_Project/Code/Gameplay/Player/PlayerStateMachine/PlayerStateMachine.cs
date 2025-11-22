@@ -9,6 +9,7 @@ using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using Unity.Netcode;
+using _Project.Code.Network.GameManagers;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 {
@@ -60,6 +61,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public static event Action<PlayerStateMachine> OnPlayerAdded;
         public static event Action<PlayerStateMachine> OnPlayerRemoved;
         private CharacterController _controller;
+        private bool _isRespawned = false;
         public void OnSoundMade(float soundRange)
         {
             SoundMade?.Invoke(soundRange, gameObject);
@@ -77,7 +79,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             base.OnNetworkDespawn();
             if (IsOwner)
                 DontDestroyOnLoad(gameObject);
-        
+           
         }
 
         private void Awake()
@@ -136,10 +138,15 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             OnPlayerRemoved?.Invoke(this);
         
         }
+   
         public void Start()
         {
-             _controller = GetComponent<CharacterController>();
-            _controller.enabled = false;
+            _controller = GetComponent<CharacterController>();
+            if (_isRespawned == false)
+            {
+
+                _controller.enabled = false;
+            }
         }
         
         [ServerRpc(RequireOwnership = false)]
@@ -151,10 +158,12 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             if (nt != null)
             {
                 nt.Teleport(pos, rot, Vector3.one);
-                StartCoroutine(EnablePlayerController(_controller));
+                var controller = GetComponent<CharacterController>();
+             
+                StartCoroutine(EnablePlayerController(controller));
                 TransitionTo(IdleState); 
             }
-            
+        
         }
        
         private IEnumerator EnablePlayerController(CharacterController con)

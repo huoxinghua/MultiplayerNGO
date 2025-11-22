@@ -38,12 +38,12 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             if (!isOwner)
                 return;
 
-            stateController.InputManager?.SwitchToSpectatorMode();
+            /*stateController.InputManager?.SwitchToSpectatorMode();
             if (stateController.InputManager != null)
                 stateController.InputManager.enabled = false;
-
-            var spectatorInput = stateController.GetComponent<PlayerInputManagerSpectator>();
-            spectatorInput?.EnableSpectatorInput();
+*/
+           /* var spectatorInput = stateController.GetComponent<PlayerInputManagerSpectator>();
+            spectatorInput?.EnableSpectatorInput();*/
 
             var recorder = stateController.GetComponentInChildren<VoiceRecorder>();
             if (recorder != null)

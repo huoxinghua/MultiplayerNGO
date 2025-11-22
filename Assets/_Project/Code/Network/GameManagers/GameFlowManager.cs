@@ -13,12 +13,11 @@ namespace _Project.Code.Network.GameManagers
 {
     public class GameFlowManager : NetworkSingleton<GameFlowManager>
     {
-        public string SelectedMissionScene;
         [SerializeField] private GameObject hubPlayerPrefab;
         [SerializeField] private GameObject missionPlayerPrefab;
         [SerializeField] private Transform[] truckSpawnPoints;
         [SerializeField] private GameObject _loadMenu;
-
+        [SerializeField] private float showTime = 1f;
         #region Manager all the scene
         public static class SceneName
         {
@@ -27,40 +26,40 @@ namespace _Project.Code.Network.GameManagers
             public const string HubScene = "HubScene";
             public const string MissionHospital = "SecondShowcase_v1_Build";
         }
-        public void ShowLoadMenu()
-        {
-            _loadMenu.SetActive(true);
-        }
-
-        private void HideLoadMenu()
-        {
-            _loadMenu.SetActive(false);
-        }
-        #endregion
-
         private void Start()
         {
             HideLoadMenu();
         }
+        public void ShowLoadMenu()
+        {
+            _loadMenu.SetActive(true);
+            Invoke("HideLoadMenu", showTime);
+        }
 
+        public void HideLoadMenu()
+        {
+            Debug.Log("Hide load menu:."+ _loadMenu.name);
+            _loadMenu.SetActive(false);
+        }
+        #endregion
+
+ 
         public override void OnNetworkSpawn()
         {
-            Debug.Log(" game flow manager Start");
-            //  NetworkManager.SceneManager.OnLoadComplete += OnSceneLoaded;
+            if (_loadMenu == null)
+            {
+                _loadMenu = transform.GetChild(0).gameObject;
+            }
             var networkManager = NetworkManager.Singleton;
             if (networkManager == null || networkManager.SceneManager == null)
             {
-                Debug.LogWarning("NetworkManager.SceneManager not ready yet.");
                 return;
             }
-
-            Debug.LogWarning("NetworkManager.SceneManager ready");
             networkManager.SceneManager.OnSceneEvent += OnSceneEvent;
-           
-            SpawnHubPlayers();
+         
         }
         
-        private void OnDestroy()
+        public override void OnNetworkDespawn()
         {
             if (NetworkManager.Singleton != null)
                 NetworkManager.Singleton.SceneManager.OnSceneEvent -=
@@ -69,7 +68,6 @@ namespace _Project.Code.Network.GameManagers
 
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
-            Debug.Log(" OnSceneEvent");
             if (!IsServer)
             {
                 Debug.Log(" OnSceneEvent not server skip");
@@ -78,81 +76,73 @@ namespace _Project.Code.Network.GameManagers
 
             if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
             {
-                if (sceneEvent.SceneName == "HubScene")
+                Debug.Log($"[OnSceneEvent] LoadComplete: {sceneEvent.SceneName}");
+
+                if (sceneEvent.SceneName == SceneName.HubScene)
                 {
-                    SpawnHubPlayers();
+                    if (_isMissionFailed)
+                    {
+                      
+                        SpawnHubPlayers();
+                        _isMissionFailed = false;
+                    }
+
+                 
+                    handleHubPlayerPostions();
                 }
-                else if(sceneEvent.SceneName == "MissionHospital")
+                else if (sceneEvent.SceneName == SceneName.MissionHospital)
                 {
-                    SpawnMissionPlayers();
-                  // SpawnHubPlayers();
+                    HandleMissionPlayersPositions();
                 }
-            }
+          }
         }
 
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.L))
             {
-                StartMission(SelectedMissionScene);
+                StartMission(SceneName.MissionHospital);
             }
         }
 
         public void LoadScene(string sceneName)
         {
             if (IsServer)
+            {
+                ShowLoadMenu();
                 NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-            if (sceneName != SceneName.HubScene)
-            {
-                SpawnMissionPlayers();
-            }
-            else
-            {
-                SpawnHubPlayers();
             }
         }
-
+   
         public void StartMission(string missionScene)
         {
-            Debug.Log("StartMission" + missionScene);
-            missionScene = SceneName.MissionHospital;
-            LoadScene(missionScene);
+            LoadScene(SceneName.MissionHospital);
         }
-        /*
-        private void DespawnAllPlayers()
-        {
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-            {
-                var playerObj = client.PlayerObject;
-                if (playerObj == null) continue;
-                playerObj.Despawn(true); 
-            }
-        }
-        */
 
+        private bool _isMissionFailed = false;
         public void ReturnToHub()
         {
-            Debug.Log("ReturnToHub");
-         //   EnemySpawnManager.Instance.DespawnAllEnemies();
-            LoadScene("HubScene");
+            //this is when all players died will return to hub
+            _isMissionFailed = true;
+            LoadScene(SceneName.HubScene);
         }
-
-        /*
-        private void OnSceneLoaded(ulong clientId, string sceneName, LoadSceneMode mode)
-        {
-            if (!IsServer) return;
-
-            if (sceneName == "HubScene")
-            {
-                SpawnHubPlayers();
-            }
-
-            else if (sceneName == SelectedMissionScene)
-                SpawnMissionPlayers();
-        }
-        */
-
         private void SpawnHubPlayers()
+        {
+            Debug.Log("mission faild spawn hub players");
+            var clients = NetworkManager.Singleton.ConnectedClientsIds;
+
+            foreach (var clientId in clients)
+            {
+                var oldPlayer = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                if (oldPlayer != null)
+                {
+                    oldPlayer.Despawn();
+                }
+                var newPlayer = Instantiate(hubPlayerPrefab);
+                newPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+            }
+        }
+        private void handleHubPlayerPostions()
         {
             var clients = NetworkManager.Singleton.ConnectedClientsIds;
             for (int i = 0; i < clients.Count; i++)
@@ -160,7 +150,7 @@ namespace _Project.Code.Network.GameManagers
                 var clientId = clients[i];
                 var playerObj =
                     NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-             //   if (playerObj == null) continue;
+
                 var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
                 if (vanSpawner != null)
                     truckSpawnPoints = vanSpawner.spawnPoints;
@@ -170,7 +160,7 @@ namespace _Project.Code.Network.GameManagers
             }
         }
 
-        private void SpawnMissionPlayers()
+        private void HandleMissionPlayersPositions()
         {
             var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
             if (vanSpawner != null)
@@ -182,12 +172,7 @@ namespace _Project.Code.Network.GameManagers
                 var clientId = clients[i];
                 var playerObj =
                     NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-               // if (playerObj == null) continue;
-               //DespawnAllPlayers();
                 var spawn = truckSpawnPoints[i % truckSpawnPoints.Length];
-                /*var newPlayer = Instantiate(missionPlayerPrefab, spawn.position,
-                    spawn.rotation);*/
-
                 playerObj.GetComponent<PlayerStateMachine>().SetPositionServerRpc(spawn.position, spawn.rotation);
             }
         }
