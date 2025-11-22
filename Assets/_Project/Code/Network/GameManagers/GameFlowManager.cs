@@ -38,7 +38,6 @@ namespace _Project.Code.Network.GameManagers
 
         public void HideLoadMenu()
         {
-            Debug.Log("Hide load menu:."+ _loadMenu.name);
             _loadMenu.SetActive(false);
         }
         #endregion
@@ -56,9 +55,8 @@ namespace _Project.Code.Network.GameManagers
                 return;
             }
             networkManager.SceneManager.OnSceneEvent += OnSceneEvent;
-         
         }
-        
+     
         public override void OnNetworkDespawn()
         {
             if (NetworkManager.Singleton != null)
@@ -66,17 +64,27 @@ namespace _Project.Code.Network.GameManagers
                     OnSceneEvent;
         }
 
+        [ClientRpc]
+        private void SyncPlayerPositionClientRpc(ulong clientId, Vector3 pos, Quaternion rot)
+        {
+            if (NetworkManager.Singleton.LocalClientId != clientId) return;
+
+            var player = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+            if (player == null) return;
+
+            var psm = player.GetComponent<PlayerStateMachine>();
+            psm.ForceSetPosition(pos, rot);
+        }
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
             if (!IsServer)
             {
-                Debug.Log(" OnSceneEvent not server skip");
+                HideLoadMenu(); 
                 return;
             }
 
             if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
             {
-                Debug.Log($"[OnSceneEvent] LoadComplete: {sceneEvent.SceneName}");
 
                 if (sceneEvent.SceneName == SceneName.HubScene)
                 {
@@ -86,9 +94,8 @@ namespace _Project.Code.Network.GameManagers
                         SpawnHubPlayers();
                         _isMissionFailed = false;
                     }
-
-                 
-                    handleHubPlayerPostions();
+                    
+                    handleHubPlayerPositions(sceneEvent.ClientId);
                 }
                 else if (sceneEvent.SceneName == SceneName.MissionHospital)
                 {
@@ -142,21 +149,23 @@ namespace _Project.Code.Network.GameManagers
                 newPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
             }
         }
-        private void handleHubPlayerPostions()
+        private void handleHubPlayerPositions(ulong id)
         {
+            var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
+            if (vanSpawner != null)
+                truckSpawnPoints = vanSpawner.spawnPoints;
             var clients = NetworkManager.Singleton.ConnectedClientsIds;
             for (int i = 0; i < clients.Count; i++)
             {
                 var clientId = clients[i];
-                var playerObj =
-                    NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var playerObj = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                if (playerObj == null) continue;
 
-                var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
-                if (vanSpawner != null)
-                    truckSpawnPoints = vanSpawner.spawnPoints;
-                Debug.Log("SpawnHubPlayers length：" + truckSpawnPoints.Length);
                 var spawn = truckSpawnPoints[i % truckSpawnPoints.Length];
-                playerObj.GetComponent<PlayerStateMachine>().SetPositionServerRpc(spawn.position, spawn.rotation);
+        
+                playerObj.transform.SetPositionAndRotation(spawn.position, spawn.rotation);
+
+                SyncPlayerPositionClientRpc(clientId, spawn.position, spawn.rotation);
             }
         }
 
@@ -170,11 +179,16 @@ namespace _Project.Code.Network.GameManagers
             for (int i = 0; i < clients.Count; i++)
             {
                 var clientId = clients[i];
-                var playerObj =
-                    NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var playerObj = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                if (playerObj == null) continue;
+
                 var spawn = truckSpawnPoints[i % truckSpawnPoints.Length];
-                playerObj.GetComponent<PlayerStateMachine>().SetPositionServerRpc(spawn.position, spawn.rotation);
+           
+                playerObj.transform.SetPositionAndRotation(spawn.position, spawn.rotation);
+          
+                SyncPlayerPositionClientRpc(clientId, spawn.position, spawn.rotation);
             }
         }
+        
     }
 }

@@ -73,14 +73,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         {
             BruteHearing.ProcessSound(transform.position, soundRange, this);
         }
-
-        public override void OnNetworkDespawn()
-        {
-            base.OnNetworkDespawn();
-            if (IsOwner)
-                DontDestroyOnLoad(gameObject);
-           
-        }
+        
 
         private void Awake()
         {
@@ -148,22 +141,13 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 _controller.enabled = false;
             }
         }
-        
-        [ServerRpc(RequireOwnership = false)]
-        public void SetPositionServerRpc(Vector3 pos, Quaternion rot)
+        public void ForceSetPosition(Vector3 pos, Quaternion rot)
         {
+            var cc = GetComponent<CharacterController>();
+            cc.enabled = false;
             transform.SetPositionAndRotation(pos, rot);
-           
-            var nt = GetComponent<Unity.Netcode.Components.NetworkTransform>();
-            if (nt != null)
-            {
-                nt.Teleport(pos, rot, Vector3.one);
-                var controller = GetComponent<CharacterController>();
-             
-                StartCoroutine(EnablePlayerController(controller));
-                TransitionTo(IdleState); 
-            }
-        
+            cc.enabled = true;
+            TransitionTo(IdleState); 
         }
        
         private IEnumerator EnablePlayerController(CharacterController con)
