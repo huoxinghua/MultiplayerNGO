@@ -108,7 +108,7 @@ namespace _Project.Code.Network.GameManagers
         {
             if (Input.GetKeyDown(KeyCode.L))
             {
-                StartMission(SceneName.MissionHospital);
+                StartMission();
             }
         }
 
@@ -121,7 +121,7 @@ namespace _Project.Code.Network.GameManagers
             }
         }
    
-        public void StartMission(string missionScene)
+        public void StartMission()
         {
             LoadScene(SceneName.MissionHospital);
         }

@@ -25,6 +25,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         [field: SerializeField] public float GroundCheckOffset { get; private set; }
         [field: SerializeField] public float GroundCheckDistance { get; private set; }
         [field: SerializeField] public Transform GroundSpherePosition {  get; private set; }
+        [field: SerializeField] public Transform GroundSpherePosition { get; private set; }
         public GroundCheck GroundChecker { get; private set; }
         private bool _isGrounded;
         public bool IsSprintHeld { get; private set; }
@@ -47,11 +48,17 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public bool CanJump => GroundChecker.IsGrounded || GroundChecker.CoyoteTime < PlayerSO.CoyoteTime;
 
         public Vector3 VerticalVelocity;
+
         public bool JumpRequested { get; set; } = false;
+
         //needs to be changed in children. Is this an acceptable way to do so?
         private float _targetCameraHeight;
-    
-        public float TargetCameraHeight { get { return _targetCameraHeight; } set { _targetCameraHeight = value; } }
+
+        public float TargetCameraHeight
+        {
+            get { return _targetCameraHeight; }
+            set { _targetCameraHeight = value; }
+        }
 
         Timer _groundTimer;
         private float _groundTimerLength = 0.2f;
@@ -109,10 +116,12 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             {
                 Debug.Log("input manager is null ");
             }
+
             if (!AllPlayers.Contains(this))
                 AllPlayers.Add(this);
             OnPlayerAdded?.Invoke(this);
         }
+
         public void OnDisable()
         {
             GroundChecker.OnGroundedChanged -= OnGroundStateChange;
@@ -127,50 +136,57 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             {
                 Debug.Log("input manager is null ");
             }
+
             AllPlayers.Remove(this);
             OnPlayerRemoved?.Invoke(this);
-        
         }
-   
-        public void Start()
-        {
-            _controller = GetComponent<CharacterController>();
-            if (_isRespawned == false)
-            {
 
-                _controller.enabled = false;
-            }
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            _controller = GetComponent<CharacterController>();
+            if (IsServer) PlayerListManager.Instance.RegisterPlayerObj(this);
+
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            Debug.Log("despawn the player statemachine");
+            if (IsServer) PlayerListManager.Instance.UnregisterPlayerObj(this);
         }
         public void ForceSetPosition(Vector3 pos, Quaternion rot)
         {
-            var cc = GetComponent<CharacterController>();
-            cc.enabled = false;
+            _controller.enabled = false;
             transform.SetPositionAndRotation(pos, rot);
-            cc.enabled = true;
-            TransitionTo(IdleState); 
+            _controller.enabled = true;
+            TransitionTo(IdleState);
         }
-       
+
         private IEnumerator EnablePlayerController(CharacterController con)
         {
             yield return new WaitForSeconds(1f);
             con.enabled = true;
         }
-    
+
         #region Inputs
+
         public void OnMoveInput(Vector2 movement)
         {
             MoveInput = movement;
             currentState.OnMoveInput(movement);
         }
+
         public void OnCrouchInput()
         {
             currentState.OnCrouchInput();
         }
+
         public void OnSprintInput(bool isPerformed)
         {
             currentState.OnSprintInput(isPerformed);
             IsSprintHeld = isPerformed;
         }
+
         public void OnJumpInput(PlayerJumpEvent jumpEvent)
         {
             currentState.OnJumpInput(jumpEvent.IsPressed);

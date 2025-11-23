@@ -6,6 +6,7 @@ namespace _Project.Code.Network.GameManagers
 {
     public class NetworkSessionReset : MonoBehaviour
     {
+        /*
         public void ReturnToMainMenu()
         {
             if (NetworkManager.Singleton != null)
@@ -20,8 +21,9 @@ namespace _Project.Code.Network.GameManagers
             DestroyDuplicateManagers();
             SceneManager.LoadScene("NetWorkMainMenu");
         }
+        */
 
-        private void DestroyDuplicateManagers()
+        /*private void DestroyDuplicateManagers()
         {
             var existingManagers = GameObject.FindObjectsOfType<MonoBehaviour>(true);
             foreach (var m in existingManagers)
@@ -31,6 +33,6 @@ namespace _Project.Code.Network.GameManagers
                     Destroy(m.gameObject);
                 }
             }
-        }
+        }*/
     }
 }
