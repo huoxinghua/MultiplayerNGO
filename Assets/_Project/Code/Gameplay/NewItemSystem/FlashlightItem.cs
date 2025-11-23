@@ -171,9 +171,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <summary>
         /// Override drop to enable scene light when dropped.
         /// </summary>
-        public override void DropItem(Transform dropPoint)
+        public override void DropItem(Vector3 dropPosition)
         {
-            base.DropItem(dropPoint);
+            base.DropItem(dropPosition);
 
             // Server-only: Enable scene light if flashlight is on, disable held light
             if (IsServer)

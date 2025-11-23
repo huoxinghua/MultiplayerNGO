@@ -27,7 +27,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _currentHeldVisual = Instantiate(_heldVisual, fpsItemParent); // Use FPS parent for now
 
         }
-        public override void DropItem(Transform dropPoint)
+        public override void DropItem(Vector3 dropPosition )
         {
             _owner = null;
 
@@ -39,7 +39,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _rb.isKinematic = false;
             _collider.enabled = true;
             _secondCollider.enabled = true;
-            transform.parent.position = dropPoint.position;
+            transform.parent.position = dropPosition;
         }
         public override void WasSold()
         {

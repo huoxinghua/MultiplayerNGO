@@ -1,3 +1,4 @@
+using System;
 using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
@@ -168,8 +169,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             OnPickedUpStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
             OnChangedInHandState(!IsInHand.Value, IsInHand.Value);
         }
+        
 
-        protected virtual void LateUpdate()
+        protected virtual void LateUpdate() 
         {
             // Update cooldown timer
             ItemCooldown.TimerUpdate(Time.deltaTime);
@@ -208,9 +210,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 return;
             }
-
-            transform.position = CurrentHeldPosition.position;
-            transform.rotation = CurrentHeldPosition.rotation;
+           // transform.position = CurrentHeldPosition.position;
+            //transform.rotation = CurrentHeldPosition.rotation;
         }
 
         #endregion
@@ -444,7 +445,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// Visual/physics changes handled by OnPickedUpStateChanged callback.
         /// </summary>
         /// <param name="dropPoint">Transform where item should be dropped</param>
-        public virtual void DropItem(Transform dropPoint)
+        public virtual void DropItem(Vector3 dropPosition)
         {
             // Guard: This method should ONLY run on server
             if (!IsServer)
@@ -452,41 +453,30 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogError("[BaseInventoryItem] DropItem() called on client! This should only run on server.");
                 return;
             }
+            Debug.Log($"In the item we we are setting its position to {dropPosition}");
 
+            
+            // Position item at drop point
+            // Unparent from player
+            transform.SetParent(null);
+            transform.position = dropPosition;
+            _rb.position = dropPosition;
+            
             // Server-only logic
             _owner = null;
 
             // Remove ownership (becomes server-owned)
             NetworkObject.RemoveOwnership();
 
-            // Unparent from player
-            transform.SetParent(null);
-
-            // Position item at drop point
-            if (dropPoint != null)
-            {
-                transform.position = dropPoint.position;
-                transform.rotation = dropPoint.rotation;
-            }
-
             // Reset held visuals back to item on server
             ResetHeldVisualsServerSide();
-
-            // Clear held position reference on all clients
-            ClearHeldPositionClientRpc();
+            
 
             // Set picked up state to false - callback will handle physics/rendering on all clients
             IsPickedUp.Value = false;
         }
 
-        /// <summary>
-        /// Clears CurrentHeldPosition on all clients.
-        /// </summary>
-        [ClientRpc(RequireOwnership = false)]
-        private void ClearHeldPositionClientRpc()
-        {
-            CurrentHeldPosition = null;
-        }
+
 
         /// <summary>
         /// Reparents held visuals back to item and hides them.
@@ -593,6 +583,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _collider.enabled = !newState;
             _rb.isKinematic = newState;
             _renderer.enabled = !newState;
+           // transform.position = new Vector3(0, 0, 0);
         }
 
         /// <summary>

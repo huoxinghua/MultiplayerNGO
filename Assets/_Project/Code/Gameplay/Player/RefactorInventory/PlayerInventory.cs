@@ -331,7 +331,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         public void DropItem()
         {
             // Client just sends the request
-            DropItemServerRpc(_currentIndex, _handsFull);
+            
+            DropItemServerRpc(_currentIndex, DropTransform.position, _handsFull);
         }
 
         /// <summary>
@@ -341,8 +342,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// <param name="slotIndex">Index of slot to drop from</param>
         /// <param name="droppingBigItem">Whether dropping big item or slot item</param>
         [ServerRpc(RequireOwnership = false)]
-        private void DropItemServerRpc(int slotIndex, bool droppingBigItem)
+        private void DropItemServerRpc(int slotIndex, Vector3 dropPosition, bool droppingBigItem)
         {
+            Debug.Log($"Dropped item at {dropPosition} from slot {slotIndex}");
             // Validate slot index
             if (slotIndex < 0 || slotIndex >= InventorySlots)
             {
@@ -368,7 +370,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
                 // Server executes drop (server-only methods)
                 bigItem.UnequipItem();
-                bigItem.DropItem(DropTransform);
+                bigItem.DropItem(dropPosition);
 
                 // Clear NetworkVariable - triggers HandleBigItemChanged on all clients
                 InventoryNetworkBigItemRef.Value = default;
@@ -391,7 +393,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
                 // Server executes drop
                 slotItem.UnequipItem();
-                slotItem.DropItem(DropTransform);
+                slotItem.DropItem(dropPosition);
 
                 // Clear NetworkList slot - triggers HandleInventoryListChange on all clients
                 InventoryNetworkRefs[slotIndex] = default;
