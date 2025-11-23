@@ -232,18 +232,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Item Usage - Toggle Flashlight
 
-        /// <summary>
-        /// Primary use: Toggle flashlight on/off (if has charge).
-        /// </summary>
-        public override void UseItem()
+        protected override void StartUsage()
         {
-            // Call base to handle cooldown
-            base.UseItem();
-
-            // Check cooldown
-            if (!TryUseItem()) return;
-
-            // Toggle flashlight
             ToggleFlashLight();
         }
 

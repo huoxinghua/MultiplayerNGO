@@ -33,19 +33,18 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private PlayerIKController _currentTPSIKController;
 
         private float localAnimTime = 0f;
-        private IKAnimState _currentState = IKAnimState.None;
-        public bool IsInteract { get; private set; } = false;
+
+        public bool IsInteractComplete { get; private set; } = true;
 
         public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
         {
-            if (IsInteract && newState != IKAnimState.Interact)
-                return;
+            // Kill any existing animation before starting new one
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
 
-            // Skip if already in this state with same parameters
-            if (_currentState == newState && currentCrouch == isCrouch && currentFPS == isFPS)
-                return;
-
-            _currentState = newState;
             currentCrouch = isCrouch;
             currentFPS = isFPS;
 
@@ -64,7 +63,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     PlayIKMoveLocal(1f, isFPS, true);
                     break;
                 case IKAnimState.Interact:
-                    IsInteract = true; // Lock state immediately to prevent interruption
                     PlayIKInteractLocal(isFPS);
                     break;
             }
@@ -72,14 +70,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         public void SetAnimState(IKAnimState newState, bool isFPS)
         {
-            if (IsInteract && newState != IKAnimState.Interact)
-                return;
+            // Kill any existing animation before starting new one
+            if(currentTween != null)
+            {
+                currentTween.Kill(true);
+                currentTween = null;
+            }
 
-            // Skip if already in this state with same parameters
-            if (_currentState == newState && currentFPS == isFPS)
-                return;
-
-            _currentState = newState;
             currentFPS = isFPS;
 
             switch (newState)
@@ -97,7 +94,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     PlayIKMoveLocal(1f, isFPS, true);
                     break;
                 case IKAnimState.Interact:
-                    IsInteract = true; // Lock state immediately to prevent interruption
                     PlayIKInteractLocal(isFPS);
                     break;
             }
@@ -105,6 +101,24 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         public void PickupAnimation(PlayerIKController ikController, bool isFPS)
         {
+            // Clear any existing controller reference for this view FIRST
+            // This prevents phantom hands when ownership changes between players
+            if (isFPS && _currentFPSIKController != null && _currentFPSIKController != ikController)
+            {
+                Debug.Log($"[{gameObject.name}] PickupAnimation clearing OLD FPS controller - Player: {_currentFPSIKController.transform.root.name}");
+                _currentFPSIKController.IkActive = false;
+                _currentFPSIKController.IKPos(null, null, null, null, null, null);
+                _currentFPSIKController = null;
+            }
+            else if (!isFPS && _currentTPSIKController != null && _currentTPSIKController != ikController)
+            {
+                Debug.Log($"[{gameObject.name}] PickupAnimation clearing OLD TPS controller - Player: {_currentTPSIKController.transform.root.name}");
+                _currentTPSIKController.IkActive = false;
+                _currentTPSIKController.IKPos(null, null, null, null, null, null);
+                _currentTPSIKController = null;
+            }
+
+            // Now set the new controller
             ikController.IKPos(this, handL, handR, elbowL, elbowR, ikInteractSo);
             ikController.IkActive = true;
             if (isFPS)
@@ -118,27 +132,24 @@ namespace _Project.Code.Art.AnimationScripts.IK
             transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
             transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
 
-            // Trigger entry animation
             PlayIKIdleLocal(isFPS);
         }
 
         public void DropAnimation()
         {
-            // Stop animation
             StopIKAnimation();
 
-            // Reset state
-            _currentState = IKAnimState.None;
-
-            // Cleanup Controllers
             if (_currentFPSIKController != null)
             {
+                Debug.Log($"[{gameObject.name}] DropAnimation clearing FPS - Player: {_currentFPSIKController.transform.root.name}");
                 _currentFPSIKController.IkActive = false;
                 _currentFPSIKController.IKPos(null, null, null, null, null, null);
                 _currentFPSIKController =  null;
             }
+
             if (_currentTPSIKController != null)
             {
+                Debug.Log($"[{gameObject.name}] DropAnimation clearing TPS - Player: {_currentTPSIKController.transform.root.name}");
                 _currentTPSIKController.IkActive = false;
                 _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController =  null;
@@ -147,14 +158,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private void PlayIKIdleLocal(bool isFPS)
         {
-            Debug.Log($"[{gameObject.name}] PlayIKIdleLocal called - isFPS:{isFPS}");
-
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
-
             localAnimTime = 0f;
 
             var waypoints = isFPS ? ikInteractSo.ikIdle.fpsWaypoints :  ikInteractSo.ikIdle.tpsWaypoints;
@@ -182,12 +185,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private void PlayIKMoveLocal(float slowSpeed, bool isFPS, bool isRunning)
         {
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
-
             localAnimTime = 0f;
 
             var preset = isRunning ? ikInteractSo.ikRun : ikInteractSo.ikWalk;
@@ -233,19 +230,19 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         private void PlayIKInteractLocal(bool isFPS)
         {
-            Debug.Log($"[IKInteractable] PlayIKInteractLocal called - IsInteract:{IsInteract}, isFPS:{isFPS}");
-
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
-
             localAnimTime = 0f;
-            IsInteract = true;
+            IsInteractComplete = false;
 
             var waypoints = isFPS ? ikInteractSo.ikInteract.fpsPosWaypoints :  ikInteractSo.ikInteract.tpsPosWaypoints;
             var RotPoints = isFPS ? ikInteractSo.ikInteract.fpsRotWaypoints : ikInteractSo.ikInteract.tpsRotWaypoints;
+
+            if (waypoints == null || waypoints.Length < 2 || RotPoints == null || RotPoints.Length < 2)
+            {
+                Debug.LogError($"[{gameObject.name}] Interact animation waypoints not configured in IkInteractSO!");
+                IsInteractComplete = true;
+                return;
+            }
+
             float duration = ikInteractSo.ikInteract.transitionDuration;
 
             if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikInteract.resetDuration;
@@ -275,11 +272,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             seq.OnComplete(() =>
             {
-                IsInteract = false;
-                // Update state to Idle so next Interact isn't blocked by state caching
-                _currentState = IKAnimState.Idle;
-                // Return to idle after interact animation completes
-                PlayIKIdleLocal(isFPS);
+                IsInteractComplete = true;
             });
             currentTween = seq;
         }

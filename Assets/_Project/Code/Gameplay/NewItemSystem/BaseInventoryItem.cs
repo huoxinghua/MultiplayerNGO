@@ -1,6 +1,7 @@
 using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Player.RefactorInventory;
+using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -47,33 +48,21 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Network State (Server-Authoritative)
 
-        /// <summary>
-        /// Server-authoritative: Is this item picked up by a player?
-        /// When true: physics disabled, renderer hidden, collider disabled.
-        /// </summary>
+
         private NetworkVariable<bool> IsPickedUp = new NetworkVariable<bool>(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-        /// <summary>
-        /// Server-authoritative: Is this item currently equipped in player's hand?
-        /// When true: held visual shown, IK applied.
-        /// </summary>
+
         private NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-        /// <summary>
-        /// Owner-authoritative: Current IK animation state for this item.
-        /// Synced to all clients so both FPS and TPS held visuals show same animation.
-        /// </summary>
+
         public NetworkVariable<IKAnimState> CurrentAnimState = new NetworkVariable<IKAnimState>(
             IKAnimState.None,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Owner);
 
-        /// <summary>
-        /// Owner-authoritative: Animation time for synchronized animations.
-        /// Used for drift correction on non-owner clients.
-        /// </summary>
+
         public NetworkVariable<float> AnimTime = new NetworkVariable<float>(
             0f,
             NetworkVariableReadPermission.Everyone,
@@ -81,66 +70,58 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #endregion
 
+        #region Internal Item State
+
+        private enum UsageState
+        {
+            Idle,
+            InUse,
+            Cooldown
+        }
+
+        private UsageState _usageState = UsageState.Idle;
+
+        #endregion
+
         #region Server-Only State
 
-        /// <summary>
-        /// Server-only: GameObject of player who owns this item.
-        /// Only valid on server, null on clients.
-        /// </summary>
+
         protected GameObject _owner;
 
-        /// <summary>
-        /// Server-only: Transform where item should be held.
-        /// Only valid on server, null on clients.
-        /// </summary>
+
         protected Transform CurrentHeldPosition;
 
-        /// <summary>
-        /// Returns true if item has an owner (server-only).
-        /// </summary>
+
         protected bool _hasOwner => _owner != null;
 
         #endregion
 
         #region Component References
 
-        /// <summary>
-        /// Outline effect for hover indication.
-        /// </summary>
+
         protected Outline OutlineEffect;
 
-        /// <summary>
-        /// Player inventory reference (set via ClientRpc when picked up).
-        /// </summary>
+
         private PlayerInventory _currentPlayerInventory;
 
         #endregion
 
         #region Item Values (For Selling)
 
-        /// <summary>
-        /// Item's tranquil research value (generated on server for enemy drops).
-        /// </summary>
+
         protected float _tranquilValue = 0;
 
-        /// <summary>
-        /// Item's violent research value (generated on server for enemy drops).
-        /// </summary>
+
         protected float _violentValue = 0;
 
-        /// <summary>
-        /// Item's miscellaneous research value (generated on server for enemy drops).
-        /// </summary>
+
         protected float _miscValue = 0;
 
         #endregion
 
         #region Cooldown System
 
-        /// <summary>
-        /// Cooldown timer for item usage.
-        /// Initialized from _itemSO.ItemCooldown in Awake().
-        /// </summary>
+
         public Timer ItemCooldown = new Timer(0);
 
         #endregion
@@ -152,21 +133,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Initialize cooldown duration (but don't start timer yet - only starts on first use)
             if (_itemSO != null)
             {
-                Debug.Log($"[{gameObject.name}] BEFORE ForceComplete - SODuration:{_itemSO.ItemCooldown}");
                 ItemCooldown.Reset(_itemSO.ItemCooldown);
                 ItemCooldown.ForceComplete(); // Mark as complete so item can be used immediately
-                Debug.Log($"[{gameObject.name}] AFTER ForceComplete - IsComplete:{ItemCooldown.IsComplete}");
             }
             else
             {
                 Debug.LogWarning($"[{gameObject.name}] _itemSO is null in Awake()");
             }
 
-            // Validate held visual prefab assignment
-            if (_heldVisual == null)
-            {
-                Debug.LogWarning($"[{gameObject.name}] _heldVisual not assigned in Inspector");
-            }
 
             // Initialize outline effect
             OutlineEffect = GetComponent<Outline>();
@@ -199,6 +173,24 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             // Update cooldown timer
             ItemCooldown.TimerUpdate(Time.deltaTime);
+
+            // Complete usage when BOTH cooldown AND animation are complete
+            if (_usageState == UsageState.InUse && ItemCooldown.IsComplete)
+            {
+                // Check if FPS animation is complete (owner sees FPS)
+                bool animComplete = _fpsHeldVisualScript?.HeldIKInteractable?.IsInteractComplete ?? true;
+
+                Debug.Log($"[{gameObject.name}] Cooldown complete, checking anim - IsInteractComplete:{animComplete}");
+
+                if (animComplete)
+                {
+                    CompleteUsage();
+                }
+                else
+                {
+                    Debug.LogWarning($"[{gameObject.name}] Cooldown done but animation still playing - WAITING");
+                }
+            }
         }
 
         #endregion
@@ -301,15 +293,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             // Server-only logic
             _owner = player;
-            CurrentHeldPosition = fpsItemParent; // Keep for backward compatibility (parenting to FPS)
+            CurrentHeldPosition = fpsItemParent;
 
             // Transfer ownership to player
             NetworkObject.ChangeOwnership(networkObjectForPlayer.OwnerClientId);
 
-            // Parent item to FPS transform (primary parent)
-            transform.SetParent(fpsItemParent);
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
+            // Position at hand (NetworkObjects can't be parented to non-NetworkObjects)
+            transform.position = fpsItemParent.position;
+            transform.rotation = fpsItemParent.rotation;
 
             // Distribute player inventory reference and setup held visuals on server
             DistributeHeldVisualReferenceClientRpc(new NetworkObjectReference(networkObjectForPlayer));
@@ -387,8 +378,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             // Sync visibility to all clients
             SyncHeldVisualVisibilityClientRpc(new NetworkObjectReference(playerNetObj));
-
-            Debug.Log($"[{gameObject.name}] Reparented held visuals to player hands");
         }
 
         [ClientRpc(RequireOwnership = false)]
@@ -443,8 +432,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Ensure renderers start disabled (will be enabled when equipped)
             if (_fpsHeldVisualScript != null) _fpsHeldVisualScript.SetRendererActive(false);
             if (_tpsHeldVisualScript != null) _tpsHeldVisualScript.SetRendererActive(false);
-
-            Debug.Log($"[{gameObject.name}] Reparented and synced held visuals - FPS active: {isOwner}, TPS active: {!isOwner}");
         }
 
         #endregion
@@ -526,18 +513,26 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             // Hide both visuals on all clients
             HideHeldVisualsClientRpc();
-
-            Debug.Log($"[{gameObject.name}] Reset held visuals back to item");
         }
 
         [ClientRpc(RequireOwnership = false)]
         private void HideHeldVisualsClientRpc()
         {
+            if (_fpsHeldVisualScript != null)
+            {
+                _fpsHeldVisualScript.IKUnequipped();
+            }
+            if (_tpsHeldVisualScript != null)
+            {
+                _tpsHeldVisualScript.IKUnequipped();
+            }
+
             if (_fpsHeldVisualChild != null) _fpsHeldVisualChild.SetActive(false);
             if (_tpsHeldVisualChild != null) _tpsHeldVisualChild.SetActive(false);
 
             _fpsHeldVisualScript = null;
             _tpsHeldVisualScript = null;
+            _currentPlayerInventory = null;
         }
 
         #endregion
@@ -609,39 +604,26 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <param name="newState">New equipped state</param>
         private void OnChangedInHandState(bool oldState, bool newState)
         {
-            // Validate player inventory reference exists
             if (_currentPlayerInventory == null)
             {
                 Debug.LogWarning($"[{gameObject.name}] CurrentPlayerInventory not set yet (waiting for ClientRpc)");
                 return;
             }
 
-            // Apply or remove IK for both FPS and TPS visuals
             if (newState) // Equipped
             {
-                // Setup FPS held visual
                 if (_fpsHeldVisualScript != null)
                 {
                     _fpsHeldVisualScript.SetRendererActive(true);
                     _fpsHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData.FPSIKController, isFPS: true);
                 }
-                else
-                {
-                    Debug.LogWarning($"[{gameObject.name}] FPS held visual script is null");
-                }
 
-                // Setup TPS held visual
                 if (_tpsHeldVisualScript != null)
                 {
                     _tpsHeldVisualScript.SetRendererActive(true);
                     _tpsHeldVisualScript.IKEquipped(_currentPlayerInventory.ThisPlayerIKData.TPSIKController, isFPS: false);
                 }
-                else
-                {
-                    Debug.LogWarning($"[{gameObject.name}] TPS held visual script is null");
-                }
 
-                // Set initial animation state (owner can write)
                 if (IsOwner)
                 {
                     CurrentAnimState.Value = IKAnimState.Idle;
@@ -650,14 +632,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
             else // Unequipped
             {
-                // Cleanup FPS held visual
                 if (_fpsHeldVisualScript != null)
                 {
                     _fpsHeldVisualScript.SetRendererActive(false);
                     _fpsHeldVisualScript.IKUnequipped();
                 }
 
-                // Cleanup TPS held visual
                 if (_tpsHeldVisualScript != null)
                 {
                     _tpsHeldVisualScript.SetRendererActive(false);
@@ -674,67 +654,91 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <param name="newState">New animation state</param>
         private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
         {
-            Debug.Log($"[{gameObject.name}] OnAnimStateChanged: {oldState} -> {newState}, IsOwner: {IsOwner}");
+            if (newState == IKAnimState.None) return;
 
-            // Determine if we're using FPS or TPS controller
-            bool isFPS = IsOwner;
-
-            // Tell both held visuals to play the animation
-            // (only the active one will be visible, but both stay in sync)
             if (_fpsHeldVisualScript != null && _fpsHeldVisualScript.HeldIKInteractable != null)
             {
-                Debug.Log($"[{gameObject.name}] Calling SetAnimState on FPS visual");
                 _fpsHeldVisualScript.HeldIKInteractable.SetAnimState(newState, true);
-            }
-            else
-            {
-                Debug.LogWarning($"[{gameObject.name}] FPS visual or IKInteractable is null");
             }
 
             if (_tpsHeldVisualScript != null && _tpsHeldVisualScript.HeldIKInteractable != null)
             {
-                Debug.Log($"[{gameObject.name}] Calling SetAnimState on TPS visual");
                 _tpsHeldVisualScript.HeldIKInteractable.SetAnimState(newState, false);
             }
-            else
+        }
+
+        #endregion
+
+        #region Movement Sync
+
+        public void NotifyMovementChanged(bool isMoving, bool isRunning)
+        {
+            if (!IsOwner) return;
+
+            if (_usageState == UsageState.InUse)
             {
-                Debug.LogWarning($"[{gameObject.name}] TPS visual or IKInteractable is null");
+                Debug.Log($"[{gameObject.name}] Movement notification BLOCKED - item in use (preventing animation interruption)");
+                return;
             }
+
+            IKAnimState newState = DetermineAnimationFromMovement(isMoving, isRunning);
+
+            if (CurrentAnimState.Value != newState)
+            {
+                Debug.Log($"[{gameObject.name}] Movement changed animation: {CurrentAnimState.Value} -> {newState}");
+                CurrentAnimState.Value = newState;
+            }
+        }
+
+        private IKAnimState DetermineAnimationFromMovement(bool isMoving, bool isRunning)
+        {
+            if (!isMoving) return IKAnimState.Idle;
+            if (isRunning) return IKAnimState.Run;
+            return IKAnimState.Walk;
         }
 
         #endregion
 
         #region Item Usage (Override in Child Classes)
 
-        /// <summary>
-        /// Primary use of item. Override in child classes for item-specific behavior.
-        /// Base implementation handles cooldown check and reset.
-        /// Child classes should call base.UseItem() first, then add custom logic.
-        /// </summary>
-        public virtual void UseItem()
+        public virtual bool TryUse()
         {
-            // Check cooldown - early return if not ready
-            if (!TryUseItem())
-            {
-                Debug.Log($"[{gameObject.name}] UseItem blocked - item on cooldown");
-                return;
-            }
+            if (!CanUse()) return false;
 
-            // Reset cooldown timer for next use
-            ItemCooldown.Reset(_itemSO.ItemCooldown);
+            StartUsage();
+            return true;
         }
 
-        /// <summary>
-        /// Checks if item can be used (cooldown complete).
-        /// </summary>
-        /// <returns>True if item can be used</returns>
-        protected virtual bool TryUseItem()
+        protected virtual bool CanUse()
         {
+            if (!IsOwner) return false;
+            if (_usageState != UsageState.Idle) return false;
+
             bool noCooldown = _itemSO.ItemCooldown == 0;
-            bool isComplete = ItemCooldown.IsComplete;
-            bool result = noCooldown || isComplete;
-            Debug.Log($"[{gameObject.name}] TryUseItem - SOCooldown:{_itemSO.ItemCooldown}, NoCooldown:{noCooldown}, IsComplete:{isComplete}, Result:{result}");
-            return result;
+            bool cooldownReady = ItemCooldown.IsComplete;
+            return noCooldown || cooldownReady;
+        }
+
+        protected virtual void StartUsage()
+        {
+            Debug.Log($"[{gameObject.name}] StartUsage - setting state to InUse, cooldown to {_itemSO.ItemCooldown}s");
+            _usageState = UsageState.InUse;
+            ItemCooldown.Reset(_itemSO.ItemCooldown);
+
+            CurrentAnimState.Value = IKAnimState.Interact;
+
+            ExecuteUsageLogic();
+        }
+
+        protected virtual void ExecuteUsageLogic()
+        {
+        }
+
+        protected void CompleteUsage()
+        {
+            Debug.Log($"[{gameObject.name}] Usage complete - cooldown finished, allowing movement updates");
+            _usageState = UsageState.Idle;
+            CurrentAnimState.Value = IKAnimState.None;
         }
 
         /// <summary>
@@ -750,42 +754,27 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #endregion
 
         #region IInventoryItem Interface Implementation
-
-        /// <summary>
-        /// Gets item name from ScriptableObject.
-        /// </summary>
+        
         public virtual string GetItemName()
         {
             return _itemSO != null ? _itemSO.ItemName : "Unknown Item";
         }
-
-        /// <summary>
-        /// Gets whether item is pocket-size (goes in inventory) or big (held in hands).
-        /// </summary>
+        
         public virtual bool IsPocketSize()
         {
             return _itemSO != null && _itemSO.IsPocketSize;
         }
-
-        /// <summary>
-        /// Gets held visual GameObject.
-        /// </summary>
+        
         public virtual GameObject GetHeldVisual()
         {
             return _heldVisual;
         }
-
-        /// <summary>
-        /// Gets UI sprite for inventory display.
-        /// </summary>
+        
         public virtual Sprite GetUIImage()
         {
             return _itemSO != null ? _itemSO.ItemUIImage : null;
         }
-
-        /// <summary>
-        /// Gets whether item can be sold.
-        /// </summary>
+        
         public virtual bool CanBeSold()
         {
             return _itemSO != null && _itemSO.CanBeSold;

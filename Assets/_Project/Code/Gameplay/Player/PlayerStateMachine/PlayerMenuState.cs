@@ -17,7 +17,14 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
-  
-       
+
+        #region Input Blocking
+        public override void OnUseInput() { }
+        public override void OnSecondaryUseInput(bool isPressed) { }
+        public override void OnDropItemInput() { }
+        public override void OnInteractInput() { }
+        public override void OnNumPressedInput(int slot) { }
+        public override void OnChangeWeaponInput() { }
+        #endregion
     }
 }

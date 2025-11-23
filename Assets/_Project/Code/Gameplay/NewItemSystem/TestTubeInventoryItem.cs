@@ -27,8 +27,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-            
+
             HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
@@ -43,21 +42,22 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            if (!HasCollected.Value) return;
+            if (!HasCollected.Value) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 UseTestTube();
             }
-            base.UseItem();
         }
 
         private void UseTestTube()
         {
-            /*_testTubeItemSo.EffectDuration;
-            _testTubeItemSo.SpeedBoostAmount;*/
-            Debug.Log("UseTestTube");
             RequestChangeIsUsedServerRpc();
         }
 

@@ -48,13 +48,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override void ExecuteUsageLogic()
         {
             if (IsOwner)
             {
                 UseSaw();
             }
-            base.UseItem();
         }
 
         private void UseSaw()

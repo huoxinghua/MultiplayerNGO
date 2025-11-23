@@ -30,8 +30,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-           
+
             AmmoLeft = new NetworkVariable<int>(_tranqGunItemSO.AmmoAmount, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
@@ -46,23 +45,22 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            if (!ItemCooldown.IsComplete)
-                return;
-            if (!HasAmmoLeft) return;
+            if (!HasAmmoLeft) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 ShootGun();
             }
-            base.UseItem();
         }
 
         private void ShootGun()
         {
-            /*_syringeItemSo.EffectDuration;
-            _syringeItemSo.SpeedBoostAmount;*/
-            Debug.Log("ShootGun");
             RequestDecreaseAmmoServerRpc();
             Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.LookRotation(transform.forward, Vector3.up));
         }
@@ -76,5 +74,3 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #endregion
     }
 }
-
-

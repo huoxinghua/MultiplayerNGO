@@ -75,27 +75,25 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// Primary use: Inject syringe to apply effect.
         /// Can only be used once - syringe becomes unusable after injection.
         /// </summary>
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            // Call base to handle cooldown
-            base.UseItem();
-
             // Check if already used
             if (IsUsed.Value)
             {
                 Debug.Log("[SyringeInventoryItem] Syringe already used");
-                return;
+                return false;
             }
 
-            // Check cooldown
-            if (!TryUseItem()) return;
+            return base.CanUse();
+        }
 
+        protected override void ExecuteUsageLogic()
+        {
             // Owner requests injection from server
             if (IsOwner)
             {
                 InjectSyringeServerRpc();
             }
-            base.UseItem();
         }
 
         /// <summary>

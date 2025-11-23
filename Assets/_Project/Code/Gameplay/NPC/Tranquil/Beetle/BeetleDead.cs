@@ -124,9 +124,10 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         /// <summary>
         /// Beetle corpse has no use functionality.
         /// </summary>
-        public override void UseItem()
+        public override bool TryUse()
         {
             // No use functionality for dead beetle
+            return false;
         }
 
         #endregion

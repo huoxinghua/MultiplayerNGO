@@ -44,10 +44,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            base.UseItem();
-            if (PlayerCloseBy.Value) return;
+            if (PlayerCloseBy.Value) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 UseTwoManSaw();
