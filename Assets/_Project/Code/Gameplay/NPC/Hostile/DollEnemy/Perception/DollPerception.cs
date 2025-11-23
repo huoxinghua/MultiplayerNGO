@@ -72,7 +72,10 @@ public class DollPerception : NetworkBehaviour
 
         //If any of the CheckPlayerLineOfSight returns true tell SM that its looked at and set anyPlayerLooking to true.
         //If none of the players in the check pass this (not looking) tell SM looked away. This is known through anyPlayerLooking;
-
+        if (!RebuildCameraList())
+        {
+            return;
+        }
 
         foreach (Transform CamTransform in CameraTransforms)
         {
@@ -83,6 +86,7 @@ public class DollPerception : NetworkBehaviour
             if (CheckPlayerLineOfSight(CamTransform))
             {
                 anyPlayerLooking = true;
+                break;
             }
         }
 
@@ -135,6 +139,7 @@ public class DollPerception : NetworkBehaviour
     public bool CheckForObstructions(Transform cameraTransform)
     {
         bool didHitPoint = false;
+        //replace raycast points with bounds
         foreach (Transform rayPoint in _rayCastPoints)
         {
             Vector3 direction = cameraTransform.position - rayPoint.position;
@@ -160,15 +165,15 @@ public class DollPerception : NetworkBehaviour
 
     private Transform GetClosestPlayer()
     {
-        float greatestDistance = 0;
+        float shortestDistance = float.MaxValue;
         Transform closestPlayer = null;
         foreach (Transform cameraTransform in CameraTransforms)
         {
             float distance = Vector3.Distance(transform.position, cameraTransform.position);
-            if (distance > greatestDistance)
+            if (distance < shortestDistance)
             {
                 closestPlayer = cameraTransform;
-                greatestDistance = distance;
+                shortestDistance = distance;
             }
         }
         if(closestPlayer != null) DollStateMachine.SetHuntedPlayer(closestPlayer);
@@ -183,9 +188,12 @@ public class DollPerception : NetworkBehaviour
 
     private void HandlePlayerListChange(NetworkListEvent<NetworkObjectReference> networkListEvent)
     {
-        if (!RebuildCameraList() && DollStateMachine.GetCurrentState() != DollStateMachine.WanderState)
+        if (!IsServer) return;
+
+        if (PlayerCameras.PlayerCamerasNetList.Count <= 0 && DollStateMachine.GetCurrentState() != StateEnum.WanderState)
         {
-            //Handles going back to wander state if not in wander state. With no valid players, the hunt ends.
+            // Handles going back to wander state if no valid players remain.
+            DollStateMachine.SetHuntedPlayer(null);
             DollStateMachine.HandleNoValidPlayers();
             HuntingCooldown.Reset(DollSO.SubsequentHuntCooldown);
         }
@@ -193,22 +201,44 @@ public class DollPerception : NetworkBehaviour
 
     private bool RebuildCameraList()
     {
-        //rebuilds local list
+        if(!IsServer) return false;
+    
+        // 1. Clear the old list
         CameraTransforms.Clear();
-        //if list empty, no valid players, return false
-        if (CameraTransforms.Count <= 0) return false;
+    
+        // 2. Check the NetworkList count immediately
+        if (PlayerCameras.PlayerCamerasNetList.Count <= 0)
+        {
+            return false;
+        }
+
+        // 3. Iterate and safely retrieve transforms
         foreach (NetworkObjectReference camRefs in PlayerCameras.PlayerCamerasNetList)
         {
             if (camRefs.TryGet(out NetworkObject camNetObj))
             {
-                //bad for get child? Temp?
-                CameraTransforms.Add(camNetObj.transform.GetChild(0));
+                Transform cameraTransform = camNetObj.GetComponentInChildren<Camera>()?.transform;
+
+                if (cameraTransform != null)
+                {
+                    CameraTransforms.Add(cameraTransform);
+                }
+                // If cameraTransform is null, the NetworkObject is there, but the Camera
+                // component hasn't initialized yet or is missing. We simply ignore this player for now.
             }
+            // If TryGet fails, we skip this reference—it will be caught on a future check.
         }
 
-        //reset closest player
-        CurrentClosestPlayer = GetClosestPlayer();
-        //if here, there are valid players
+        // 4. Final check and closest player logic
+        if (CameraTransforms.Count <= 0)
+        {
+            DollStateMachine.SetHuntedPlayer(null);
+            // All objects failed TryGet or were missing the Camera component
+            return false;
+        }
+
+        // The logic is now safe to run because CameraTransforms is populated
+        CurrentClosestPlayer = GetClosestPlayer(); 
         return true;
     }
 }
