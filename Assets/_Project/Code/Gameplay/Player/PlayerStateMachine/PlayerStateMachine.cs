@@ -24,8 +24,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         [SerializeField] Transform _cameraTransform;
         [field: SerializeField] public float GroundCheckOffset { get; private set; }
         [field: SerializeField] public float GroundCheckDistance { get; private set; }
-        [field: SerializeField] public Transform GroundSpherePosition {  get; private set; }
-        [field: SerializeField] public Transform GroundSpherePosition { get; private set; }
+       
         public GroundCheck GroundChecker { get; private set; }
         private bool _isGrounded;
         public bool IsSprintHeld { get; private set; }
