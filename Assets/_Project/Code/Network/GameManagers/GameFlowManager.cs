@@ -99,6 +99,7 @@ namespace _Project.Code.Network.GameManagers
                 }
                 else if (sceneEvent.SceneName == SceneName.MissionHospital)
                 {
+                    SpawnHubPlayers();
                     HandleMissionPlayersPositions();
                 }
           }

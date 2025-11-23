@@ -31,7 +31,10 @@ namespace _Project.Code.UI
 
         private void OnMissionClicked()
         {
-            GameFlowManager.Instance. StartMission();
+            if (GameFlowManager.Instance!= null)
+            {
+                GameFlowManager.Instance.StartMission();
+            }
         }
     }
 }
