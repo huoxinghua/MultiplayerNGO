@@ -177,7 +177,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            _controller = GetComponent<CharacterController>();
+            CharacterController = GetComponent<CharacterController>();
             if (IsServer) PlayerListManager.Instance.RegisterPlayerObj(this);
 
         }
@@ -189,9 +189,9 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public void ForceSetPosition(Vector3 pos, Quaternion rot)
         {
-            _controller.enabled = false;
+            CharacterController.enabled = false;
             transform.SetPositionAndRotation(pos, rot);
-            _controller.enabled = true;
+            CharacterController.enabled = true;
             TransitionTo(IdleState);
         }
 

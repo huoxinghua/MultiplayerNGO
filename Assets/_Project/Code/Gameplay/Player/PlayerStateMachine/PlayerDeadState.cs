@@ -98,8 +98,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 netObject.Despawn(true);
         }
     }
-    /*public class PlayerDiedEvent : IEvent
+    public class PlayerDiedEvent : IEvent
     {
         public GameObject deadPlayer;
-    }*/
+    }
 }

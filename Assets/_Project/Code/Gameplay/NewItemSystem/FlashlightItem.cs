@@ -17,9 +17,27 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [SerializeField] [Tooltip("Light component on world item (visible when dropped)")]
         private Light _sceneLight;
 
-        [SerializeField] [Tooltip("Light component on held visual (visible when held)")]
-        private Light _lightComponent;
+        [SerializeField] [Tooltip("Light component on held visual for TPS (visible when held)")]
+        private Light _tpsLightComponent;
+        [SerializeField] [Tooltip("Light component on held visual for FPS (visible when held)")]
+        private Light _fpsLightComponent;
 
+        private bool _hasLightComponent = false;
+        private bool HasLightComponent
+        {
+            get
+            {
+                return _hasLightComponent && (_tpsLightComponent != null && _fpsLightComponent != null);
+            }
+            set
+            {
+                _hasLightComponent = value;
+                if(_fpsLightComponent != null) _fpsLightComponent.enabled = value;
+                if(_tpsLightComponent != null) _tpsLightComponent.enabled = value;
+               
+
+            }
+        }
         #endregion
 
         #region Network State
@@ -143,12 +161,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 {
                     _sceneLight.enabled = false;
                 }
-
-                if (_lightComponent != null)
-                {
-                    _lightComponent.enabled = FlashOnNetworkVariable.Value;
-                }
-
+                HasLightComponent = FlashOnNetworkVariable.Value;
+                
                 // Sync light state to all clients
                 SyncLightStateClientRpc(FlashOnNetworkVariable.Value, false);
             }
@@ -169,10 +183,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
                     _sceneLight.enabled = FlashOnNetworkVariable.Value;
                 }
 
-                if (_lightComponent != null)
-                {
-                    _lightComponent.enabled = false;
-                }
+                HasLightComponent = false;
 
                 // Sync light state to all clients
                 SyncLightStateClientRpc(false, FlashOnNetworkVariable.Value);
@@ -187,9 +198,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             base.EquipItem();
 
             // Server-only: Enable held light if flashlight is on
-            if (IsServer && _lightComponent != null)
+            if (IsServer)
             {
-                _lightComponent.enabled = FlashOnNetworkVariable.Value;
+                HasLightComponent = FlashOnNetworkVariable.Value; 
                 SyncLightStateClientRpc(FlashOnNetworkVariable.Value, false);
             }
         }
@@ -202,9 +213,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             base.UnequipItem();
 
             // Server-only: Disable held light
-            if (IsServer && _lightComponent != null)
+            if (IsServer)
             {
-                _lightComponent.enabled = false;
+                HasLightComponent = false;
                 SyncLightStateClientRpc(false, false);
             }
         }
@@ -217,10 +228,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [ClientRpc]
         private void SyncLightStateClientRpc(bool heldLightState, bool sceneLightState)
         {
-            if (_lightComponent != null)
-            {
-                _lightComponent.enabled = heldLightState;
-            }
+            HasLightComponent = heldLightState;
+
 
             if (_sceneLight != null)
             {
@@ -231,7 +240,11 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #endregion
 
         #region Item Usage - Toggle Flashlight
-
+        protected override bool CanUse()
+        {
+            if (!IsOwner) return false;
+            return true;
+        }
         protected override void StartUsage()
         {
             ToggleFlashLight();
@@ -274,10 +287,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private void OnFlashStateChanged(bool oldState, bool newState)
         {
             // Update light component based on whether item is picked up
-            if (_lightComponent != null)
-            {
-                _lightComponent.enabled = newState;
-            }
+            HasLightComponent = newState;
         }
 
         /// <summary>
