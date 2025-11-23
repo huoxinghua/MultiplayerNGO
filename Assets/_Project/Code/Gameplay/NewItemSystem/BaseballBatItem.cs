@@ -54,6 +54,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
             if (IsOwner)
             {
                 Debug.Log("[BaseballBat] Calling RequestAttackServerRpc()");
+
+                // Force state change by resetting to None first, then Interact
+                // This ensures OnValueChanged fires even on repeat attacks
+                CurrentAnimState.Value = _Project.Code.Art.AnimationScripts.IK.IKAnimState.None;
+                CurrentAnimState.Value = _Project.Code.Art.AnimationScripts.IK.IKAnimState.Interact;
+                AnimTime.Value = 0f;
+
                 RequestAttackServerRpc();
             }
             else

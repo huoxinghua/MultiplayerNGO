@@ -467,18 +467,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         {
             Debug.Log($"[UseItemInHand] Called - _handsFull:{_handsFull}, _currentIndex:{_currentIndex}, Item:{InventoryItems[_currentIndex]?.GetItemName()}");
 
-            // Play interact animation if item is ready to use
-            if (InventoryItems[_currentIndex] != null)
-            {
-                bool cooldownComplete = InventoryItems[_currentIndex].ItemCooldown.IsComplete;
-                Debug.Log($"[UseItemInHand] Animation check - CooldownComplete:{cooldownComplete}, PlayerAnimation null:{PlayerAnimation == null}");
-
-                if (cooldownComplete)
-                {
-                    Debug.Log("[UseItemInHand] Calling PlayerAnimation.PlayInteract()");
-                    PlayerAnimation.PlayInteract();
-                }
-            }
+            // NOTE: Item animations are now handled by BaseInventoryItem.UseItem()
+            // Items manage their own animation state via CurrentAnimState NetworkVariable
+            // No need to call PlayerAnimation - items control themselves
 
             // Use big item or slot item
             if (_handsFull)

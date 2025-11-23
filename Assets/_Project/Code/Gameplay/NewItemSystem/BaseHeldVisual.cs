@@ -10,10 +10,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
       [field: SerializeField] public Renderer HeldRenderer { get; private set; }
       [field: SerializeField] public IKInteractable HeldIKInteractable { get; private set; }
 
-      /// <summary>
-      /// Sets the held visuals renderer to active or not
-      /// </summary>
-      /// <param name="active">True = Active - False = InActive</param>
+
       public void SetRendererActive(bool active)
       {
          HeldRenderer.enabled = active;

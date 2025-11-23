@@ -61,6 +61,24 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+        /// <summary>
+        /// Owner-authoritative: Current IK animation state for this item.
+        /// Synced to all clients so both FPS and TPS held visuals show same animation.
+        /// </summary>
+        public NetworkVariable<IKAnimState> CurrentAnimState = new NetworkVariable<IKAnimState>(
+            IKAnimState.None,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
+
+        /// <summary>
+        /// Owner-authoritative: Animation time for synchronized animations.
+        /// Used for drift correction on non-owner clients.
+        /// </summary>
+        public NetworkVariable<float> AnimTime = new NetworkVariable<float>(
+            0f,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
+
         #endregion
 
         #region Server-Only State
@@ -170,6 +188,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Register NetworkVariable callbacks
             IsPickedUp.OnValueChanged += OnPickedUpStateChanged;
             IsInHand.OnValueChanged += OnChangedInHandState;
+            CurrentAnimState.OnValueChanged += OnAnimStateChanged;
 
             // Apply initial state for late joiners
             OnPickedUpStateChanged(!IsPickedUp.Value, IsPickedUp.Value);
@@ -621,6 +640,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 {
                     Debug.LogWarning($"[{gameObject.name}] TPS held visual script is null");
                 }
+
+                // Set initial animation state (owner can write)
+                if (IsOwner)
+                {
+                    CurrentAnimState.Value = IKAnimState.Idle;
+                    AnimTime.Value = 0f;
+                }
             }
             else // Unequipped
             {
@@ -637,6 +663,42 @@ namespace _Project.Code.Gameplay.NewItemSystem
                     _tpsHeldVisualScript.SetRendererActive(false);
                     _tpsHeldVisualScript.IKUnequipped();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Callback when CurrentAnimState changes (synced to all clients).
+        /// Tells both held visuals to play the corresponding animation.
+        /// </summary>
+        /// <param name="oldState">Previous animation state</param>
+        /// <param name="newState">New animation state</param>
+        private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
+        {
+            Debug.Log($"[{gameObject.name}] OnAnimStateChanged: {oldState} -> {newState}, IsOwner: {IsOwner}");
+
+            // Determine if we're using FPS or TPS controller
+            bool isFPS = IsOwner;
+
+            // Tell both held visuals to play the animation
+            // (only the active one will be visible, but both stay in sync)
+            if (_fpsHeldVisualScript != null && _fpsHeldVisualScript.HeldIKInteractable != null)
+            {
+                Debug.Log($"[{gameObject.name}] Calling SetAnimState on FPS visual");
+                _fpsHeldVisualScript.HeldIKInteractable.SetAnimState(newState, true);
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] FPS visual or IKInteractable is null");
+            }
+
+            if (_tpsHeldVisualScript != null && _tpsHeldVisualScript.HeldIKInteractable != null)
+            {
+                Debug.Log($"[{gameObject.name}] Calling SetAnimState on TPS visual");
+                _tpsHeldVisualScript.HeldIKInteractable.SetAnimState(newState, false);
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] TPS visual or IKInteractable is null");
             }
         }
 
