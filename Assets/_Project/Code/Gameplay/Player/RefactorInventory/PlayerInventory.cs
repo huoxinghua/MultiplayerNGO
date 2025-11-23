@@ -1,7 +1,6 @@
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.NewItemSystem;
-using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.UsableItems;
 using _Project.Code.UI.Inventory;
 using _Project.Code.Utilities.EventBus;
@@ -13,6 +12,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
     /// <summary>
     /// Clean Rewrite: Server-authoritative inventory system for multiplayer game.
+    /// Refactored to act as a Service controlled by PlayerStateMachine.
+    /// Does NOT handle input directly.
     /// </summary>
     public class PlayerInventory : NetworkBehaviour
     {
@@ -67,16 +68,20 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         private int InventorySlots = 5;
 
         [Header("Transform References")]
-        [SerializeField] [Tooltip("Transform where held items are positioned")]
-        private Transform HoldTransform;
+        [SerializeField] [Tooltip("Transform on FPS model where items are parented")]
+        private Transform FPSItemParent;
+
+        [SerializeField] [Tooltip("Transform on TPS model where items are parented")]
+        private Transform TPSItemParent;
 
         [SerializeField] [Tooltip("Transform where dropped items spawn")]
         private Transform DropTransform;
 
         [Header("Component References")]
-        [SerializeField] private PlayerInputManager _inputManager;
         [SerializeField] private PlayerAnimation PlayerAnimation;
         [SerializeField] public PlayerIKData ThisPlayerIKData;
+
+        private PlayerStateMachine.PlayerStateMachine _playerStateMachine;
 
         [Header("UI References")]
         [SerializeField] private Image[] ItemUIDisplay = new Image[5];
@@ -105,6 +110,16 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// </summary>
         public bool InventoryFull => IsInventoryFull();
 
+        /// <summary>
+        /// Gets the FPS model's item parent transform.
+        /// </summary>
+        public Transform GetFPSItemParent() => FPSItemParent;
+
+        /// <summary>
+        /// Gets the TPS model's item parent transform.
+        /// </summary>
+        public Transform GetTPSItemParent() => TPSItemParent;
+
         #endregion
 
         #region Initialization
@@ -114,29 +129,32 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             // Initialize NetworkList in constructor-like method
             InventoryNetworkRefs = new NetworkList<NetworkObjectReference>();
 
+            // Get references
+            _playerStateMachine = GetComponent<PlayerStateMachine.PlayerStateMachine>();
+
             // Validate configuration
             if (InventorySlots != 5)
             {
                 Debug.LogError($"[PlayerInventory] InventorySlots must be 5, currently set to {InventorySlots}");
             }
 
-            if (HoldTransform == null || DropTransform == null)
+            if (FPSItemParent == null || TPSItemParent == null || DropTransform == null)
             {
-                Debug.LogError("[PlayerInventoryV2] HoldTransform or DropTransform not assigned in Inspector!");
+                Debug.LogError("[PlayerInventory] FPSItemParent, TPSItemParent, or DropTransform not assigned in Inspector!");
             }
+        }
 
-            // Register input event handlers
-            if (_inputManager != null)
-            {
-                _inputManager.OnNumPressed += HandlePressedSlot;
-                _inputManager.OnUse += UseItemInHand;
-                _inputManager.OnSecondaryUse += SecondaryUseItemInHand;
-                _inputManager.OnDropItem += DropItem;
-            }
-            else
-            {
-                Debug.LogError("[PlayerInventoryV2] PlayerInputManager not assigned in Inspector!");
-            }
+        private void Update()
+        {
+            if (!IsOwner) return;
+
+            var item = GetCurrentEquippedItem();
+            if (item == null) return;
+
+            bool isMoving = _playerStateMachine.CurrentMovement != PlayerStateMachine.PlayerStateMachine.MovementContext.Idle;
+            bool isRunning = _playerStateMachine.CurrentMovement == PlayerStateMachine.PlayerStateMachine.MovementContext.Running;
+
+           // item.NotifyMovementChanged(isMoving, isRunning);
         }
 
         public override void OnNetworkSpawn()
@@ -166,14 +184,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
         private void OnDisable()
         {
-            // Unregister input event handlers
-            if (_inputManager != null)
-            {
-                _inputManager.OnNumPressed -= HandlePressedSlot;
-                _inputManager.OnUse -= UseItemInHand;
-                _inputManager.OnSecondaryUse -= SecondaryUseItemInHand;
-                _inputManager.OnDropItem -= DropItem;
-            }
+            // Unregister callbacks (good practice, though OnDestroy handles it mostly)
+            InventoryNetworkRefs.OnListChanged -= HandleInventoryListChange;
+            NetworkCurrentIndex.OnValueChanged -= HandleCurrentIndexChange;
+            InventoryNetworkBigItemRef.OnValueChanged -= HandleBigItemChanged;
         }
 
         #endregion
@@ -274,7 +288,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 }
 
                 // Server executes pickup on the item (server-only method)
-                item.PickupItem(gameObject, HoldTransform, NetworkObject);
+                item.PickupItem(gameObject, FPSItemParent, TPSItemParent, NetworkObject);
 
                 // Update NetworkList - this triggers HandleInventoryListChange on all clients
                 InventoryNetworkRefs[targetSlot] = itemRef;
@@ -299,7 +313,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 }
 
                 // Server executes pickup
-                item.PickupItem(gameObject, HoldTransform, NetworkObject);
+                item.PickupItem(gameObject, FPSItemParent, TPSItemParent, NetworkObject);
                 item.EquipItem();
 
                 // Update NetworkVariable for big item - triggers HandleBigItemChanged on all clients
@@ -392,7 +406,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// Client entry point for slot switching. Sends request to server.
         /// </summary>
         /// <param name="slotIndex">The inventory slot index to switch to (0-4)</param>
-        private void EquipSlot(int slotIndex)
+        public void EquipSlot(int slotIndex)
         {
             // Can't switch slots while holding big item
             if (_handsFull)
@@ -446,38 +460,12 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
         #region R4: Item Usage
 
-        /// <summary>
-        /// Uses the currently held item (big item or equipped slot item).
-        /// Triggers animation if item has cooldown available.
-        /// </summary>
         public void UseItemInHand()
         {
-            Debug.Log($"[UseItemInHand] Called - _handsFull:{_handsFull}, _currentIndex:{_currentIndex}, Item:{InventoryItems[_currentIndex]?.GetItemName()}");
+            var item = GetCurrentEquippedItem();
+            if (item == null) return;
 
-            // Play interact animation if item is ready to use
-            if (InventoryItems[_currentIndex] != null)
-            {
-                bool cooldownComplete = InventoryItems[_currentIndex].ItemCooldown.IsComplete;
-                Debug.Log($"[UseItemInHand] Animation check - CooldownComplete:{cooldownComplete}, PlayerAnimation null:{PlayerAnimation == null}");
-
-                if (cooldownComplete)
-                {
-                    Debug.Log("[UseItemInHand] Calling PlayerAnimation.PlayInteract()");
-                    PlayerAnimation.PlayInteract();
-                }
-            }
-
-            // Use big item or slot item
-            if (_handsFull)
-            {
-                Debug.Log($"[UseItemInHand] Using big item: {BigItemCarried?.GetItemName()}");
-                BigItemCarried?.UseItem();
-            }
-            else
-            {
-                Debug.Log($"[UseItemInHand] Using slot item: {InventoryItems[_currentIndex]?.GetItemName()}");
-                InventoryItems[_currentIndex]?.UseItem();
-            }
+            item.TryUse();
         }
 
         /// <summary>
@@ -731,23 +719,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             return true;
         }
 
-        #endregion
-
-        #region Input Handlers
-
-        /// <summary>
-        /// Handles numeric key press (1-5) to switch inventory slots.
-        /// </summary>
-        /// <param name="index">1-based index from input (1-5)</param>
-        private void HandlePressedSlot(int index)
+        public BaseInventoryItem GetCurrentEquippedItem()
         {
-            if (_handsFull)
-            {
-                return;
-            }
-
-            // Convert 1-based input to 0-based index
-            EquipSlot(index - 1);
+            return _handsFull ? BigItemCarried : InventoryItems[_currentIndex];
         }
 
         #endregion

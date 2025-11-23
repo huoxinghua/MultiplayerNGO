@@ -132,9 +132,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// <summary>
         /// Override pickup to disable scene light when picked up.
         /// </summary>
-        public override void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObjectForPlayer)
+        public override void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent, NetworkObject networkObjectForPlayer)
         {
-            base.PickupItem(player, playerHoldPosition, networkObjectForPlayer);
+            base.PickupItem(player, fpsItemParent, tpsItemParent, networkObjectForPlayer);
 
             // Server-only: Disable scene light, enable held light if flashlight is on
             if (IsServer)
@@ -232,18 +232,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Item Usage - Toggle Flashlight
 
-        /// <summary>
-        /// Primary use: Toggle flashlight on/off (if has charge).
-        /// </summary>
-        public override void UseItem()
+        protected override void StartUsage()
         {
-            // Call base to handle cooldown
-            base.UseItem();
-
-            // Check cooldown
-            if (!TryUseItem()) return;
-
-            // Toggle flashlight
             ToggleFlashLight();
         }
 

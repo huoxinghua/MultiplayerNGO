@@ -108,9 +108,10 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         /// <summary>
         /// Brute piece has no use functionality.
         /// </summary>
-        public override void UseItem()
+        public override bool TryUse()
         {
             // No use functionality for brute piece
+            return false;
         }
 
         #endregion

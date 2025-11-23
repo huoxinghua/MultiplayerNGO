@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Gameplay.NPC.Violent.Brute;
 using _Project.Code.Gameplay.Player.MiscPlayer;
+using _Project.Code.Gameplay.Player.RefactorInventory; // Added for Inventory reference
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
@@ -21,6 +22,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         [field: SerializeField] public CharacterController CharacterController { get; private set;}
         [field: SerializeField] public PlayerAnimation Animator { get; private set; }
         [field: SerializeField] public LayerMask groundMask { get; private set; }
+        
+        [SerializeField] private PlayerInventory _inventory; // Field for Inventory reference
+        public PlayerInventory Inventory => _inventory; // Public property for Inventory reference
+
         [SerializeField] Transform _cameraTransform;
         [field: SerializeField] public float GroundCheckOffset { get; private set; }
         [field: SerializeField] public float GroundCheckDistance { get; private set; }
@@ -66,8 +71,17 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public static List<PlayerStateMachine> AllPlayers = new List<PlayerStateMachine>();
         public static event Action<PlayerStateMachine> OnPlayerAdded;
         public static event Action<PlayerStateMachine> OnPlayerRemoved;
-        private CharacterController _controller;
-        private bool _isRespawned = false;
+
+        // Phase 2: MovementContext enum
+        public enum MovementContext
+        {
+            Idle,
+            Walking,
+            Running
+        }
+
+        public MovementContext CurrentMovement { get; set; } = MovementContext.Idle;
+
         public void OnSoundMade(float soundRange)
         {
             SoundMade?.Invoke(soundRange, gameObject);
@@ -85,6 +99,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         {
             InputManager = GetComponent<PlayerInputManager>();
             GroundChecker = GetComponent<GroundCheck>();
+            
+            // Ensure Inventory reference is set if not assigned in Inspector
+            if (_inventory == null) _inventory = GetComponent<PlayerInventory>();
+
             CurrentPlayers.Instance.AddPlayer(gameObject);
             IdleState = new PlayerIdleState(this);
             WalkState = new PlayerWalkState(this);
@@ -110,6 +128,14 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnJumpInput += OnJumpInput;
                 InputManager.OnCrouchInput += OnCrouchInput;
                 InputManager.OnSprintInput += OnSprintInput;
+                
+                // Phase 1: New Item Inputs subscriptions
+                InputManager.OnUse += OnUseInput;
+                InputManager.OnSecondaryUse += OnSecondaryUseInput;
+                InputManager.OnDropItem += OnDropItemInput;
+                InputManager.OnInteract += OnInteractInput;
+                InputManager.OnNumPressed += OnNumPressedInput;
+                InputManager.OnChangeWeaponInput += OnChangeWeaponInput;
             }
             else
             {
@@ -130,6 +156,14 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnJumpInput -= OnJumpInput;
                 InputManager.OnCrouchInput -= OnCrouchInput;
                 InputManager.OnSprintInput -= OnSprintInput;
+                
+                // Phase 1: Unsubscribe Item Inputs
+                InputManager.OnUse -= OnUseInput;
+                InputManager.OnSecondaryUse -= OnSecondaryUseInput;
+                InputManager.OnDropItem -= OnDropItemInput;
+                InputManager.OnInteract -= OnInteractInput;
+                InputManager.OnNumPressed -= OnNumPressedInput;
+                InputManager.OnChangeWeaponInput -= OnChangeWeaponInput;
             }
             else
             {
@@ -190,6 +224,15 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         {
             currentState.OnJumpInput(jumpEvent.IsPressed);
         }
+        
+        // Phase 1: Item Input Routing
+        public void OnUseInput() => currentState.OnUseInput();
+        public void OnSecondaryUseInput(bool isPressed) => currentState.OnSecondaryUseInput(isPressed);
+        public void OnDropItemInput() => currentState.OnDropItemInput();
+        public void OnInteractInput() => currentState.OnInteractInput();
+        public void OnNumPressedInput(int slot) => currentState.OnNumPressedInput(slot);
+        public void OnChangeWeaponInput() => currentState.OnChangeWeaponInput();
+        
         #endregion
         public virtual void TransitionTo(PlayerBaseState newState)
         {

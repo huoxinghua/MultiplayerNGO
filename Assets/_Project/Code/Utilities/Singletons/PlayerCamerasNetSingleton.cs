@@ -20,7 +20,7 @@ namespace _Project.Code.Utilities.Singletons
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void RequestClearCameraListServerRPC()
+        public void RequestClearCameraListServerRpc()
         {
             PlayerCamerasNetList.Clear();
         }

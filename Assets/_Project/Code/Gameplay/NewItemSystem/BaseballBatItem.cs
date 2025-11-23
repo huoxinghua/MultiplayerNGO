@@ -39,27 +39,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Item Usage - Melee Attack
 
-        /// <summary>
-        /// Primary use: Swing baseball bat to attack enemies in radius.
-        /// Sends ServerRpc to execute attack on server.
-        /// </summary>
-        public override void UseItem()
+        protected override void ExecuteUsageLogic()
         {
-            Debug.Log($"[BaseballBat] UseItem() called - IsOwner:{IsOwner}");
-
-            // Base class handles cooldown check and reset
-            base.UseItem();
-
-            // Owner requests attack from server
-            if (IsOwner)
-            {
-                Debug.Log("[BaseballBat] Calling RequestAttackServerRpc()");
-                RequestAttackServerRpc();
-            }
-            else
-            {
-                Debug.Log("[BaseballBat] Not owner, cannot use item");
-            }
+            RequestAttackServerRpc();
         }
 
         /// <summary>
@@ -69,7 +51,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [ServerRpc]
         private void RequestAttackServerRpc()
         {
-            Debug.Log("[BaseballBat] RequestAttackServerRpc() called on server");
             PerformMeleeAttack();
         }
 
@@ -79,8 +60,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         /// </summary>
         protected virtual void PerformMeleeAttack()
         {
-            Debug.Log("[BaseballBat] PerformMeleeAttack() started");
-
             // Validate we have baseball bat SO
             if (_itemSO is not BaseballBatItemSO baseballBatSO)
             {
@@ -94,8 +73,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogWarning("[BaseballBatItem] Owner is null when attacking");
                 return;
             }
-
-            Debug.Log($"[BaseballBat] Attacking with radius:{baseballBatSO.AttackRadius} damage:{baseballBatSO.Damage}");
 
             // Sphere cast for enemies
             Vector3 origin = _owner.transform.position + _owner.transform.forward * baseballBatSO.AttackRadius;
@@ -130,15 +107,15 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 }
 
                 // Get enemy's IHitable interface
-                IHitable hitable = enemyNetObj.GetComponent<IHitable>();
-                if (hitable == null)
+                IHitable hittable = enemyNetObj.GetComponent<IHitable>();
+                if (hittable == null)
                 {
                     Debug.LogWarning($"[BaseballBatItem] {enemyNetObj.name} missing IHitable component");
                     continue;
                 }
 
                 // Deal damage (this is already on server, so call directly)
-                hitable.OnHit(attackerNetObj.gameObject, baseballBatSO.Damage, baseballBatSO.KnockoutPower);
+                hittable.OnHit(attackerNetObj.gameObject, baseballBatSO.Damage, baseballBatSO.KnockoutPower);
             }
         }
 
@@ -156,10 +133,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             if (targetRef.TryGet(out NetworkObject targetObj))
             {
-                var hitable = targetObj.GetComponent<IHitable>();
-                if (hitable != null)
+                var hittable = targetObj.GetComponent<IHitable>();
+                if (hittable != null)
                 {
-                    hitable.OnHit(attackerRef.TryGet(out var atk) ? atk.gameObject : null, damage, knockout);
+                    hittable.OnHit(attackerRef.TryGet(out var atk) ? atk.gameObject : null, damage, knockout);
                 }
                 else
                 {

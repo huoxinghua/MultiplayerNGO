@@ -81,6 +81,15 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         public override void StateUpdate() { }
 
+        #region Input Blocking
+        public override void OnUseInput() { }
+        public override void OnSecondaryUseInput(bool isPressed) { }
+        public override void OnDropItemInput() { }
+        public override void OnInteractInput() { }
+        public override void OnNumPressedInput(int slot) { }
+        public override void OnChangeWeaponInput() { }
+        #endregion
+
         private static IEnumerator DespawnAfterDelay(NetworkObject netObject)
         {
             yield return new WaitForSeconds(DespawnDelaySeconds);

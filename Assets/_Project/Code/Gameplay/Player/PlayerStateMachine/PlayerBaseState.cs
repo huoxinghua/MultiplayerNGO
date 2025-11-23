@@ -58,6 +58,46 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         
         }
 
+        #region Item Inputs (Default Implementation: Pass to Inventory Service)
+        
+        public virtual void OnUseInput()
+        {
+            if (stateController.Inventory != null)
+                stateController.Inventory.UseItemInHand();
+        }
+
+        public virtual void OnSecondaryUseInput(bool isPressed)
+        {
+            if (stateController.Inventory != null)
+                stateController.Inventory.SecondaryUseItemInHand(isPressed);
+        }
+
+        public virtual void OnDropItemInput()
+        {
+            if (stateController.Inventory != null)
+                stateController.Inventory.DropItem();
+        }
+
+        public virtual void OnInteractInput()
+        {
+            // TODO: Interaction logic will be handled here (e.g. calling an InteractionManager).
+            // For now, this is empty as PlayerInventory does not have a public InteractWithEnvironment method.
+        }
+
+        public virtual void OnNumPressedInput(int slot)
+        {
+            if (stateController.Inventory != null)
+                stateController.Inventory.EquipSlot(slot - 1); // Input is 1-based, Inventory expects 0-4
+        }
+
+        public virtual void OnChangeWeaponInput()
+        {
+            // TODO: Implement weapon swap logic (e.g., stateController.Inventory.SwapBigItemForWeapon())
+            // once PlayerInventory has the public API for it.
+        }
+
+        #endregion
+
         public virtual void HandleJump()
         {
 

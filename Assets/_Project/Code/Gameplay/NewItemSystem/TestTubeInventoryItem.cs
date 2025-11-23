@@ -33,6 +33,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
             HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
@@ -47,45 +48,21 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            base.UseItem();
-            if (HasCollected.Value) return;
+            if (!HasCollected.Value) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 UseTestTube();
             }
-            else
-            {
-                Debug.Log("UseItem：not owner");
-            }
-          
         }
         private void UseTestTube()
         {
-            /*_testTubeItemSo.EffectDuration;
-            _testTubeItemSo.SpeedBoostAmount;*/
-
-            RaycastHit hit;
-            Debug.Log($"[Raycast] Starting | Origin={Camera.main?.transform.position} | Dir={Camera.main?.transform.forward} | Dist={_detectDistance} | Mask={lM.value}");
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance,lM))
-            {
-                var sample = hit.transform.GetComponent<SampleObjTest>();
-                if (sample != null)
-                {
-                    var currentSample = sample.GetSample();
-                    CollectSample(currentSample);
-                }
-                if (sample.gameObject != null)
-                {
-                    Destroy(sample.gameObject);
-                }
-
-            }
-            else
-            {
-                Debug.Log("cast fail");
-            }
             RequestChangeIsUsedServerRpc();
         }
 

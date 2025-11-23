@@ -52,5 +52,6 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 _isSprinting = false;
             }
         }
+
     }
 }
