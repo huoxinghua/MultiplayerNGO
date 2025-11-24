@@ -13,7 +13,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private bool ikActive;
 
         private Transform handL, handR, elbowL, elbowR;
-        private IkInteractSO fingerSO;
+        private IkInteractSO interactSO;
         
         public IKInteractable Interactable => interactable;
 
@@ -27,11 +27,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
         {
             if(layerIndex != 0) return;
             if(animator == null) return;
-            if (handR == null && handL == null) return;
-            
+
+
             if (ikActive)
             {
-                if (handR != null)
+                
+                
+                if (handR != null) 
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
@@ -40,16 +42,20 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     animator.SetIKRotation(AvatarIKGoal.RightHand, handR.rotation);
                     animator.SetIKHintPosition(AvatarIKHint.RightElbow, elbowR.position);
 
+                    animator.SetIKPosition(AvatarIKGoal.RightHand, handR.position);
+                    animator.SetIKRotation(AvatarIKGoal.RightHand, handR.rotation);
+                    animator.SetIKHintPosition(AvatarIKHint.RightElbow, elbowR.position);
+                    
                     ApplyFinger(HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate,
-                        HumanBodyBones.RightThumbDistal, fingerSO.thumbR);
+                        HumanBodyBones.RightThumbDistal, interactSO.thumbR);
                     ApplyFinger(HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate,
-                        HumanBodyBones.RightIndexDistal, fingerSO.indexR);
+                        HumanBodyBones.RightIndexDistal, interactSO.indexR);
                     ApplyFinger(HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate,
-                        HumanBodyBones.RightMiddleDistal, fingerSO.middleR);
+                        HumanBodyBones.RightMiddleDistal, interactSO.middleR);
                     ApplyFinger(HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate,
-                        HumanBodyBones.RightRingDistal, fingerSO.ringR);
+                        HumanBodyBones.RightRingDistal, interactSO.ringR);
                     ApplyFinger(HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate,
-                        HumanBodyBones.RightLittleDistal, fingerSO.littleR);
+                        HumanBodyBones.RightLittleDistal, interactSO.littleR);
                 }
 
                 if (handL != null)
@@ -61,16 +67,20 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     animator.SetIKRotation(AvatarIKGoal.LeftHand, handL.rotation);
                     animator.SetIKHintPosition(AvatarIKHint.LeftElbow, elbowL.position);
 
+                    animator.SetIKPosition(AvatarIKGoal.LeftHand, handL.position);
+                    animator.SetIKRotation(AvatarIKGoal.LeftHand, handL.rotation);
+                    animator.SetIKHintPosition(AvatarIKHint.LeftElbow, elbowL.position);
+                    
                     ApplyFinger(HumanBodyBones.LeftThumbProximal, HumanBodyBones.LeftThumbIntermediate,
-                        HumanBodyBones.LeftThumbDistal, fingerSO.thumbL);
+                        HumanBodyBones.LeftThumbDistal, interactSO.thumbL);
                     ApplyFinger(HumanBodyBones.LeftIndexProximal, HumanBodyBones.LeftIndexIntermediate,
-                        HumanBodyBones.LeftIndexDistal, fingerSO.indexL);
+                        HumanBodyBones.LeftIndexDistal, interactSO.indexL);
                     ApplyFinger(HumanBodyBones.LeftMiddleProximal, HumanBodyBones.LeftMiddleIntermediate,
-                        HumanBodyBones.LeftMiddleDistal, fingerSO.middleL);
+                        HumanBodyBones.LeftMiddleDistal, interactSO.middleL);
                     ApplyFinger(HumanBodyBones.LeftRingProximal, HumanBodyBones.LeftRingIntermediate,
-                        HumanBodyBones.LeftRingDistal, fingerSO.ringL);
+                        HumanBodyBones.LeftRingDistal, interactSO.ringL);
                     ApplyFinger(HumanBodyBones.LeftLittleProximal, HumanBodyBones.LeftLittleIntermediate,
-                        HumanBodyBones.LeftLittleDistal, fingerSO.littleL);
+                        HumanBodyBones.LeftLittleDistal, interactSO.littleL);
                 }
             }
             else
@@ -91,8 +101,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             handR = handRPos;
             elbowL = elbowLPos;
             elbowR = elbowRPos;
-            fingerSO = ikInteract;
-           // Debug.Log(interactable.gameObject.name);
+            interactSO = ikInteract;
         }
 
         private void ApplyFinger(HumanBodyBones proximalBone, HumanBodyBones intermediateBone, HumanBodyBones distalBone, FingerData finger)

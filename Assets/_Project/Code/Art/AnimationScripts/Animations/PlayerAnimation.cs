@@ -17,7 +17,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
 
-
+        private IKAnimState newState;
         protected override void Awake()
         {
             base.Awake();

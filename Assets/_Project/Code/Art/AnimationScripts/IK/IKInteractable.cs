@@ -26,9 +26,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [Header("Position/Rotation Anchor")]
         [SerializeField] private Transform gripAnchor;
         
-        private Tween currentTween;
         private bool currentCrouch;
-        private bool currentFPS;
+
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
 
@@ -99,7 +98,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             }
         }
 
-        public void PickupAnimation(PlayerIKController ikController, bool isFPS)
+        public void PickupAnimation(PlayerIKController ikController)
         {
             // Clear any existing controller reference for this view FIRST
             // This prevents phantom hands when ownership changes between players
@@ -121,9 +120,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
             // Now set the new controller
             ikController.IKPos(this, handL, handR, elbowL, elbowR, ikInteractSo);
             ikController.IkActive = true;
-            if (isFPS)
+            //if (ikController.IsOwner)
+            if (IsFPS)
             {
                 _currentFPSIKController = ikController;
+                _currentTPSIKController = null;
             }
             else
             {
@@ -154,6 +155,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController =  null;
             }
+            Debug.Log($"DropAnimation Called | Owner={IsOwner} | FPS={_currentFPSIKController} | TPS={_currentTPSIKController}");
         }
 
         private void PlayIKIdleLocal(bool isFPS)

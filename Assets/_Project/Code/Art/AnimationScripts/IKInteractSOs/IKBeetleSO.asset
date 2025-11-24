@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f65d32991db45bc428a92ae55c972030, type: 3}
-  m_Name: IKBaseballSO
+  m_Name: IKBeetleSO
   m_EditorClassIdentifier: 
   thumbR:
     proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
@@ -53,11 +53,11 @@ MonoBehaviour:
     intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
   fpsOffset:
-    posOffset: {x: 0.1461, y: -0.1046, z: 0.0475}
-    rotOffset: {x: -12.564, y: 3.837, z: -107.135}
+    posOffset: {x: 0, y: -1.151, z: 0}
+    rotOffset: {x: 0, y: 180, z: 0}
   tpsOffset:
-    posOffset: {x: 0.019, y: -0.071, z: -0.098}
-    rotOffset: {x: -12.564, y: 3.837, z: -107.135}
+    posOffset: {x: 0, y: -1.914, z: 0.079}
+    rotOffset: {x: 0, y: 180, z: 0}
   ikIdle:
     resetDuration: 0.05
     transitionDuration: 1
@@ -75,16 +75,16 @@ MonoBehaviour:
     transitionDuration: 0.3
     loopDuration: 0.65
     fpsWaypoints:
-    - {x: -0.01, y: 0, z: 0}
+    - {x: -0.005, y: 0, z: 0}
     - {x: 0, y: -0.003, z: 0}
-    - {x: 0.01, y: 0, z: 0}
+    - {x: 0.005, y: 0, z: 0}
     tpsWaypoints:
-    - {x: -0.1, y: 0, z: 0}
+    - {x: -0.005, y: 0, z: 0}
     - {x: 0, y: -0.003, z: 0}
-    - {x: 0.01, y: 0, z: 0}
+    - {x: 0.005, y: 0, z: 0}
     fpsFollowThrough:
-    - {x: 0, y: 0, z: -1}
-    - {x: 0, y: 0, z: 1}
+    - {x: 0, y: 0, z: -0.5}
+    - {x: 0, y: 0, z: 0.5}
     tpsFollowThrough:
     - {x: 0, y: 0, z: -1}
     - {x: 0, y: 0, z: 1}
@@ -97,16 +97,16 @@ MonoBehaviour:
     transitionDuration: 0.2
     loopDuration: 0.3
     fpsWaypoints:
-    - {x: -0.02, y: 0, z: 0}
+    - {x: -0.005, y: 0, z: 0}
     - {x: 0, y: -0.008, z: 0}
-    - {x: 0.02, y: 0, z: 0}
+    - {x: 0.005, y: 0, z: 0}
     tpsWaypoints:
-    - {x: -0.02, y: 0, z: 0}
+    - {x: -0.01, y: 0, z: 0}
     - {x: 0, y: -0.008, z: 0}
-    - {x: 0.02, y: 0, z: 0}
+    - {x: 0.01, y: 0, z: 0}
     fpsFollowThrough:
-    - {x: 0, y: 0, z: -2}
-    - {x: 0, y: 0, z: 2}
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
     tpsFollowThrough:
     - {x: 0, y: 0, z: -2}
     - {x: 0, y: 0, z: 2}
