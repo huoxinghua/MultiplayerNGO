@@ -6,6 +6,7 @@ using _Project.Code.UI.Inventory;
 using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.UI;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory
@@ -28,8 +29,9 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// <summary>
         /// Server-authoritative big item reference (non-pocketsize items held in hands).
         /// </summary>
-        public NetworkVariable<NetworkObjectReference> InventoryNetworkBigItemRef = new NetworkVariable<NetworkObjectReference>(
-            default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        public NetworkVariable<NetworkObjectReference> InventoryNetworkBigItemRef =
+            new NetworkVariable<NetworkObjectReference>(
+                default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         /// <summary>
         /// Server-authoritative currently equipped slot index (0-4).
@@ -63,12 +65,10 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
         #region Configuration & References
 
-        [Header("Inventory Configuration")]
-        [SerializeField] [Tooltip("Number of inventory slots (should be 5)")]
+        [Header("Inventory Configuration")] [SerializeField] [Tooltip("Number of inventory slots (should be 5)")]
         private int InventorySlots = 5;
 
-        [Header("Transform References")]
-        [SerializeField] [Tooltip("Transform on FPS model where items are parented")]
+        [Header("Transform References")] [SerializeField] [Tooltip("Transform on FPS model where items are parented")]
         private Transform FPSItemParent;
 
         [SerializeField] [Tooltip("Transform on TPS model where items are parented")]
@@ -77,14 +77,16 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [SerializeField] [Tooltip("Transform where dropped items spawn")]
         private Transform DropTransform;
 
-        [Header("Component References")]
-        [SerializeField] private PlayerAnimation PlayerAnimation;
+        [Header("Component References")] [SerializeField]
+        private PlayerAnimation PlayerAnimation;
+
         [SerializeField] public PlayerIKData ThisPlayerIKData;
 
         private PlayerStateMachine.PlayerStateMachine _playerStateMachine;
 
-        [Header("UI References")]
-        [SerializeField] private Image[] ItemUIDisplay = new Image[5];
+        [Header("UI References")] [SerializeField]
+        private Image[] ItemUIDisplay = new Image[5];
+
         [SerializeField] private Image[] SlotUIBackground = new Image[5];
 
         #endregion
@@ -103,12 +105,26 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// <summary>
         /// Returns true if player is holding a big item (non-pocketsize).
         /// </summary>
-        private bool _handsFull => BigItemCarried != null;
+        private bool _handsFull
+        {
+            get
+            {
+                // TryGet returns true if the reference is valid and the object is retrieved
+                if (InventoryNetworkBigItemRef.Value.TryGet(out Unity.Netcode.NetworkObject bigItemObj))
+                {
+                    // Return true only if the retrieved object contains the component
+                    return bigItemObj.GetComponentInChildren<BaseInventoryItem>() != null;
+                }
+
+                // Return false if the reference was invalid or the object wasn't found
+                return false;
+            }
+        }
 
         /// <summary>
-        /// Returns true if all 5 inventory slots are occupied.
-        /// </summary>
-        public bool InventoryFull => IsInventoryFull();
+            /// Returns true if all 5 inventory slots are occupied.
+            /// </summary>
+            public bool InventoryFull => IsInventoryFull();
 
         /// <summary>
         /// Gets the FPS model's item parent transform.
@@ -140,7 +156,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
             if (FPSItemParent == null || TPSItemParent == null || DropTransform == null)
             {
-                Debug.LogError("[PlayerInventory] FPSItemParent, TPSItemParent, or DropTransform not assigned in Inspector!");
+                Debug.LogError(
+                    "[PlayerInventory] FPSItemParent, TPSItemParent, or DropTransform not assigned in Inspector!");
             }
         }
 
@@ -151,10 +168,12 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             var item = GetCurrentEquippedItem();
             if (item == null) return;
 
-            bool isMoving = _playerStateMachine.CurrentMovement != PlayerStateMachine.PlayerStateMachine.MovementContext.Idle;
-            bool isRunning = _playerStateMachine.CurrentMovement == PlayerStateMachine.PlayerStateMachine.MovementContext.Running;
+            bool isMoving = _playerStateMachine.CurrentMovement !=
+                            PlayerStateMachine.PlayerStateMachine.MovementContext.Idle;
+            bool isRunning = _playerStateMachine.CurrentMovement ==
+                             PlayerStateMachine.PlayerStateMachine.MovementContext.Running;
 
-           // item.NotifyMovementChanged(isMoving, isRunning);
+            // item.NotifyMovementChanged(isMoving, isRunning);
         }
 
         public override void OnNetworkSpawn()
@@ -168,6 +187,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 {
                     InventoryNetworkRefs.Add(default);
                 }
+
                 NetworkCurrentIndex.Value = 0;
             }
 
@@ -206,6 +226,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             {
                 return false;
             }
+
             return true;
         }
 
@@ -216,14 +237,27 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// <param name="item">The item to pick up</param>
         public void DoPickup(BaseInventoryItem item)
         {
-            if (item == null || item.NetworkObject == null)
+            if (item == null)
             {
                 Debug.LogWarning("[PlayerInventory] DoPickup called with null item");
                 return;
             }
 
+            if (item.NetworkObject != null)
+            {
+                PickupItemServerRpc(new NetworkObjectReference(item.NetworkObject), item.IsPocketSize());
+            }
+            else if (item.GetComponentInParent<NetworkObject>() != null)
+            {
+                //Some object scripts are not on the root obj
+                PickupItemServerRpc(new NetworkObjectReference(item.GetComponentInParent<NetworkObject>()),
+                    item.IsPocketSize());
+            }
+            else
+            {
+                Debug.Log("Cannot find NetworkObject");
+            }
             // Client just sends the request - server does all validation and execution
-            PickupItemServerRpc(new NetworkObjectReference(item.NetworkObject), item.IsPocketSize());
         }
 
         /// <summary>
@@ -234,16 +268,19 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         /// <param name="isPocketSize">Whether item goes in inventory or held in hands</param>
         /// <param name="rpcParams">RPC parameters for sender validation</param>
         [ServerRpc(RequireOwnership = false)]
-        private void PickupItemServerRpc(NetworkObjectReference itemRef, bool isPocketSize, ServerRpcParams rpcParams = default)
+        private void PickupItemServerRpc(NetworkObjectReference itemRef, bool isPocketSize,
+            ServerRpcParams rpcParams = default)
         {
             // Validate item reference
             if (!itemRef.TryGet(out NetworkObject itemNetObj))
             {
-                Debug.LogWarning($"[Server] Invalid item reference in pickup from client {rpcParams.Receive.SenderClientId}");
+                Debug.LogWarning(
+                    $"[Server] Invalid item reference in pickup from client {rpcParams.Receive.SenderClientId}");
                 return;
             }
 
-            BaseInventoryItem item = itemNetObj.GetComponent<BaseInventoryItem>();
+            //in children incase script isnt in root parent
+            BaseInventoryItem item = itemNetObj.GetComponentInChildren<BaseInventoryItem>();
             if (item == null)
             {
                 Debug.LogWarning("[Server] NetworkObject has no BaseInventoryItem component");
@@ -254,7 +291,8 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             float distance = Vector3.Distance(transform.position, itemNetObj.transform.position);
             if (distance > MAX_PICKUP_RANGE)
             {
-                Debug.LogWarning($"[Server] Client {rpcParams.Receive.SenderClientId} tried to pickup item from {distance:F2}m away (max: {MAX_PICKUP_RANGE}m)");
+                Debug.LogWarning(
+                    $"[Server] Client {rpcParams.Receive.SenderClientId} tried to pickup item from {distance:F2}m away (max: {MAX_PICKUP_RANGE}m)");
                 return;
             }
 
@@ -331,7 +369,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         public void DropItem()
         {
             // Client just sends the request
-            
+
             DropItemServerRpc(_currentIndex, DropTransform.position, _handsFull);
         }
 
@@ -361,7 +399,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     return;
                 }
 
-                BaseInventoryItem bigItem = bigItemObj.GetComponent<BaseInventoryItem>();
+                BaseInventoryItem bigItem = bigItemObj.GetComponentInChildren<BaseInventoryItem>();
                 if (bigItem == null)
                 {
                     Debug.LogWarning("[Server] Big item has no BaseInventoryItem component");
@@ -384,7 +422,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     return;
                 }
 
-                BaseInventoryItem slotItem = slotItemObj.GetComponent<BaseInventoryItem>();
+                BaseInventoryItem slotItem = slotItemObj.GetComponentInChildren<BaseInventoryItem>();
                 if (slotItem == null)
                 {
                     Debug.LogWarning("[Server] Slot item has no BaseInventoryItem component");
@@ -718,6 +756,7 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                     return false;
                 }
             }
+
             return true;
         }
 

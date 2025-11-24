@@ -458,7 +458,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             
             // Position item at drop point
             // Unparent from player
-            transform.SetParent(null);
+           // transform.SetParent(null);
             transform.position = dropPosition;
             _rb.position = dropPosition;
             
