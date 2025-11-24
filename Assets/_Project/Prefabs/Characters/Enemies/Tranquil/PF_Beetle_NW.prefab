@@ -2575,7 +2575,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -4019,14 +4019,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _heldVisual: {fileID: 1413494595960936745, guid: c4009aae71d4c1c42aa398912957ce03, type: 3}
   _itemSO: {fileID: 11400000, guid: 86cb6ad047dd9114ea1c87b2181470d4, type: 2}
+  _fpsHeldVisualChild: {fileID: 0}
+  _tpsHeldVisualChild: {fileID: 0}
+  _heldVisual: {fileID: 1413494595960936745, guid: c4009aae71d4c1c42aa398912957ce03, type: 3}
   _rb: {fileID: 5666741383023268653}
   _renderer: {fileID: 2047946669493827127}
   _collider: {fileID: 8145633619368504752}
-  _currentHeldVisual: {fileID: 0}
-  OwnerID: 0
-  _beetleTransform: {fileID: 2597361935419079917}
+  CurrentAnimState:
+    m_InternalValue: 0
+  AnimTime:
+    m_InternalValue: 0
   _beetleSkele: {fileID: 7506528613609555544}
   _beetleSO: {fileID: 11400000, guid: 86cb6ad047dd9114ea1c87b2181470d4, type: 2}
 --- !u!114 &8343719704971749113
