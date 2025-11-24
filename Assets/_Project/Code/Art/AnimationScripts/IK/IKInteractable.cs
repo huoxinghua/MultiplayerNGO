@@ -21,48 +21,37 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private Transform handL;
         [SerializeField] private Transform elbowR;
         [SerializeField] private Transform elbowL;
-        [SerializeField] private IkInteractSO ikInteractSo; 
-
-        [Header("Position/Rotation Anchor")]
-        [SerializeField] private Transform gripAnchor;
-        
+        [SerializeField] private IKItemAnimation ikAnim;
         private bool currentCrouch;
-
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
-
-        private float localAnimTime = 0f;
-
-        public bool IsInteractComplete { get; private set; } = true;
+        
+        public bool IsInteractComplete => ikAnim.IsInteractComplete;
+        
 
         public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
         {
             // Kill any existing animation before starting new one
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
+            ikAnim.StopIKAnimation();
 
             currentCrouch = isCrouch;
-            currentFPS = isFPS;
 
             switch (newState)
             {
                 case IKAnimState.None:
-                    StopIKAnimation();
+                    ikAnim.StopIKAnimation();
                     break;
                 case IKAnimState.Idle:
-                    PlayIKIdleLocal(isFPS);
+                    ikAnim.PlayIKIdle(isFPS);
                     break;
                 case IKAnimState.Walk:
-                    PlayIKMoveLocal(currentCrouch ? 2f : 1f, isFPS, false);
+                    ikAnim.PlayIKMove(currentCrouch ? 2f : 1f, isFPS, false);
                     break;
                 case IKAnimState.Run:
-                    PlayIKMoveLocal(1f, isFPS, true);
+                    ikAnim.PlayIKMove(1f, isFPS, true);
                     break;
                 case IKAnimState.Interact:
-                    PlayIKInteractLocal(isFPS);
+                    ikAnim.PlayIKInteract(isFPS);
                     break;
             }
         }
@@ -70,35 +59,29 @@ namespace _Project.Code.Art.AnimationScripts.IK
         public void SetAnimState(IKAnimState newState, bool isFPS)
         {
             // Kill any existing animation before starting new one
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
-
-            currentFPS = isFPS;
+            ikAnim.StopIKAnimation();
 
             switch (newState)
             {
                 case IKAnimState.None:
-                    StopIKAnimation();
+                    ikAnim.StopIKAnimation();
                     break;
                 case IKAnimState.Idle:
-                    PlayIKIdleLocal(isFPS);
+                    ikAnim.PlayIKIdle(isFPS);
                     break;
                 case IKAnimState.Walk:
-                    PlayIKMoveLocal(currentCrouch ? 2f : 1f, isFPS, false);
+                    ikAnim.PlayIKMove(currentCrouch ? 2f : 1f, isFPS, false);
                     break;
                 case IKAnimState.Run:
-                    PlayIKMoveLocal(1f, isFPS, true);
+                    ikAnim.PlayIKMove(1f, isFPS, true);
                     break;
                 case IKAnimState.Interact:
-                    PlayIKInteractLocal(isFPS);
+                    ikAnim.PlayIKInteract(isFPS);
                     break;
             }
         }
 
-        public void PickupAnimation(PlayerIKController ikController)
+        public void PickupAnimation(PlayerIKController ikController, bool isFPS)
         {
             // Clear any existing controller reference for this view FIRST
             // This prevents phantom hands when ownership changes between players
@@ -118,27 +101,25 @@ namespace _Project.Code.Art.AnimationScripts.IK
             }
 
             // Now set the new controller
-            ikController.IKPos(this, handL, handR, elbowL, elbowR, ikInteractSo);
+            ikController.IKPos(this, handL, handR, elbowL, elbowR, ikAnim.ikInteractSo);
             ikController.IkActive = true;
-            //if (ikController.IsOwner)
-            if (IsFPS)
+            if (isFPS)
             {
                 _currentFPSIKController = ikController;
-                _currentTPSIKController = null;
             }
             else
             {
                 _currentTPSIKController = ikController;
             }
-            transform.localPosition = ApplyPosOffset(Vector3.zero, isFPS);
-            transform.localRotation = Quaternion.Euler(ApplyRotOffset(Vector3.zero, isFPS));
+            transform.localPosition = ikAnim.ApplyPosOffset(Vector3.zero, isFPS);
+            transform.localRotation = Quaternion.Euler(ikAnim.ApplyRotOffset(Vector3.zero, isFPS));
 
-            PlayIKIdleLocal(isFPS);
+            SetAnimState(IKAnimState.Idle, isFPS);
         }
 
         public void DropAnimation()
         {
-            StopIKAnimation();
+            ikAnim.StopIKAnimation();
 
             if (_currentFPSIKController != null)
             {
@@ -155,175 +136,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController =  null;
             }
-            Debug.Log($"DropAnimation Called | Owner={IsOwner} | FPS={_currentFPSIKController} | TPS={_currentTPSIKController}");
-        }
-
-        private void PlayIKIdleLocal(bool isFPS)
-        {
-            localAnimTime = 0f;
-
-            var waypoints = isFPS ? ikInteractSo.ikIdle.fpsWaypoints :  ikInteractSo.ikIdle.tpsWaypoints;
-            float duration = ikInteractSo.ikIdle.transitionDuration;
-
-            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikIdle.resetDuration;
-            else duration = ikInteractSo.ikIdle.transitionDuration;
-
-            transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikIdle.easeType)
-                .OnComplete(() =>
-                {
-                    if(currentTween != null)
-                    {
-                        currentTween.Kill(true);
-                        currentTween = null;
-                    }
-                    
-                    var seq = DOTween.Sequence();
-                    seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[1], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
-                        .Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
-                        .SetLoops(int.MaxValue, ikInteractSo.ikIdle.loopType);
-                    currentTween = seq;
-                });
-        }
-
-        private void PlayIKMoveLocal(float slowSpeed, bool isFPS, bool isRunning)
-        {
-            localAnimTime = 0f;
-
-            var preset = isRunning ? ikInteractSo.ikRun : ikInteractSo.ikWalk;
-            var waypoints = isFPS ? preset.fpsWaypoints : preset.tpsWaypoints;
-            var followThroughs = isFPS ? preset.fpsFollowThrough : preset.tpsFollowThrough;
-            
-            float duration = preset.transitionDuration;
-
-            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = preset.resetDuration;
-            else duration = preset.transitionDuration;
-
-            var startSeq = DOTween.Sequence();
-            startSeq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration)
-                    .SetEase(ikInteractSo.ikWalk.easeType))
-                .Join(transform.DOLocalRotate(ApplyRotOffset(followThroughs[0], isFPS), duration)
-                    .SetEase(ikInteractSo.ikWalk.easeType))
-                .OnComplete(() =>
-                {
-                    if(currentTween != null)
-                    {
-                        currentTween.Kill(true);
-                        currentTween = null;
-                    }
-                    
-                    var seq = DOTween.Sequence();
-
-                    var moveTween = transform.DOLocalPath(ApplyPosOffset(waypoints, isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed, ikInteractSo.ikWalk.pathType, ikInteractSo.ikWalk.pathMode)
-                        .SetEase(ikInteractSo.ikWalk.easeType)
-                        .SetLoops(int.MaxValue, ikInteractSo.ikWalk.loopType);
-
-                    seq.Append(moveTween);
-
-                    var rotateSeq = DOTween.Sequence();
-                    rotateSeq.Append(transform.DOLocalRotate(ApplyRotOffset(followThroughs[1], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
-                        .Append(transform.DOLocalRotate(ApplyRotOffset(followThroughs[0], isFPS), ikInteractSo.ikWalk.loopDuration * slowSpeed).SetEase(ikInteractSo.ikWalk.easeType))
-                        .SetLoops(int.MaxValue, ikInteractSo.ikWalk.loopType);
-
-                    seq.Join(rotateSeq);
-
-                    currentTween = seq;
-                });
-        }
-
-        private void PlayIKInteractLocal(bool isFPS)
-        {
-            localAnimTime = 0f;
-            IsInteractComplete = false;
-
-            var waypoints = isFPS ? ikInteractSo.ikInteract.fpsPosWaypoints :  ikInteractSo.ikInteract.tpsPosWaypoints;
-            var RotPoints = isFPS ? ikInteractSo.ikInteract.fpsRotWaypoints : ikInteractSo.ikInteract.tpsRotWaypoints;
-
-            if (waypoints == null || waypoints.Length < 2 || RotPoints == null || RotPoints.Length < 2)
-            {
-                Debug.LogError($"[{gameObject.name}] Interact animation waypoints not configured in IkInteractSO!");
-                IsInteractComplete = true;
-                return;
-            }
-
-            float duration = ikInteractSo.ikInteract.transitionDuration;
-
-            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikInteract.resetDuration;
-            else duration = ikInteractSo.ikInteract.transitionDuration;
-
-            var seq = DOTween.Sequence();
-
-            seq.Append(transform.DOLocalMove(ApplyPosOffset(Vector3.zero, isFPS), duration)
-                    .SetEase(ikInteractSo.ikInteract.easeAnti))
-                .Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), duration)
-                    .SetEase(ikInteractSo.ikInteract.easeAnti));
-
-            seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration)
-                    .SetEase(ikInteractSo.ikInteract.easeAnti))
-                .Join(transform.DOLocalRotate(ApplyRotOffset(RotPoints[0], isFPS), ikInteractSo.ikInteract.transitionDuration)
-                    .SetEase(ikInteractSo.ikInteract.easeAnti));
-
-            seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[1], isFPS), ikInteractSo.ikInteract.hitDuration)
-                    .SetEase(ikInteractSo.ikInteract.easeHit))
-                .Join(transform.DOLocalRotate(ApplyRotOffset(RotPoints[1], isFPS), ikInteractSo.ikInteract.hitDuration)
-                    .SetEase(ikInteractSo.ikInteract.easeHit));
-
-            seq.Append(transform.DOLocalMove(ApplyPosOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.transitionDuration)
-                    .SetEase(ikInteractSo.ikInteract.easeHit))
-                .Join(transform.DOLocalRotate(ApplyRotOffset(Vector3.zero, isFPS), ikInteractSo.ikInteract.transitionDuration)
-                    .SetEase(ikInteractSo.ikInteract.easeHit));
-
-            seq.OnComplete(() =>
-            {
-                IsInteractComplete = true;
-            });
-            currentTween = seq;
-        }
-
-        public void StopIKAnimation()
-        {
-            if(currentTween != null)
-            {
-                currentTween.Kill(true);
-                currentTween = null;
-            }
-        }
-
-        private Vector3 ApplyPosOffset(Vector3 point, bool isFPS)
-        {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localPosition : Vector3.zero;
-            return point + offset;
-        }
-
-        private Vector3[] ApplyPosOffset(Vector3[] points, bool isFPS)
-        {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localPosition : Vector3.zero;
-            Vector3[] result = new Vector3[points.Length];
-
-            for (int i = 0; i < points.Length; i++)
-            {
-                result[i] = points[i] + offset;
-            }
-
-            return result;
-        }
-        
-        private Vector3 ApplyRotOffset(Vector3 point, bool isFPS)
-        {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localEulerAngles : Vector3.zero;
-            return point + offset;
-        }
-
-        private Vector3[] ApplyRotOffset(Vector3[] points, bool isFPS)
-        {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localEulerAngles : Vector3.zero;
-            Vector3[] result = new Vector3[points.Length];
-
-            for (int i = 0; i < points.Length; i++)
-            {
-                result[i] = points[i] + offset;
-            }
-
-            return result;
         }
     }
 

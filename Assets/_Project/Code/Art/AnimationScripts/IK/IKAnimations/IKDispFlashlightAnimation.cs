@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class IKDispFlashlightAnimation : IKItemAnimation
 {
-    public override void PlayIKInteractLocal(bool isFPS)
+    public override void PlayIKInteract(bool isFPS)
     {
         return;
     }

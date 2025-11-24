@@ -19,7 +19,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F))
+            /*if (Input.GetKeyDown(KeyCode.F))
             {
                 ik.IsFPS = !ik.IsFPS;
                 testAsFPS = !testAsFPS;
@@ -60,7 +60,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             if (Input.GetKeyDown(KeyCode.M))
             {
                 ik.DropAnimation();
-            }
+            }*/
         }
     }
 }
