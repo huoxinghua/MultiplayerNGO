@@ -1,3 +1,4 @@
+using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,15 +8,19 @@ namespace _Project.Code.Network.PlayerCharacter
     {
         [SerializeField] private MonoBehaviour[] _componentsToDisable;
         [SerializeField] private GameObject[] _objectsToEnable;
-        [SerializeField] private Camera _cameraToDisable;
-        [SerializeField] private AudioListener _audioListenerToDisable;
+         private Camera _playerCamera;
+        [SerializeField] private AudioListener _unityListener;
+        [SerializeField] private StudioListener _fmodListener;
         [SerializeField] private Renderer _renderToDisable;
         [SerializeField] private Renderer _renderToEnable;
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            _playerCamera = GetComponentInChildren<Camera>();
             ApplyOwnerState(IsOwner);
+          
+
         }
 
         private void ApplyOwnerState(bool isOwner)
@@ -36,8 +41,21 @@ namespace _Project.Code.Network.PlayerCharacter
                 }
             }
 
-            _cameraToDisable.enabled = isOwner;
-            _audioListenerToDisable.enabled = isOwner;
+            if (isOwner)
+            {
+                // Local Listener = ON
+                if (_playerCamera != null) _playerCamera.enabled = true;
+                if (_unityListener != null) _unityListener.enabled = true;
+                if (_fmodListener != null) _fmodListener.enabled = true;
+            }
+            else
+            {
+                // Remote Listener = DESTROY (important)
+                if (_playerCamera != null) _playerCamera.enabled = false;
+                if (_unityListener != null) Destroy(_unityListener);
+                if (_fmodListener != null) Destroy(_fmodListener);
+            }
+           
             _renderToEnable.enabled = isOwner;
 
             _renderToDisable.enabled = !isOwner;
