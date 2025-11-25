@@ -50,22 +50,68 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected override bool CanUse()
         {
-            if (!HasCollected.Value) return false;
-            return base.CanUse();
+            return true;
+            /*if (!HasCollected.Value) return false;
+            return base.CanUse();*/
         }
 
         protected override void ExecuteUsageLogic()
         {
+            Debug.Log("ExecuteUsageLogic text tub");
             if (IsOwner)
             {
+                Debug.Log("ExecuteUsageLogic text tub isowner?"+IsOwner);
                 UseTestTube();
             }
         }
         private void UseTestTube()
         {
-            RequestChangeIsUsedServerRpc();
-        }
+            Debug.Log("TestTube Use triggered");
 
+            // 1. Only Owner should Raycast
+            if (!IsOwner) return;
+
+            RaycastHit hit;
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance, lM))
+            {
+                Debug.Log("Raycast hit: " + hit.transform.name);
+
+                var sample = hit.transform.GetComponent<SampleObjTest>();
+                if (sample != null)
+                {
+                    // Get data
+                    var sampleSO = sample.GetSample();
+
+                    // Local save
+                    CollectSample(sampleSO);
+
+                    // Tell server this sample is collected → destroy networked object
+                    var netObj = sample.GetComponent<NetworkObject>();
+                    if (netObj != null)
+                    {
+                        RequestCollectSampleServerRpc(new NetworkObjectReference(netObj));
+                    }
+                    else
+                    {
+                        Debug.LogError("Sample missing NetworkObject");
+                    }
+
+                    return;
+                }
+            }
+
+            Debug.Log("Raycast fail, no sample found");
+        }
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestCollectSampleServerRpc(NetworkObjectReference sampleObjRef)
+        {
+            if (sampleObjRef.TryGet(out NetworkObject obj))
+            {
+                obj.Despawn();
+            }
+
+            HasCollected.Value = true;
+        }
         public void CollectSample(SampleSO value)
         {
             Debug.Log("Save sample:" + value.name + "money:" + value.GetRandomMoneyValue() + "research" + value.GetRandomResearchValue());

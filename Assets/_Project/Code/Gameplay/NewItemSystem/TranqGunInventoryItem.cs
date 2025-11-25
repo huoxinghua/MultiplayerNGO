@@ -57,10 +57,15 @@ namespace _Project.Code.Gameplay.NewItemSystem
             {
                 ShootGun();
             }
+            else
+            {
+                Debug.Log("ExecuteUsageLogic：isowner？"+IsOwner);
+            }
         }
 
         private void ShootGun()
         {
+            Debug.Log("shoot gun tranq");
             RequestDecreaseAmmoServerRpc();
             var cam = Camera.main;
             Vector3 shootDir;
