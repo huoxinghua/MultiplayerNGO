@@ -191,6 +191,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         {
             CharacterController.enabled = false;
             transform.SetPositionAndRotation(pos, rot);
+            GameFlowManager.Instance.HideLoadMenu();
             CharacterController.enabled = true;
             TransitionTo(IdleState);
         }

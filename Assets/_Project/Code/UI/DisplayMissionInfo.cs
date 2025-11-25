@@ -26,14 +26,12 @@ namespace _Project.Code.UI
         {
             DisplayInfo.SetActive(false);
         }
-      
-      
-
+        
         private void OnMissionClicked()
         {
             if (GameFlowManager.Instance!= null)
             {
-                GameFlowManager.Instance.StartMission();
+                GameFlowManager.Instance.RequestStartMission();
             }
         }
     }

@@ -26,23 +26,51 @@ namespace _Project.Code.Network.GameManagers
             public const string HubScene = "HubScene";
             public const string MissionHospital = "SecondShowcase_v1_Build";
         }
+        #endregion
+
+        #region Loading image
         private void Start()
         {
             HideLoadMenu();
         }
         public void ShowLoadMenu()
         {
-            _loadMenu.SetActive(true);
-            Invoke("HideLoadMenu", showTime);
+            ShowLoadMenuLocal();
+            ShowLoadMenuClientRpc();
+          
         }
 
+        [ClientRpc]
+        private void ShowLoadMenuClientRpc()
+        {
+            if (IsServer) return; 
+            ShowLoadMenuLocal();
+        }
+
+        private void ShowLoadMenuLocal()
+        {
+            _loadMenu.SetActive(true);
+         //   Invoke("HideLoadMenu", showTime);
+        }
         public void HideLoadMenu()
+        {
+            HideLoadMenuLocal();
+            HideLoadMenuClientRpc();
+        }
+
+        private void HideLoadMenuLocal()
         {
             _loadMenu.SetActive(false);
         }
-        #endregion
 
- 
+        [ClientRpc]
+        private void HideLoadMenuClientRpc()
+        {
+            if (IsServer) return;
+            HideLoadMenuLocal();
+        }
+        #endregion
+        
         public override void OnNetworkSpawn()
         {
             if (_loadMenu == null)
@@ -114,7 +142,7 @@ namespace _Project.Code.Network.GameManagers
         {
             if (Input.GetKeyDown(KeyCode.L))
             {
-                StartMission();
+                RequestStartMission();
             }
         }
 
@@ -123,12 +151,41 @@ namespace _Project.Code.Network.GameManagers
             if (IsServer)
             {
                 ShowLoadMenu();
-                NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+               
+            }
+            else
+            {
+                ShowLoadMenu();
+            }
+            NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+        [ClientRpc]
+        private void ShowLoadMenuClientRPC()
+        {
+            ShowLoadMenu();
+        }
+        
+        public void RequestStartMission()
+        {
+            if (IsServer)
+            {
+                StartMission();
+            }
+            else
+            {
+                RequestStartMissionServerRpc();
             }
         }
-   
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestStartMissionServerRpc()
+        {
+           
+            StartMission();
+        }
         public void StartMission()
         {
+            ShowLoadMenu();
             LoadScene(SceneName.MissionHospital);
         }
 
