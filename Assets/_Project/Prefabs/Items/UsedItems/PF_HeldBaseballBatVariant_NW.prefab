@@ -86,12 +86,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5907030997169050140}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.092213206, y: -0.2718922, z: 0.09859158, w: 0.95281225}
-  m_LocalPosition: {x: 0.001, y: 0.041, z: 0.325}
+  m_LocalRotation: {x: -0.25616834, y: -0.29067776, z: -0.6698022, w: 0.6334425}
+  m_LocalPosition: {x: 0.468, y: -0.533, z: -0.487}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5500456051312727371}
+  m_Father: {fileID: 2438352448952700779}
   m_LocalEulerAnglesHint: {x: 13.258, y: -30.906, z: 8.135}
 --- !u!1 &5987632440333871896
 GameObject:
@@ -126,8 +126,6 @@ Transform:
   - {fileID: 7180245108918709990}
   - {fileID: 4175707550700270599}
   - {fileID: 2537556399806625297}
-  - {fileID: 6657527855636250339}
-  - {fileID: 6783304548503899853}
   m_Father: {fileID: 2438352448952700779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6330386755547181747
@@ -147,8 +145,7 @@ MonoBehaviour:
   handL: {fileID: 2537556399806625297}
   elbowR: {fileID: 6657527855636250339}
   elbowL: {fileID: 6783304548503899853}
-  ikInteractSo: {fileID: 11400000, guid: 984a4756a899840f188fcc1fe3a0cc0b, type: 2}
-  gripAnchor: {fileID: 9021707602461190881}
+  ikAnim: {fileID: 0}
 --- !u!1 &6317793859404243403
 GameObject:
   m_ObjectHideFlags: 0
@@ -204,12 +201,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6592040588129543164}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.33895788, y: 0.07740908, z: 0.93601155, w: 0.054753043}
-  m_LocalPosition: {x: 0.094, y: -0.097, z: -0.242}
+  m_LocalRotation: {x: -0.20815496, y: 0.39819705, z: 0.48111635, w: 0.7527534}
+  m_LocalPosition: {x: -0.392, y: -0.667, z: -0.307}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5500456051312727371}
+  m_Father: {fileID: 2438352448952700779}
   m_LocalEulerAnglesHint: {x: -10.488, y: -39.546, z: 177.084}
 --- !u!1001 &1690981012786269126
 PrefabInstance:
@@ -283,6 +280,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3936523102523606189, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9021707602461190881}
+    - targetCorrespondingSourceObject: {fileID: 3936523102523606189, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6657527855636250339}
+    - targetCorrespondingSourceObject: {fileID: 3936523102523606189, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6783304548503899853}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4461526038127156759, guid: d25b78634ec0f0341ac74743c87ef3fa, type: 3}
       insertIndex: -1
@@ -313,7 +316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3531673807
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
