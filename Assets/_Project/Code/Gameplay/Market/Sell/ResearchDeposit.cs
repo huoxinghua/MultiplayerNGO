@@ -5,6 +5,7 @@ using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.ServiceLocator;
 using _Project.Code.UI.Inventory;
 using QuickOutline.Scripts;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Market.Sell
@@ -14,7 +15,7 @@ namespace _Project.Code.Gameplay.Market.Sell
     /// Updated to use async callback pattern instead of synchronous TrySell return value.
     /// </summary>
     [RequireComponent(typeof(Outline))]
-    public class ResearchDeposit : MonoBehaviour, IInteractable
+    public class ResearchDeposit : NetworkBehaviour, IInteractable
     {
         protected Outline OutlineEffect;
 
@@ -31,7 +32,7 @@ namespace _Project.Code.Gameplay.Market.Sell
             EventBus.Instance.Subscribe<ItemSoldEvent>(this, OnItemSold);
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             // Unsubscribe from event
             EventBus.Instance.Unsubscribe<ItemSoldEvent>(this);
@@ -78,7 +79,7 @@ namespace _Project.Code.Gameplay.Market.Sell
             // Process sale (adds money and research progress)
             economyManager.SoldItem(itemValues);
 
-            Debug.Log($"[ResearchDeposit] Item sold: {saleEvent.SoldItemData.KeyName} | Money: {economyManager.PlayerMoney} | Research: {economyManager.ResearchProgress}");
+          //  Debug.Log($"[ResearchDeposit] Item sold: {saleEvent.SoldItemData.KeyName} | Money: {economyManager.PlayerMoney} | Research: {economyManager.ResearchProgress}");
         }
         public void HandleHover(bool isHovering)
         {

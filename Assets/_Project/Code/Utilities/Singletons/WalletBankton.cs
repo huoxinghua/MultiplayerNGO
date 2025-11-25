@@ -41,13 +41,6 @@ namespace _Project.Code.Utilities.Singletons
         }
 
         //need event and a purpose
-        public void HandleResearchProgressChange(float oldAmount, float newAmount)
-        {
-        }
-
-        public void HandleQuotaChange(float oldAmount, float newAmount)
-        {
-        }
 
         #endregion
 
@@ -67,60 +60,6 @@ namespace _Project.Code.Utilities.Singletons
 
         #endregion
 
-        #region Research
-
-        public void AddResearchProgress(float amount)
-        {
-            CurrentResearchProgress += amount;
-            RequestAddResearchProgressServerRpc(amount);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestAddResearchProgressServerRpc(float amount)
-        {
-            ResearchProgressNW.Value += amount;
-        }
-
-        public void ResetResearchProgress()
-        {
-            CurrentResearchProgress = 0;
-            RequestResetResearchProgressServerRpc();
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestResetResearchProgressServerRpc()
-        {
-            ResearchProgressNW.Value = 0;
-        }
-
-        #endregion
-
-        #region Quota
-
-        public void SetQuota(float quota)
-        {
-            ResearchQuota = quota;
-            RequestSetQuotaServerRpc(quota);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestSetQuotaServerRpc(float quota)
-        {
-            QuotaNW.Value = quota;
-        }
-
-        public void AddToQuota(float amount)
-        {
-            ResearchQuota += amount;
-            RequestAddToQuotaServerRpc(amount);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestAddToQuotaServerRpc(float amount)
-        {
-            QuotaNW.Value += amount;
-        }
-
-        #endregion
+      
     }
 }
