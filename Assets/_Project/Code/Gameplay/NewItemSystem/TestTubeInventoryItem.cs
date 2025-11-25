@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Gameplay.NewItemSystem.SampleItem;
-using _Project.Code.Gameplay.NewItemSystem.TestTub;
-using _Project.Code.Gameplay.Scripts.MVCItems.SampleJar;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -47,13 +45,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #endregion
 
         #region UseLogic
-
-        protected override bool CanUse()
-        {
-            return true;
-            /*if (!HasCollected.Value) return false;
-            return base.CanUse();*/
-        }
 
         protected override void ExecuteUsageLogic()
         {
@@ -114,15 +105,18 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public void CollectSample(SampleSO value)
         {
-            Debug.Log("Save sample:" + value.name + "money:" + value.GetRandomMoneyValue() + "research" + value.GetRandomResearchValue());
-            SampleData data = new SampleData(value.GetRandomResearchValue(),
-                value.GetRandomMoneyValue());
+            Debug.Log("Save sample:");
+            SampleData data = new SampleData(value.GetRandomMiscValue(),
+                value.GetRandomViolentValue(), value.GetRandomViolentValue());
             if (!samplesContainer.ContainsKey(value.SampleType))
             {
                 samplesContainer[value.SampleType] = new List<SampleData>();
             }
             samplesContainer[value.SampleType].Add(data);
             Debug.Log("sample container:" + samplesContainer.Count);
+            Debug.Log(
+                $"Save sample: Tranquil={data.TranquilValue}, Violent={data.violentValue}, Misc={data.miscValue}"
+            );
         }
 
         [ServerRpc(RequireOwnership = false)]

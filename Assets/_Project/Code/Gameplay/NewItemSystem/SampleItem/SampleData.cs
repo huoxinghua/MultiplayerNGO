@@ -1,14 +1,17 @@
-namespace _Project.Code.Gameplay.NewItemSystem.TestTub
+namespace _Project.Code.Gameplay.NewItemSystem.SampleItem
 {
     public class SampleData
     {
-        public float researchValue;
-        public int moneyValue;
+        public float TranquilValue;
+        public int violentValue;
+        public int miscValue;
 
-        public SampleData(float research, int money)
+        public SampleData(float tranquil, int violent,int Misc)
         {
-            researchValue = research;
-            moneyValue = money;
+            TranquilValue = tranquil;
+            violentValue = violent;
+            miscValue = Misc;
+
         }
 
     }

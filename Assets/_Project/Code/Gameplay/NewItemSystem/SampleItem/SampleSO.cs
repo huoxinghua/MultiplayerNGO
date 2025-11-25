@@ -1,21 +1,13 @@
 using UnityEngine;
 
-namespace _Project.Code.Gameplay.Scripts.MVCItems.SampleJar
+namespace _Project.Code.Gameplay.NewItemSystem.SampleItem
 {
     [CreateAssetMenu(fileName = "SampleSO", menuName = "Sample/SampleSO")]
     public class SampleSO : ScriptableObject
     {
         [field: SerializeField] public string SampleType { get; private set; }
-
-        [Header("Research Value Range")]
-        public int minResearchValue = 50;
-        public int maxResearchValue = 75;
-
-        [Header("Money Value Range")]
-        public int minMoneyValue = 20;
-        public int maxMoneyValue = 50;
         
-        /*[Header("Tranquil Range")]
+        [Header("Tranquil Range")]
         [field: Range(0,1), SerializeField ] public float MinTranquilRange { get; private set; }
         [field:Range(0,1),  SerializeField] public float MaxTranquilRange { get; private set; }
 
@@ -24,17 +16,24 @@ namespace _Project.Code.Gameplay.Scripts.MVCItems.SampleJar
         [field: Range(0,1), SerializeField] public float MaxViolentRange { get; private set; }
         [Header("Misc Range")]
         [field: Range(0,1), SerializeField] public float MinMiscRange { get; private set; }
-        [field: Range(0,1), SerializeField] public float MaxMiscRange { get; private set; }*/
+        [field: Range(0,1), SerializeField] public float MaxMiscRange { get; private set; }
    
-        public int GetRandomResearchValue()
+        public int GetRandomTranquilValue()
         {
-            return Random.Range(minResearchValue, maxResearchValue);
+            float value = Random.Range(MinTranquilRange, MaxTranquilRange);
+            return Mathf.RoundToInt(value * 100);  
         }
 
 
-        public int GetRandomMoneyValue()
+        public int GetRandomViolentValue()
         {
-            return Random.Range(minMoneyValue, maxMoneyValue);
+            float value = Random.Range(MinViolentRange, MaxViolentRange);
+            return Mathf.RoundToInt(value * 100);
+        }
+        public int GetRandomMiscValue()
+        {
+            float value = Random.Range(MinMiscRange, MaxMiscRange);
+            return Mathf.RoundToInt(value * 100);
         }
     }
 }

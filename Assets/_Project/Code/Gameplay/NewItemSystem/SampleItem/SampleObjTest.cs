@@ -1,6 +1,5 @@
 using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.Interfaces;
-using _Project.Code.Gameplay.Scripts.MVCItems.SampleJar;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem.SampleItem
