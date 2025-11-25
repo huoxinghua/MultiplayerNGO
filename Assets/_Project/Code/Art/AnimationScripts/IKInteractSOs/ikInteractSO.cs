@@ -18,6 +18,10 @@ namespace _Project.Code.Art.AnimationScripts.IKInteractSOs
         public FingerData ringL;
         public FingerData littleL;
         
+        [Space(10), Header("Object Position")]
+        public OffsetPos fpsOffset;
+        public OffsetPos tpsOffset;
+        
         [Space(10), Header("IK Animation Preset")]
         public IdlePreset ikIdle;
         public MovementPreset ikWalk;

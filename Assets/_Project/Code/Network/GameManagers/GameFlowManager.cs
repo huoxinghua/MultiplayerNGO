@@ -102,6 +102,11 @@ namespace _Project.Code.Network.GameManagers
                     SpawnHubPlayers();
                     HandleMissionPlayersPositions();
                 }
+                else  
+                {
+                    SpawnHubPlayers();
+                    HandleMissionPlayersPositions();
+                }
           }
         }
 

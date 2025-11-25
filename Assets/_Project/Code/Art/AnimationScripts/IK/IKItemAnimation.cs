@@ -6,8 +6,8 @@ namespace _Project.Code.Art.AnimationScripts.IK
 {
     public abstract class IKItemAnimation : MonoBehaviour
     {
-        [Header("Position/Rotation Anchor")]
-        [SerializeField] private Transform gripAnchor;
+        /*[Header("Position/Rotation Anchor")]
+        [SerializeField] private Transform gripAnchor;*/
         [field: SerializeField] public IkInteractSO ikInteractSo { get; private set; }
         private Tween interactTween;
         private float localAnimTime = 0f;
@@ -147,13 +147,12 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
         public Vector3 ApplyPosOffset(Vector3 point, bool isFPS)
         {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localPosition : Vector3.zero;
-            return point + offset;
+            return point + (isFPS ? ikInteractSo.fpsOffset.posOffset : ikInteractSo.tpsOffset.posOffset);
         }
 
         public Vector3[] ApplyPosOffset(Vector3[] points, bool isFPS)
         {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localPosition : Vector3.zero;
+            Vector3 offset = isFPS ? ikInteractSo.fpsOffset.posOffset : ikInteractSo.tpsOffset.posOffset;
             Vector3[] result = new Vector3[points.Length];
 
             for (int i = 0; i < points.Length; i++)
@@ -163,16 +162,15 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             return result;
         }
-        
+
         public Vector3 ApplyRotOffset(Vector3 point, bool isFPS)
         {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localEulerAngles : Vector3.zero;
-            return point + offset;
+            return point + (isFPS ? ikInteractSo.fpsOffset.rotOffset : ikInteractSo.tpsOffset.rotOffset);
         }
 
         public Vector3[] ApplyRotOffset(Vector3[] points, bool isFPS)
         {
-            Vector3 offset = gripAnchor != null ? gripAnchor.localEulerAngles : Vector3.zero;
+            Vector3 offset = isFPS ? ikInteractSo.fpsOffset.rotOffset : ikInteractSo.tpsOffset.rotOffset;
             Vector3[] result = new Vector3[points.Length];
 
             for (int i = 0; i < points.Length; i++)

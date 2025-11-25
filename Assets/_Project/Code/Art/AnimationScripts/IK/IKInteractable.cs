@@ -27,7 +27,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
         private PlayerIKController _currentTPSIKController;
         
         public bool IsInteractComplete => ikAnim.IsInteractComplete;
-        
 
         public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
         {
@@ -137,6 +136,13 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 _currentTPSIKController =  null;
             }
         }
+    }
+    
+    [Serializable]
+    public struct OffsetPos
+    {
+        public Vector3 posOffset;
+        public Vector3 rotOffset;
     }
 
     [Serializable]
