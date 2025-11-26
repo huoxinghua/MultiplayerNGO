@@ -431,8 +431,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _tpsHeldVisualChild.SetActive(!isOwner);  // Others see TPS
 
             // Ensure renderers start disabled (will be enabled when equipped)
-            if (_fpsHeldVisualScript != null) _fpsHeldVisualScript.SetRendererActive(false);
-            if (_tpsHeldVisualScript != null) _tpsHeldVisualScript.SetRendererActive(false);
+            if (_fpsHeldVisualScript != null) _fpsHeldVisualScript.SetRendererActive(isOwner);
+            if (_tpsHeldVisualScript != null) _tpsHeldVisualScript.SetRendererActive(!isOwner);
         }
 
         #endregion
