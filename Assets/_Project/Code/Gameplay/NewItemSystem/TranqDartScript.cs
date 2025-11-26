@@ -17,11 +17,7 @@ public class TranqDartScript : NetworkBehaviour
         _dartCollider = GetComponent<BoxCollider>();
         _rb = GetComponent<Rigidbody>();
     }
-
-    void Update()
-    {
-        _rb.linearVelocity = (transform.forward * _dartSpeed) * Time.deltaTime;
-    }
+    
     public void SetVelocity(Vector3 direction)
     {
         if (_rb == null) _rb = GetComponent<Rigidbody>();
@@ -31,12 +27,13 @@ public class TranqDartScript : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (!IsServer) return;
         var hitable = collision.collider.GetComponent<IHitable>();
         if (hitable != null)
         {
             hitable.OnHit(Owner,_damage,_knockoutPower);
         }
         
-        Destroy(gameObject); //despawn?
+        NetworkObject.Despawn();
     }
 }

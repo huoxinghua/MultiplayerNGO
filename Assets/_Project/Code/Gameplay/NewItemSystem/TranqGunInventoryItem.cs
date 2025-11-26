@@ -53,20 +53,13 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected override void ExecuteUsageLogic()
         {
-            if (IsOwner)
-            {
-                ShootGun();
-            }
-            else
-            {
-                Debug.Log("ExecuteUsageLogic：isowner？"+IsOwner);
-            }
+            if (!IsOwner) return;
+            Vector3 shootDir = GetAimDirection();
+            ShootServerRpc(shootDir);
         }
 
-        private void ShootGun()
+        private Vector3 GetAimDirection()
         {
-            Debug.Log("shoot gun tranq");
-            RequestDecreaseAmmoServerRpc();
             var cam = Camera.main;
             Vector3 shootDir;
             if (cam != null)
@@ -74,27 +67,37 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
                 shootDir = ray.direction;
 
-           
+
                 if (Physics.Raycast(ray, out RaycastHit hit, 100f))
                     shootDir = (hit.point - _bulletSpawnPoint.position).normalized;
             }
             else
             {
-                shootDir = transform.forward; 
+                shootDir = transform.forward;
             }
-            var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position,
-                Quaternion.LookRotation(shootDir));
 
+            return shootDir;
+        }
+
+        [ServerRpc]
+        private void ShootServerRpc(Vector3 aimDir)
+        {
+            Debug.Log("shoot gun tranq");
+            RequestDecreaseAmmoServerRpc();
+
+      
+            var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position,
+                Quaternion.LookRotation(aimDir));
+            var netObj = dartObj.GetComponent<NetworkObject>();
+            netObj.Spawn();   
             //var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.LookRotation(transform.forward, Vector3.up));
-            var dartScript =dartObj.GetComponent<TranqDartScript>();
+            var dartScript = dartObj.GetComponent<TranqDartScript>();
             if (dartScript != null)
             {
                 dartScript.Owner = _owner;
-                Debug.Log("gun owner:"+  dartScript.Owner);
-                dartScript.SetVelocity(shootDir); 
+                Debug.Log("gun owner:" + dartScript.Owner);
+                dartScript.SetVelocity(aimDir);
             }
-            
-          
         }
 
         [ServerRpc(RequireOwnership = false)]
