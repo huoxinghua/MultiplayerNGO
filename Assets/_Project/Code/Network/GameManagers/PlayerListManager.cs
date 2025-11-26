@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Interactables.Network;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
+using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -56,6 +58,7 @@ namespace _Project.Code.Network.GameManagers
             {
                 GameFlowManager.Instance.ReturnToHub();
                 ClearEnemiesInHub();
+                EventBus.Instance?.Publish(new AllPlayerDiedEvent { });
             }
             else
             {
@@ -102,5 +105,9 @@ namespace _Project.Code.Network.GameManagers
         }
 
         public List<ulong> GetAlivePlayers() => _alivePlayers;
+    }
+    public class AllPlayerDiedEvent : IEvent
+    {
+       
     }
 }
