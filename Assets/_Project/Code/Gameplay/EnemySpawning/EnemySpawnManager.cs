@@ -4,6 +4,7 @@ using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using _Project.Code.Gameplay.EnemySpawning;
+using _Project.Code.Gameplay.NPC;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using _Project.Code.Network.RegisterNetObj;
 using Unity.Netcode;
@@ -15,9 +16,56 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private Timer _enemySpawnDelay;
         [field: SerializeField] public EnemyPrefabsSO EnemyPrefabs { get; private set; }
         [field: SerializeField] public SpawnDataSO SpawnData { get; private set; }
+        [field: SerializeField] public BaseSpawnSO TranquilSpawnSo { get; private set; }
+        [field: SerializeField] public BaseSpawnSO ViolentSpawnSo { get; private set; }
+        [field: SerializeField] public BaseSpawnSO HorrorSpawnSo { get; private set; }
         private readonly HashSet<NetworkObject> _aliveEnemies = new();
+        // new spawn system
+        private  List<NetworkObject> _spawnedTranquils = new List<NetworkObject>();
+        private  List<NetworkObject> _spawnedViolents = new List<NetworkObject>();
+        private  List<NetworkObject> _spawnedDolls = new List<NetworkObject>();
+        private int _tranquilsSpawned = 0;
+        private int _violentsSpawned = 0;
+        private int _HorrorsSpawned = 0;
+
+        private Timer SpawnAttemptTimer;
+        private int _totalAttempts = 0;
+
+        //reset on successful spawn, add when fail
+        private int _currentTranquilAttempts = 0;
+        private int _currentViolentAttempts = 0;
+        private int _currentHorrorAttempts = 0;
+        //constant value for base of natural log
+        private float _eulersNum => Mathf.Exp(1);// (maybe just make it a const)
+        private float currentTranquilSpawnChance => GetTrueSpawnChance(TranquilSpawnSo, _currentTranquilAttempts,_tranquilsSpawned );
+       
+        //new spawn system end
         private readonly HashSet<NetworkObject> _aliveEnemiesRelatedObjs = new();
 
+        private float GetTrueSpawnChance(BaseSpawnSO spwnSO,int AttemptsSinceSpawn,int TotalSpawns)
+        {
+            // 1. Chance to spawn plus additive change
+            float incrementalChance = (spwnSO.BaseSpawnChance + (spwnSO.IncreaseByAttempts  * AttemptsSinceSpawn));
+
+// 2. Multiplier for Spawn Chance
+            float chanceMult =  (spwnSO.MultAtZeroTime + (spwnSO.MultByTime * _totalAttempts));
+
+// 3. Additive chance multiplied by the multipler (Step 1 *  Step 2)
+            float positivesPercentChanceToSpawn =  (incrementalChance * chanceMult);
+
+
+
+//Determines when and how fast spawn chance should fall off. Multiply by positive chance (step 3)
+            float changeByTotalSpawns = (1 + Mathf.Pow(_eulersNum, ((-spwnSO.SpeedOfMajorLoss) * spwnSO.SpawnsBeforeMajorLoss))) / (1 + Mathf.Pow(_eulersNum, ((spwnSO.SpeedOfMajorLoss)*( TotalSpawns - spwnSO.SpawnsBeforeMajorLoss))));
+
+//Multiplying positivesPercentChanceToSpawn with changeByTotalSpawns gives the "true spawn chance"
+            float trueSpawnChance = positivesPercentChanceToSpawn * changeByTotalSpawns;
+
+// clamps the trueSpawnChance to ensure its under 100 but above the min
+            float finalSpawnChance = Mathf.Clamp(trueSpawnChance, spwnSO.MinClampSpawn,100);
+            
+            return finalSpawnChance;
+        }
         public override void OnNetworkSpawn()
         {
             if (!IsServer) return;
@@ -35,8 +83,16 @@ namespace _Project.Code.Gameplay.EnemySpawning
 
             idx = Random.Range(0, points.Count);
             SpawnTranquil(points[idx]);
-        }
 
+
+            SpawnAttemptTimer = new Timer(SpawnData.SpawnAttemptRate);
+            SpawnAttemptTimer.Start();
+
+        }
+        
+
+    
+        
         private bool IsPointSafe(EnemySpawnPoint sp)
         {
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
@@ -58,6 +114,11 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private void Update()
         {
             if (!IsServer) return;
+            if (SpawnAttemptTimer.IsComplete)
+            {
+                HandleEnemySpawnChance();
+                SpawnAttemptTimer.Reset();
+            }
             if (_enemySpawnDelay == null) return;
             _enemySpawnDelay.TimerUpdate(Time.deltaTime);
             if (_enemySpawnDelay.IsComplete)
@@ -67,6 +128,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
                     Random.Range(SpawnData.BaseMinTimeBetweenSpawns,
                         SpawnData.BaseMaxTimeBetweenSpawns));
             }
+            
         }
 
         //currently just spawns tranquil. Fix and add random chance of each
@@ -116,6 +178,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             if (EnemyPrefabs.TranquilPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.TranquilPrefabs.Count);
             DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex], spawnPoint);
+           
         }
 
         public void SpawnViolent(EnemySpawnPoint spawnPoint)
@@ -124,6 +187,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             if (EnemyPrefabs.ViolentPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.ViolentPrefabs.Count);
             DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex], spawnPoint);
+            
         }
 
         public void SpawnHorror(EnemySpawnPoint spawnPoint)
@@ -167,12 +231,46 @@ namespace _Project.Code.Gameplay.EnemySpawning
             }
 
             netObj.Spawn();
-            _aliveEnemies.Add(netObj); 
+            _aliveEnemies.Add(netObj);
+            AddEnemyByType();
             // handle the remove
         }
 
+        public void AddEnemyByType()
+        {
+            
+        }
+
+        private void HandleEnemySpawnChance()
+        {
+            // get the base spawn chance 
+            HandleTranquilAttempt();
+            
+            // if can been sapwned or not
+            _totalAttempts++;
+        }
+
+        private void HandleTranquilAttempt()
+        {
+            float randomChance = Random.Range(0, 100);
+            if (randomChance <= currentTranquilSpawnChance)
+            {
+                //Do Spawn logic; get enemy PF and spawn point
+                
+              //  DoSpawnEnemy( enemyPF, spawnPoint)
+                //Reset _tranquilAttempts
+                
+                //increment _tranquilsSpawned
+            }
+            else
+            {
+                //IncreaseTranquilAttempts
+            }
+        }
+        //old spawn system
         private void RandomEnemySelection(EnemySpawnPoint sp)
         {
+            
             float totalWeight = SpawnData.TranquilRandWeight + SpawnData.ViolentRandWeight + SpawnData.HorrorWeight;
             float randomValue = Random.value * totalWeight;
 

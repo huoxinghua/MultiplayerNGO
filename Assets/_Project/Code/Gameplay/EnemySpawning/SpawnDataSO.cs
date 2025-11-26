@@ -5,6 +5,9 @@ namespace _Project.Code.Gameplay.EnemySpawning
     [CreateAssetMenu(fileName = "SpawnDataSO", menuName = "Enemy/SpawnDataSO")]
     public class SpawnDataSO : ScriptableObject
     {
+        [field: Header("New Values")]
+        [field: SerializeField] public int SpawnAttemptRate {  get; private set; }
+        [field: Header("Old Values")]
         [field: SerializeField] public float BaseMaxTimeBetweenSpawns {  get; private set; }
         [field: SerializeField] public float BaseMinTimeBetweenSpawns { get; private set; }
         [field: SerializeField]  public int MinSpawnPerWave { get; private set; }
