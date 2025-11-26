@@ -14,6 +14,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnEnter()
         {
             TryStand();
+            stateController.Inventory.GetCurrentEquippedItem()?.NotifyMovementChanged(false, false, false);
             Animator.PlayInAir();
             _isSprinting = stateController.IsSprintHeld;
         }

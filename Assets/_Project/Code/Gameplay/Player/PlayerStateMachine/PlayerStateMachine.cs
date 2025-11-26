@@ -239,6 +239,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             if (newState == currentState) return;
             currentState?.OnExit();
             currentState = newState;
+            //Animator.
             currentState.OnEnter();
         }
 

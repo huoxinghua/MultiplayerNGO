@@ -31,7 +31,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             PlayerStateMachine.AllPlayers.Remove(stateController);
 
             bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
-
+            stateController.Inventory.GetCurrentEquippedItem()?.NotifyMovementChanged(false, false, false);
             if (isServer && netObject != null && _despawnRoutine == null)
                 _despawnRoutine = stateController.StartCoroutine(DespawnAfterDelay(netObject));
 

@@ -34,7 +34,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected BaseHeldVisual _fpsHeldVisualScript;
         protected BaseHeldVisual _tpsHeldVisualScript;
-
+        protected IKAnimState _queuedItemAnimState;
         // Legacy fields for backward compatibility
         [Header("Legacy - Deprecated")]
         [SerializeField] protected GameObject _heldVisual;
@@ -44,7 +44,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [SerializeField] protected Rigidbody _rb;
         [SerializeField] protected Renderer _renderer;
         [SerializeField] protected Collider _collider;
-
+        
         #endregion
 
         #region Network State (Server-Authoritative)
@@ -126,7 +126,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public Timer ItemCooldown = new Timer(0);
 
         #endregion
-
+        
+      
         #region Initialization
 
         protected virtual void Awake()
@@ -662,29 +663,30 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Movement Sync
 
-        public void NotifyMovementChanged(bool isMoving, bool isRunning)
+        public void NotifyMovementChanged(bool isMoving, bool isRunning, bool isCrouching)
         {
             if (!IsOwner) return;
-
+            _queuedItemAnimState = DetermineAnimationFromMovement(isMoving, isRunning, isCrouching);
             if (_usageState == UsageState.InUse)
             {
                 Debug.Log($"[{gameObject.name}] Movement notification BLOCKED - item in use (preventing animation interruption)");
                 return;
             }
 
-            IKAnimState newState = DetermineAnimationFromMovement(isMoving, isRunning);
+            
 
-            if (CurrentAnimState.Value != newState)
+            if (CurrentAnimState.Value != _queuedItemAnimState)
             {
-                Debug.Log($"[{gameObject.name}] Movement changed animation: {CurrentAnimState.Value} -> {newState}");
-                CurrentAnimState.Value = newState;
+                Debug.Log($"[{gameObject.name}] Movement changed animation: {CurrentAnimState.Value} -> {_queuedItemAnimState}");
+                CurrentAnimState.Value = _queuedItemAnimState;
             }
         }
 
-        private IKAnimState DetermineAnimationFromMovement(bool isMoving, bool isRunning)
+        private IKAnimState DetermineAnimationFromMovement(bool isMoving, bool isRunning, bool isCrouching)
         {
             if (!isMoving) return IKAnimState.Idle;
             if (isRunning) return IKAnimState.Run;
+            if (isCrouching) return IKAnimState.CrouchWalk;
             return IKAnimState.Walk;
         }
 
@@ -729,7 +731,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             Debug.Log($"[{gameObject.name}] Usage complete - cooldown finished, allowing movement updates");
             _usageState = UsageState.Idle;
-            CurrentAnimState.Value = IKAnimState.None;
+            CurrentAnimState.Value = _queuedItemAnimState;
         }
 
         /// <summary>

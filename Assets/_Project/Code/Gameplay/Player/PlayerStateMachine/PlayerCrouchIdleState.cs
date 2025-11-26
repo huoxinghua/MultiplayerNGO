@@ -12,6 +12,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnEnter()
         {
             stateController.CurrentMovement = PlayerStateMachine.MovementContext.Idle;
+            stateController.Inventory.GetCurrentEquippedItem()?.NotifyMovementChanged(false, false, true);
             TryCrouch();
             Animator.PlayCrouch();
         }

@@ -11,6 +11,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
         None,
         Idle,
         Walk,
+        CrouchWalk,
         Run,
         Interact
     }
@@ -22,38 +23,10 @@ namespace _Project.Code.Art.AnimationScripts.IK
         [SerializeField] private Transform elbowR;
         [SerializeField] private Transform elbowL;
         [SerializeField] private IKItemAnimation ikAnim;
-        private bool currentCrouch;
         private PlayerIKController _currentFPSIKController;
         private PlayerIKController _currentTPSIKController;
         
         public bool IsInteractComplete => ikAnim.IsInteractComplete;
-
-        public void SetAnimState(IKAnimState newState, bool isFPS, bool isCrouch)
-        {
-            // Kill any existing animation before starting new one
-            ikAnim.StopIKAnimation();
-
-            currentCrouch = isCrouch;
-
-            switch (newState)
-            {
-                case IKAnimState.None:
-                    ikAnim.StopIKAnimation();
-                    break;
-                case IKAnimState.Idle:
-                    ikAnim.PlayIKIdle(isFPS);
-                    break;
-                case IKAnimState.Walk:
-                    ikAnim.PlayIKMove(currentCrouch ? 2f : 1f, isFPS, false);
-                    break;
-                case IKAnimState.Run:
-                    ikAnim.PlayIKMove(1f, isFPS, true);
-                    break;
-                case IKAnimState.Interact:
-                    ikAnim.PlayIKInteract(isFPS);
-                    break;
-            }
-        }
 
         public void SetAnimState(IKAnimState newState, bool isFPS)
         {
@@ -69,7 +42,10 @@ namespace _Project.Code.Art.AnimationScripts.IK
                     ikAnim.PlayIKIdle(isFPS);
                     break;
                 case IKAnimState.Walk:
-                    ikAnim.PlayIKMove(currentCrouch ? 2f : 1f, isFPS, false);
+                    ikAnim.PlayIKMove(1f, isFPS, false);
+                    break;
+                case IKAnimState.CrouchWalk:
+                    ikAnim.PlayIKMove(2f, isFPS, false);
                     break;
                 case IKAnimState.Run:
                     ikAnim.PlayIKMove(1f, isFPS, true);
@@ -160,7 +136,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
     [Serializable]
     public struct MovementPreset
     {
-        public float resetDuration;
         public float transitionDuration;
         public float loopDuration;
         public Vector3[] fpsWaypoints;
@@ -176,7 +151,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
     [Serializable]
     public struct InteractPreset
     {
-        public float resetDuration;
         public float transitionDuration;
         public float hitDuration;
         public Vector3[] fpsPosWaypoints;

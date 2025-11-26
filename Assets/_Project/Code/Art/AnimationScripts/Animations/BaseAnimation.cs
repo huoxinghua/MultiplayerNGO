@@ -11,6 +11,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
     }
     public abstract class BaseAnimation : NetworkBehaviour
     {
+        
         [SerializeField] protected float walkRunTransition = 1f;
         protected Animator anim;
 
@@ -20,7 +21,8 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hIsRunning = Animator.StringToHash("locomotionType");
         protected int hAttack = Animator.StringToHash("attack");
         protected int hAttackType = Animator.StringToHash("attackType");
-
+        private float _animationBlend = 0f;
+        [SerializeField] private float _animationBlendWeight = 1f;
         public Animator GetAnimator()
         {
             return anim;
@@ -38,8 +40,15 @@ namespace _Project.Code.Art.AnimationScripts.Animations
 
         protected virtual void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
-            if (isRunning) StartCoroutine(SmoothWalkRun((float)walkRunType.Run));
-            else StartCoroutine(SmoothWalkRun((float)walkRunType.walk));
+            var speed = isRunning ? (float)walkRunType.Run : (float)walkRunType.walk;
+            _animationBlend = Mathf.Lerp(_animationBlend, speed / maxSpeed,
+                Time.fixedDeltaTime * _animationBlendWeight);
+            if (Mathf.Abs(_animationBlend - currentSpeed) <= .001f)
+                return;
+            anim.SetFloat(hIsRunning, _animationBlend);
+            //Debug.Log($"My animation blend value is {_animationBlend}");
+           // if (isRunning) StartCoroutine(SmoothWalkRun((float)walkRunType.Run));
+          //  else StartCoroutine(SmoothWalkRun((float)walkRunType.walk));
             anim.SetFloat(hSpeed, currentSpeed / maxSpeed);
         }
 

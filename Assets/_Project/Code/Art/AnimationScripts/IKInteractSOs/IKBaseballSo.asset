@@ -59,8 +59,7 @@ MonoBehaviour:
     posOffset: {x: -0.067, y: -0.359, z: -0.131}
     rotOffset: {x: -1.628, y: 0.489, z: -106.719}
   ikIdle:
-    resetDuration: 0.05
-    transitionDuration: 1
+    transitionDuration: 0.03
     loopDuration: 3
     fpsWaypoints:
     - {x: 0, y: 0.005, z: 0}
@@ -71,8 +70,7 @@ MonoBehaviour:
     loopType: 1
     easeType: 7
   ikWalk:
-    resetDuration: 0.03
-    transitionDuration: 0.3
+    transitionDuration: 0.03
     loopDuration: 0.65
     fpsWaypoints:
     - {x: -0.01, y: 0, z: 0}
@@ -93,8 +91,7 @@ MonoBehaviour:
     pathType: 1
     pathMode: 1
   ikRun:
-    resetDuration: 0.01
-    transitionDuration: 0.2
+    transitionDuration: 0.03
     loopDuration: 0.3
     fpsWaypoints:
     - {x: -0.02, y: 0, z: 0}
@@ -115,8 +112,7 @@ MonoBehaviour:
     pathType: 1
     pathMode: 1
   ikInteract:
-    resetDuration: 0.01
-    transitionDuration: 0.2
+    transitionDuration: 0.03
     hitDuration: 0.2
     fpsPosWaypoints:
     - {x: 0.0079, y: 0.0296, z: -0.0265}
