@@ -44,7 +44,10 @@ namespace _Project.Code.Gameplay.EnemySpawning
 
         private float currentTranquilSpawnChance =>
             GetTrueSpawnChance(TranquilSpawnSo, _currentTranquilAttempts, _tranquilsSpawned);
-
+        private float currentViolentSpawnChance =>
+            GetTrueSpawnChance(ViolentSpawnSo, _currentViolentAttempts, _violentsSpawned);
+        private float currentHorrorSpawnChance =>
+            GetTrueSpawnChance(HorrorSpawnSo, _currentHorrorAttempts, _HorrorsSpawned);
         //new spawn system end
         private readonly HashSet<NetworkObject> _aliveEnemiesRelatedObjs = new();
 
@@ -257,15 +260,47 @@ namespace _Project.Code.Gameplay.EnemySpawning
         {
             // get the base spawn chance 
             HandleTranquilAttempt();
-
+            HandleVoilentAttempt();
+            HandleHorrorAttempt();
             // if can been sapwned or not
             _totalAttempts++;
+        }
+
+        private void HandleHorrorAttempt()
+        {
+            float randomChance = Random.Range(0f, 100f);
+            if (randomChance <= _currentHorrorAttempts)
+            {
+                
+                SpawnHorror(GetEnemySpawnPoint());
+                _currentHorrorAttempts = 0;
+                _HorrorsSpawned++;
+            }
+            else
+            {
+                _currentHorrorAttempts++;
+            }
+        }
+
+        private void HandleVoilentAttempt()
+        {
+            float randomChance = Random.Range(0f, 100f);
+            if (randomChance <= currentTranquilSpawnChance)
+            {
+                
+                SpawnViolent(GetEnemySpawnPoint());
+                _currentViolentAttempts = 0;
+                _violentsSpawned++;
+            }
+            else
+            {
+                _currentViolentAttempts++;
+            }
         }
 
         private void HandleTranquilAttempt()
         {
             float randomChance = Random.Range(0f, 100f);
-            Debug.Log($"[HandleTranquilAttempt] random chance: {randomChance} - {currentTranquilSpawnChance}" );
             if (randomChance <= currentTranquilSpawnChance)
             {
                 
