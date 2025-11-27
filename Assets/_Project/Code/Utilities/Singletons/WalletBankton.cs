@@ -11,16 +11,6 @@ namespace _Project.Code.Utilities.Singletons
 
         public int TotalMoney { get; private set; } = 100;
 
-        public NetworkVariable<float> ResearchProgressNW = new NetworkVariable<float>(0,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        public float CurrentResearchProgress { get; private set; } = 0;
-
-        public NetworkVariable<float> QuotaNW = new NetworkVariable<float>(100, NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
-
-        public float ResearchQuota { get; private set; } = 250;
-
         #region Initialization
 
         
