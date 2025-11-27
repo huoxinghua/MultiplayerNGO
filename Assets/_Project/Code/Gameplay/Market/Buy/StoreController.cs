@@ -4,11 +4,12 @@ using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Singletons;
 using _Project.ScriptableObjects.ScriptObjects.StoreSO;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Market.Buy
 {
-    public class StoreController : MonoBehaviour
+    public class StoreController : NetworkBehaviour
     {
         [SerializeField] private CartManager _cartManager;
         [SerializeField] private TMP_Text _walletMoney;
@@ -29,7 +30,7 @@ namespace _Project.Code.Gameplay.Market.Buy
         }
         public void UpdateCashText()
         {
-            _walletMoney.SetText($"Cash: @{WalletBankton.Instance.TotalMoney}");
+            _walletMoney.SetText($"Cash: @{WalletBankton.Instance.TotalMoneyNW.Value}");
         }
         public void HandleStoreClicked(int itemID)
         {

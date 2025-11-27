@@ -17,7 +17,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected int hIsGround = Animator.StringToHash("isGrounded");
         protected int hCrouch = Animator.StringToHash("isCrouch");
 
-
+        private IKAnimState newState;
         protected override void Awake()
         {
             base.Awake();
@@ -31,18 +31,10 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         {
             base.UpdateMovement(currentSpeed, maxSpeed, isRunning);
 
-            
+            // NOTE: Item animations are now controlled by BaseInventoryItem, not PlayerAnimation
+            // Items manage their own animation state based on usage/attacks
+
             if(!IsOwner) return;
-            IKAnimState newState;
-            var ikController = IsOwner ? fpsIKController : tpsIKController;
-            if (ikController != null && ikController.Interactable != null)
-            {
-                if (currentSpeed <= 0.01f) newState = IKAnimState.Idle;
-                else if (isRunning) newState = IKAnimState.Run;
-                else newState = IKAnimState.Run;
-                
-                ikController.Interactable.SetAnimState(newState, IsOwner, anim.GetBool(hCrouch));
-            }
 
             //netAnim.Animator.SetFloat(hSpeed, currentSpeed / maxSpeed);
             UpdateMovementServerRPC(currentSpeed, maxSpeed);
@@ -92,20 +84,9 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             netAnim.Animator.SetBool(hCrouch, false);
         }
         
-        public void PlayInteract()
-        {
-            Debug.Log($"[PlayerAnimation] PlayInteract() called - FPS Interactable null: {fpsIKController.Interactable == null}, TPS Interactable null: {tpsIKController.Interactable == null}");
-
-            if (fpsIKController.Interactable == null)
-            {
-                Debug.LogWarning("[PlayerAnimation] PlayInteract() blocked - fpsIKController.Interactable is null!");
-                return;
-            }
-
-            var ikController = IsOwner ? fpsIKController : tpsIKController;
-            Debug.Log($"[PlayerAnimation] Setting anim state to Interact on {(IsOwner ? "FPS" : "TPS")} controller");
-            ikController.Interactable.SetAnimState(IKAnimState.Interact, IsOwner);
-        }
+        // NOTE: PlayInteract() removed - item interactions are now handled by BaseInventoryItem
+        // Items manage their own animation state via CurrentAnimState NetworkVariable
+        // PlayerAnimation only controls player body animations (jump, crouch, movement)
 
         public void PlayInAir()
         {

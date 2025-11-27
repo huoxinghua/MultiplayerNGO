@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC
 {
+    [CreateAssetMenu(fileName = "BaseEnemySO", menuName = "Enemy/BaseEnemySO")]
     public abstract class BaseEnemySO : ScriptableObject
     {
         [field: Header("Base Movement")]

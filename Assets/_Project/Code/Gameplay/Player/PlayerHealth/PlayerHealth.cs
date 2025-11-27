@@ -1,3 +1,4 @@
+using _Project.Code.Network.GameManagers;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -34,8 +35,11 @@ namespace _Project.Code.Gameplay.Player.PlayerHealth
         private void HandleDeath()
         {
             if (_isDead.Value) return;
+            
             _isDead.Value = true;
+           
             var sm = GetComponent<PlayerStateMachine.PlayerStateMachine>();
+            PlayerListManager.Instance.OnPlayerDied(sm);
             if (sm != null)
             {
                 sm.TransitionTo(sm.DeadState);

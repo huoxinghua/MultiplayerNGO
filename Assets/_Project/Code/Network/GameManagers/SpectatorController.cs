@@ -47,19 +47,19 @@ namespace _Project.Code.Network.GameManagers
 
         private void OnEnable()
         {
-            if (EventBus.Instance != null)
+            /*if (EventBus.Instance != null)
             {
                 EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
-            }
+            }*/
             
         }
 
         private void OnDisable()
         {
-            if (EventBus.Instance != null)
+            /*if (EventBus.Instance != null)
             {
                 EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
-            }
+            }*/
 
             if (_input != null)
             {
@@ -69,22 +69,32 @@ namespace _Project.Code.Network.GameManagers
             }
         }
         
-        public void EnterSpectatorMode(PlayerDiedEvent playerDiedEvent)
+        public void EnterSpectatorMode( )
         {
-            StartCoroutine(DelayedRefresh(playerDiedEvent));
             
-            if (_aliveHeads.Count == 0)
+            if (_input != null)
             {
-                FindObjectOfType<NetworkSessionReset>()?.ReturnToMainMenu();
-                return;
+                _input.OnSpectatorLookInput -= Look;
+                _input.OnNext -= Next;
+                _input.OnPrev -= Prev;
             }
-
+            _aliveHeads.Clear(); 
+            _currentIndex = 0;
             mainCam.enabled = true;
             _input =GetComponent<PlayerInputManagerSpectator>();
             if (_input == null)
             {
                 return;
             }
+            foreach (var player in PlayerListManager.Instance._alivePlayersObj) 
+            { if (player == null) continue;
+                if (!player.gameObject.activeInHierarchy) continue;
+                if (!player.TryGetComponent<NetworkObject>(out var netObj)) continue;
+                if (!netObj.IsSpawned) continue;
+                _aliveHeads.Add(player.transform); 
+                Debug.Log($"Added alive player: {player.name}, clientId={netObj.OwnerClientId}"); 
+            }
+      
             _input.EnableSpectatorInput();
             _input.enabled = true;
             _input.OnSpectatorLookInput += Look;
@@ -118,49 +128,7 @@ namespace _Project.Code.Network.GameManagers
         {
             HandleCamera();
         }
-
-        private IEnumerator DelayedRefresh(PlayerDiedEvent playerDiedEvent)
-        {
-            const int maxTries = 5;
-            const float delayBetweenTries = 0.3f;
-
-            for (int i = 0; i < maxTries; i++)
-            {
-                RefreshAliveList(playerDiedEvent);
-                if (_aliveHeads.Count > 0) break;
-                yield return new WaitForSeconds(delayBetweenTries);
-            }
-            if (_aliveHeads.Count == 0)
-            {
-                yield break;
-            }
-        }
-
-        private void RefreshAliveList(PlayerDiedEvent playerDiedEvent)
-        {
-            _aliveHeads.Clear();
-            var networkManager = NetworkManager.Singleton;
-            if (networkManager == null) return;
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-            {
-                var playerObj = client.PlayerObject;
-                if (playerObj == null)
-                {
-                    continue;
-                }
-                if (client.PlayerObject == playerDiedEvent.deadPlayer)
-                    continue;
-                var health = playerObj.GetComponent<PlayerHealth>();
-                if (health != null && health.IsDead)
-                    continue;
-
-                var head = playerObj.transform.Find("PlayerCameraRoot");
-                if (head != null)
-                {
-                    _aliveHeads.Add(head);
-                }
-            }
-        }
+        
 
         private void SetTarget(Transform t)
         {

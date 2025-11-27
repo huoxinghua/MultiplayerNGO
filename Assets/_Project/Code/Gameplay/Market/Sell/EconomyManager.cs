@@ -10,21 +10,9 @@ namespace _Project.Code.Gameplay.Market.Sell
     {
         [SerializeField] private BaseMarketSO BaseMarketSO;
         [SerializeField] private ScienceToMoneySO _scienceToMoneySO;
-        public int PlayerMoney { get; private set; }
-        public float ResearchProgress { get; private set; }
-        public float ResearchForQuota { get; private set; }
         void Awake()
         {
-
             ServiceLocator.Register<EconomyManager>(this);
-        }
-        public void SetResearchForQuota(float newQuota)
-        {
-            ResearchForQuota = newQuota;
-        }
-        public void ResetResearchProgress()
-        {
-            ResearchProgress = 0.0f;
         }
         public SampleMarketValue GetMarketValue(ScienceData itemData)
         {
@@ -38,7 +26,7 @@ namespace _Project.Code.Gameplay.Market.Sell
         }
         public void SoldItem(SampleMarketValue values)
         {
-            WalletBankton.Instance.AddResearchProgress(values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue);
+            QuotaManager.Instance.RequestAddDayProgressServerRpc(values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue);
             WalletBankton.Instance.AddSubMoney((int)(values.TranquilMarketValue * _scienceToMoneySO.TranquilMoneyModifier +
                                   values.ViolentMarketValue * _scienceToMoneySO.ViolentMoneyModifier +
                                   values.MiscMarketValue * _scienceToMoneySO.MiscMoneyModifier));

@@ -49,6 +49,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 
         public void ChangeHealth(float healthChange)
         {
+            if(!IsServer)return;
             _currentHealth += healthChange;
 
             Debug.Log(_currentHealth);

@@ -30,8 +30,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-           
+
             AmmoLeft = new NetworkVariable<int>(_tranqGunItemSO.AmmoAmount, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
@@ -46,25 +45,51 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            if (!ItemCooldown.IsComplete)
-                return;
-            if (!HasAmmoLeft) return;
+            if (!HasAmmoLeft) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 ShootGun();
             }
-            base.UseItem();
         }
 
         private void ShootGun()
         {
-            /*_syringeItemSo.EffectDuration;
-            _syringeItemSo.SpeedBoostAmount;*/
-            Debug.Log("ShootGun");
             RequestDecreaseAmmoServerRpc();
-            Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+            var cam = Camera.main;
+            Vector3 shootDir;
+            if (cam != null)
+            {
+                Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                shootDir = ray.direction;
+
+           
+                if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+                    shootDir = (hit.point - _bulletSpawnPoint.position).normalized;
+            }
+            else
+            {
+                shootDir = transform.forward; 
+            }
+            var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position,
+                Quaternion.LookRotation(shootDir));
+
+            //var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.LookRotation(transform.forward, Vector3.up));
+            var dartScript =dartObj.GetComponent<TranqDartScript>();
+            if (dartScript != null)
+            {
+                dartScript.Owner = _owner;
+                Debug.Log("gun owner:"+  dartScript.Owner);
+                dartScript.SetVelocity(shootDir); 
+            }
+            
+          
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -76,5 +101,3 @@ namespace _Project.Code.Gameplay.NewItemSystem
         #endregion
     }
 }
-
-

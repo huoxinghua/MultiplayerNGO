@@ -191,6 +191,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   nameText: {fileID: 7013848366454677313}
+--- !u!1 &4890519487700927001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3918900514421692901}
+  m_Layer: 0
+  m_Name: TPS_HandPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3918900514421692901
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4890519487700927001}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.0009999871, y: 1.0350001, z: 0.436}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1222635015246635985}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5038834663857110491
 GameObject:
   m_ObjectHideFlags: 0
@@ -384,10 +415,10 @@ MonoBehaviour:
   <groundMask>k__BackingField:
     serializedVersion: 2
     m_Bits: 256
+  _inventory: {fileID: 0}
   _cameraTransform: {fileID: 6222480169295849621}
   <GroundCheckOffset>k__BackingField: 0
   <GroundCheckDistance>k__BackingField: 0.46
-  <GroundSpherePosition>k__BackingField: {fileID: 6222592497171687219}
   VerticalVelocity: {x: 0, y: 0, z: 0}
 --- !u!143 &3914960539391674148
 CharacterController:
@@ -556,7 +587,8 @@ MonoBehaviour:
   - {fileID: 6049905178415054960}
   _objectsToEnable: []
   _cameraToDisable: {fileID: 2942978721585508682}
-  _audioListenerToDisable: {fileID: 216083172584337482}
+  _unityListener: {fileID: 216083172584337482}
+  _fmodListener: {fileID: 8312451703503928649}
   _renderToDisable: {fileID: 5396279334086001677}
   _renderToEnable: {fileID: 7145194626362402741}
 --- !u!114 &-3225534458246169442
@@ -581,9 +613,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   InventorySlots: 5
-  HoldTransform: {fileID: 4214012021163622981}
+  FPSItemParent: {fileID: 4214012021163622981}
+  TPSItemParent: {fileID: 4214012021163622981}
   DropTransform: {fileID: 8331689132506838084}
-  _inputManager: {fileID: 4648013823145631565}
   PlayerAnimation: {fileID: 2759791371960280017}
   ThisPlayerIKData: {fileID: 8621043828579305406}
   ItemUIDisplay:
@@ -622,7 +654,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4214012021163622981}
   m_Layer: 0
-  m_Name: HandPosition
+  m_Name: FPS_HandPosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -637,7 +669,7 @@ Transform:
   m_GameObject: {fileID: 6101830775051530877}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.001, y: -0.1809, z: 0.404}
+  m_LocalPosition: {x: -0.001, y: -0.665, z: 0.4360003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -929,7 +961,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d2116d3511ec49340879e7ffb20a5de8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3918900514421692901}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2116d3511ec49340879e7ffb20a5de8, type: 3}
       insertIndex: -1

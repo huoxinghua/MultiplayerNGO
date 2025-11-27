@@ -4,11 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    public interface IInventoryItem 
+    public interface IInventoryItem
     {
-        public void PickupItem(GameObject player, Transform playerHoldPosition, NetworkObject networkObject);
-        public void DropItem(Transform dropPoint);
-        public void UseItem();
+        public void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent, NetworkObject networkObject);
+        public void DropItem(Vector3 dropPosition);
+        public bool TryUse();
         public void UnequipItem();
         public void EquipItem();
         public string GetItemName();

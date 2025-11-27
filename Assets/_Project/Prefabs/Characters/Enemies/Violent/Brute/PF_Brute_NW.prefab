@@ -4492,6 +4492,7 @@ GameObject:
   - component: {fileID: 9021781738950764207}
   - component: {fileID: 4802991198060644594}
   - component: {fileID: 8691537654608669584}
+  - component: {fileID: 5545281428773223883}
   m_Layer: 7
   m_Name: PF_Brute_NW
   m_TagString: Untagged
@@ -4625,7 +4626,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 117459615
+  GlobalObjectIdHash: 2959123717
   InScenePlacedSourceGlobalObjectIdHash: 214836041
   DeferredDespawnTick: 0
   Ownership: 1
@@ -4666,6 +4667,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f00fd7b4b3a12d44a8266edf680cb16a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   _bruteSO: {fileID: 11400000, guid: fb1d663db61c7de4798ee3bc4f626e2d, type: 2}
   _stateMachine: {fileID: 3209071147251333897}
 --- !u!114 &2961260522052727384
@@ -4768,6 +4770,33 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!54 &5545281428773223883
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9032773166166119465}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &9112443635243805351
 GameObject:
   m_ObjectHideFlags: 0

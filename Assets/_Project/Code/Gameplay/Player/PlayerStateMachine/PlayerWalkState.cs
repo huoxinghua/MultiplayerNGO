@@ -9,7 +9,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         }
         public override void OnEnter()
         {
-            TryStand(); 
+            stateController.CurrentMovement = PlayerStateMachine.MovementContext.Walking;
+            TryStand();
             Animator.PlayStanding();
 
         }

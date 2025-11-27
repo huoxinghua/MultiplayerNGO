@@ -2,35 +2,29 @@ using System.Collections.Generic;
 using _Project.Code.Utilities.Singletons;
 using _Project.ScriptableObjects.ScriptObjects.StoreSO;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Market.Buy
 {
-    public class CartManager : MonoBehaviour
+    public class CartManager : NetworkBehaviour
     {
         [SerializeField] private StoreSO StoreSO;
         [SerializeField] private Transform CartSorter;
-        private List<BaseCartItem> CurrentItemsInCart = new List<BaseCartItem>();
+        [SerializeField] List<BaseCartItem> CurrentItemsInCart = new List<BaseCartItem>();
         [SerializeField] private TMP_Text _cartTotal;
         [SerializeField] private StoreController _storeController;
         public void AddToCart(ItemIds itemID)
         {
-            bool isInList = false;
             foreach (var item in CurrentItemsInCart)
             {
                 if (item.ThisItemId == itemID)
                 {
-                    isInList = true;
                     item.HandleAddButton();
                 }
             }
-            if (isInList) return;
-            BaseCartItem temp = Instantiate(StoreSO.GetItemData(itemID).ItemPrefab, CartSorter);
-            temp.transform.parent = CartSorter;
-            CurrentItemsInCart.Add(temp);
-            temp.OnAddToCart(this);
-
-
+            /*if (isInList) return;*/
+            //BaseCartItem temp = Instantiate(StoreSO.GetItemData(itemID).ItemPrefab, CartSorter);
         }
         public void OnEnable()
         {
@@ -49,7 +43,7 @@ namespace _Project.Code.Gameplay.Market.Buy
         {
             int newTotal = GetCartTotal();
             _cartTotal.SetText($"Total: @{newTotal}");
-            if (newTotal > WalletBankton.Instance.TotalMoney)
+            if (newTotal > WalletBankton.Instance.TotalMoneyNW.Value)
             {
                 _cartTotal.color = Color.red;
             }
@@ -61,7 +55,7 @@ namespace _Project.Code.Gameplay.Market.Buy
         public void HandleBuyCart()
         {
             int cartTotal = GetCartTotal();
-            if (cartTotal > WalletBankton.Instance.TotalMoney) return;
+            if (cartTotal > WalletBankton.Instance.TotalMoneyNW.Value) return;
             else
             {
                 WalletBankton.Instance.AddSubMoney(-cartTotal);
@@ -83,15 +77,12 @@ namespace _Project.Code.Gameplay.Market.Buy
         {
             foreach (var item in CurrentItemsInCart)
             {
-                Destroy(item.gameObject);
+                item.HandleRemoveFromCart();
             }
-            CurrentItemsInCart.Clear();
             UpdateTotalText();
         }
         public void RemoveFromCart(BaseCartItem item)
         {
-            CurrentItemsInCart?.Remove(item);
-            Destroy(item.gameObject);
             UpdateTotalText();
         }
     }

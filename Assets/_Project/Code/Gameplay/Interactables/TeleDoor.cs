@@ -69,6 +69,7 @@ namespace _Project.Code.Gameplay.Interactables
             cc.enabled = false;
             playerTeleporting.transform.position = _linkedDoor.position;
             cc.enabled = true;
+            EventBus.Instance.Publish<TeleDoorEvent>(new TeleDoorEvent());
             OnRelease(playerTeleporting);
         }
         public float GetTimeToOpen()

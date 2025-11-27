@@ -16,6 +16,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         [field: SerializeField] public EnemyPrefabsSO EnemyPrefabs { get; private set; }
         [field: SerializeField] public SpawnDataSO SpawnData { get; private set; }
         private readonly HashSet<NetworkObject> _aliveEnemies = new();
+        private readonly HashSet<NetworkObject> _aliveEnemiesRelatedObjs = new();
 
         public override void OnNetworkSpawn()
         {
@@ -191,6 +192,42 @@ namespace _Project.Code.Gameplay.EnemySpawning
                 SpawnHorror(sp);
             }
              
+        }
+        public void DespawnAllEnemies()
+        {
+            if (!IsServer) return;
+
+            foreach (var enemy in _aliveEnemies)
+            {
+                if (enemy != null && enemy.IsSpawned)
+                {
+                    enemy.Despawn(true); 
+                }
+            }
+
+            _aliveEnemies.Clear();
+            
+            foreach (var relatedObj in _aliveEnemiesRelatedObjs)
+            {
+                if (relatedObj != null && relatedObj.IsSpawned)
+                {
+                    relatedObj.Despawn(true);
+                }
+            }
+
+            _aliveEnemiesRelatedObjs.Clear();
+        }
+
+        public void RegisterEnemyRelatedObject(NetworkObject netObject)
+        {
+            if (!IsServer || netObject == null) return;
+            _aliveEnemiesRelatedObjs.Add(netObject);
+        }
+
+        public void UnregisterEnemyRelatedObject(NetworkObject netObject)
+        {
+            if (!IsServer || netObject == null) return;
+            _aliveEnemiesRelatedObjs.Remove(netObject);
         }
     }
 }

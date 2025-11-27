@@ -1,50 +1,66 @@
-using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Art.AnimationScripts.IK
 {
-    public class IKTest : NetworkBehaviour
+    public class IKTest_NoNetwork : MonoBehaviour
     {
+        [Header("Assign IK Controllers")]
         [SerializeField] private PlayerIKController fpsController;
         [SerializeField] private PlayerIKController tpsController;
-        [SerializeField] private IKInteractable ik;
-        [SerializeField] private float walkSpeed;
-        [SerializeField] private bool isFPS;
 
-        public bool GetOwner => IsOwner;
+        [Header("IK Interactable")]
+        [SerializeField] private IKInteractable ik;
+
+        [Header("Test Settings")]
+        [SerializeField] private float walkSpeed = 1f;
+        [SerializeField] private bool testAsFPS = true;
+
+        private PlayerIKController CurrentController => testAsFPS ? fpsController : tpsController;
 
         void Update()
         {
-            /*if (Input.GetKeyDown(KeyCode.K))
+            /*if (Input.GetKeyDown(KeyCode.F))
             {
-                if(IsOwner) ik.PickupAnimation(fpsController, isFPS);
-                else ik.PickupAnimation(tpsController, isFPS);
+                ik.IsFPS = !ik.IsFPS;
+                testAsFPS = !testAsFPS;
+                Debug.Log("testAsFPS: " + testAsFPS);
             }
-        
+            // PICKUP ANIMATION
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                ik.PickupAnimation(CurrentController);
+                Debug.Log($"[TEST] Pickup ({(testAsFPS ? "FPS" : "TPS")})");
+            }
+
+            // IK IDLE
             if (Input.GetKeyDown(KeyCode.L))
             {
-                if(IsOwner) ik.PlayIKIdle(isFPS);
-                else ik.PlayIKIdle(isFPS);
+                ik.IKAnim.PlayIKIdleLocal(testAsFPS);
             }
 
+            // IK WALK
             if (Input.GetKeyDown(KeyCode.V))
             {
-                if(IsOwner) ik.PlayIKWalk(walkSpeed, isFPS);
-                else ik.PlayIKWalk(walkSpeed, isFPS);
+                ik.IKAnim.PlayIKMoveLocal(1, testAsFPS, false);
             }
 
+            // IK RUN
             if (Input.GetKeyDown(KeyCode.B))
             {
-                if(IsOwner) ik.PlayIKRun(isFPS);
-                else ik.PlayIKRun(isFPS);
+                ik.IKAnim.PlayIKMoveLocal(1, testAsFPS, true);
             }
 
+            // IK INTERACT
             if (Input.GetKeyDown(KeyCode.N))
             {
-                if (IsOwner) ik.PlayIKInteract(isFPS);
-                else ik.PlayIKInteract(isFPS);
+                ik.IKAnim.PlayIKInteractLocal(testAsFPS);
+            }
+
+            // DROP
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                ik.DropAnimation();
             }*/
-            
         }
     }
 }

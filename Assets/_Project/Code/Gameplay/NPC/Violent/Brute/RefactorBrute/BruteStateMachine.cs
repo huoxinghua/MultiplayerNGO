@@ -92,6 +92,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         {
             base.OnNetworkDespawn();
             _playerTargetRef.OnValueChanged -= OnPlayerTargetRefChanged;
+            CleanupSpawnedHeart();
         }
         private void OnPlayerTargetRefChanged(NetworkObjectReference previous, NetworkObjectReference current)
         {
@@ -153,6 +154,29 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             {
                 CurrentState?.OnHearPlayer();
             }
+        }
+
+        private void CleanupSpawnedHeart()
+        {
+            if (_spawnedHeart == null)
+            {
+                return;
+            }
+
+            var heartNetObj = _spawnedHeart.GetComponent<NetworkObject>();
+            if (IsServer)
+            {
+                if (heartNetObj != null && heartNetObj.IsSpawned)
+                {
+                    heartNetObj.Despawn(true);
+                }
+                else
+                {
+                    Destroy(_spawnedHeart);
+                }
+            }
+
+            _spawnedHeart = null;
         }
 
         [ServerRpc(RequireOwnership = false)]

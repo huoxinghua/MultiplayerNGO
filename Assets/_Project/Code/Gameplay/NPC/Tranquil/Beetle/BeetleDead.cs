@@ -1,3 +1,4 @@
+using _Project.Code.Art.RagdollScripts;
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.BeetleSample;
 using Unity.Netcode;
@@ -16,9 +17,10 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 
         [Header("Beetle Specific")]
         [SerializeField] [Tooltip("Beetle skeleton mesh")]
-        private GameObject _beetleSkele;
+        private Transform _ragdollRoot;
 
         [SerializeField] private BeetleItemSO _beetleSO;
+        [SerializeField] private Ragdoll _ragdoll;   
 
         #endregion
 
@@ -100,7 +102,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         /// </summary>
         protected override void UpdateHeldPosition()
         {
-            if (_currentHeldVisual == null || CurrentHeldPosition == null)
+            /*if (_currentHeldVisual == null || CurrentHeldPosition == null)
             {
                 return;
             }
@@ -114,7 +116,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             {
                 _beetleSkele.transform.position = CurrentHeldPosition.position;
                 _beetleSkele.transform.rotation = CurrentHeldPosition.rotation;
-            }
+            }*/
         }
 
         #endregion
@@ -124,9 +126,39 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         /// <summary>
         /// Beetle corpse has no use functionality.
         /// </summary>
-        public override void UseItem()
+        public override bool TryUse()
         {
             // No use functionality for dead beetle
+            return false;
+        }
+
+        #endregion
+        
+        #region Pickup Override
+
+        public override void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent,
+            NetworkObject networkObjectForPlayer)
+        {
+            _ragdoll.DisableAllRigidbodies();
+            base.PickupItem(player, fpsItemParent, tpsItemParent, networkObjectForPlayer);
+            
+        }
+
+        #endregion
+        
+        #region  Drop Override
+
+        public override void DropItem(Vector3 dropPosition)
+        {
+            _ragdoll.EnableRagdoll();
+            _ragdollRoot.position = dropPosition;
+            base.DropItem(dropPosition);
+            // Guard: This method should ONLY run on server
+            if (!IsServer)
+            {
+                Debug.LogError("[BaseInventoryItem] DropItem() called on client! This should only run on server.");
+                return;
+            }
         }
 
         #endregion

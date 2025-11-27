@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Gameplay.EnemySpawning;
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using _Project.Code.Gameplay.Player;
@@ -35,6 +36,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             StartCoroutine(HeartBeat());
             StartCoroutine(CheckPlayerProximity());
         }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            if (IsServer && EnemySpawnManager.Instance != null)
+            {
+                EnemySpawnManager.Instance.RegisterEnemyRelatedObject(NetworkObject);
+            }
+        }
+
         public void SetStateController(BruteStateMachine stateController)
         {
             _controller = stateController;
@@ -63,6 +74,10 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         {
             base.OnNetworkDespawn();
             StopAllCoroutines();
+            if (IsServer && EnemySpawnManager.Instance != null)
+            {
+                EnemySpawnManager.Instance.UnregisterEnemyRelatedObject(NetworkObject);
+            }
 
             // play the heard break sound if have
             //AudioManager.Instance.PlayByKey3D("HeartBreak", transform.position);

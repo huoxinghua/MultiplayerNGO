@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Network.GameManagers;
 using _Project.Code.Network.UI;
 using Netcode.Transports;
 using Steamworks;
@@ -248,7 +249,8 @@ namespace _Project.Code.Network.SteamWork
             bool ok = NetworkManager.Singleton.StartHost();
             if (NetworkManager.Singleton != null)
             {
-                NetworkManager.Singleton.SceneManager.LoadScene(_sceneName, LoadSceneMode.Single);
+                var name = GameFlowManager.SceneName.HubScene;
+                GameFlowManager.Instance.LoadScene(name);
             }
 
             if (ok)

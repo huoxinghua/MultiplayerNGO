@@ -48,14 +48,18 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            if (HasCollected.Value) return;
+            if (HasCollected.Value) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 UseJar();
             }
-            base.UseItem();
         }
 
         private void UseJar()

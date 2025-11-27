@@ -1,4 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
+using _Project.Code.Gameplay.NewItemSystem.SampleItem;
+using _Project.Code.Gameplay.NewItemSystem.TestTub;
+using _Project.Code.Gameplay.Scripts.MVCItems.SampleJar;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -12,7 +16,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             NetworkVariableWritePermission.Server);
 
         private TestTubeItemSO _testTubeItemSO;
-
+        private Dictionary<string, List<SampleData>> samplesContainer = new Dictionary<string, List<SampleData>>();
+        [SerializeField] private float _detectDistance = 50f;
+        [SerializeField] private LayerMask lM;
         #region Setup + Update
 
         protected override void Awake()
@@ -27,8 +33,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
-            
+
             HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
         }
@@ -43,28 +48,42 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region UseLogic
 
-        public override void UseItem()
+        protected override bool CanUse()
         {
-            if (!HasCollected.Value) return;
+            if (!HasCollected.Value) return false;
+            return base.CanUse();
+        }
+
+        protected override void ExecuteUsageLogic()
+        {
             if (IsOwner)
             {
                 UseTestTube();
             }
-            base.UseItem();
         }
-
         private void UseTestTube()
         {
-            /*_testTubeItemSo.EffectDuration;
-            _testTubeItemSo.SpeedBoostAmount;*/
-            Debug.Log("UseTestTube");
             RequestChangeIsUsedServerRpc();
+        }
+
+        public void CollectSample(SampleSO value)
+        {
+            Debug.Log("Save sample:" + value.name + "money:" + value.GetRandomMoneyValue() + "research" + value.GetRandomResearchValue());
+            SampleData data = new SampleData(value.GetRandomResearchValue(),
+                value.GetRandomMoneyValue());
+            if (!samplesContainer.ContainsKey(value.SampleType))
+            {
+                samplesContainer[value.SampleType] = new List<SampleData>();
+            }
+            samplesContainer[value.SampleType].Add(data);
+            Debug.Log("sample container:" + samplesContainer.Count);
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
             HasCollected.Value = true;
+         
         }
 
         #endregion

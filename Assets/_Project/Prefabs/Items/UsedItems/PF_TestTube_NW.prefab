@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1128400295
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 1128400295
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -122,14 +122,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _heldVisual: {fileID: 1528140334673527093}
   _itemSO: {fileID: 11400000, guid: af4d7c4ff5635764ca5f1018d5bbda6b, type: 2}
+  _heldVisual: {fileID: 1528140334673527093}
+  _currentHeldVisual: {fileID: 1528140334673527093}
   _rb: {fileID: 7055409340940664150}
   _renderer: {fileID: 2699680751390372542}
   _collider: {fileID: 8444286800609698930}
-  CurrentHeldPosition: {fileID: 0}
-  _currentHeldVisual: {fileID: 1528140334673527093}
-  OwnerID: 0
+  lM:
+    serializedVersion: 2
+    m_Bits: 4096
 --- !u!114 &4022758116040885600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,6 +325,14 @@ PrefabInstance:
     - target: {fileID: 3291165761281678438, guid: c702a86a6f2aefd4ba18464796e1d5c7, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1855861590
+      objectReference: {fileID: 0}
+    - target: {fileID: 3291165761281678438, guid: c702a86a6f2aefd4ba18464796e1d5c7, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3291165761281678438, guid: c702a86a6f2aefd4ba18464796e1d5c7, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 1128400295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

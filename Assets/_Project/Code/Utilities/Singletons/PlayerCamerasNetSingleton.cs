@@ -1,6 +1,8 @@
+using System;
 using _Project.Code.Core.Patterns;
 using Unity.Netcode;
-
+using UnityEngine;
+using System.Linq;
 namespace _Project.Code.Utilities.Singletons
 {
     public class PlayerCamerasNetSingleton : NetworkSingleton<PlayerCamerasNetSingleton>
@@ -20,9 +22,23 @@ namespace _Project.Code.Utilities.Singletons
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void RequestClearCameraListServerRPC()
+        public void RequestClearCameraListServerRpc()
         {
             PlayerCamerasNetList.Clear();
         }
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestTogglePlayerCamServerRpc(NetworkObjectReference cameraNetRef)
+        {
+            if (PlayerCamerasNetList.Contains(cameraNetRef))
+            {
+                PlayerCamerasNetList.Remove(cameraNetRef);
+            }
+            else
+            {
+                // If the reference is NOT in the list, add it (Toggle ON)
+                PlayerCamerasNetList.Add(cameraNetRef);
+            }
+        }
+        
     }
 }

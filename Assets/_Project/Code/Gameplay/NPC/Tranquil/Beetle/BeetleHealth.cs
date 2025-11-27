@@ -41,6 +41,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         public void ChangeHealth(float healthChange)
         {
+            if(!IsServer)return;
             _currentHealth += healthChange;
             if (_currentHealth < 0)
             {
@@ -81,6 +82,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 
         public void ApplyHit(GameObject attacker, float damage, float knockoutPower)
         {
+          
             if (attacker.layer == 6)
             {
                 bool isInList = false;
