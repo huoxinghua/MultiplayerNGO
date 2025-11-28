@@ -61,11 +61,9 @@ namespace _Project.Code.Utilities.EventBus
                 }
             }
         }
-
         public void Publish<T>(T eventData) where T : IEvent
         {
             var eventType = typeof(T);
-
             if (!_subscriptions.TryGetValue(eventType, out var subscriptionList))
                 return;
 
@@ -124,7 +122,12 @@ namespace _Project.Code.Utilities.EventBus
             _isPublishing = false;
         }
 
-        protected override bool PersistBetweenScenes => false;
+        protected override bool PersistBetweenScenes => true;
+
+        private void OnDisable()
+        {
+            Clear();
+        }
 
         private void OnDestroy()
         {

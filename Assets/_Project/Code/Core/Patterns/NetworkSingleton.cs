@@ -33,7 +33,9 @@ namespace _Project.Code.Core.Patterns
             if (PersistBetweenScenes)
             {
                 DontDestroyOnLoad(gameObject);
+                
             }
+            
 
             Debug.Log($"[{typeof(T).Name}] Singleton initialized");
             if (AutoSpawn)

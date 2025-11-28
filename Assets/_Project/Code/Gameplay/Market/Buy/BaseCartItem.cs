@@ -35,15 +35,17 @@ namespace _Project.Code.Gameplay.Market.Buy
 
         private void OnEnable()
         {
-            if (!_hasInitialized && IsServer)
+            if (!_hasInitialized )
             {
                 Quantity.OnValueChanged += HandleQuantityChange;
                 Debug.Log("EnableHax");
-                HandleQuantityChange(0, 0);
                 _hasInitialized = true;
-                return;
+                if (IsServer)
+                {
+                    HandleQuantityChange(0, 0);
+                    return;
+                }
             }
-
             HandleQuantityChange(0, Quantity.Value);
         }
 
