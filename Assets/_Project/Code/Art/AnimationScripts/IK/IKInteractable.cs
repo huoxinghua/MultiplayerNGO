@@ -124,7 +124,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
     [Serializable]
     public struct IdlePreset
     {
-        public float resetDuration;
         public float transitionDuration;
         public float loopDuration;
         public Vector3[] fpsWaypoints;
@@ -152,6 +151,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
     public struct InteractPreset
     {
         public float transitionDuration;
+        public float moveDuration;
         public float hitDuration;
         public Vector3[] fpsPosWaypoints;
         public Vector3[] tpsPosWaypoints;
