@@ -26,33 +26,25 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
             if (stateController.CharacterController != null)
                 stateController.CharacterController.enabled = false;
-
+            if (netObject != null && netObject.IsSpawned)
+                netObject.Despawn(true);
             CurrentPlayers.Instance?.RemovePlayer(stateController.gameObject);
             PlayerStateMachine.AllPlayers.Remove(stateController);
 
             bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
 
-            if (isServer && netObject != null && _despawnRoutine == null)
-                _despawnRoutine = stateController.StartCoroutine(DespawnAfterDelay(netObject));
 
             if (!isOwner)
                 return;
-
-            /*stateController.InputManager?.SwitchToSpectatorMode();
-            if (stateController.InputManager != null)
-                stateController.InputManager.enabled = false;
-*/
-           /* var spectatorInput = stateController.GetComponent<PlayerInputManagerSpectator>();
-            spectatorInput?.EnableSpectatorInput();*/
-
+            
             var recorder = stateController.GetComponentInChildren<VoiceRecorder>();
             if (recorder != null)
             {
                 recorder.StopRecording();
                 recorder.enabled = false;
             }
-          //  PlayerListManager.Instance?.OnPlayerDied(stateController);
-          //  EventBus.Instance?.Publish(new PlayerDiedEvent { deadPlayer = stateController.gameObject });
+
+            EventBus.Instance?.Publish(new PlayerDiedEvent { deadPlayer = stateController.gameObject });
         }
 
         public override void OnExit()
@@ -89,14 +81,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnNumPressedInput(int slot) { }
         public override void OnChangeWeaponInput() { }
         #endregion
-
-        private static IEnumerator DespawnAfterDelay(NetworkObject netObject)
-        {
-            yield return new WaitForSeconds(DespawnDelaySeconds);
-
-            if (netObject != null && netObject.IsSpawned)
-                netObject.Despawn(true);
-        }
+        
     }
     public class PlayerDiedEvent : IEvent
     {

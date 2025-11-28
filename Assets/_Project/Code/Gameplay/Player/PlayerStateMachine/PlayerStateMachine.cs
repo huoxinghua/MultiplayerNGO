@@ -181,12 +181,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             if (IsServer) PlayerListManager.Instance.RegisterPlayerObj(this);
 
         }
-
-        public override void OnNetworkDespawn()
-        {
-            Debug.Log("despawn the player statemachine");
-           // if (IsServer) PlayerListManager.Instance.UnregisterPlayerObj(this);
-        }
+        
         public void ForceSetPosition(Vector3 pos, Quaternion rot)
         {
             CharacterController.enabled = false;

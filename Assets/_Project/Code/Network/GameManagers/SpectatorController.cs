@@ -45,14 +45,7 @@ namespace _Project.Code.Network.GameManagers
             
         }
 
-        private void OnEnable()
-        {
-            /*if (EventBus.Instance != null)
-            {
-                EventBus.Instance.Subscribe<PlayerDiedEvent>(this, EnterSpectatorMode);
-            }*/
-            
-        }
+  
 
         private void OnDisable()
         {
