@@ -45,7 +45,11 @@ namespace _Project.Code.Network.GameManagers
             
         }
 
-  
+        private void OnEnable()
+        {
+            if (PlayerListManager.Instance != null)
+                PlayerListManager.Instance.AlivePlayers.OnListChanged += OnAlivePlayersChanged;
+        }
 
         private void OnDisable()
         {
@@ -60,8 +64,52 @@ namespace _Project.Code.Network.GameManagers
                 _input.OnNext -= Next;
                 _input.OnPrev -= Prev;
             }
+            if (PlayerListManager.Instance != null)
+                PlayerListManager.Instance.AlivePlayers.OnListChanged -= OnAlivePlayersChanged;
         }
-        
+        private void OnAlivePlayersChanged(NetworkListEvent<ulong> changeEvent)
+        {
+            if (!mainCam.enabled) return; 
+
+            Debug.Log("[Spectator] Alive list changed → Rebuilding");
+
+            StartCoroutine(RebuildDelayed());
+        }
+
+        private IEnumerator RebuildDelayed()
+        {
+            yield return new WaitForEndOfFrame(); 
+            yield return null;                      
+    
+            RebuildAliveHeads();
+        }
+        private void RebuildAliveHeads()
+        {
+            _aliveHeads.Clear();
+
+            foreach (ulong clientId in PlayerListManager.Instance.AlivePlayers)
+            {
+           
+                if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client))
+                    continue;
+
+                var playerObj = client.PlayerObject;
+                if (playerObj == null)
+                    continue;
+
+                var sm = playerObj.GetComponent<PlayerStateMachine>();
+                if (sm == null)
+                    continue;
+
+               
+                _aliveHeads.Add(sm.transform);
+
+                Debug.Log($"[Spectator] Added alive player: {playerObj.name}, clientId={clientId}");
+            }
+           
+            if (_aliveHeads.Count > 0)
+                SetTarget(_aliveHeads[0]);
+        }
         public void EnterSpectatorMode( )
         {
             if (_input != null)

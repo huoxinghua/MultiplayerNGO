@@ -26,7 +26,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
             if (stateController.CharacterController != null)
                 stateController.CharacterController.enabled = false;
-        
+            var cam = stateController.gameObject.GetComponentInChildren<Camera>();
+            cam.enabled = false;
             CurrentPlayers.Instance?.RemovePlayer(stateController.gameObject);
             PlayerStateMachine.AllPlayers.Remove(stateController);
             
