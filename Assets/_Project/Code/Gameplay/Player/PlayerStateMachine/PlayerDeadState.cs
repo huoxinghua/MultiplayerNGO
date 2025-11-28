@@ -51,7 +51,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 recorder.StopRecording();
                 recorder.enabled = false;
             }
-            PlayerListManager.Instance?.OnPlayerDied(stateController);
+          //  PlayerListManager.Instance?.OnPlayerDied(stateController);
           //  EventBus.Instance?.Publish(new PlayerDiedEvent { deadPlayer = stateController.gameObject });
         }
 

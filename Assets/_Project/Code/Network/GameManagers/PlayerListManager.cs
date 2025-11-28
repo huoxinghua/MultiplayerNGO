@@ -21,13 +21,22 @@ namespace _Project.Code.Network.GameManagers
             HashSet<PlayerStateMachine>();
 
         protected override bool PersistBetweenScenes => true;
-
+        public NetworkList<ulong> AlivePlayers = new NetworkList<ulong>();
  
         public void RegisterPlayerObj(PlayerStateMachine player)
         {
-            Debug.Log("before  alive count:" + _alivePlayers.Count);
-            _alivePlayersObj.Add(player);
-            Debug.Log("after  alive count:" + _alivePlayers.Count);
+            if (!IsServer) return;
+
+            ulong cid = player.OwnerClientId;
+
+            if (!_alivePlayersObj.Contains(player))
+                _alivePlayersObj.Add(player);
+
+            if (!AlivePlayers.Contains(cid))
+                AlivePlayers.Add(cid);
+             
+            Debug.Log("RegisterPlayerObj after  alive count:" + AlivePlayers.Count);
+
         }
 
         public void UnregisterPlayerObj(PlayerStateMachine player)
@@ -45,14 +54,58 @@ namespace _Project.Code.Network.GameManagers
             foreach (var door in FindObjectsOfType<SwingDoors>())
                 Destroy(door.gameObject);
         }
-
-        public void OnPlayerDied(PlayerStateMachine player)
+        public void OnPlayerDied(ulong deadClientId)
         {
-            if (_alivePlayersObj.Contains(player))
+            
+            
+            //right
+            if (!IsServer)
+                return;
+
+            Debug.Log($"[Server] Player died: {deadClientId}");
+
+    
+            if (AlivePlayers.Contains(deadClientId))
+                AlivePlayers.Remove(deadClientId);
+
+         
+
+            if (AlivePlayers.Count <= 0)
+            {
+                GameFlowManager.Instance.ReturnToHub();
+                ClearEnemiesInHub();
+                EventBus.Instance?.Publish(new AllPlayerDiedEvent { });
+            }
+            else
+            {
+                Debug.Log("Enter to spectator cam");
+                SendEnterSpectatorClientRpc(deadClientId);
+            }
+
+
+          
+        }
+        [ClientRpc]
+        private void SendEnterSpectatorClientRpc(ulong targetClientId)
+        {
+        
+            if (NetworkManager.Singleton.LocalClientId != targetClientId)
+                return;
+
+            Debug.Log("[Client] I died → entering spectator mode");
+            SpectatorController.Instance.EnterSpectatorMode();
+        }
+        /*
+        public void OnPlayerDied(ulong deadClientId)
+        {
+            Debug.Log($"[Server] Player died: {deadClientId}");
+
+            AlivePlayers.Remove(deadClientId);
+            /*if (_alivePlayersObj.Contains(player))
             {
                 _alivePlayersObj.Remove(player);
                 Debug.Log("After remove alive count:" + _alivePlayersObj.Count);
-            }
+            }#1#
 
             if (_alivePlayersObj.Count <= 0)
             {
@@ -66,6 +119,7 @@ namespace _Project.Code.Network.GameManagers
                 SpectatorController.Instance.EnterSpectatorMode();
             }
         }
+        */
 
         public override void OnNetworkSpawn()
         {
