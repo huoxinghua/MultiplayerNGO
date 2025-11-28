@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f65d32991db45bc428a92ae55c972030, type: 3}
-  m_Name: IKTestTubeSO
+  m_Name: IKTestTubeSo
   m_EditorClassIdentifier: 
   thumbR:
     proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
@@ -53,50 +53,71 @@ MonoBehaviour:
     intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
   fpsOffset:
-    posOffset: {x: 0, y: 0, z: 0}
+    posOffset: {x: 0.261, y: 0, z: 0}
     rotOffset: {x: 0, y: 0, z: 0}
   tpsOffset:
-    posOffset: {x: 0, y: 0, z: 0}
-    rotOffset: {x: 0, y: 0, z: 0}
+    posOffset: {x: 0.1078, y: -0.314, z: 0.0191}
+    rotOffset: {x: 0.022, y: -10.151, z: 0.244}
   ikIdle:
-    resetDuration: 0
-    transitionDuration: 0
-    loopDuration: 0
-    fpsWaypoints: []
-    tpsWaypoints: []
-    loopType: 0
-    easeType: 0
+    transitionDuration: 1
+    loopDuration: 3
+    fpsWaypoints:
+    - {x: 0, y: 0.005, z: 0}
+    - {x: 0, y: -0.005, z: 0}
+    tpsWaypoints:
+    - {x: 0, y: 0.003, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    loopType: 1
+    easeType: 7
   ikWalk:
-    resetDuration: 0
-    transitionDuration: 0
-    loopDuration: 0
-    fpsWaypoints: []
-    tpsWaypoints: []
-    fpsFollowThrough: []
-    tpsFollowThrough: []
-    loopType: 0
-    easeType: 0
-    pathType: 0
-    pathMode: 0
+    transitionDuration: 0.3
+    loopDuration: 0.65
+    fpsWaypoints:
+    - {x: -0.01, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.01, y: 0, z: 0}
+    tpsWaypoints:
+    - {x: -0.1, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.01, y: 0, z: 0}
+    fpsFollowThrough:
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
+    tpsFollowThrough:
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
   ikRun:
-    resetDuration: 0
-    transitionDuration: 0
-    loopDuration: 0
-    fpsWaypoints: []
-    tpsWaypoints: []
-    fpsFollowThrough: []
-    tpsFollowThrough: []
-    loopType: 0
-    easeType: 0
-    pathType: 0
-    pathMode: 0
+    transitionDuration: 0.2
+    loopDuration: 0.3
+    fpsWaypoints:
+    - {x: -0.02, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.02, y: 0, z: 0}
+    tpsWaypoints:
+    - {x: -0.02, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.02, y: 0, z: 0}
+    fpsFollowThrough:
+    - {x: 0, y: 0, z: -2}
+    - {x: 0, y: 0, z: 2}
+    tpsFollowThrough:
+    - {x: 0, y: 0, z: -2}
+    - {x: 0, y: 0, z: 2}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
   ikInteract:
-    resetDuration: 0
     transitionDuration: 0
+    moveDuration: 0
     hitDuration: 0
     fpsPosWaypoints: []
     tpsPosWaypoints: []
     fpsRotWaypoints: []
     tpsRotWaypoints: []
-    easeAnti: 0
-    easeHit: 0
+    easeAnti: 4
+    easeHit: 13

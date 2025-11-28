@@ -10,6 +10,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnEnter()
         {
             stateController.CurrentMovement = PlayerStateMachine.MovementContext.Walking;
+            stateController.Inventory.GetCurrentEquippedItem()?.NotifyMovementChanged(true, false, false);
+            //stateController.Inventory.
             TryStand();
             Animator.PlayStanding();
 

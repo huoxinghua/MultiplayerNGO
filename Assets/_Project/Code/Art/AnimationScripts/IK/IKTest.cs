@@ -21,39 +21,39 @@ namespace _Project.Code.Art.AnimationScripts.IK
         {
             /*if (Input.GetKeyDown(KeyCode.F))
             {
-                ik.IsFPS = !ik.IsFPS;
+                testAsFPS = !testAsFPS;
                 testAsFPS = !testAsFPS;
                 Debug.Log("testAsFPS: " + testAsFPS);
             }
             // PICKUP ANIMATION
             if (Input.GetKeyDown(KeyCode.K))
             {
-                ik.PickupAnimation(CurrentController);
+                ik.PickupAnimation(CurrentController, testAsFPS);
                 Debug.Log($"[TEST] Pickup ({(testAsFPS ? "FPS" : "TPS")})");
             }
 
             // IK IDLE
             if (Input.GetKeyDown(KeyCode.L))
             {
-                ik.IKAnim.PlayIKIdleLocal(testAsFPS);
+                ik.IKAnim.PlayIKIdle(testAsFPS);
             }
 
             // IK WALK
             if (Input.GetKeyDown(KeyCode.V))
             {
-                ik.IKAnim.PlayIKMoveLocal(1, testAsFPS, false);
+                ik.IKAnim.PlayIKMove(1, testAsFPS, false);
             }
 
             // IK RUN
             if (Input.GetKeyDown(KeyCode.B))
             {
-                ik.IKAnim.PlayIKMoveLocal(1, testAsFPS, true);
+                ik.IKAnim.PlayIKMove(1, testAsFPS, true);
             }
 
             // IK INTERACT
             if (Input.GetKeyDown(KeyCode.N))
             {
-                ik.IKAnim.PlayIKInteractLocal(testAsFPS);
+                ik.IKAnim.PlayIKInteract(testAsFPS);
             }
 
             // DROP

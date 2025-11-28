@@ -117,7 +117,11 @@ namespace _Project.Code.Art.AnimationScripts.Animations
             netAnim.Animator.SetBool(hIsGround, true);
             netAnim.Animator.SetBool(hInAir, false);
         }
-
+        /// <summary>
+        /// Deprecated. Please delete
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
         protected override IEnumerator SmoothWalkRun(float target)
         {
             float time = 0f;
