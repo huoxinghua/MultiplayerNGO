@@ -118,7 +118,7 @@ namespace _Project.Code.Network.GameManagers
                 {
                     if (_isMissionFailed)
                     {
-                      
+                      PlayerListManager.Instance.AlivePlayers.Clear();
                         SpawnHubPlayers();
                         _isMissionFailed = false;
                     }
@@ -127,11 +127,13 @@ namespace _Project.Code.Network.GameManagers
                 }
                 else if (sceneEvent.SceneName == SceneName.MissionHospital)
                 {
+                    PlayerListManager.Instance.AlivePlayers.Clear();
                     SpawnHubPlayers();
                     HandleMissionPlayersPositions();
                 }
                 else  
                 {
+                    PlayerListManager.Instance.AlivePlayers.Clear();
                     SpawnHubPlayers();
                     HandleMissionPlayersPositions();
                 }

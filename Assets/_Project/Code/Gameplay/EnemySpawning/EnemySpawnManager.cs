@@ -129,7 +129,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private void Update()
         {
             if (!IsServer) return;
-            Debug.Log("spawn attemptTimer is complete:"+SpawnAttemptTimer.IsComplete );
+   
             SpawnAttemptTimer.TimerUpdate(Time.deltaTime);
             if (SpawnAttemptTimer.IsComplete)
             {

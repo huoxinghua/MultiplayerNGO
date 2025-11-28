@@ -47,6 +47,8 @@ namespace _Project.Code.Network.GameManagers
 
             if (AlivePlayers.Count <= 0)
             {
+                Debug.Log("OnPlayerDied ReturnToHub :");
+
                 GameFlowManager.Instance.ReturnToHub();
                 ClearEnemiesInHub();
                 EventBus.Instance?.Publish(new AllPlayerDiedEvent { });
