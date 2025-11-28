@@ -8,31 +8,28 @@ namespace _Project.Code.Art.AnimationScripts.IK
     {
         /*[Header("Position/Rotation Anchor")]
         [SerializeField] private Transform gripAnchor;*/
+        
         [field: SerializeField] public IkInteractSO ikInteractSo { get; private set; }
+        private Tween transitionTween;
         private Tween interactTween;
         private float localAnimTime = 0f;
-        
         public bool IsInteractComplete { get; private set; } = true;
         public Tween currentTween { get; set; }
-
+        
         public virtual void PlayIKIdle(bool isFPS)
         {
             localAnimTime = 0f;
 
             var waypoints = isFPS ? ikInteractSo.ikIdle.fpsWaypoints :  ikInteractSo.ikIdle.tpsWaypoints;
-            float duration = ikInteractSo.ikIdle.transitionDuration;
 
-            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikIdle.resetDuration;
-            else duration = ikInteractSo.ikIdle.transitionDuration;
+            float distanceToTarget = Vector3.Distance(transform.localPosition, ApplyPosOffset(waypoints[0], isFPS));
+                
+            var duration = distanceToTarget/ikInteractSo.ikIdle.transitionDuration;
 
-            transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikIdle.easeType)
+            transitionTween = transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration).SetEase(ikInteractSo.ikIdle.easeType)
                 .OnComplete(() =>
                 {
-                    if(currentTween != null)
-                    {
-                        currentTween.Kill(true);
-                        currentTween = null;
-                    }
+                    StopIKAnimation();
                     
                     var seq = DOTween.Sequence();
                     seq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[1], isFPS), ikInteractSo.ikIdle.loopDuration).SetEase(ikInteractSo.ikIdle.easeType))
@@ -50,10 +47,11 @@ namespace _Project.Code.Art.AnimationScripts.IK
             var waypoints = isFPS ? preset.fpsWaypoints : preset.tpsWaypoints;
             var followThroughs = isFPS ? preset.fpsFollowThrough : preset.tpsFollowThrough;
             
-            float duration = preset.transitionDuration;
+         
+            float distanceToTarget = Vector3.Distance(transform.localPosition, ApplyPosOffset(waypoints[0], isFPS));
+                
+            var duration = distanceToTarget/preset.transitionDuration;
 
-            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = preset.resetDuration;
-            else duration = preset.transitionDuration;
 
             var startSeq = DOTween.Sequence();
             startSeq.Append(transform.DOLocalMove(ApplyPosOffset(waypoints[0], isFPS), duration)
@@ -102,10 +100,9 @@ namespace _Project.Code.Art.AnimationScripts.IK
                 return;
             }
 
-            float duration = ikInteractSo.ikInteract.transitionDuration;
-
-            if (transform.localPosition != ApplyPosOffset(Vector3.zero, isFPS)) duration = ikInteractSo.ikInteract.resetDuration;
-            else duration = ikInteractSo.ikInteract.transitionDuration;
+            float distanceToTarget = Vector3.Distance(transform.localPosition, ApplyPosOffset(waypoints[0], isFPS));
+                
+            var duration = distanceToTarget/ikInteractSo.ikInteract.transitionDuration;
 
             var seq = DOTween.Sequence();
 
@@ -133,7 +130,7 @@ namespace _Project.Code.Art.AnimationScripts.IK
             {
                 IsInteractComplete = true;
             });
-            currentTween = seq;
+            interactTween = seq;
         }
         
         public void StopIKAnimation()
@@ -142,6 +139,18 @@ namespace _Project.Code.Art.AnimationScripts.IK
             {
                 currentTween.Kill(true);
                 currentTween = null;
+            }
+            
+            if(transitionTween != null)
+            {
+                transitionTween.Kill(true);
+                transitionTween = null;
+            }
+            
+            if(interactTween != null)
+            {
+                interactTween.Kill(true);
+                interactTween = null;
             }
         }
 
