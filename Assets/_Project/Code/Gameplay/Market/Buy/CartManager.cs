@@ -54,6 +54,38 @@ namespace _Project.Code.Gameplay.Market.Buy
         }
         public void HandleBuyCart()
         {
+            if(!IsServer)
+            {
+              RequestBuyCartServerRpc();  
+                
+            }
+            else
+            {
+                int cartTotal = GetCartTotal();
+                if (cartTotal > WalletBankton.Instance.TotalMoneyNW.Value) return;
+                else
+                {
+                    WalletBankton.Instance.AddSubMoney(-cartTotal);
+                    foreach (var item in CurrentItemsInCart)
+                    {
+                        _storeController.AddBuyOrder(
+                            new BuyOrder
+                            {
+                                Amount = item.GetQuantity(),
+                                ItemPrefab = StoreSO.GetItemData(item.ThisItemId).PurchasedItemPrefab
+                            });
+                
+                    }
+                    _storeController.SpawnItemsFromBuyOrder();
+                    RemoveFullCart();
+                }
+            }
+           
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestBuyCartServerRpc()
+        {
             int cartTotal = GetCartTotal();
             if (cartTotal > WalletBankton.Instance.TotalMoneyNW.Value) return;
             else

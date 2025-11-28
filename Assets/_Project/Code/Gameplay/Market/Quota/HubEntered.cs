@@ -1,3 +1,4 @@
+using System;
 using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
@@ -5,7 +6,7 @@ using UnityEngine;
 
 namespace _Project.Code.Gameplay.Market.Quota
 {
-    public class DayPast : NetworkBehaviour
+    public class HubEntered : NetworkBehaviour
     {
         private Timer Timer = new Timer(2);
         private bool _hasPushedEvent = false;
@@ -25,10 +26,11 @@ namespace _Project.Code.Gameplay.Market.Quota
                 _hasPushedEvent  = true;
             }
         }
+
         [ServerRpc(RequireOwnership = false)]
         private void SendEventServerRpc()
         {
-            EventBus.Instance.Publish<DayStartEvent>(new DayStartEvent());
+            EventBus.Instance.Publish<OnEnterHubEvent>(new OnEnterHubEvent());
         }
     }
 }

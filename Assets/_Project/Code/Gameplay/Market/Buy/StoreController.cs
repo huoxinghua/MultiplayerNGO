@@ -34,23 +34,35 @@ namespace _Project.Code.Gameplay.Market.Buy
         }
         public void HandleStoreClicked(int itemID)
         {
+            if (!IsServer) RequestStoreButtonClickedServerRpc(itemID);
+            else _cartManager.AddToCart((ItemIds)itemID);
+            
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestStoreButtonClickedServerRpc(int itemID)
+        {
             _cartManager.AddToCart((ItemIds)itemID);
         }
         public void AddBuyOrder(BuyOrder newBuyOrder)
         {
+            if (!IsServer) return;
             _buyOrders.Add(newBuyOrder);
         }
         public void ClearBuyOrders()
         {
+            if (!IsServer) return;
             _buyOrders.Clear();
         }
         public void SpawnItemsFromBuyOrder()
         {
+            if (!IsServer) return;
             foreach(var item in _buyOrders)
             {
                 _vanSpawner.AddBuyOrders(item);     
             }
             _vanSpawner.SendVan();
+            ClearBuyOrders();
         }
     }
     public struct WalletUpdate : IEvent

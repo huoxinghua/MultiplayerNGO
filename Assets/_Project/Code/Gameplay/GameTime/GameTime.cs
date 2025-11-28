@@ -11,7 +11,8 @@ namespace _Project.Code.Gameplay
 {
     public class GameTime : NetworkBehaviour
     {
-        public NetworkVariable<int> GameTimeIntNet;
+        public NetworkVariable<int>  GameTimeIntNet = new NetworkVariable<int>(0,
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         //local gametime
         private float _gameTimeFloat;
@@ -29,9 +30,9 @@ namespace _Project.Code.Gameplay
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            GameTimeIntNet = new NetworkVariable<int>(0,
-                NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+           
             GameTimeIntNet.OnValueChanged += HandleGameTimeChange;
+            
         }
 
         public void Update()
@@ -62,10 +63,16 @@ namespace _Project.Code.Gameplay
                         _gameTimeEventsSO.Remove(usedEvent);
                     }
                 }
-                GameTimeIntNet.Value = Mathf.FloorToInt(_gameTimeFloat);
+
+                RequestSetGameTimeServerRpc(_gameTimeFloat);
             }
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestSetGameTimeServerRpc(float time)
+        {
+            GameTimeIntNet.Value = Mathf.FloorToInt(time);
+        }
         private void HandleGameTimeChange(int lastTime, int newTime)
         {
             EventBus.Instance.Publish<GameTimeTickedEvent>(new GameTimeTickedEvent { GameTime = newTime });

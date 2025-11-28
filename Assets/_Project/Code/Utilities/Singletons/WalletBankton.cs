@@ -1,6 +1,7 @@
 using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Market.Buy;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace _Project.Code.Utilities.Singletons
 {
@@ -9,7 +10,7 @@ namespace _Project.Code.Utilities.Singletons
         public NetworkVariable<int> TotalMoneyNW = new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        public int TotalMoney { get; private set; } = 100;
+        protected override bool AutoSpawn => false;
 
         #region Initialization
 
@@ -19,6 +20,12 @@ namespace _Project.Code.Utilities.Singletons
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            Debug.Log("WalletBankton.OnNetworkSpawn");
+            if (IsServer)
+            {
+                // Force the object to NOT be destroyed when the scene unloads.
+                NetworkObject.DestroyWithScene = false;
+            }
             TotalMoneyNW.OnValueChanged += HandleMoneyChange;
         }
         #endregion
@@ -38,7 +45,6 @@ namespace _Project.Code.Utilities.Singletons
 
         public void AddSubMoney(int amount)
         {
-            TotalMoney += amount;
             RequestAddSubMoneyServerRpc(amount);
         }
 

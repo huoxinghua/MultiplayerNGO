@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.ScriptableObjects.ScriptObjects.StoreSO.VanSO;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,92 +8,78 @@ namespace _Project.Code.Gameplay.Market.Buy
 {
     public class DeliveryVan : NetworkBehaviour
     {
+        [SerializeField] private VanSO _vanSO;
         [SerializeField] private float _vanSpeed;
-        [SerializeField] private float _timeBeforeSpawning;
         public List<BuyOrder> BuyOrders = new List<BuyOrder>();
         private List<GameObject> _itemsToSpawn = new List<GameObject>();
-        [SerializeField] private float _timeFrameForSpawning;
-        [SerializeField] private float _timeAfterSpawnDestroy;
 
-        [SerializeField] private Transform _spawnPos;
+        [SerializeField] private Transform _spawnerPos;
+        private Vector3 _vanSpawnedAtPos;
+        private Vector3 _startPos;
+        private float _distanceTraveled => Vector3.Distance(_startPos,transform.position);
 
+        private float _distanceBetweenSpawns => _vanSO.DistanceForDroppingItems/_itemsToSpawn.Count;
+
+        private int _itemsDropped = 0;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        public override void OnNetworkSpawn()
         {
-            StartCoroutine(LifeCycle());
+            base.OnNetworkSpawn();
+            if (!IsServer) return;
+            _vanSpawnedAtPos = transform.position;
+            transform.position += _vanSO.VanSpawnPoint;
+            _startPos = transform.position;
         }
-
         public void AddBuyOrder(BuyOrder buyOrder)
         {
             BuyOrders.Add(buyOrder);
+            int itemsInOrder = buyOrder.Amount;
+            for (int i = 0; i < itemsInOrder; i++)
+            {
+                _itemsToSpawn.Add(buyOrder.ItemPrefab);
+            }
         }
 
-        IEnumerator LifeCycle()
+        public void DestroyAfterDistanceReached()
         {
-            yield return new WaitForSeconds(_timeBeforeSpawning);
-            StartSpawning();
-            yield return new WaitForSeconds(_timeFrameForSpawning);
-            yield return new WaitForSeconds(_timeAfterSpawnDestroy);
-            DestroyAfterSeconds();
-        }
-
-        public void StartSpawning()
-        {
-            float timeBetweenSpawns = 0;
-            int totalItemsToSpawn = 0;
-            foreach (BuyOrder buyOrder in BuyOrders)
-            {
-                totalItemsToSpawn += buyOrder.Amount;
-                for (int i = 0; i < buyOrder.Amount; i++)
-                {
-                    _itemsToSpawn.Add(buyOrder.ItemPrefab);
-                }
-            }
-
-            timeBetweenSpawns = _timeFrameForSpawning / totalItemsToSpawn;
-            StartCoroutine(SpawnDelay(timeBetweenSpawns));
-        }
-
-        public void DestroyAfterSeconds()
-        {
-            if (!IsServer)
-            {
-                VanBegoneServerRpc();
-            }
-            else
-            {
-                NetworkObject.Despawn();
-                Destroy(gameObject);
-            }
+            VanBegoneServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
         void VanBegoneServerRpc()
         {
             NetworkObject.Despawn();
-            Destroy(gameObject);
         }
         // Update is called once per frame
         void FixedUpdate()
         {
-            transform.position += Vector3.left * _vanSpeed;
+            if (!IsServer) return;
+            if (_distanceTraveled >= _vanSO.DistanceToDestination - 5)
+            {
+                DestroyAfterDistanceReached();
+            }
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                _vanSpawnedAtPos + _vanSO.VanDestination,
+                Time.deltaTime * _vanSO.VanSpeed);
+
+            if (_itemsDropped >= _itemsToSpawn.Count) return;
+            if (_distanceTraveled >= _vanSO.DistanceFromStartToDropItems && _distanceTraveled <= _vanSO.DistanceFromStartToStopDropping)
+            {
+                if (_distanceTraveled - _vanSO.DistanceFromStartToDropItems >= _distanceBetweenSpawns * _itemsDropped)
+                {
+                   DropItem();
+                }
+            }
         }
 
-        IEnumerator SpawnDelay(float timeBetweenSpawns)
-        {
-            while (_itemsToSpawn.Count > 0)
-            {
-                Debug.Log("Spawning");
-                if (IsServer)
-                {
-                    GameObject temp = Instantiate(_itemsToSpawn[0], _spawnPos.position, Quaternion.identity);
-                    temp.GetComponent<NetworkObject>().Spawn();
-                    temp.transform.parent = null;
-                    _itemsToSpawn.RemoveAt(0);
-                }
-                yield return new WaitForSeconds(timeBetweenSpawns);
-                
-            }
+        private void DropItem()
+        { 
+            GameObject spawnedInstance = Instantiate(_itemsToSpawn[_itemsDropped]);
+            spawnedInstance.transform.position = _spawnerPos.position;
+            NetworkObject networkObject = spawnedInstance.GetComponent<NetworkObject>();
+            networkObject.Spawn();
+            _itemsDropped++;
         }
     }
 }

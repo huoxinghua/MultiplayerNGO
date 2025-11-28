@@ -10,6 +10,7 @@ namespace _Project.Code.Gameplay.Market.Buy
         [SerializeField] private DeliveryVan _vanPrefab;
         public void AddBuyOrders(BuyOrder buyOrder)
         {
+            if (!IsServer) return;
             buyOrders.Add(buyOrder);
         }
         public void SendVan()
@@ -28,6 +29,7 @@ namespace _Project.Code.Gameplay.Market.Buy
         }
         public void ClearBuyOrders()
         {
+            if (!IsServer) return;
             buyOrders.Clear();
         }
     }

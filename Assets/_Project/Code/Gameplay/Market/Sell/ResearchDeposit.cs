@@ -48,14 +48,6 @@ namespace _Project.Code.Gameplay.Market.Sell
             {
                 if (playerInventory.IsHoldingSample())
                 {
-                    // Validate EconomyManager exists before initiating sale
-                    if (!ServiceLocator.TryGet<EconomyManager>(out var economy))
-                    {
-                        Debug.LogWarning("[ResearchDeposit] EconomyManager not found in ServiceLocator");
-                        return;
-                    }
-
-                    // Initiate async sale - result will arrive via OnItemSold callback
                     playerInventory.TrySell();
                 }
             }
@@ -67,17 +59,12 @@ namespace _Project.Code.Gameplay.Market.Sell
         /// </summary>
         private void OnItemSold(ItemSoldEvent saleEvent)
         {
-            if (!ServiceLocator.TryGet<EconomyManager>(out var economyManager))
-            {
-                Debug.LogWarning("[ResearchDeposit] EconomyManager not found when processing sale");
-                return;
-            }
 
             // Get market value from sold item data
-            SampleMarketValue itemValues = economyManager.GetMarketValue(saleEvent.SoldItemData);
+            SampleMarketValue itemValues = EconomyManager.Instance.GetMarketValue(saleEvent.SoldItemData);
 
             // Process sale (adds money and research progress)
-            economyManager.SoldItem(itemValues);
+            EconomyManager.Instance.SoldItem(itemValues);
 
           //  Debug.Log($"[ResearchDeposit] Item sold: {saleEvent.SoldItemData.KeyName} | Money: {economyManager.PlayerMoney} | Research: {economyManager.ResearchProgress}");
         }

@@ -1,3 +1,5 @@
+using _Project.Code.Core.Patterns;
+using _Project.Code.Gameplay.Market.Quota;
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.Code.Utilities.ServiceLocator;
 using _Project.Code.Utilities.Singletons;
@@ -6,14 +8,21 @@ using UnityEngine;
 
 namespace _Project.Code.Gameplay.Market.Sell
 {
-    public class EconomyManager : MonoBehaviourService
+    public class EconomyManager : NetworkSingleton<EconomyManager>
     {
         [SerializeField] private BaseMarketSO BaseMarketSO;
         [SerializeField] private ScienceToMoneySO _scienceToMoneySO;
-        void Awake()
+        protected override bool AutoSpawn => false;
+        public override void OnNetworkSpawn()
         {
-            ServiceLocator.Register<EconomyManager>(this);
+            base.OnNetworkSpawn();
+            if (IsServer)
+            {
+                // Force the object to NOT be destroyed when the scene unloads.
+                NetworkObject.DestroyWithScene = false;
+            }
         }
+
         public SampleMarketValue GetMarketValue(ScienceData itemData)
         {
             MarketData marketData = BaseMarketSO.GetItemData(itemData.KeyName);
