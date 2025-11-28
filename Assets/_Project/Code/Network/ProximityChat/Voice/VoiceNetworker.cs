@@ -50,7 +50,15 @@ namespace _Project.Code.Network.ProximityChat.Voice
                  _voiceEmitter.SetVolume(0f);*/
 
             StartCoroutine(WaitToInitEmitter());
+          
+           StartRecording();
+            
         }
+       public override void OnNetworkDespawn()
+        {
+            StopAllCoroutines();
+        }
+
         private IEnumerator WaitToInitEmitter()
         {
             yield return null;
@@ -71,11 +79,11 @@ namespace _Project.Code.Network.ProximityChat.Voice
         [ClientRpc]
         public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData, ulong senderID)
         {
-            if (senderID == NetworkManager.Singleton.LocalClientId)
+         /*   if (senderID == NetworkManager.Singleton.LocalClientId)
             {
                 return;
             }
-
+*/
             bool shouldPlay = false;
             if (IsOwner)
             {
@@ -184,7 +192,7 @@ namespace _Project.Code.Network.ProximityChat.Voice
             if (IsOwner && !_playbackOwnVoice) return;
             _voiceEmitter.SetVolume(volume);
         }
-        void Update()
+      /*  void Update()
         {
             if (!IsOwner) return;
 
@@ -199,7 +207,7 @@ namespace _Project.Code.Network.ProximityChat.Voice
                // Debug.Log("[VoiceNetwork] 📴 StopRecording by key release");
                 StopRecording();
             }
-        }
+        }*/
         void LateUpdate()
         {
             if (!IsOwner) return;
