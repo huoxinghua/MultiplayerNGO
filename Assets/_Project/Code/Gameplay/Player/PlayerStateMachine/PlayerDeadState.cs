@@ -26,11 +26,12 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
             if (stateController.CharacterController != null)
                 stateController.CharacterController.enabled = false;
-            if (netObject != null && netObject.IsSpawned)
-                netObject.Despawn(true);
+        
             CurrentPlayers.Instance?.RemovePlayer(stateController.gameObject);
             PlayerStateMachine.AllPlayers.Remove(stateController);
-
+            
+            if (netObject != null && netObject.IsSpawned)
+                netObject.Despawn(true);
             bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
 
 

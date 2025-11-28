@@ -44,6 +44,7 @@ namespace _Project.Code.Gameplay.Player.PlayerHealth
             if (sm != null)
             {
                 sm.TransitionTo(sm.DeadState);
+               
             }
             HandleDeathClientRpc(deadClientId);
         }

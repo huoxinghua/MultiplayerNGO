@@ -39,11 +39,9 @@ namespace _Project.Code.Network.GameManagers
         }
         public void OnPlayerDied(ulong deadClientId)
         {
-
             if (!IsServer)
                 return;
-
-    
+            
             if (AlivePlayers.Contains(deadClientId))
                 AlivePlayers.Remove(deadClientId);
 
