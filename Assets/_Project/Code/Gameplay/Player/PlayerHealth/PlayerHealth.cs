@@ -37,23 +37,25 @@ namespace _Project.Code.Gameplay.Player.PlayerHealth
             if (_isDead.Value) return;
             
             _isDead.Value = true;
-           
+        
             var sm = GetComponent<PlayerStateMachine.PlayerStateMachine>();
-            PlayerListManager.Instance.OnPlayerDied(sm);
+            ulong deadClientId = OwnerClientId;
+            PlayerListManager.Instance.OnPlayerDied(deadClientId);
             if (sm != null)
             {
                 sm.TransitionTo(sm.DeadState);
             }
-            HandleDeathClientRpc();
+            HandleDeathClientRpc(deadClientId);
         }
 
         [ClientRpc]
-        private void HandleDeathClientRpc()
+        private void HandleDeathClientRpc(ulong deadClientId)
         {
-            if (IsServer)
+            if (NetworkManager.Singleton.LocalClientId != deadClientId)
                 return;
 
             var sm = GetComponent<PlayerStateMachine.PlayerStateMachine>();
+
             if (sm != null)
                 sm.TransitionTo(sm.DeadState);
         }

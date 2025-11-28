@@ -71,7 +71,6 @@ namespace _Project.Code.Network.GameManagers
         
         public void EnterSpectatorMode( )
         {
-            
             if (_input != null)
             {
                 _input.OnSpectatorLookInput -= Look;
@@ -86,13 +85,24 @@ namespace _Project.Code.Network.GameManagers
             {
                 return;
             }
-            foreach (var player in PlayerListManager.Instance._alivePlayersObj) 
-            { if (player == null) continue;
-                if (!player.gameObject.activeInHierarchy) continue;
-                if (!player.TryGetComponent<NetworkObject>(out var netObj)) continue;
-                if (!netObj.IsSpawned) continue;
-                _aliveHeads.Add(player.transform); 
-                Debug.Log($"Added alive player: {player.name}, clientId={netObj.OwnerClientId}"); 
+            foreach (ulong clientId in PlayerListManager.Instance.AlivePlayers)
+            {
+           
+                if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client))
+                    continue;
+
+                var playerObj = client.PlayerObject;
+                if (playerObj == null)
+                    continue;
+
+                var sm = playerObj.GetComponent<PlayerStateMachine>();
+                if (sm == null)
+                    continue;
+
+               
+                _aliveHeads.Add(sm.transform);
+
+                Debug.Log($"[Spectator] Added alive player: {playerObj.name}, clientId={clientId}");
             }
       
             _input.EnableSpectatorInput();
