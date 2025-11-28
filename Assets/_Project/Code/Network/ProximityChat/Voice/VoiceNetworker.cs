@@ -79,11 +79,11 @@ namespace _Project.Code.Network.ProximityChat.Voice
         [ClientRpc]
         public void SendEncodedVoiceClientRpc(byte[] encodedVoiceData, ulong senderID)
         {
-         /*   if (senderID == NetworkManager.Singleton.LocalClientId)
+            if (senderID == NetworkManager.Singleton.LocalClientId)
             {
                 return;
             }
-*/
+
             bool shouldPlay = false;
             if (IsOwner)
             {
