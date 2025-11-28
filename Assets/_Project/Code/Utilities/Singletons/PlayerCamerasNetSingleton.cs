@@ -15,7 +15,12 @@ namespace _Project.Code.Utilities.Singletons
         {
             PlayerCamerasNetList.Add(cameraNetRef);
         }
-        
+
+        private void OnEnable()
+        {
+            RequestClearCameraListServerRpc();
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void RequestRemovePlayerCamServerRpc(NetworkObjectReference cameraNetRef)
         {
