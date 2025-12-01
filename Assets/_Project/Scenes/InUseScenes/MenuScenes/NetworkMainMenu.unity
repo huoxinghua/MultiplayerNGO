@@ -240,6 +240,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[QuotaManager]'
       objectReference: {fileID: 0}
+    - target: {fileID: 7624379537508974993, guid: 03affb6b32fc3e6489bd82b1730a7623, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -347,6 +351,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1524392862}
+    - target: {fileID: 7803430483403420705, guid: dbcc47a424d521e44bb96627d1f34450, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ClickSinglePlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7803430483403420705, guid: dbcc47a424d521e44bb96627d1f34450, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: _Project.Code.Network.UI.HostUIManager, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1027,6 +1039,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1524392862}
+    - target: {fileID: 7803430483403420705, guid: dbcc47a424d521e44bb96627d1f34450, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: QuitGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 7803430483403420705, guid: dbcc47a424d521e44bb96627d1f34450, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: _Project.Code.Network.UI.HostUIManager, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1414,7 +1434,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1249062666}
   m_HandleRect: {fileID: 1249062665}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1673,8 +1693,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 148461930}
   m_HandleRect: {fileID: 148461929}
   m_Direction: 2
-  m_Value: 1.0000008
-  m_Size: 0.6100001
+  m_Value: 1.0000031
+  m_Size: 0.60999995
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4664,7 +4684,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -141.49995, y: 91.49987}
+  m_AnchoredPosition: {x: -141.49992, y: 91.49998}
   m_SizeDelta: {x: 184, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1907089401

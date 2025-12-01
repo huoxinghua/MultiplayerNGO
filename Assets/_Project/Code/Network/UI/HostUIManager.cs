@@ -1,8 +1,10 @@
 using _Project.Code.Core.Patterns;
+using _Project.Code.Network.GameManagers;
 using _Project.Code.Network.SteamWork;
 using Steamworks;
 using Steamworks.NET;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -51,6 +53,24 @@ namespace _Project.Code.Network.UI
         public void ShowMultiplayerOption()
         {
             _multiplayerOption.SetActive(true);
+        }
+        public void ClickSinglePlayer()
+        {
+            var netManager = NetworkManager.Singleton;
+            if (netManager == null)
+            {
+                return;
+            }
+
+            if (!netManager.IsListening)
+            {
+                if (!netManager.StartHost())
+                {
+                    return;
+                }
+            }
+
+            GameFlowManager.Instance.LoadScene(GameFlowManager.SceneName.HubScene);
         }
 
         public void ShowHostOption()
