@@ -87,6 +87,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             SpawnViolent(point);
 
             SpawnTranquil(point);
+            SpawnHorror(point);
 
 
             SpawnAttemptTimer = new Timer(SpawnData.SpawnAttemptRate);

@@ -33,6 +33,7 @@ namespace _Project.Code.Network.SteamWork
         public static Dictionary<CSteamID, string> LobbyLists = new Dictionary<CSteamID, string>();
 
         [SerializeField] private string _sceneName;
+        [SerializeField] private int _maxMembers = 4;
 
         private void Awake()
         {
@@ -162,10 +163,11 @@ namespace _Project.Code.Network.SteamWork
             SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
         }
 
+    
         public void CreateFriendOnlyLobby()
         {
             Debug.Log("Creat friend only Lobby");
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, _maxMembers);
             _lastLobbyType = ELobbyType.k_ELobbyTypeFriendsOnly;
         }
 
@@ -173,7 +175,7 @@ namespace _Project.Code.Network.SteamWork
         {
             Debug.Log("Creat private Lobby");
 
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 4);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 1);
         }
 
         public void ClickHostPublic()
