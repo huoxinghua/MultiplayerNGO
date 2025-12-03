@@ -30,12 +30,15 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             cam.enabled = false;
             CurrentPlayers.Instance?.RemovePlayer(stateController.gameObject);
             PlayerStateMachine.AllPlayers.Remove(stateController);
-            
-            if (netObject != null && netObject.IsSpawned)
-                netObject.Despawn(true);
             bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
-
-
+            if (netObject != null && netObject.IsSpawned)
+            {
+                if (isServer)
+                {
+                    netObject.Despawn(true);
+                }
+            }
+            
             if (!isOwner)
                 return;
             

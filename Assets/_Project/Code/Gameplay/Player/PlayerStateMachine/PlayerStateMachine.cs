@@ -7,10 +7,12 @@ using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.RefactorInventory; // Added for Inventory reference
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
-using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using Unity.Netcode;
 using _Project.Code.Network.GameManagers;
+using NUnit.Framework;
+using Unity.VisualScripting;
+using Timer = _Project.Code.Utilities.Utility.Timer;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 {
@@ -52,7 +54,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public bool CanJump => GroundChecker.IsGrounded || GroundChecker.CoyoteTime < PlayerSO.CoyoteTime;
 
         public Vector3 VerticalVelocity;
-
+        //if player fall of the level will die 
+        private float _safePositionY;
+        [SerializeField] private float fallOffset = 20f; 
+        [SerializeField] private int maxFallDamage = 1000000;
         public bool JumpRequested { get; set; } = false;
 
         //needs to be changed in children. Is this an acceptable way to do so?
@@ -189,6 +194,17 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             GameFlowManager.Instance.HideLoadMenu();
             CharacterController.enabled = true;
             TransitionTo(IdleState);
+            _safePositionY = transform.position.y;
+        }
+
+        private void CheckPlayerSafePosition()
+        {
+            if (transform.position.y <_safePositionY-20f)
+            {
+                var health = GetComponent<PlayerHealth.PlayerHealth>();
+          
+                    health.TakeDamage(1000000);
+            }
         }
 
         private IEnumerator EnablePlayerController(CharacterController con)
@@ -244,6 +260,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             currentState?.StateUpdate();
             SmoothCameraTransition();
         }
+
+       
 
         void DebugDrawSphereCast(Vector3 origin, float radius, Vector3 direction, float distance, Color color)
         {
@@ -304,6 +322,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         void FixedUpdate()
         {
             currentState?.StateFixedUpdate();
+            CheckPlayerSafePosition();
         }
     }
 }
