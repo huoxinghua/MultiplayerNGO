@@ -1,79 +1,233 @@
+using System.Collections.Generic;
+using _Project.Code.Core.Patterns;
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
+using _Project.Code.Gameplay.EnemySpawning;
+using _Project.Code.Gameplay.Player.PlayerStateMachine;
+using _Project.Code.Network.RegisterNetObj;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
-    public class EnemySpawnManager : MonoBehaviour
+    public class EnemySpawnManager : NetworkSingleton<EnemySpawnManager>
     {
         private Timer _enemySpawnDelay;
         [field: SerializeField] public EnemyPrefabsSO EnemyPrefabs { get; private set; }
         [field: SerializeField] public SpawnDataSO SpawnData { get; private set; }
+        private readonly HashSet<NetworkObject> _aliveEnemies = new();
+        private readonly HashSet<NetworkObject> _aliveEnemiesRelatedObjs = new();
 
-        private void Awake()
+        public override void OnNetworkSpawn()
         {
+            if (!IsServer) return;
             _enemySpawnDelay = new Timer(SpawnData.BaseRandomTimeBetweenSpawns);
+            _enemySpawnDelay.Start();
+            var points = EnemySpawnPoints.Instance.ActiveEnemySpawnPoints;
+            if (points.Count == 0)
+            {
+                Debug.LogWarning("[EnemySpawnManager] OnNetworkSpawn: no spawn points");
+                return;
+            }
 
+            int idx = Random.Range(0, points.Count);
+            SpawnViolent(points[idx]);
+
+            idx = Random.Range(0, points.Count);
+            SpawnTranquil(points[idx]);
         }
-        private void Start()
+
+        private bool IsPointSafe(EnemySpawnPoint sp)
         {
-            int randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
-            SpawnViolent(randomSpawnPoint);
-            randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
-            SpawnTranquil(randomSpawnPoint);
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                var playerObj = client.PlayerObject;
+                if (playerObj == null) continue;
+
+                var pNet = playerObj.GetComponent<PlayerNetworkPos>();
+                if (pNet == null) continue;
+
+                float distance = Vector3.Distance(sp.transform.position, pNet.ServerPosition.Value);
+
+                if (distance <= sp.SafeDistance)
+                    return false;
+            }
+            return true;
         }
+
         private void Update()
         {
+            if (!IsServer) return;
+            if (_enemySpawnDelay == null) return;
             _enemySpawnDelay.TimerUpdate(Time.deltaTime);
             if (_enemySpawnDelay.IsComplete)
             {
                 StartSpawn();
-                _enemySpawnDelay.Reset(SpawnData.BaseRandomTimeBetweenSpawns);
+                _enemySpawnDelay.Reset(
+                    Random.Range(SpawnData.BaseMinTimeBetweenSpawns,
+                        SpawnData.BaseMaxTimeBetweenSpawns));
             }
         }
+
         //currently just spawns tranquil. Fix and add random chance of each
         public void StartSpawn()
         {
-            for (int i = 0; i < EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count / 2; i++)
+            if (!IsServer) return;
+            if (_aliveEnemies.Count >= SpawnData.MaxTotalEnemies)
             {
-                int randomSpawnPoint = Random.Range(0, EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count);
-                if (EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[randomSpawnPoint].CanSpawnEnemy())
-                {
-                    RandomEnemySelection(randomSpawnPoint);
-                    break;
-                }
+                Debug.Log("[EnemySpawnManager] Enemy cap reached.");
+                return;
+            }
+            var allPoints = EnemySpawnPoints.Instance.ActiveEnemySpawnPoints;
+
+            if (allPoints.Count == 0)
+            {
+                Debug.LogWarning("[EnemySpawnManager] No spawn points at all!");
+                return;
+            }
+
+            List<EnemySpawnPoint> candidates = new List<EnemySpawnPoint>();
+
+            foreach (var sp in allPoints)
+            {
+                if (IsPointSafe(sp))
+                    candidates.Add(sp);
+            }
+
+            if (candidates.Count == 0)
+            {
+                Debug.Log("[EnemySpawnManager] No valid spawn points near players.");
+                return;
+            }
+
+            int spawnCount = Random.Range(SpawnData.MinSpawnPerWave,SpawnData.MaxSpawnPerWave);
+
+            for (int i = 0; i < spawnCount; i++)
+            {
+                int idx = Random.Range(0, candidates.Count);
+
+                RandomEnemySelection(candidates[idx]);
             }
         }
-        public void SpawnTranquil(int spawnPoint)
+
+        public void SpawnTranquil(EnemySpawnPoint spawnPoint)
         {
+            if (!IsServer) return;
             if (EnemyPrefabs.TranquilPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.TranquilPrefabs.Count);
-            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex]);
+            DoSpawnEnemy(EnemyPrefabs.TranquilPrefabs[enemyIndex], spawnPoint);
         }
-        public void SpawnViolent(int spawnPoint)
+
+        public void SpawnViolent(EnemySpawnPoint spawnPoint)
         {
+            if (!IsServer) return;
             if (EnemyPrefabs.ViolentPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.ViolentPrefabs.Count);
-            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex]);
+            DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex], spawnPoint);
         }
-        public void SpawnHorror(int spawnPoint)
+
+        public void SpawnHorror(EnemySpawnPoint spawnPoint)
         {
+            if (!IsServer) return;
             if (EnemyPrefabs.HorrorPrefabs.Count < 1) return;
             int enemyIndex = Random.Range(0, EnemyPrefabs.HorrorPrefabs.Count);
-            EnemySpawnPoints.Instance.ActiveEnemySpawnPoints[spawnPoint].DoSpawnEnemy(EnemyPrefabs.HorrorPrefabs[enemyIndex]);
+            DoSpawnEnemy(EnemyPrefabs.HorrorPrefabs[enemyIndex], spawnPoint);
         }
-        private void RandomEnemySelection(int spawnPoint)
+
+        private void DoSpawnEnemy(GameObject enemyPF, EnemySpawnPoint spawnPoint)
+        {
+            if (!IsServer) return;
+
+            if (enemyPF == null)
+            {
+                Debug.LogError("[EnemySpawnManager] DoSpawnEnemy called with null enemyPF");
+                return;
+            }
+
+            if (spawnPoint == null)
+            {
+                Debug.LogError("[EnemySpawnManager] DoSpawnEnemy called with null spawnPoint");
+                return;
+            }
+
+            var spawnTransform = spawnPoint.GetSpawnPoint();
+            Vector3 pos = spawnTransform.position;
+            Quaternion rot = spawnTransform.rotation;
+
+            NetworkPrefabRuntimeRegistry.EnsurePrefabRegistered(enemyPF);
+
+            GameObject temp = Object.Instantiate(enemyPF, pos, rot);
+
+            var netObj = temp.GetComponent<NetworkObject>();
+            if (netObj == null)
+            {
+                Debug.LogError("[EnemySpawnManager] Enemy prefab is missing NetworkObject component!");
+                Object.Destroy(temp);
+                return;
+            }
+
+            netObj.Spawn();
+            _aliveEnemies.Add(netObj); 
+            // handle the remove
+        }
+
+        private void RandomEnemySelection(EnemySpawnPoint sp)
         {
             float totalWeight = SpawnData.TranquilRandWeight + SpawnData.ViolentRandWeight + SpawnData.HorrorWeight;
-
             float randomValue = Random.value * totalWeight;
 
             if (randomValue < SpawnData.TranquilRandWeight)
-                SpawnTranquil(spawnPoint);
+            {
+                SpawnTranquil(sp);
+                
+            }
+              
             else if (randomValue < SpawnData.TranquilRandWeight + SpawnData.ViolentRandWeight)
-                SpawnViolent(spawnPoint);
+            {
+                SpawnViolent(sp);
+            }
+
             else
-                SpawnHorror(spawnPoint);
+            {
+                SpawnHorror(sp);
+            }
+             
+        }
+        public void DespawnAllEnemies()
+        {
+            if (!IsServer) return;
+
+            foreach (var enemy in _aliveEnemies)
+            {
+                if (enemy != null && enemy.IsSpawned)
+                {
+                    enemy.Despawn(true); 
+                }
+            }
+
+            _aliveEnemies.Clear();
+            
+            foreach (var relatedObj in _aliveEnemiesRelatedObjs)
+            {
+                if (relatedObj != null && relatedObj.IsSpawned)
+                {
+                    relatedObj.Despawn(true);
+                }
+            }
+
+            _aliveEnemiesRelatedObjs.Clear();
+        }
+
+        public void RegisterEnemyRelatedObject(NetworkObject netObject)
+        {
+            if (!IsServer || netObject == null) return;
+            _aliveEnemiesRelatedObjs.Add(netObject);
+        }
+
+        public void UnregisterEnemyRelatedObject(NetworkObject netObject)
+        {
+            if (!IsServer || netObject == null) return;
+            _aliveEnemiesRelatedObjs.Remove(netObject);
         }
     }
 }

@@ -7,6 +7,9 @@ namespace _Project.Code.Gameplay.EnemySpawning
     {
         [field: SerializeField] public float BaseMaxTimeBetweenSpawns {  get; private set; }
         [field: SerializeField] public float BaseMinTimeBetweenSpawns { get; private set; }
+        [field: SerializeField]  public int MinSpawnPerWave { get; private set; }
+        [field: SerializeField]    public int MaxSpawnPerWave { get; private set; }
+        [field: SerializeField]    public int MaxTotalEnemies { get; private set; }
         public float BaseRandomTimeBetweenSpawns => Random.Range(BaseMinTimeBetweenSpawns, BaseMaxTimeBetweenSpawns);
 
         [field: SerializeField] public float TranquilRandWeight { get; private set; }

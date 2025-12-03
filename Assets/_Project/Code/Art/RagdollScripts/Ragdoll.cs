@@ -1,3 +1,5 @@
+using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace _Project.Code.Art.RagdollScripts
@@ -10,6 +12,7 @@ namespace _Project.Code.Art.RagdollScripts
         private Rigidbody[] jointRBs;
         private Collider[] jointColls;
         private Animator animator;
+        public ulong ParentId { get; private set; }
     
 
         private void Awake()
@@ -21,12 +24,33 @@ namespace _Project.Code.Art.RagdollScripts
             jointColls = ragdollRoot.GetComponentsInChildren<Collider>();
             if (RagdollEneble) EnableRagdoll();
             else EnableAnimator();
+            
+            
         }
-
         private void Start()
         {
-        
+            StartCoroutine(WaitForNetworkObject());
         }
+
+        private IEnumerator WaitForNetworkObject()
+        {
+            yield return new WaitUntil(() =>
+            {
+                var netObj = GetComponentInParent<NetworkObject>();
+                return netObj != null && netObj.NetworkObjectId != 0;
+            });
+
+            var parentNetObj = GetComponentInParent<NetworkObject>();
+            if (parentNetObj != null)
+            {
+                ParentId = parentNetObj.NetworkObjectId;
+            }
+            else
+            {
+                Debug.Log("[Ragdoll] Still no parent NetworkObject found after waiting");
+            }
+        }
+        
 
         public void EnableRagdoll()
         {

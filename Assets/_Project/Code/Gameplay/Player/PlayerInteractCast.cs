@@ -69,8 +69,6 @@ namespace _Project.Code.Gameplay.Player
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, interactDist, lM, QueryTriggerInteraction.Collide))
             {
                 GameObject hitRoot = hit.collider.transform.gameObject;
-                //  Debug.DrawRay(cameraTransform.position, transform.forward * interactDist, Color.red);
-                //Debug.Log("Raycast hit: " + hit.transform.name);
                 // Only update cache if the target changes
                 if (hitRoot != currentTarget)
                 {
@@ -110,7 +108,7 @@ namespace _Project.Code.Gameplay.Player
         }
         public void AttemptInteract()
         {
-            Debug.Log("[playerinteractCast]Try to hit");
+                Debug.Log("[playerinteractCast]Try to hit");
             RaycastHit hit;
 
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
@@ -118,14 +116,6 @@ namespace _Project.Code.Gameplay.Player
                 Debug.Log("AttemptInteract:" + hit.collider.gameObject.name);
                 if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
                 {
-                    if (hit.collider.transform.gameObject.GetComponent<IInOutDoor>() != null)
-                    {
-                        IInOutDoor temp = hit.collider.transform.gameObject.GetComponent<IInOutDoor>();
-                        inOutTransform = temp.UseDoor();
-                        timeToInteract = temp.GetTimeToOpen();
-                        isHolding = true;
-                        startInteractPos = playerObj.transform.position;
-                    }
                     lastInteracted = hit.transform.gameObject;
                     hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
                 }

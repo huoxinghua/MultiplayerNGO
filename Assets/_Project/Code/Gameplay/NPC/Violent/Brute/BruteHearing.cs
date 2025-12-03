@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
 {
-    public class BruteHearing : MonoBehaviour
+    public class BruteHearing : NetworkBehaviour
     {
         [SerializeField] BruteSO _bruteSO;
         //  [SerializeField] BruteStateController _stateController;
@@ -23,9 +25,10 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         //private HashSet<PlayerMovement> _subscribedPlayers = new();
         private HashSet<PlayerStateMachine> _subscribedPlayers = new();
         [SerializeField] BruteStateMachine _stateMachine;
-
+        public static readonly List<BruteHearing> AllBrutes = new();
         void OnEnable()
         {
+            AllBrutes.Add(this);
             PlayerStateMachine.OnPlayerAdded += HandlePlayerAdded;
             PlayerStateMachine.OnPlayerRemoved += HandlePlayerRemoved;
 
@@ -47,6 +50,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         }
         void OnDisable()
         {
+            AllBrutes.Remove(this);
             PlayerStateMachine.OnPlayerAdded -= HandlePlayerAdded;
             PlayerStateMachine.OnPlayerRemoved -= HandlePlayerRemoved;
 
@@ -113,5 +117,30 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             yield return new WaitForSeconds(_hearingCooldownTime);
             _isOnHearingCooldown = false;
         }
+        /// <summary>
+        /// Server-side perception broadcast for all Brute instances.
+        /// Invoked when a player produces an audible event.
+        /// </summary>
+        public static void ProcessSound(Vector3 soundPos, float range, PlayerStateMachine psm)
+        {
+            foreach (var brute in AllBrutes)
+            {
+                if (!brute.IsServer) continue;
+
+                float dist = Vector3.Distance(brute.transform.position, soundPos);
+
+                if (dist <= range)
+                {
+                    brute._stateMachine.OnHearPlayer(psm.gameObject);
+                }
+            }
+        }
+    }
+    
+    public struct AlertingSound : IEvent
+    {
+        public float SoundRange;
+        public Transform SoundSource;
+        public bool WasPlayerSound;
     }
 }

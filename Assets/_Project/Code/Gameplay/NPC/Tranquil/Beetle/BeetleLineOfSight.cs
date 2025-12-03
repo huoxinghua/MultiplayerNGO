@@ -15,7 +15,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         [SerializeField] LayerMask viewCastLayerMask;
         [SerializeField] BeetleHealth beetleHealthScript;
         public BeetleStateMachine StateMachine { get; private set; }
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
+
         void Start()
         {
             StartCoroutine(PeriodicCheckFOV());
@@ -25,11 +25,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             StateMachine = GetComponent<BeetleStateMachine>();
         }
 
-        // Update is called once per frame
-        void FixedUpdate()
-        {
-
-        }
         public void OnDeath()
         {
             StopAllCoroutines();
@@ -68,7 +63,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
         private void CheckFOV()
         {
-            //  Debug.Log("Checking");
             foreach (var player in players)
             {
                 if (InFOV(player) && HasLineOfSight(player))
@@ -120,7 +114,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         private bool HasLineOfSight(GameObject player)
         {
             Vector3 dirToTarget = ((player.transform.position + new Vector3(0, 0.5f, 0)) - transform.position).normalized;
-            //  Debug.DrawRay(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget * viewDistance, Color.red, 1f);
+            
             if (Physics.Raycast(transform.position + new Vector3(0, eyeOffset, 0), dirToTarget, out RaycastHit hit, viewDistance, ~viewCastLayerMask))
             {
                 if (hit.transform.gameObject == player)

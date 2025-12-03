@@ -1,0 +1,72 @@
+using System.Collections.Generic;
+using _Project.Code.Gameplay.Interactables;
+using _Project.Code.Gameplay.Interactables.Network;
+using DunGen;
+using Unity.Netcode;
+using UnityEngine;
+
+namespace _Project.Code.Network.Level
+{
+    public class ManualGenerate : NetworkBehaviour
+    {
+        private readonly List<NetworkObject> serverDoors = new List<NetworkObject>();
+        private RuntimeDungeon generator;
+        private void Start()
+        {
+            generator = GetComponent<RuntimeDungeon>();
+        }
+        
+        private NetworkVariable<int> syncedSeed = new NetworkVariable<int>(
+            default,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
+
+        public override void OnNetworkSpawn()
+        {
+            if (generator == null)
+                generator = GetComponent<RuntimeDungeon>();
+            
+            if (IsServer)
+            {
+                int seed = Random.Range(0, int.MaxValue);
+                syncedSeed.Value = seed;
+                generator.Generator.ShouldRandomizeSeed = false;
+                generator.Generator.Seed = seed;
+                generator.Generate();
+           
+                OnDungeonGenerated(generator);
+            }
+            else
+            {
+                syncedSeed.OnValueChanged += OnSeedReceived;
+                if (syncedSeed.Value != default)
+                {
+                    OnSeedReceived(default, syncedSeed.Value);
+                }
+            }
+        }
+
+        private void OnSeedReceived(int oldSeed, int newSeed)
+        {
+            ClearOldDungeonTiles();
+
+            generator.Generator.ShouldRandomizeSeed = false;
+            generator.Generator.Seed = newSeed;
+            generator.Generate();
+        }
+
+        private void ClearOldDungeonTiles()
+        {
+            var oldTiles = GameObject.FindGameObjectsWithTag("DungeonTile");
+            foreach (var t in oldTiles)
+                Destroy(t);
+        }
+
+        void OnDungeonGenerated(RuntimeDungeon dungeon)
+        {
+            GetComponent<DoorwayNetworkSpawner>().SpawnDoors(generator);
+            
+        }
+    }
+}

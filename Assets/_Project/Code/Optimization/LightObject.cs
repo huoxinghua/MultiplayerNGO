@@ -17,14 +17,14 @@ namespace _Project.Code.Optimization
 
         public void SetActive(bool active)
         {
-            if(active == false)
+            /*if(active == false)
             {
                 Debug.Log("Deactive");
             }
             else
             {
                 Debug.Log("Active");
-            }
+            }*/
             LightComponent.enabled = active;
         }
     }

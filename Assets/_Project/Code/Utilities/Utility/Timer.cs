@@ -49,5 +49,15 @@ namespace _Project.Code.Utilities.Utility
                 _running = false;
             }
         }
+
+        /// <summary>
+        /// Forces the timer to complete immediately (sets elapsed to duration).
+        /// Useful for initializing items so they can be used right away.
+        /// </summary>
+        public void ForceComplete()
+        {
+            _elapsed = _duration;
+            _running = false;
+        }
     }
 }

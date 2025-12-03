@@ -1,65 +1,154 @@
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Utilities.Audio;
-using _Project.Code.Utilities.Utility;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.BaseballBat;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
+    /// <summary>
+    /// Clean Rewrite: Baseball bat melee weapon.
+    /// Performs sphere cast attack on use, deals damage and knockout to enemies.
+    /// </summary>
     public class BaseballBatItem : BaseInventoryItem
     {
+        #region Initialization
 
-        private Timer _attackCooldownTimer = new Timer(1);
-        private bool _canAttack = true;
-        private float attackTime = 2f;
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            // Base class handles all callback registration
+        }
+
+        #endregion
+
+        #region Position Update
+
+        /// <summary>
+        /// Manually locks item position to hold transform.
+        /// Called every frame when owner is holding the item.
+        /// This is an alternative to parenting (which can cause NetworkTransform issues).
+        /// </summary>
         private void Update()
         {
-            if (_hasOwner)
-            {
-                transform.localPosition = Vector3.zero;
-                transform.localRotation = Quaternion.Euler(0, 0, 0);
-            }
-            _attackCooldownTimer.TimerUpdate(Time.deltaTime);
-            if (_attackCooldownTimer.IsComplete)
-            {
-                _canAttack = true;
-            }
+            if (!IsOwner) return;
+            UpdateHeldPosition();
         }
-        void PerformMeleeAttack()
-        {
-            if (_itemSO is BaseballBatItemSO _baseballBatSO)
-            {
-                LayerMask enemyLayer = LayerMask.GetMask("Enemy");
 
-                Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward
-                    * _baseballBatSO.AttackDistance * 0.5f, _baseballBatSO.AttackRadius, enemyLayer);
-                if (hitEnemies.Length > 0)
+        #endregion
+
+        #region Item Usage - Melee Attack
+
+        protected override void ExecuteUsageLogic()
+        {
+            RequestAttackServerRpc();
+        }
+
+        /// <summary>
+        /// SERVER-ONLY: Executes melee attack on server.
+        /// Sphere casts for enemies, deals damage, plays audio.
+        /// </summary>
+        [ServerRpc]
+        private void RequestAttackServerRpc()
+        {
+            PerformMeleeAttack();
+        }
+
+        /// <summary>
+        /// SERVER-ONLY: Performs the actual melee attack logic.
+        /// Virtual to allow child classes (Machete, SledgeHammer) to override.
+        /// </summary>
+        protected virtual void PerformMeleeAttack()
+        {
+            // Validate we have baseball bat SO
+            if (_itemSO is not BaseballBatItemSO baseballBatSO)
+            {
+                Debug.LogWarning("[BaseballBatItem] ItemSO is not BaseballBatItemSO");
+                return;
+            }
+
+            // Validate owner exists (server-only field)
+            if (_owner == null)
+            {
+                Debug.LogWarning("[BaseballBatItem] Owner is null when attacking");
+                return;
+            }
+
+            // Sphere cast for enemies
+            Vector3 origin = _owner.transform.position + _owner.transform.forward * baseballBatSO.AttackRadius;
+            Collider[] hitEnemies = Physics.OverlapSphere(
+                origin,
+                baseballBatSO.AttackRadius,
+                LayerMask.GetMask("Enemy"));
+
+            // Play hit sound if any enemies hit
+            if (hitEnemies.Length > 0)
+            {
+                AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
+            }
+
+            // Get attacker NetworkObject reference for damage attribution
+            NetworkObject attackerNetObj = _owner.GetComponent<NetworkObject>();
+            if (attackerNetObj == null)
+            {
+                Debug.LogWarning("[BaseballBatItem] Owner has no NetworkObject component");
+                return;
+            }
+
+            // Deal damage to all hit enemies
+            foreach (Collider enemyCollider in hitEnemies)
+            {
+                // Get enemy's NetworkObject (might be on parent)
+                NetworkObject enemyNetObj = enemyCollider.GetComponentInParent<NetworkObject>();
+                if (enemyNetObj == null)
                 {
-                    //play hit sound??
-                    //Debug.Log("?A?DA?");
-                    AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
+                    Debug.LogWarning($"[BaseballBatItem] {enemyCollider.name} missing NetworkObject");
+                    continue;
                 }
 
-                foreach (Collider enemy in hitEnemies)
+                // Get enemy's IHitable interface
+                IHitable hittable = enemyNetObj.GetComponent<IHitable>();
+                if (hittable == null)
                 {
-                    enemy.gameObject.GetComponent<IHitable>()?.OnHit(_owner,
-                        _baseballBatSO.Damage, _baseballBatSO.KnockoutPower);
-                    // Debug.Log(enemy.gameObject.name);
-                    //  enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage);
+                    Debug.LogWarning($"[BaseballBatItem] {enemyNetObj.name} missing IHitable component");
+                    continue;
+                }
+
+                // Deal damage (this is already on server, so call directly)
+                hittable.OnHit(attackerNetObj.gameObject, baseballBatSO.Damage, baseballBatSO.KnockoutPower);
+            }
+        }
+
+        /// <summary>
+        /// SERVER-ONLY: Helper method for child classes to deal damage to enemies.
+        /// Used by Machete and SledgeHammer which override PerformMeleeAttack.
+        /// </summary>
+        /// <param name="targetRef">Enemy NetworkObject reference</param>
+        /// <param name="attackerRef">Attacker NetworkObject reference</param>
+        /// <param name="damage">Damage amount</param>
+        /// <param name="knockout">Knockout power</param>
+        [ServerRpc(RequireOwnership = false)]
+        protected void RequestHitServerRpc(NetworkObjectReference targetRef, NetworkObjectReference attackerRef,
+            float damage, float knockout)
+        {
+            if (targetRef.TryGet(out NetworkObject targetObj))
+            {
+                var hittable = targetObj.GetComponent<IHitable>();
+                if (hittable != null)
+                {
+                    hittable.OnHit(attackerRef.TryGet(out var atk) ? atk.gameObject : null, damage, knockout);
+                }
+                else
+                {
+                    Debug.LogWarning($"[ServerRpc] {targetObj.name} missing IHitable!");
                 }
             }
-        }
-
-
-        public override void UseItem()
-        {
-            if (_canAttack)
+            else
             {
-                PerformMeleeAttack();
-                _attackCooldownTimer.Reset(attackTime);
-                _canAttack = false;
+                Debug.LogWarning("[ServerRpc] Failed to resolve target NetworkObjectReference");
             }
         }
 
+        #endregion
     }
 }

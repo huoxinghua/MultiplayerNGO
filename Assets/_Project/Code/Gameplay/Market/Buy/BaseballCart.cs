@@ -1,7 +1,7 @@
-using TMPro;
-using UnityEngine;
-
-public class BaseballCart : BaseCartItem
+namespace _Project.Code.Gameplay.Market.Buy
 {
+    public class BaseballCart : BaseCartItem
+    {
     
+    }
 }

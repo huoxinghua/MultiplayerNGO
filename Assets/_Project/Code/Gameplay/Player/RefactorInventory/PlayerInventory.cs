@@ -1,313 +1,768 @@
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Art.AnimationScripts.IK;
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.Code.Gameplay.Player.UsableItems;
+using _Project.Code.UI.Inventory;
+using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.UI;
 
 namespace _Project.Code.Gameplay.Player.RefactorInventory
 {
-    public class PlayerInventory : MonoBehaviour
+    /// <summary>
+    /// Clean Rewrite: Server-authoritative inventory system for multiplayer game.
+    /// Refactored to act as a Service controlled by PlayerStateMachine.
+    /// Does NOT handle input directly.
+    /// </summary>
+    public class PlayerInventory : NetworkBehaviour
     {
-        [SerializeField] public IInventoryItem[] InventoryItems = new IInventoryItem[5];
-        public IInventoryItem BigItemCarried { get; private set; }
-        [field: SerializeField] public int InventorySlots { get; private set; }
-        [field: SerializeField] public Transform HoldTransform { get; private set; }
-        [field: SerializeField] public Transform DropTransform { get; private set; }
+        #region Network State (Single Source of Truth)
+
+        /// <summary>
+        /// Server-authoritative inventory contents. Contains NetworkObjectReferences to items.
+        /// This is the SINGLE SOURCE OF TRUTH for inventory state.
+        /// </summary>
+        public NetworkList<NetworkObjectReference> InventoryNetworkRefs;
+
+        /// <summary>
+        /// Server-authoritative big item reference (non-pocketsize items held in hands).
+        /// </summary>
+        public NetworkVariable<NetworkObjectReference> InventoryNetworkBigItemRef =
+            new NetworkVariable<NetworkObjectReference>(
+                default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        /// <summary>
+        /// Server-authoritative currently equipped slot index (0-4).
+        /// </summary>
+        public NetworkVariable<int> NetworkCurrentIndex = new NetworkVariable<int>(
+            0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        #endregion
+
+        #region Local Cache (Rebuilt from Network State)
+
+        /// <summary>
+        /// Local cache of inventory items. Rebuilt from InventoryNetworkRefs in callbacks.
+        /// DO NOT MODIFY DIRECTLY - this is a cache only!
+        /// </summary>
+        public BaseInventoryItem[] InventoryItems = new BaseInventoryItem[5];
+
+        /// <summary>
+        /// Local cache of big item carried. Rebuilt from InventoryNetworkBigItemRef in callbacks.
+        /// DO NOT MODIFY DIRECTLY - this is a cache only!
+        /// </summary>
+        public BaseInventoryItem BigItemCarried { get; private set; }
+
+        /// <summary>
+        /// Local cache of current index. Rebuilt from NetworkCurrentIndex in callbacks.
+        /// DO NOT MODIFY DIRECTLY - this is a cache only!
+        /// </summary>
         private int _currentIndex;
-        [SerializeField] private PlayerInputManager _inputManager;
-        [field: SerializeField] public Image[] SlotDisplay { get; private set; } = new Image[5];
-        [field: SerializeField] public Image[] SlotBackground { get; private set; } = new Image[5];
-        [field: SerializeField] public Image EmptySlot { get; private set; }
-        private bool _handsFull => BigItemCarried != null;
-        public bool InventoryFull => IsInventoryFull();
-        public void Awake()
+
+        #endregion
+
+        #region Configuration & References
+
+        [Header("Inventory Configuration")] [SerializeField] [Tooltip("Number of inventory slots (should be 5)")]
+        private int InventorySlots = 5;
+
+        [Header("Transform References")] [SerializeField] [Tooltip("Transform on FPS model where items are parented")]
+        private Transform FPSItemParent;
+
+        [SerializeField] [Tooltip("Transform on TPS model where items are parented")]
+        private Transform TPSItemParent;
+
+        [SerializeField] [Tooltip("Transform where dropped items spawn")]
+        private Transform DropTransform;
+
+        [Header("Component References")] [SerializeField]
+        private PlayerAnimation PlayerAnimation;
+
+        [SerializeField] public PlayerIKData ThisPlayerIKData;
+
+        private PlayerStateMachine.PlayerStateMachine _playerStateMachine;
+
+        [Header("UI References")] [SerializeField]
+        private Image[] ItemUIDisplay = new Image[5];
+
+        [SerializeField] private Image[] SlotUIBackground = new Image[5];
+
+        #endregion
+
+        #region Constants
+
+        /// <summary>
+        /// Maximum distance player can be from item to pick it up (meters).
+        /// </summary>
+        private const float MAX_PICKUP_RANGE = 3f;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Returns true if player is holding a big item (non-pocketsize).
+        /// </summary>
+        private bool _handsFull
         {
-            _inputManager.OnNumPressed += HandlePressedSlot;
-
-
-            _inputManager.OnUse += UseItemInHand;
-            _inputManager.OnDropItem += DropItem;
-        }
-        public void OnDisable()
-        {
-            _inputManager.OnNumPressed -= HandlePressedSlot;
-
-
-            _inputManager.OnUse -= UseItemInHand;
-            _inputManager.OnDropItem -= DropItem;
-        }
-        public void ChangeUISlotDisplay()
-        {
-            for (int i = 0; i < InventoryItems.Length; i++)
+            get
             {
-                if (InventoryItems[i] == null)
+                // TryGet returns true if the reference is valid and the object is retrieved
+                if (InventoryNetworkBigItemRef.Value.TryGet(out Unity.Netcode.NetworkObject bigItemObj))
                 {
-                    SlotDisplay[i] = EmptySlot;
+                    // Return true only if the retrieved object contains the component
+                    return bigItemObj.GetComponentInChildren<BaseInventoryItem>() != null;
                 }
-                else
-                {
-                    SlotDisplay[i] = InventoryItems[i].GetUIImage();
-                }
+
+                // Return false if the reference was invalid or the object wasn't found
+                return false;
             }
-        }
-        public bool IsInventoryFull()
-        {
-            bool isFull = true;
-            for (int i = 0; i < InventoryItems.Length; i++)
-            {
-                if (InventoryItems[i] == null)
-                {
-                    isFull = false;
-                }
-            }
-            return isFull;
         }
 
         /// <summary>
-        /// Called by interact cast. When interacting with an item than can be picked up, this function checks if thats possible
+            /// Returns true if all 5 inventory slots are occupied.
+            /// </summary>
+            public bool InventoryFull => IsInventoryFull();
+
+        /// <summary>
+        /// Gets the FPS model's item parent transform.
         /// </summary>
-        /// <returns>True if possible to pickup, false if not</returns>
+        public Transform GetFPSItemParent() => FPSItemParent;
+
+        /// <summary>
+        /// Gets the TPS model's item parent transform.
+        /// </summary>
+        public Transform GetTPSItemParent() => TPSItemParent;
+
+        #endregion
+
+        #region Initialization
+
+        private void Awake()
+        {
+            // Initialize NetworkList in constructor-like method
+            InventoryNetworkRefs = new NetworkList<NetworkObjectReference>();
+
+            // Get references
+            _playerStateMachine = GetComponent<PlayerStateMachine.PlayerStateMachine>();
+
+            // Validate configuration
+            if (InventorySlots != 5)
+            {
+                Debug.LogError($"[PlayerInventory] InventorySlots must be 5, currently set to {InventorySlots}");
+            }
+
+            if (FPSItemParent == null || TPSItemParent == null || DropTransform == null)
+            {
+                Debug.LogError(
+                    "[PlayerInventory] FPSItemParent, TPSItemParent, or DropTransform not assigned in Inspector!");
+            }
+        }
+
+        private void Update()
+        {
+            if (!IsOwner) return;
+
+            var item = GetCurrentEquippedItem();
+            if (item == null) return;
+
+            bool isMoving = _playerStateMachine.CurrentMovement !=
+                            PlayerStateMachine.PlayerStateMachine.MovementContext.Idle;
+            bool isRunning = _playerStateMachine.CurrentMovement ==
+                             PlayerStateMachine.PlayerStateMachine.MovementContext.Running;
+
+            // item.NotifyMovementChanged(isMoving, isRunning);
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            // Server initializes inventory with empty slots
+            if (IsServer)
+            {
+                for (int i = 0; i < InventorySlots; i++)
+                {
+                    InventoryNetworkRefs.Add(default);
+                }
+
+                NetworkCurrentIndex.Value = 0;
+            }
+
+            // All clients register NetworkVariable callbacks
+            InventoryNetworkRefs.OnListChanged += HandleInventoryListChange;
+            NetworkCurrentIndex.OnValueChanged += HandleCurrentIndexChange;
+            InventoryNetworkBigItemRef.OnValueChanged += HandleBigItemChanged;
+
+            // Apply initial values for late joiners (these methods read network state)
+            HandleBigItemChanged(default, InventoryNetworkBigItemRef.Value);
+            HandleCurrentIndexChange(0, NetworkCurrentIndex.Value);
+            RebuildInventoryCache();
+        }
+
+        private void OnDisable()
+        {
+            // Unregister callbacks (good practice, though OnDestroy handles it mostly)
+            InventoryNetworkRefs.OnListChanged -= HandleInventoryListChange;
+            NetworkCurrentIndex.OnValueChanged -= HandleCurrentIndexChange;
+            InventoryNetworkBigItemRef.OnValueChanged -= HandleBigItemChanged;
+        }
+
+        #endregion
+
+        #region R1: Item Pickup
+
+        /// <summary>
+        /// Called by interaction system to check if pickup is possible.
+        /// This is a local check only - server does final validation.
+        /// </summary>
+        /// <returns>True if player has space to pickup item</returns>
         public bool TryPickupItem()
         {
-            if (_handsFull || InventoryFull) return false;
+            // Can't pickup if hands full AND inventory full
+            if (_handsFull || InventoryFull)
+            {
+                return false;
+            }
+
             return true;
         }
 
+        /// <summary>
+        /// Client entry point for pickup. Sends request to server.
+        /// Server will validate distance, space, and execute pickup.
+        /// </summary>
+        /// <param name="item">The item to pick up</param>
+        public void DoPickup(BaseInventoryItem item)
+        {
+            if (item == null)
+            {
+                Debug.LogWarning("[PlayerInventory] DoPickup called with null item");
+                return;
+            }
+
+            if (item.NetworkObject != null)
+            {
+                PickupItemServerRpc(new NetworkObjectReference(item.NetworkObject), item.IsPocketSize());
+            }
+            else if (item.GetComponentInParent<NetworkObject>() != null)
+            {
+                //Some object scripts are not on the root obj
+                PickupItemServerRpc(new NetworkObjectReference(item.GetComponentInParent<NetworkObject>()),
+                    item.IsPocketSize());
+            }
+            else
+            {
+                Debug.Log("Cannot find NetworkObject");
+            }
+            // Client just sends the request - server does all validation and execution
+        }
 
         /// <summary>
-        /// Handles the pickup logic. Adds IInventory item to inventory. Equips to hand if current slot free. 
-        /// <br/>Else adds to closest slot to the left. if item isnt pocket sized, place in hand not inventory
+        /// Server-authoritative pickup. Validates distance, space, and executes pickup.
+        /// Updates NetworkList/NetworkVariable which triggers callbacks on all clients.
         /// </summary>
-        /// <param name="item"> the item itself being picked up</param>
-        public void DoPickup(IInventoryItem item)
+        /// <param name="itemRef">NetworkObjectReference to the item</param>
+        /// <param name="isPocketSize">Whether item goes in inventory or held in hands</param>
+        /// <param name="rpcParams">RPC parameters for sender validation</param>
+        [ServerRpc(RequireOwnership = false)]
+        private void PickupItemServerRpc(NetworkObjectReference itemRef, bool isPocketSize,
+            ServerRpcParams rpcParams = default)
         {
-
-
-            if (item.IsPocketSize())
+            // Validate item reference
+            if (!itemRef.TryGet(out NetworkObject itemNetObj))
             {
-                if (InventoryItems[_currentIndex] == null)
+                Debug.LogWarning(
+                    $"[Server] Invalid item reference in pickup from client {rpcParams.Receive.SenderClientId}");
+                return;
+            }
+
+            //in children incase script isnt in root parent
+            BaseInventoryItem item = itemNetObj.GetComponentInChildren<BaseInventoryItem>();
+            if (item == null)
+            {
+                Debug.LogWarning("[Server] NetworkObject has no BaseInventoryItem component");
+                return;
+            }
+
+            // Validate distance (prevent teleport pickup exploits)
+            float distance = Vector3.Distance(transform.position, itemNetObj.transform.position);
+            if (distance > MAX_PICKUP_RANGE)
+            {
+                Debug.LogWarning(
+                    $"[Server] Client {rpcParams.Receive.SenderClientId} tried to pickup item from {distance:F2}m away (max: {MAX_PICKUP_RANGE}m)");
+                return;
+            }
+
+            if (isPocketSize)
+            {
+                // Find available slot (prefer current slot, then first empty)
+                int targetSlot = -1;
+
+                if (!InventoryNetworkRefs[_currentIndex].TryGet(out _))
                 {
-                    InventoryItems[_currentIndex] = item;
-                    item.PickupItem(gameObject, HoldTransform);
-                    item.EquipItem();
-                    Debug.Log("server side do Pice up");
-                    //network
-
-
-                    ChangeSlotBackgrounds(_currentIndex);
-                    //end network
+                    // Current slot is empty
+                    targetSlot = _currentIndex;
                 }
                 else
                 {
-                    //should find first available slot? I hope
-                    for (int i = 0; i < InventoryItems.Length; i++)
+                    // Find first empty slot
+                    for (int i = 0; i < InventorySlots; i++)
                     {
-                        var items = InventoryItems[i];
-                        if (items == null)
+                        if (!InventoryNetworkRefs[i].TryGet(out _))
                         {
-                            InventoryItems[i] = item;
-                            item.PickupItem(gameObject, HoldTransform);
-                            item.UnequipItem();
+                            targetSlot = i;
                             break;
                         }
-
                     }
                 }
 
-
-                //add to inventory list
-            }
-            else
-            {
-                BigItemCarried = item;
-                InventoryItems[_currentIndex]?.UnequipItem();
-                item.PickupItem(gameObject, HoldTransform);
-                item.EquipItem();
-                ChangeSlotBackgrounds(-1);
-            }
-            ChangeUISlotDisplay();
-
-
-
-        }
-
-        /*  [ClientRpc]
-          private void NotifyClientsPickupClientRpc(NetworkObjectReference itemRef, ulong playerId)
-          {
-              if (NetworkManager.Singleton.LocalClientId == playerId)
-              {
-                  Debug.Log($"[ClientRpc] Skipping self ({playerId}) visual update.");
-                  return;
-              }
-
-              Debug.Log("NotifyClientsPickupClientRpc");
-              if (!itemRef.TryGet(out NetworkObject netObj)) return;
-
-              var item = netObj.GetComponent<MonoBehaviour>() as IInventoryItem;
-              if (item == null) return;
-
-              Debug.Log($"[Sync] Item picked up by player {playerId}");
-
-
-              var player = FindPlayerById(playerId);
-              if (player == null)
-              {
-                  Debug.LogWarning($"[ClientRpc] Player {playerId} not found.");
-                  return;
-              }
-              var inventory = player.GetComponent<PlayerInventory>();
-              if (inventory == null)
-              {
-                  Debug.LogWarning($"[ClientRpc] Player {playerId} has no PlayerInventory!");
-                  return;
-              }
-              netObj.transform.SetParent(inventory.HoldTransform);
-              netObj.transform.localPosition = Vector3.zero;
-              netObj.transform.localRotation = Quaternion.identity;
-              netObj.gameObject.SetActive(true);
-              Debug.Log($"[ClientRpc] {netObj.name} attached to {player.name}'s hand");
-          }
-          private GameObject FindPlayerById(ulong clientId)
-          {
-              foreach (var obj in Object.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
-              {
-                  if (obj.IsPlayerObject && obj.OwnerClientId == clientId)
-                  {
-                      return obj.gameObject;
-                  }
-              }
-              return null;
-          }*/
-
-        /// <summary>
-        /// Tells items at current item index to handle drop logic. This is done via input
-        /// </summary>
-        public void DropItem()
-        {
-            if (_handsFull)
-            {
-                //first unequip to hide held visual
-                //than handle drop to make it visible as an in scene item
-                //than set null
-                BigItemCarried.UnequipItem();
-                BigItemCarried.DropItem(DropTransform);
-                BigItemCarried = null;
-            }
-            else if (InventoryItems[_currentIndex] != null)
-            {
-                //first unequip to hide held visual
-                //than handle drop to make it visible as an in scene item
-                //than set null
-                InventoryItems[_currentIndex].UnequipItem();
-                InventoryItems[_currentIndex].DropItem(DropTransform);
-                InventoryItems[_currentIndex] = null;
-                //drop current slot if there is one
-            }
-            ChangeUISlotDisplay();
-        }
-        public void ChangeSlotBackgrounds(int selectedItem)
-        {
-            for (int i = 0; i < SlotDisplay.Length; i++)
-            {
-                if (i == selectedItem)
+                if (targetSlot == -1)
                 {
-                    SlotBackground[i].color = Color.red;
+                    Debug.LogWarning("[Server] No available inventory slot");
+                    return;
+                }
+
+                // Server executes pickup on the item (server-only method)
+                item.PickupItem(gameObject, FPSItemParent, TPSItemParent, NetworkObject);
+
+                // Update NetworkList - this triggers HandleInventoryListChange on all clients
+                InventoryNetworkRefs[targetSlot] = itemRef;
+
+                // If picking up to current slot, equip it; otherwise unequip
+                if (targetSlot == _currentIndex)
+                {
+                    item.EquipItem();
                 }
                 else
                 {
-                    SlotBackground[i].color = Color.white;
+                    item.UnequipItem();
                 }
-            }
-        }
-        public void UseItemInHand()
-        {
-            if (_handsFull)
-            {
-                BigItemCarried?.UseItem();
             }
             else
             {
-                InventoryItems[_currentIndex]?.UseItem();
+                // Big item (non-pocketsize) - unequip current slot item first
+                if (InventoryNetworkRefs[_currentIndex].TryGet(out NetworkObject currentItemObj))
+                {
+                    BaseInventoryItem currentItem = currentItemObj.GetComponent<BaseInventoryItem>();
+                    currentItem?.UnequipItem();
+                }
+
+                // Server executes pickup
+                item.PickupItem(gameObject, FPSItemParent, TPSItemParent, NetworkObject);
+                item.EquipItem();
+
+                // Update NetworkVariable for big item - triggers HandleBigItemChanged on all clients
+                InventoryNetworkBigItemRef.Value = itemRef;
+            }
+        }
+
+        #endregion
+
+        #region R2: Item Drop
+
+        /// <summary>
+        /// Client entry point for drop. Sends request to server.
+        /// </summary>
+        public void DropItem()
+        {
+            // Client just sends the request
+
+            DropItemServerRpc(_currentIndex, DropTransform.position, _handsFull);
+        }
+
+        /// <summary>
+        /// Server-authoritative drop. Validates and executes drop.
+        /// Updates NetworkList/NetworkVariable which triggers callbacks on all clients.
+        /// </summary>
+        /// <param name="slotIndex">Index of slot to drop from</param>
+        /// <param name="droppingBigItem">Whether dropping big item or slot item</param>
+        [ServerRpc(RequireOwnership = false)]
+        private void DropItemServerRpc(int slotIndex, Vector3 dropPosition, bool droppingBigItem)
+        {
+            Debug.Log($"Dropped item at {dropPosition} from slot {slotIndex}");
+            // Validate slot index
+            if (slotIndex < 0 || slotIndex >= InventorySlots)
+            {
+                Debug.LogWarning($"[Server] Invalid slot index for drop: {slotIndex}");
+                return;
             }
 
+            if (droppingBigItem)
+            {
+                // Validate big item exists
+                if (!InventoryNetworkBigItemRef.Value.TryGet(out NetworkObject bigItemObj))
+                {
+                    Debug.LogWarning("[Server] No big item to drop");
+                    return;
+                }
+
+                BaseInventoryItem bigItem = bigItemObj.GetComponentInChildren<BaseInventoryItem>();
+                if (bigItem == null)
+                {
+                    Debug.LogWarning("[Server] Big item has no BaseInventoryItem component");
+                    return;
+                }
+
+                // Server executes drop (server-only methods)
+                bigItem.UnequipItem();
+                bigItem.DropItem(dropPosition);
+
+                // Clear NetworkVariable - triggers HandleBigItemChanged on all clients
+                InventoryNetworkBigItemRef.Value = default;
+            }
+            else
+            {
+                // Validate slot has item
+                if (!InventoryNetworkRefs[slotIndex].TryGet(out NetworkObject slotItemObj))
+                {
+                    Debug.LogWarning($"[Server] No item in slot {slotIndex} to drop");
+                    return;
+                }
+
+                BaseInventoryItem slotItem = slotItemObj.GetComponentInChildren<BaseInventoryItem>();
+                if (slotItem == null)
+                {
+                    Debug.LogWarning("[Server] Slot item has no BaseInventoryItem component");
+                    return;
+                }
+
+                // Server executes drop
+                slotItem.UnequipItem();
+                slotItem.DropItem(dropPosition);
+
+                // Clear NetworkList slot - triggers HandleInventoryListChange on all clients
+                InventoryNetworkRefs[slotIndex] = default;
+            }
         }
+
+        #endregion
+
+        #region R3: Slot Switching
+
         /// <summary>
-        /// Checks if holding a sample in hand. Safety net for TrySell()
+        /// Client entry point for slot switching. Sends request to server.
         /// </summary>
-        /// <returns>If item held can be sold</returns>
+        /// <param name="slotIndex">The inventory slot index to switch to (0-4)</param>
+        public void EquipSlot(int slotIndex)
+        {
+            // Can't switch slots while holding big item
+            if (_handsFull)
+            {
+                return;
+            }
+
+            // Client just sends the request
+            EquipSlotServerRpc(slotIndex);
+        }
+
+        /// <summary>
+        /// Server-authoritative slot switching. Updates NetworkVariable which triggers callbacks.
+        /// </summary>
+        /// <param name="newIndex">The new slot index to equip (0-4)</param>
+        [ServerRpc(RequireOwnership = false)]
+        private void EquipSlotServerRpc(int newIndex)
+        {
+            // Validate index
+            if (newIndex < 0 || newIndex >= InventorySlots)
+            {
+                Debug.LogWarning($"[Server] Invalid slot index for equip: {newIndex}");
+                return;
+            }
+
+            // Get old and new slot items
+            BaseInventoryItem oldItem = null;
+            BaseInventoryItem newItem = null;
+
+            if (InventoryNetworkRefs[NetworkCurrentIndex.Value].TryGet(out NetworkObject oldItemObj))
+            {
+                oldItem = oldItemObj.GetComponent<BaseInventoryItem>();
+            }
+
+            if (InventoryNetworkRefs[newIndex].TryGet(out NetworkObject newItemObj))
+            {
+                newItem = newItemObj.GetComponent<BaseInventoryItem>();
+            }
+
+            // Unequip old item
+            oldItem?.UnequipItem();
+
+            // Update NetworkVariable - this triggers HandleCurrentIndexChange on all clients
+            NetworkCurrentIndex.Value = newIndex;
+
+            // Equip new item
+            newItem?.EquipItem();
+        }
+
+        #endregion
+
+        #region R4: Item Usage
+
+        public void UseItemInHand()
+        {
+            var item = GetCurrentEquippedItem();
+            if (item == null) return;
+
+            item.TryUse();
+        }
+
+        /// <summary>
+        /// Secondary use of currently held item (hold/release pattern).
+        /// </summary>
+        /// <param name="isPerformed">True when button pressed, false when released</param>
+        public void SecondaryUseItemInHand(bool isPerformed)
+        {
+            if (_handsFull)
+            {
+                BigItemCarried?.SecondaryUse(isPerformed);
+            }
+            else
+            {
+                InventoryItems[_currentIndex]?.SecondaryUse(isPerformed);
+            }
+        }
+
+        #endregion
+
+        #region R5: Item Selling
+
+        /// <summary>
+        /// Checks if currently holding a sellable item.
+        /// </summary>
+        /// <returns>True if holding sellable item</returns>
         public bool IsHoldingSample()
         {
             if (_handsFull)
             {
-                if (BigItemCarried != null)
-                {
-                    return BigItemCarried.CanBeSold();
-                }
+                return BigItemCarried != null && BigItemCarried.CanBeSold();
             }
-            else if (InventoryItems[_currentIndex] != null)
+            else
             {
-                return InventoryItems[_currentIndex].CanBeSold();
+                return InventoryItems[_currentIndex] != null && InventoryItems[_currentIndex].CanBeSold();
             }
-            return false;
         }
+
         /// <summary>
-        /// Checks if the applicable item is eligible for sale. If holding big item, check big item. If not, check for a held item and if it can be sold
+        /// Requests to sell currently held item. This is an ASYNC operation!
+        /// The actual sale happens on server and is notified via NotifySaleClientRpc.
+        /// Calling code should listen for the callback, not use return value.
         /// </summary>
-        /// <returns>A struct containing the data associated with the samples values</returns>
+        /// <returns>Pending ScienceData (will be updated via callback)</returns>
         public ScienceData TrySell()
         {
-            float tranquilVal = 0;
-            float violentVal = 0;
-            float miscVal = 0;
-            string itemName = "StoopidDumb";
-            //big item check and logic
-            if (_handsFull && BigItemCarried != null)
-            {
+            // Client sends request to server
+            SellItemServerRpc(_currentIndex, _handsFull);
 
-                tranquilVal = BigItemCarried.GetValueStruct().RawTranquilValue;
-                violentVal = BigItemCarried.GetValueStruct().RawViolentValue;
-                miscVal = BigItemCarried.GetValueStruct().RawMiscValue;
-                itemName = BigItemCarried.GetValueStruct().KeyName;
-                BigItemCarried.WasSold();
+            // Return pending data (calling code should use callback instead)
+            return new ScienceData
+            {
+                RawTranquilValue = 0,
+                RawViolentValue = 0,
+                RawMiscValue = 0,
+                KeyName = "Pending"
+            };
+        }
+
+        /// <summary>
+        /// Server-authoritative sell. Validates, gets values, destroys item, updates network state.
+        /// </summary>
+        /// <param name="slotIndex">Slot index if selling slot item</param>
+        /// <param name="sellingBigItem">True if selling big item</param>
+        [ServerRpc(RequireOwnership = false)]
+        private void SellItemServerRpc(int slotIndex, bool sellingBigItem)
+        {
+            ScienceData data = new ScienceData
+            {
+                RawTranquilValue = 0,
+                RawViolentValue = 0,
+                RawMiscValue = 0,
+                KeyName = "Invalid"
+            };
+
+            if (sellingBigItem)
+            {
+                // Validate big item exists
+                if (!InventoryNetworkBigItemRef.Value.TryGet(out NetworkObject bigItemObj))
+                {
+                    Debug.LogWarning("[Server] No big item to sell");
+                    return;
+                }
+
+                BaseInventoryItem bigItem = bigItemObj.GetComponent<BaseInventoryItem>();
+                if (bigItem == null || !bigItem.CanBeSold())
+                {
+                    Debug.LogWarning("[Server] Big item cannot be sold");
+                    return;
+                }
+
+                // Get item values before destroying
+                data = bigItem.GetValueStruct();
+
+                // Server handles sale (destroys item)
+                bigItem.WasSold();
+
+                // Clear NetworkVariable - triggers callback on all clients
+                InventoryNetworkBigItemRef.Value = default;
+            }
+            else
+            {
+                // Validate slot index
+                if (slotIndex < 0 || slotIndex >= InventorySlots)
+                {
+                    Debug.LogWarning($"[Server] Invalid slot index for sell: {slotIndex}");
+                    return;
+                }
+
+                // Validate slot has item
+                if (!InventoryNetworkRefs[slotIndex].TryGet(out NetworkObject slotItemObj))
+                {
+                    Debug.LogWarning($"[Server] No item in slot {slotIndex} to sell");
+                    return;
+                }
+
+                BaseInventoryItem slotItem = slotItemObj.GetComponent<BaseInventoryItem>();
+                if (slotItem == null || !slotItem.CanBeSold())
+                {
+                    Debug.LogWarning("[Server] Slot item cannot be sold");
+                    return;
+                }
+
+                // Get item values before destroying
+                data = slotItem.GetValueStruct();
+
+                // Server handles sale (destroys item)
+                slotItem.WasSold();
+
+                // Clear NetworkList slot - triggers callback on all clients
+                InventoryNetworkRefs[slotIndex] = default;
+            }
+
+            // Notify all clients of successful sale with item data
+            // Note: ScienceData struct can't be passed in RPC, so pass individual values
+            NotifySaleClientRpc(data.RawTranquilValue, data.RawViolentValue, data.RawMiscValue, data.KeyName);
+        }
+
+        /// <summary>
+        /// Notifies all clients of successful sale with item data.
+        /// Calling code (ResearchDeposit) should listen for this callback.
+        /// </summary>
+        [ClientRpc]
+        private void NotifySaleClientRpc(float tranquilValue, float violentValue, float miscValue, string itemName)
+        {
+            // Reconstruct ScienceData from individual values
+            ScienceData data = new ScienceData
+            {
+                RawTranquilValue = tranquilValue,
+                RawViolentValue = violentValue,
+                RawMiscValue = miscValue,
+                KeyName = itemName
+            };
+
+            // Publish event for ResearchDeposit to listen to
+            if (IsOwner)
+            {
+                Debug.Log($"[Client] Item sold: {itemName} (T:{tranquilValue}, V:{violentValue}, M:{miscValue})");
+                EventBus.Instance.Publish<ItemSoldEvent>(new ItemSoldEvent { SoldItemData = data });
+            }
+        }
+
+        #endregion
+
+        #region R6: State Sync (NetworkVariable Callbacks)
+
+        /// <summary>
+        /// Callback when big item NetworkVariable changes.
+        /// Rebuilds local BigItemCarried cache from network state.
+        /// </summary>
+        private void HandleBigItemChanged(NetworkObjectReference oldRef, NetworkObjectReference newRef)
+        {
+            if (newRef.TryGet(out NetworkObject itemNetObj))
+            {
+                BigItemCarried = itemNetObj.GetComponent<BaseInventoryItem>();
+            }
+            else
+            {
                 BigItemCarried = null;
             }
-            //inventory check and item held check (if item is held)
-            else if (!_handsFull && InventoryItems[_currentIndex] != null)
+        }
+
+        /// <summary>
+        /// Callback when current index NetworkVariable changes.
+        /// Rebuilds local _currentIndex cache and publishes EventBus event.
+        /// </summary>
+        private void HandleCurrentIndexChange(int oldIndex, int newIndex)
+        {
+            _currentIndex = newIndex;
+
+            // Publish event for UI (only on owning client)
+            if (IsOwner)
             {
-                if (InventoryItems[_currentIndex] == null) return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal };
-                tranquilVal = InventoryItems[_currentIndex].GetValueStruct().RawTranquilValue;
-                violentVal = InventoryItems[_currentIndex].GetValueStruct().RawViolentValue;
-                miscVal = InventoryItems[_currentIndex].GetValueStruct().RawMiscValue;
-                itemName = InventoryItems[_currentIndex].GetValueStruct().KeyName;
-                InventoryItems[_currentIndex].WasSold();
-                InventoryItems[_currentIndex] = null;
+                EventBus.Instance.Publish<InventorySlotIndexChangedEvent>(
+                    new InventorySlotIndexChangedEvent { NewIndex = _currentIndex });
+            }
+        }
+
+        /// <summary>
+        /// Callback when inventory NetworkList changes.
+        /// Rebuilds local InventoryItems cache from network state and publishes EventBus event.
+        /// </summary>
+        private void HandleInventoryListChange(NetworkListEvent<NetworkObjectReference> netlistEvent)
+        {
+            RebuildInventoryCache();
+
+            // Publish event for UI (only on owning client)
+            if (IsOwner)
+            {
+                EventBus.Instance.Publish<InventoryListModifiedEvent>(
+                    new InventoryListModifiedEvent { NewInventory = InventoryItems });
+            }
+        }
+
+        /// <summary>
+        /// Rebuilds InventoryItems cache array from InventoryNetworkRefs (network state).
+        /// This is the ONLY method that should modify InventoryItems array.
+        /// </summary>
+        private void RebuildInventoryCache()
+        {
+            for (int i = 0; i < InventoryItems.Length; i++)
+            {
+                if (i < InventoryNetworkRefs.Count && InventoryNetworkRefs[i].TryGet(out NetworkObject itemNetObj))
+                {
+                    InventoryItems[i] = itemNetObj.GetComponent<BaseInventoryItem>();
+                }
+                else
+                {
+                    InventoryItems[i] = null;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Checks if all inventory slots are occupied.
+        /// </summary>
+        /// <returns>True if all slots occupied</returns>
+        private bool IsInventoryFull()
+        {
+            for (int i = 0; i < InventoryItems.Length; i++)
+            {
+                if (InventoryItems[i] == null)
+                {
+                    return false;
+                }
             }
 
-            return new ScienceData { RawTranquilValue = tranquilVal, RawViolentValue = violentVal, RawMiscValue = miscVal, KeyName = itemName };
+            return true;
         }
-        /// <summary>
-        /// Called by number inputs to switch to new slot. 
-        /// <br/>Tells current item (if applicable) to handle unequip logic, sets new index for current item, than tells new item to handle equip logic
-        /// </summary>
-        /// <param name="indexOf"> The index of the inventory slot to switch to </param>
-        private void EquipSlot(int indexOf)
+
+        public BaseInventoryItem GetCurrentEquippedItem()
         {
-            if (_handsFull) return;
-            if (InventoryItems[_currentIndex] != null)
-            {
-                InventoryItems[_currentIndex].UnequipItem();
-            }
-            _currentIndex = indexOf;
-            InventoryItems[_currentIndex]?.EquipItem();
-            ChangeUISlotDisplay();
-            ChangeSlotBackgrounds(_currentIndex);
-        }
-        #region Inputs
-        private void HandlePressedSlot(int index)
-        {
-            if (_handsFull) return;
-            EquipSlot(index - 1);
+            return _handsFull ? BigItemCarried : InventoryItems[_currentIndex];
         }
 
         #endregion

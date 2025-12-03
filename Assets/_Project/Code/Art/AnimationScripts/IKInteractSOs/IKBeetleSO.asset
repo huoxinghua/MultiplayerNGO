@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f65d32991db45bc428a92ae55c972030, type: 3}
+  m_Name: IKBeetleSO
+  m_EditorClassIdentifier: 
+  thumbR:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  indexR:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  middleR:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  ringR:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  littleR:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  thumbL:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  indexL:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  middleL:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  ringL:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  littleL:
+    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+  fpsOffset:
+    posOffset: {x: 0, y: -1.151, z: 0}
+    rotOffset: {x: 0, y: 180, z: 0}
+  tpsOffset:
+    posOffset: {x: 0, y: -1.914, z: 0.079}
+    rotOffset: {x: 0, y: 180, z: 0}
+  ikIdle:
+    resetDuration: 0.05
+    transitionDuration: 1
+    loopDuration: 3
+    fpsWaypoints:
+    - {x: 0, y: 0.005, z: 0}
+    - {x: 0, y: -0.005, z: 0}
+    tpsWaypoints:
+    - {x: 0, y: 0.003, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    loopType: 1
+    easeType: 7
+  ikWalk:
+    resetDuration: 0.03
+    transitionDuration: 0.3
+    loopDuration: 0.65
+    fpsWaypoints:
+    - {x: -0.005, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.005, y: 0, z: 0}
+    tpsWaypoints:
+    - {x: -0.005, y: 0, z: 0}
+    - {x: 0, y: -0.003, z: 0}
+    - {x: 0.005, y: 0, z: 0}
+    fpsFollowThrough:
+    - {x: 0, y: 0, z: -0.5}
+    - {x: 0, y: 0, z: 0.5}
+    tpsFollowThrough:
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
+  ikRun:
+    resetDuration: 0.01
+    transitionDuration: 0.2
+    loopDuration: 0.3
+    fpsWaypoints:
+    - {x: -0.005, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.005, y: 0, z: 0}
+    tpsWaypoints:
+    - {x: -0.01, y: 0, z: 0}
+    - {x: 0, y: -0.008, z: 0}
+    - {x: 0.01, y: 0, z: 0}
+    fpsFollowThrough:
+    - {x: 0, y: 0, z: -1}
+    - {x: 0, y: 0, z: 1}
+    tpsFollowThrough:
+    - {x: 0, y: 0, z: -2}
+    - {x: 0, y: 0, z: 2}
+    loopType: 1
+    easeType: 4
+    pathType: 1
+    pathMode: 1
+  ikInteract:
+    resetDuration: 0.01
+    transitionDuration: 0.2
+    hitDuration: 0.2
+    fpsPosWaypoints:
+    - {x: 0.0079, y: 0.0296, z: -0.0265}
+    - {x: -0.1411, y: -0.1514, z: -0.1285}
+    tpsPosWaypoints:
+    - {x: 0.227, y: 0.454, z: -0.134}
+    - {x: -0.074, y: -0.089, z: 0.034}
+    fpsRotWaypoints:
+    - {x: -2.185, y: 4.528, z: -2.115}
+    - {x: 93.349, y: -90.154, z: -32.202}
+    tpsRotWaypoints:
+    - {x: -49.329, y: 72.579, z: -63.339}
+    - {x: 80.77, y: -150.12, z: -112.196}
+    easeAnti: 4
+    easeHit: 13

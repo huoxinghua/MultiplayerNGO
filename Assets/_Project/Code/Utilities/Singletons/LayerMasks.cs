@@ -10,6 +10,7 @@ namespace _Project.Code.Utilities.Singletons
         [SerializeField] private LayerMask _playerMask;
         [SerializeField] private LayerMask _interactableMask;
 
+        [field: SerializeField] public LayerMask ObstructionMask { get; private set; }
         public LayerMask GroundMask => _groundMask;
         public LayerMask EnemyMask => _enemyMask;
         public LayerMask PlayerMask => _playerMask;

@@ -2,11 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
-using _Project.Code.Gameplay.FirstPersonController;
+using _Project.Code.Gameplay.NPC.Violent.Brute;
+using _Project.Code.Gameplay.Player.MiscPlayer;
+using _Project.Code.Gameplay.Player.RefactorInventory; // Added for Inventory reference
 using _Project.Code.Utilities.Singletons;
 using _Project.Code.Utilities.StateMachine;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
+using Unity.Netcode;
+using _Project.Code.Network.GameManagers;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 {
@@ -18,10 +22,14 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         [field: SerializeField] public CharacterController CharacterController { get; private set;}
         [field: SerializeField] public PlayerAnimation Animator { get; private set; }
         [field: SerializeField] public LayerMask groundMask { get; private set; }
+        
+        [SerializeField] private PlayerInventory _inventory; // Field for Inventory reference
+        public PlayerInventory Inventory => _inventory; // Public property for Inventory reference
+
         [SerializeField] Transform _cameraTransform;
         [field: SerializeField] public float GroundCheckOffset { get; private set; }
         [field: SerializeField] public float GroundCheckDistance { get; private set; }
-        [field: SerializeField] public Transform GroundSpherePosition {  get; private set; }
+       
         public GroundCheck GroundChecker { get; private set; }
         private bool _isGrounded;
         public bool IsSprintHeld { get; private set; }
@@ -32,6 +40,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public PlayerCrouchIdleState CrouchIdleState { get; private set; }
         public PlayerCrouchWalkState CrouchWalkState { get; private set; }
         public PlayerInAirState InAirState { get; private set; }
+        public PlayerDeadState DeadState { get; private set; }
         public PlayerMenuState MenuState { get; private set; }
 
         public bool IsInMenu => currentState == MenuState;
@@ -43,11 +52,17 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public bool CanJump => GroundChecker.IsGrounded || GroundChecker.CoyoteTime < PlayerSO.CoyoteTime;
 
         public Vector3 VerticalVelocity;
+
         public bool JumpRequested { get; set; } = false;
+
         //needs to be changed in children. Is this an acceptable way to do so?
         private float _targetCameraHeight;
-    
-        public float TargetCameraHeight { get { return _targetCameraHeight; } set { _targetCameraHeight = value; } }
+
+        public float TargetCameraHeight
+        {
+            get { return _targetCameraHeight; }
+            set { _targetCameraHeight = value; }
+        }
 
         Timer _groundTimer;
         private float _groundTimerLength = 0.2f;
@@ -56,14 +71,38 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public static List<PlayerStateMachine> AllPlayers = new List<PlayerStateMachine>();
         public static event Action<PlayerStateMachine> OnPlayerAdded;
         public static event Action<PlayerStateMachine> OnPlayerRemoved;
+
+        // Phase 2: MovementContext enum
+        public enum MovementContext
+        {
+            Idle,
+            Walking,
+            Running
+        }
+
+        public MovementContext CurrentMovement { get; set; } = MovementContext.Idle;
+
         public void OnSoundMade(float soundRange)
         {
             SoundMade?.Invoke(soundRange, gameObject);
+            SendSoundToServerRpc(soundRange);
         }
+
+        [ServerRpc]
+        void SendSoundToServerRpc(float soundRange)
+        {
+            BruteHearing.ProcessSound(transform.position, soundRange, this);
+        }
+        
+
         private void Awake()
         {
             InputManager = GetComponent<PlayerInputManager>();
             GroundChecker = GetComponent<GroundCheck>();
+            
+            // Ensure Inventory reference is set if not assigned in Inspector
+            if (_inventory == null) _inventory = GetComponent<PlayerInventory>();
+
             CurrentPlayers.Instance.AddPlayer(gameObject);
             IdleState = new PlayerIdleState(this);
             WalkState = new PlayerWalkState(this);
@@ -72,6 +111,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             CrouchWalkState = new PlayerCrouchWalkState(this);
             InAirState = new PlayerInAirState(this);
             MenuState = new PlayerMenuState(this);
+            DeadState = new PlayerDeadState(this);
             OriginalCenter = CharacterController.center;
             TargetCameraHeight = PlayerSO.StandingCameraHeight;
 
@@ -88,15 +128,25 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnJumpInput += OnJumpInput;
                 InputManager.OnCrouchInput += OnCrouchInput;
                 InputManager.OnSprintInput += OnSprintInput;
+                
+                // Phase 1: New Item Inputs subscriptions
+                InputManager.OnUse += OnUseInput;
+                InputManager.OnSecondaryUse += OnSecondaryUseInput;
+                InputManager.OnDropItem += OnDropItemInput;
+                InputManager.OnInteract += OnInteractInput;
+                InputManager.OnNumPressed += OnNumPressedInput;
+                InputManager.OnChangeWeaponInput += OnChangeWeaponInput;
             }
             else
             {
                 Debug.Log("input manager is null ");
             }
+
             if (!AllPlayers.Contains(this))
                 AllPlayers.Add(this);
             OnPlayerAdded?.Invoke(this);
         }
+
         public void OnDisable()
         {
             GroundChecker.OnGroundedChanged -= OnGroundStateChange;
@@ -106,51 +156,83 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnJumpInput -= OnJumpInput;
                 InputManager.OnCrouchInput -= OnCrouchInput;
                 InputManager.OnSprintInput -= OnSprintInput;
+                
+                // Phase 1: Unsubscribe Item Inputs
+                InputManager.OnUse -= OnUseInput;
+                InputManager.OnSecondaryUse -= OnSecondaryUseInput;
+                InputManager.OnDropItem -= OnDropItemInput;
+                InputManager.OnInteract -= OnInteractInput;
+                InputManager.OnNumPressed -= OnNumPressedInput;
+                InputManager.OnChangeWeaponInput -= OnChangeWeaponInput;
             }
             else
             {
                 Debug.Log("input manager is null ");
             }
+
             AllPlayers.Remove(this);
             OnPlayerRemoved?.Invoke(this);
-        
         }
-        public void Start()
+
+        public override void OnNetworkSpawn()
         {
-            ////test
-            //transform.position = new Vector3(4,0,2) + Vector3.up * 1f;
-            //var controller = GetComponent<CharacterController>();
-            //controller.enabled = false;
-            //StartCoroutine(EnablePlayerController(controller));
-            //test end
+            base.OnNetworkSpawn();
+            CharacterController = GetComponent<CharacterController>();
+            if (IsServer) PlayerListManager.Instance.RegisterPlayerObj(this);
+
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            Debug.Log("despawn the player statemachine");
+            if (IsServer) PlayerListManager.Instance.UnregisterPlayerObj(this);
+        }
+        public void ForceSetPosition(Vector3 pos, Quaternion rot)
+        {
+            CharacterController.enabled = false;
+            transform.SetPositionAndRotation(pos, rot);
+            CharacterController.enabled = true;
             TransitionTo(IdleState);
         }
-        //test
+
         private IEnumerator EnablePlayerController(CharacterController con)
         {
             yield return new WaitForSeconds(1f);
             con.enabled = true;
         }
-        //test end
+
         #region Inputs
+
         public void OnMoveInput(Vector2 movement)
         {
             MoveInput = movement;
             currentState.OnMoveInput(movement);
         }
+
         public void OnCrouchInput()
         {
             currentState.OnCrouchInput();
         }
+
         public void OnSprintInput(bool isPerformed)
         {
             currentState.OnSprintInput(isPerformed);
             IsSprintHeld = isPerformed;
         }
+
         public void OnJumpInput(PlayerJumpEvent jumpEvent)
         {
             currentState.OnJumpInput(jumpEvent.IsPressed);
         }
+        
+        // Phase 1: Item Input Routing
+        public void OnUseInput() => currentState.OnUseInput();
+        public void OnSecondaryUseInput(bool isPressed) => currentState.OnSecondaryUseInput(isPressed);
+        public void OnDropItemInput() => currentState.OnDropItemInput();
+        public void OnInteractInput() => currentState.OnInteractInput();
+        public void OnNumPressedInput(int slot) => currentState.OnNumPressedInput(slot);
+        public void OnChangeWeaponInput() => currentState.OnChangeWeaponInput();
+        
         #endregion
         public virtual void TransitionTo(PlayerBaseState newState)
         {
@@ -162,20 +244,10 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         void Update()
         {
-            //Debug.Log(currentState.ToString());
             currentState?.StateUpdate();
             SmoothCameraTransition();
-            //HandleJump();
         }
-        // bool IsGroundedCheck()
-        // {
-        //
-        //     float radius = CharacterController.radius;
-        //
-        //     float distance = GroundCheckDistance;
-        //     DebugDrawSphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, distance, Color.red);
-        //     return Physics.SphereCast(GroundSpherePosition.position, radius * 0.9f, Vector3.down, out _, distance, groundMask);
-        // }
+
         void DebugDrawSphereCast(Vector3 origin, float radius, Vector3 direction, float distance, Color color)
         {
             Vector3 end = origin + direction.normalized * distance;

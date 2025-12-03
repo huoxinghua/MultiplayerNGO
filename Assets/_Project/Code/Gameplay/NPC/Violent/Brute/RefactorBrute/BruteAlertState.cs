@@ -12,7 +12,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public override void OnEnter()
         {
-            Debug.Log("Alert not chase " + BruteSO.AlertWalkSpeed);
             Animator.PlayAlert();
             Agent.speed = BruteSO.AlertWalkSpeed;
             _alertTimer.Reset(BruteSO.LoseInterestTimeInvestigate);
@@ -21,7 +20,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public override void OnExit()
         {
             _alertTimer.Stop();
-            Debug.Log("Left Alert");
         }
 
         public override void StateUpdate()

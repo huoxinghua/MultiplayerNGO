@@ -1,8 +1,11 @@
+using System;
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Gameplay.Player;
+using _Project.Code.Gameplay.Player.PlayerHealth;
 using _Project.Code.Utilities.StateMachine;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Netcode;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
@@ -10,6 +13,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
     {
         protected BruteBaseState CurrentState;
         protected BruteBaseState StateBeforeAttack;
+        protected NetworkVariable<bool> IsHurt = new NetworkVariable<bool>(false, 
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        
         public BruteIdleState IdleState { get; private set; }
         public BruteWanderState WanderState { get; private set; }
         public BruteHurtIdleState BruteHurtIdleState { get; private set; }
@@ -29,11 +35,18 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public GameObject LastHeardPlayer { get; private set; }
         public GameObject PlayerToAttack { get; private set; }
         public int TimesAlerted = 0;
+        // Network sync for player target
+        private readonly NetworkVariable<NetworkObjectReference> _playerTargetRef = new NetworkVariable<NetworkObjectReference>();
+        //handle heart spawn
+        private Vector3 _originalLocation;
+        private float _heartSafeDistance = 2f;
+        private bool _isHeartSpawned;
+ 
         public void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
             Animator = GetComponentInChildren<BruteAnimation>();
-            HandleHeartSpawn();
+            //HandleHeartSpawn();
             IdleState = new BruteIdleState(this);
             WanderState = new BruteWanderState(this);
             BruteHurtIdleState = new BruteHurtIdleState(this);
@@ -44,35 +57,86 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             BruteHeardPlayerState = new BruteHeardPlayerState(this);
             BruteDeadState = new BruteDeadState(this);
             BruteHitState = new BruteHitState(this);
-       
         }
+
         public void HandleHeartSpawn()
         {
             _spawnedHeart = Instantiate(_heartPrefab, transform);
+            var netObj = _spawnedHeart.GetComponent<NetworkObject>();
+            if (netObj != null && !netObj.IsSpawned)
+            {
+                netObj.Spawn();
+            }
             _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
             _spawnedHeart.transform.SetParent(null);
             HeartPosition = transform;
         }
-        public void Start()
+        
+        public override void OnNetworkSpawn()
         {
-            if (!IsServer) return;
-            TransitionTo(WanderState);
+            base.OnNetworkSpawn();
+            _originalLocation = transform.position;
+            
+            _playerTargetRef.OnValueChanged += OnPlayerTargetRefChanged;
+            if (!IsServer)
+            {
+                TryResolvePlayerTarget(_playerTargetRef.Value);
+            }
+            
+            if (IsServer)
+            {
+                TransitionTo(WanderState);
+            }
         }
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            _playerTargetRef.OnValueChanged -= OnPlayerTargetRefChanged;
+            CleanupSpawnedHeart();
+        }
+        private void OnPlayerTargetRefChanged(NetworkObjectReference previous, NetworkObjectReference current)
+        {
+            if (!IsServer)
+            {
+                TryResolvePlayerTarget(current);
+            }
+        }
+        
+        private void TryResolvePlayerTarget(NetworkObjectReference playerRef)
+        {
+            if (playerRef.TryGet(out NetworkObject netObj))
+            {
+                PlayerToAttack = netObj.gameObject;
+                return;
+            }
+        }
+       
         void Update()
         {
             if (!IsServer) return;
             CurrentState?.StateUpdate();
+            
         }
         void FixedUpdate()
         {
             if (!IsServer) return;
             CurrentState?.StateFixedUpdate();
+
+            if (!IsServer || _isHeartSpawned)
+            {
+                return;
+            }
+            if (Vector3.Distance(transform.position, _originalLocation) >= _heartSafeDistance)
+            {
+                HandleHeartSpawn();
+                _isHeartSpawned = true;
+            }
+
         }
         public void OnHearPlayer(GameObject playerObj)
         {
 
-            if (playerObj == null){ Debug.Log("LeavingEarly"); return; }
-            //  Debug.Log(playerObj.name);
+            if (playerObj == null || IsHurt.Value){ Debug.Log("LeavingEarly"); return; }
             LastHeardPlayer = playerObj;
             if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
             {
@@ -91,24 +155,97 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
                 CurrentState?.OnHearPlayer();
             }
         }
+
+        private void CleanupSpawnedHeart()
+        {
+            if (_spawnedHeart == null)
+            {
+                return;
+            }
+
+            var heartNetObj = _spawnedHeart.GetComponent<NetworkObject>();
+            if (IsServer)
+            {
+                if (heartNetObj != null && heartNetObj.IsSpawned)
+                {
+                    heartNetObj.Despawn(true);
+                }
+                else
+                {
+                    Destroy(_spawnedHeart);
+                }
+            }
+
+            _spawnedHeart = null;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestChangeToIsHurtServerRpc()
+        {
+            IsHurt.Value = true;
+        }
         public void HandleDefendHeart(GameObject attackingPlayer)
         {
+            if (IsHurt.Value) return;
             LastHeardPlayer = attackingPlayer;
             TransitionTo(BruteChaseState);
         }
-        public void OnAttack(GameObject playerToAttack) 
+        public void OnAttack(GameObject playerToAttack)
         {
             StateBeforeAttack = CurrentState;
+            if (!IsServer)
+            {
+                var netObj = playerToAttack.GetComponent<NetworkObject>();
+                if (netObj != null)
+                {
+                    RequestAttackServerRpc(netObj);
+                }
+                return;
+            }
+            ExecuteAttack(playerToAttack);
+        }
+        
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestAttackServerRpc(NetworkObjectReference playerRef)
+        {
+            if (playerRef.TryGet(out NetworkObject playerObj))
+            {
+                ExecuteAttack(playerObj.gameObject);
+            }
+        }
+        
+        private void ExecuteAttack(GameObject playerToAttack)
+        {
             PlayerToAttack = playerToAttack;
+    
+            var netObj = playerToAttack.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                _playerTargetRef.Value = netObj;
+            }
+            else
+            {
+                Debug.LogWarning("[Server] Player target missing NetworkObject!");
+            }
+
             TransitionTo(BruteAttackState);
         }
+
         public void OnDeath()
         {
 
         
         }
+
+        public void TempAnimMove()
+        {
+            if (!IsServer) return;
+            CurrentState?.OnStateAnimatorMove();
+        }
+
         public void OnHeartDestroyed()
         {
+            RequestChangeToIsHurtServerRpc();
             TransitionTo(BruteHurtIdleState);
         }
         public void OnAttackEnd()
@@ -117,6 +254,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public void OnAttackConnects()
         {
+            if (PlayerToAttack == null)
+            {
+                return;
+            }
+
+            var health = PlayerToAttack.GetComponent<IPlayerHealth>();
+            if (health == null)
+            {
+                return;
+            }
             if(Vector3.Distance(transform.position,PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
             {
                 PlayerToAttack.GetComponent<IPlayerHealth>().TakeDamage(BruteSO.Damage);
