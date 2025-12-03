@@ -13,25 +13,25 @@ MonoBehaviour:
   m_Name: IKDisFlashlightSo
   m_EditorClassIdentifier: 
   thumbR:
-    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    proximal: {x: -0.12454783, y: 0.21590514, z: -0.12211466, w: -0.9607085}
+    intermediate: {x: -0.0058411537, y: -0.010870853, z: 0.28824717, w: -0.9574765}
+    distal: {x: -0.0037212488, y: -0.011766354, z: 0.46100673, w: -0.8873108}
   indexR:
-    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    proximal: {x: -0.0049976977, y: -0.08657586, z: 0.043338735, w: -0.99528956}
+    intermediate: {x: -0.0029060454, y: -0.011993723, z: 0.52073705, w: -0.8536279}
+    distal: {x: -0.0066950344, y: -0.010366781, z: 0.21044488, w: -0.9775278}
   middleR:
-    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    proximal: {x: 0.010494901, y: -0.005893338, z: -0.24547324, w: 0.9693286}
+    intermediate: {x: 0.13928285, y: -0.2321423, z: -0.46735883, w: 0.84159726}
+    distal: {x: 0.008786935, y: 0.00866508, z: 0.0069045774, w: 0.9999}
   ringR:
-    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    proximal: {x: -0.06961515, y: -0.034442913, z: -0.54168206, w: 0.8369874}
+    intermediate: {x: -0.0075049093, y: -0.009796466, z: 0.1313704, w: -0.9912565}
+    distal: {x: 0.009628403, y: 0.0077193095, z: 0.109303325, w: 0.99393183}
   littleR:
-    proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
-    distal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
+    proximal: {x: -0.006657918, y: -0.010390666, z: 0.21394107, w: -0.9767686}
+    intermediate: {x: -0.006304199, y: -0.01060902, z: 0.24671566, w: -0.9690093}
+    distal: {x: -0.007579033, y: -0.009739192, z: 0.12384087, w: -0.99222535}
   thumbL:
     proximal: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
     intermediate: {x: 0.00880202, y: 0.008649721, z: 0.008649721, w: 0.9998864}
@@ -59,7 +59,6 @@ MonoBehaviour:
     posOffset: {x: 0.1078, y: -0.1798, z: 0.0191}
     rotOffset: {x: 0.022, y: -10.151, z: 0.244}
   ikIdle:
-    resetDuration: 0.05
     transitionDuration: 1
     loopDuration: 3
     fpsWaypoints:
@@ -71,7 +70,6 @@ MonoBehaviour:
     loopType: 1
     easeType: 7
   ikWalk:
-    resetDuration: 0.03
     transitionDuration: 0.3
     loopDuration: 0.65
     fpsWaypoints:
@@ -93,7 +91,6 @@ MonoBehaviour:
     pathType: 1
     pathMode: 1
   ikRun:
-    resetDuration: 0.01
     transitionDuration: 0.2
     loopDuration: 0.3
     fpsWaypoints:
@@ -115,8 +112,8 @@ MonoBehaviour:
     pathType: 1
     pathMode: 1
   ikInteract:
-    resetDuration: 0
     transitionDuration: 0
+    moveDuration: 0
     hitDuration: 0
     fpsPosWaypoints: []
     tpsPosWaypoints: []
