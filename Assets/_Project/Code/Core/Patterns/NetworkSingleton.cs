@@ -14,10 +14,11 @@ namespace _Project.Code.Core.Patterns
         /// Whether this singleton should persist between scene loads.
         /// Override to return false if you want it destroyed on scene change.
         /// </summary>
-        protected virtual bool PersistBetweenScenes => true;
+        [field:SerializeField]protected virtual bool PersistBetweenScenes { get; private set; } =  false;
         protected virtual bool AutoSpawn => true;
         protected virtual void Awake()
         {
+            Debug.Log($"[{typeof(T).Name}] Singleton wokeup");
             // Check if instance already exists
             if (Instance != null && Instance != this)
             {
@@ -33,13 +34,10 @@ namespace _Project.Code.Core.Patterns
             if (PersistBetweenScenes)
             {
                 DontDestroyOnLoad(gameObject);
-                
-            }
-            
 
-            Debug.Log($"[{typeof(T).Name}] Singleton initialized");
-            if (AutoSpawn)
-                StartCoroutine(AutoNetworkSpawnRoutine());
+            }
+            //   if (AutoSpawn)
+               // StartCoroutine(AutoNetworkSpawnRoutine());
         }
 
         private IEnumerator AutoNetworkSpawnRoutine()
@@ -61,6 +59,20 @@ namespace _Project.Code.Core.Patterns
             }
         }
 
+        public override void OnNetworkSpawn()
+        {
+            Debug.Log($"[{typeof(T).Name}] Singleton initialized");
+            base.OnNetworkSpawn();
+            if (IsServer)
+            {
+                // Force the object to NOT be destroyed when the scene unloads.
+                NetworkObject.DestroyWithScene = !PersistBetweenScenes;
+                
+            }
+           // CustomNetworkSpawn();
+        }
+
+        protected virtual void CustomNetworkSpawn(){}
 
         public override void OnDestroy()
         {

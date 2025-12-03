@@ -33,6 +33,13 @@ namespace _Project.Code.Network.GameManagers
         {
             HideLoadMenu();
         }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            Debug.Log("Wake me up before you go go");
+            
+        }
         public void ShowLoadMenu()
         {
             ShowLoadMenuLocal();
@@ -73,6 +80,7 @@ namespace _Project.Code.Network.GameManagers
         
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
             if (_loadMenu == null)
             {
                 _loadMenu = transform.GetChild(0).gameObject;
@@ -80,6 +88,7 @@ namespace _Project.Code.Network.GameManagers
             var networkManager = NetworkManager.Singleton;
             if (networkManager == null || networkManager.SceneManager == null)
             {
+                Debug.Log("We did not get the network manager");
                 return;
             }
             networkManager.SceneManager.OnSceneEvent += OnSceneEvent;
@@ -105,6 +114,7 @@ namespace _Project.Code.Network.GameManagers
         }
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
+            Debug.Log("On Scene Event called");
             if (!IsServer)
             {
                 HideLoadMenu(); 
@@ -123,7 +133,7 @@ namespace _Project.Code.Network.GameManagers
                         _isMissionFailed = false;
                     }
                     
-                    handleHubPlayerPositions(sceneEvent.ClientId);
+                    HandleHubPlayerPositions(sceneEvent.ClientId);
                 }
                 else if (sceneEvent.SceneName == SceneName.MissionHospital)
                 {
@@ -214,9 +224,10 @@ namespace _Project.Code.Network.GameManagers
                 newPlayer.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
             }
         }
-        private void handleHubPlayerPositions(ulong id)
+        private void HandleHubPlayerPositions(ulong id)
         {
             var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
+            Debug.Log($"The amount of players from our van spawner is {vanSpawner.spawnPoints.Length}");
             if (vanSpawner != null)
                 truckSpawnPoints = vanSpawner.spawnPoints;
             var clients = NetworkManager.Singleton.ConnectedClientsIds;

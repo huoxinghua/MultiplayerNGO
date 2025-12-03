@@ -16,24 +16,18 @@ namespace _Project.Code.Gameplay.Market.Quota
             NetworkVariableWritePermission.Server);
 
         //Current Quota Progress. (Player Progress)
-        private NetworkVariable<float> CurrentQuotaProgress = new NetworkVariable<float>(0,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        private NetworkVariable<float> CurrentQuotaProgress = new(0);
 
         //How much players have progressed in a day. Only adds to progress if day is "successful"
-        private NetworkVariable<float> DaysQuotaProgress = new NetworkVariable<float>(0,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        private NetworkVariable<float> DaysQuotaProgress = new (0);
 
         //Current Day of Quota. Resets after quota timelimit
-        private NetworkVariable<int> CurrentDayOfQuota = new NetworkVariable<int>(0,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
+        private NetworkVariable<int> CurrentDayOfQuota = new(0);
 
         //How many quotas players have succesfully completed without fail
-        private NetworkVariable<int> QuotasPassed = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
+        private NetworkVariable<int> QuotasPassed = new(0);
 
-        private NetworkVariable<bool> BeforeNewRun = new NetworkVariable<bool>(true,
-            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        private NetworkVariable<bool> BeforeNewRun = new (true);
         //SO for quotas. Must assign in inspector
         [field: SerializeField] public QuotaDataSO QuotaSO { get; private set; }
 

@@ -1,6 +1,8 @@
 using _Project.Code.Core.Patterns;
 using _Project.Code.Gameplay.Market.Buy;
+using EventBus =  _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
+
 using UnityEngine;
 
 namespace _Project.Code.Utilities.Singletons
@@ -21,19 +23,16 @@ namespace _Project.Code.Utilities.Singletons
         {
             base.OnNetworkSpawn();
             Debug.Log("WalletBankton.OnNetworkSpawn");
-            if (IsServer)
-            {
-                // Force the object to NOT be destroyed when the scene unloads.
-                NetworkObject.DestroyWithScene = false;
-            }
             TotalMoneyNW.OnValueChanged += HandleMoneyChange;
         }
+        
         #endregion
 
         #region Events
 
         public void HandleMoneyChange(int oldAmount, int newAmount)
         {
+            
             EventBus.EventBus.Instance.Publish<WalletUpdate>(new WalletUpdate());
         }
 
