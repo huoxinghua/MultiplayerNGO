@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Gameplay.Interactables;
 using _Project.Code.Gameplay.NPC.Violent.Brute;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.RefactorInventory; // Added for Inventory reference
@@ -12,6 +13,7 @@ using Unity.Netcode;
 using _Project.Code.Network.GameManagers;
 using NUnit.Framework;
 using Unity.VisualScripting;
+using EventBus = _Project.Code.Utilities.EventBus.EventBus;
 using Timer = _Project.Code.Utilities.Utility.Timer;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
@@ -175,6 +177,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 Debug.Log("input manager is null ");
             }
 
+            EventBus.Instance.Unsubscribe<PlayerChangeArea>(this);
             AllPlayers.Remove(this);
             OnPlayerRemoved?.Invoke(this);
         }
@@ -184,7 +187,19 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
             base.OnNetworkSpawn();
             CharacterController = GetComponent<CharacterController>();
             if (IsServer) PlayerListManager.Instance.RegisterPlayerObj(this);
+            //check the player safe y position
+            EventBus.Instance.Subscribe<PlayerChangeArea>(this, UpdateSafePosition);
 
+        }
+        
+        //When a player enters the teleporter, their position gets pushed far below, so  need to update/sync the correct position for everyone when they go inside the teleport door.
+        private void UpdateSafePosition(PlayerChangeArea changeAreaEvent)
+        {
+            // refresh the safe Y reference after teleports or area transitions
+            if(IsOwner)
+            {
+                _safePositionY = transform.position.y;
+            }
         }
         
         public void ForceSetPosition(Vector3 pos, Quaternion rot)

@@ -70,6 +70,7 @@ namespace _Project.Code.Gameplay.Interactables
             playerTeleporting.transform.position = _linkedDoor.position;
             cc.enabled = true;
             EventBus.Instance.Publish<TeleDoorEvent>(new TeleDoorEvent());
+            EventBus.Instance.Publish(new PlayerChangeArea());
             OnRelease(playerTeleporting);
         }
         public float GetTimeToOpen()
@@ -81,5 +82,10 @@ namespace _Project.Code.Gameplay.Interactables
     {
         public int LinkIndex;
         public Transform LinkPos;
+    }
+
+    public class PlayerChangeArea : IEvent
+    {
+        
     }
 }
