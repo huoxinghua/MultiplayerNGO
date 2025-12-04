@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
 using _Project.Code.Network.GameManagers;
 using _Project.Code.Network.SteamWork;
+using _Project.Code.UI;
 using Steamworks;
 using Steamworks.NET;
 using TMPro;
@@ -12,24 +14,32 @@ namespace _Project.Code.Network.UI
 {
     public class HostUIManager : Singleton<HostUIManager>
     {
-
         [SerializeField] private GameObject _panelContainer;
         [SerializeField] private GameObject _multiplayerOption;
         [SerializeField] private GameObject _hostOption;
+
         private bool _isOpenHostOption = false;
+
         //room List
         [SerializeField] private GameObject _lobbyItemPrefab;
         [SerializeField] private Transform _lobbyListContainer;
         [SerializeField] private GameObject _scrollview;
         private bool isPrivatLobbySelected;
+
         [SerializeField] private Toggle _createLobbyToggle;
+
         //reference
         [SerializeField] private SteamLobbyManager _lobbyManager;
+
         //visual
         [SerializeField] private GameObject _filterImg;
+
         //host
         [SerializeField] private TMP_InputField _roomNameInput;
+        private Stack<GameObject> _menuStack = new Stack<GameObject>();
+        [SerializeField] private GameObject _currentMenu;
         public string RoomName { get; private set; }
+
         void Start()
         {
             if (!SteamManager.Initialized) return;
@@ -41,7 +51,43 @@ namespace _Project.Code.Network.UI
             isPrivatLobbySelected = _createLobbyToggle.isOn;
             _createLobbyToggle.onValueChanged.AddListener(OnPrivateLobbyChanged);
         }
-        
+
+        public void OpenMenu(GameObject newMenu)
+        {
+            if (_currentMenu != null)
+            {
+                _menuStack.Push(_currentMenu);
+                _currentMenu.SetActive(false);
+            }
+
+            _currentMenu = newMenu;
+            _currentMenu.SetActive(true);
+
+            ControlFilter(newMenu);
+        }
+        private void ControlFilter(GameObject page)
+        {
+            var filterCtrl = page.GetComponent<UIPageFilterController>();
+            bool shouldEnable = filterCtrl != null && filterCtrl.EnableFilter;
+            _filterImg.SetActive(shouldEnable);
+        }
+        public void OnBackButton()
+        {
+            Back();
+        }
+
+        private void Back()
+        {
+            Debug.Log("back:" + _menuStack.Count);
+            if (_menuStack.Count == 0)
+                return;
+
+            _currentMenu.SetActive(false);
+            _currentMenu = _menuStack.Pop();
+            _currentMenu.SetActive(true);
+            ControlFilter(_currentMenu);
+        }
+
         private void HidePanels()
         {
             foreach (Transform child in _panelContainer.transform)
@@ -52,8 +98,9 @@ namespace _Project.Code.Network.UI
 
         public void ShowMultiplayerOption()
         {
-            _multiplayerOption.SetActive(true);
+            OpenMenu(_multiplayerOption);
         }
+
         public void ClickSinglePlayer()
         {
             var netManager = NetworkManager.Singleton;
@@ -75,8 +122,8 @@ namespace _Project.Code.Network.UI
 
         public void ShowHostOption()
         {
-            HidePanels();
-            _hostOption.SetActive(true);
+            OpenMenu(_hostOption);
+            ShowImage();
         }
 
         private void ShowImage()
@@ -86,18 +133,18 @@ namespace _Project.Code.Network.UI
 
         public void HideHostOption()
         {
-            _multiplayerOption.SetActive(false);
-            _isOpenHostOption = false;
+            if (_multiplayerOption != null && _isOpenHostOption == true)
+            {
+                _multiplayerOption.SetActive(true);
+                _isOpenHostOption = false;
+            }
         }
 
         public void ShowLobbyList()
         {
             SteamLobbyManager.RaiseLobbyListRequest();
-
-            HidePanels();
-            _scrollview.SetActive(true);
+            OpenMenu(_scrollview);
             ShowImage();
-
         }
 
         public void ClearLobbyList()
@@ -140,24 +187,20 @@ namespace _Project.Code.Network.UI
             foreach (var kvp in SteamLobbyManager.LobbyLists)
             {
                 // KeyValuePair:kvp
-                CSteamID lobbyId = kvp.Key; 
+                CSteamID lobbyId = kvp.Key;
                 string lobbyName = kvp.Value;
 
                 GameObject newItem = Instantiate(_lobbyItemPrefab, _lobbyListContainer);
                 var lobbyItem = newItem.GetComponent<LobbyItemUI>();
                 if (SteamLobbyManager.Instance != null)
                 {
-
                     lobbyItem.SetData(lobbyName, -1, lobbyId);
                 }
 
                 Button joinButton = newItem.GetComponentInChildren<Button>();
                 if (joinButton != null)
                 {
-                    joinButton.onClick.AddListener(() =>
-                    {
-                        SteamMatchmaking.JoinLobby(lobbyId);
-                    });
+                    joinButton.onClick.AddListener(() => { SteamMatchmaking.JoinLobby(lobbyId); });
                 }
             }
         }
@@ -185,16 +228,10 @@ namespace _Project.Code.Network.UI
             Application.Quit();
 
 
-
 #if UNITY_EDITOR
 
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
         }
-
-
     }
-
 }
-
-
