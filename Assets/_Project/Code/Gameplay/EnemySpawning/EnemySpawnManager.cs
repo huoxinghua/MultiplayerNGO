@@ -1,13 +1,16 @@
+using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
 using _Project.Code.Utilities.Singletons;
-using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using _Project.Code.Gameplay.EnemySpawning;
 using _Project.Code.Gameplay.NPC;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
 using _Project.Code.Network.RegisterNetObj;
+using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
+using Timer = _Project.Code.Utilities.Utility.Timer;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
@@ -51,6 +54,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         //new spawn system end
         private readonly HashSet<NetworkObject> _aliveEnemiesRelatedObjs = new();
 
+        private bool _hasSpawned = false;
         private float GetTrueSpawnChance(BaseSpawnSO spwnSO, int AttemptsSinceSpawn, int TotalSpawns)
         {
             Debug.Log("GetTrueSpawnChance  spawn So"+ spwnSO.name);
@@ -81,16 +85,40 @@ namespace _Project.Code.Gameplay.EnemySpawning
         public override void OnNetworkSpawn()
         {
             if (!IsServer) return;
+            _hasSpawned = true;
             _enemySpawnDelay = new Timer(SpawnData.BaseRandomTimeBetweenSpawns);
             _enemySpawnDelay.Start();
-            var point = GetEnemySpawnPoint();
-            SpawnViolent(point);
-
-            SpawnTranquil(point);
-
-
+            
             SpawnAttemptTimer = new Timer(SpawnData.SpawnAttemptRate);
             SpawnAttemptTimer.Start();
+            StartCoroutine(WaitForEnemySpawnPoint());
+        }
+
+        private IEnumerator WaitForEnemySpawnPoint()
+        {
+            yield return new WaitUntil(() => EnemySpawnPoints.Instance.ActiveEnemySpawnPoints.Count > 0);
+            yield return new WaitForSeconds(.2f);
+            SpawnOnStart();
+        }
+        /*protected override void Awake()
+        {
+            base.Awake();
+            if(!IsServer) return;
+            Debug.Log("Awaked");
+            EventBus.Instance.Subscribe<DungeonCompleteEvent>(this,SpawnOnStart);
+        }*/
+
+        private void SpawnOnStart()
+        {
+            if (!_hasSpawned) return;
+            Debug.Log("EventHurd");
+            Debug.Log("SpawnOnStart");
+            var point = GetEnemySpawnPoint();
+            SpawnViolent(point);
+            point = GetEnemySpawnPoint();
+            SpawnTranquil(point);
+            point = GetEnemySpawnPoint();
+            SpawnHorror(point);
         }
 
         private EnemySpawnPoint GetEnemySpawnPoint()
@@ -260,7 +288,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         {
             // get the base spawn chance 
             HandleTranquilAttempt();
-            HandleVoilentAttempt();
+            HandleViolentAttempt();
             HandleHorrorAttempt();
             // if can been sapwned or not
             _totalAttempts++;
@@ -269,7 +297,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private void HandleHorrorAttempt()
         {
             float randomChance = Random.Range(0f, 100f);
-            if (randomChance <= _currentHorrorAttempts)
+            if (randomChance <= currentHorrorSpawnChance)
             {
                 
                 SpawnHorror(GetEnemySpawnPoint());
@@ -282,10 +310,10 @@ namespace _Project.Code.Gameplay.EnemySpawning
             }
         }
 
-        private void HandleVoilentAttempt()
+        private void HandleViolentAttempt()
         {
             float randomChance = Random.Range(0f, 100f);
-            if (randomChance <= currentTranquilSpawnChance)
+            if (randomChance <= currentViolentSpawnChance)
             {
                 
                 SpawnViolent(GetEnemySpawnPoint());
@@ -377,5 +405,10 @@ namespace _Project.Code.Gameplay.EnemySpawning
             if (!IsServer || netObject == null) return;
             _aliveEnemiesRelatedObjs.Remove(netObject);
         }
+    }
+
+    public struct DungeonCompleteEvent : IEvent
+    {
+        
     }
 }

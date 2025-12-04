@@ -7,7 +7,6 @@ namespace _Project.Code.Utilities.Singletons
 {
     public class PlayerCamerasNetSingleton : NetworkSingleton<PlayerCamerasNetSingleton>
     {
-        protected override bool AutoSpawn => false;
         public NetworkList<NetworkObjectReference> PlayerCamerasNetList = new NetworkList<NetworkObjectReference>();
 
         [ServerRpc(RequireOwnership = false)]
@@ -27,15 +26,10 @@ namespace _Project.Code.Utilities.Singletons
             PlayerCamerasNetList.Remove(cameraNetRef);
         }
 
-        public override void OnNetworkSpawn()
+        /*public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            if (IsServer)
-            {
-                // Force the object to NOT be destroyed when the scene unloads.
-                NetworkObject.DestroyWithScene = false;
-            }
-        }
+        }*/
 
         [ServerRpc(RequireOwnership = false)]
         public void RequestClearCameraListServerRpc()
