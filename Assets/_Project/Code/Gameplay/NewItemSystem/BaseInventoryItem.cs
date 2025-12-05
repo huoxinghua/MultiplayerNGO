@@ -425,15 +425,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 _tpsHeldVisualChild.transform.localRotation = Quaternion.identity;
                 _tpsHeldVisualScript = _tpsHeldVisualChild.GetComponent<BaseHeldVisual>();
             }
-
-            // Set visibility based on ownership
-            bool isOwner = playerNetObj.IsOwner;
-            _fpsHeldVisualChild.SetActive(isOwner);   // Owner sees FPS
-            _tpsHeldVisualChild.SetActive(!isOwner);  // Others see TPS
-
-            // Ensure renderers start disabled (will be enabled when equipped)
-            if (_fpsHeldVisualScript != null) _fpsHeldVisualScript.SetRendererActive(isOwner);
-            if (_tpsHeldVisualScript != null) _tpsHeldVisualScript.SetRendererActive(!isOwner);
         }
 
         #endregion
@@ -602,8 +593,21 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 return;
             }
 
+            bool isOwner = _currentPlayerInventory.IsOwner;
+
             if (newState) // Equipped
             {
+                if (isOwner)
+                {
+                    if (_fpsHeldVisualChild != null) _fpsHeldVisualChild.SetActive(true);
+                    if (_tpsHeldVisualChild != null) _tpsHeldVisualChild.SetActive(false);
+                }
+                else
+                {
+                    if (_fpsHeldVisualChild != null) _fpsHeldVisualChild.SetActive(false);
+                    if (_tpsHeldVisualChild != null) _tpsHeldVisualChild.SetActive(true);
+                }
+
                 if (_fpsHeldVisualScript != null)
                 {
                     _fpsHeldVisualScript.SetRendererActive(true);
@@ -624,6 +628,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
             else // Unequipped
             {
+                if (_fpsHeldVisualChild != null) _fpsHeldVisualChild.SetActive(false);
+                if (_tpsHeldVisualChild != null) _tpsHeldVisualChild.SetActive(false);
+
                 if (_fpsHeldVisualScript != null)
                 {
                     _fpsHeldVisualScript.SetRendererActive(false);
