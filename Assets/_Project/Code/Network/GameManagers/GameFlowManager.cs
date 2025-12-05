@@ -1,9 +1,12 @@
 using System;
 using _Project.Code.Core.Patterns;
+using _Project.Code.Core.SaveSystem;
 using _Project.Code.Gameplay.EnemySpawning;
 using _Project.Code.Gameplay.Interactables.Truck;
 using _Project.Code.Gameplay.Market.Buy;
+using _Project.Code.Gameplay.Market.Quota;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
+using _Project.Code.Utilities.Singletons;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -90,6 +93,34 @@ namespace _Project.Code.Network.GameManagers
                 return;
             }
             networkManager.SceneManager.OnSceneEvent += OnSceneEvent;
+
+            // Auto-load save data on host start
+            if (IsServer)
+            {
+                TryLoadSaveData();
+            }
+        }
+
+        private void TryLoadSaveData()
+        {
+            var saveManager = SaveManager.Instance;
+            if (saveManager == null || !saveManager.HasSave()) return;
+
+            var saveData = saveManager.Load();
+            if (saveData == null) return;
+
+            // Apply save data to managers (delayed to ensure they're spawned)
+            Invoke(nameof(ApplySaveData), 0.5f);
+        }
+
+        private void ApplySaveData()
+        {
+            var saveData = SaveManager.Instance?.Load();
+            if (saveData == null) return;
+
+            QuotaManager.Instance?.LoadFromSave(saveData);
+            WalletBankton.Instance?.SetMoney(saveData.PlayerMoney);
+            Debug.Log("[GameFlowManager] Save data applied.");
         }
      
         public override void OnNetworkDespawn()
@@ -129,8 +160,11 @@ namespace _Project.Code.Network.GameManagers
                         SpawnHubPlayers();
                         _isMissionFailed = false;
                     }
-                    
+
                     HandleHubPlayerPositions(sceneEvent.ClientId);
+
+                    // Auto-save when entering hub (delayed to let state settle)
+                    Invoke(nameof(TriggerAutoSave), 0.5f);
                 }
                 else if (sceneEvent.SceneName == SceneName.MissionHospital)
                 {
@@ -159,14 +193,21 @@ namespace _Project.Code.Network.GameManagers
         {
             if (IsServer)
             {
+                // Save before scene transition
+                SaveManager.Instance?.Save();
                 ShowLoadMenu();
-               
             }
             else
             {
                 ShowLoadMenu();
             }
             NetworkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+
+        private void TriggerAutoSave()
+        {
+            if (!IsServer) return;
+            SaveManager.Instance?.Save();
         }
         [ClientRpc]
         private void ShowLoadMenuClientRPC()

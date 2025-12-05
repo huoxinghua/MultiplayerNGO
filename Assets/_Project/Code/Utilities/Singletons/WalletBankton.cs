@@ -54,6 +54,16 @@ namespace _Project.Code.Utilities.Singletons
 
         #endregion
 
-      
+        #region Save System
+
+        public int GetMoney() => TotalMoneyNW.Value;
+
+        public void SetMoney(int amount)
+        {
+            if (!IsServer) return;
+            TotalMoneyNW.Value = amount;
+        }
+
+        #endregion
     }
 }

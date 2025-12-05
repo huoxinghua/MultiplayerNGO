@@ -1,4 +1,5 @@
 using _Project.Code.Core.Patterns;
+using _Project.Code.Core.SaveSystem;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
@@ -290,6 +291,42 @@ namespace _Project.Code.Gameplay.Market.Quota
         public void RequestResetQuotasPassedServerRpc()
         {
             QuotasPassed.Value = 0;
+        }
+
+        #endregion
+
+        #region Save System
+
+        // Getters for SaveManager
+        public float GetCurrentQuota() => CurrentQuota.Value;
+        public float GetCurrentQuotaProgress() => CurrentQuotaProgress.Value;
+        public float GetDaysQuotaProgress() => DaysQuotaProgress.Value;
+        public int GetCurrentDayOfQuota() => CurrentDayOfQuota.Value;
+        public int GetQuotasPassed() => QuotasPassed.Value;
+        public bool GetBeforeNewRun() => BeforeNewRun.Value;
+
+        // Load state from save data (server only)
+        public void LoadFromSave(SaveData data)
+        {
+            if (!IsServer) return;
+            CurrentQuota.Value = data.CurrentQuota;
+            CurrentQuotaProgress.Value = data.CurrentQuotaProgress;
+            DaysQuotaProgress.Value = data.DaysQuotaProgress;
+            CurrentDayOfQuota.Value = data.CurrentDayOfQuota;
+            QuotasPassed.Value = data.QuotasPassed;
+            BeforeNewRun.Value = data.BeforeNewRun;
+        }
+
+        // Reset to fresh game state (server only)
+        public void ResetToDefaults()
+        {
+            if (!IsServer) return;
+            CurrentQuota.Value = 0;
+            CurrentQuotaProgress.Value = 0;
+            DaysQuotaProgress.Value = 0;
+            CurrentDayOfQuota.Value = 0;
+            QuotasPassed.Value = 0;
+            BeforeNewRun.Value = true;
         }
 
         #endregion
