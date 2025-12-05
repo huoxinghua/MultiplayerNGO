@@ -100,7 +100,7 @@ public class DollPerception : NetworkBehaviour
         }
         else
         {
-            DollStateMachine.HandleLookAway();
+            DollStateMachine.HandleLookAway(CurrentClosestPlayer);
         }
 
         PerceptionCheckCooldown.Reset();

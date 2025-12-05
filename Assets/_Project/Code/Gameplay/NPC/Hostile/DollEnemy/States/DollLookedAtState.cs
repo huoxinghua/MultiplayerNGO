@@ -35,7 +35,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         
         }
 
-        public override void StateLookedAway()
+        public override void StateLookedAway(Transform playerToHunt)
         {
             StateMachine.TransitionTo(StateEnum.HuntingState);
         }

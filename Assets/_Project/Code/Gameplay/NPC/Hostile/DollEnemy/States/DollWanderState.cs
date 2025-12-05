@@ -57,6 +57,12 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         {
             StateMachine.TransitionTo(StateEnum.LookedAtState);
         }
+        
+        public override void StateLookedAway(Transform playerToHunt)
+        {
+            // This shouldn't be called from wander, but if it is, start hunting
+            StateMachine.TransitionTo(StateEnum.HuntingState);
+        }
 
         public override void StateHuntTimerComplete()
         {

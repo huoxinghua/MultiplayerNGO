@@ -80,13 +80,13 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             CurrentState.StateLookedAt();
         }
 
-        public void HandleLookAway()
+        public void HandleLookAway(Transform playerToHunt)
         {
             if(!IsServer) return;
             //always hunting when looking away
-          //  Debug.Log("HandleLookAway");
-
-            CurrentState.StateLookedAway();
+            //  Debug.Log("HandleLookAway");
+            SetHuntedPlayer(playerToHunt);
+            CurrentState.StateLookedAway(playerToHunt);
         }
 
         public void HandleNoValidPlayers()
