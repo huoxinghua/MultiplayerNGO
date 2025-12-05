@@ -13,7 +13,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         private TranqGunItemSO _tranqGunItemSO;
         public GameObject _bulletPrefab;
-        public Transform _bulletSpawnPoint;
+        public Transform _bulletSpawnPoint; // This should be assigned in the prefab, as a child of the FPS visual
         public bool HasAmmoLeft => AmmoLeft.Value > 0;
 
         #region Setup + Update
@@ -54,11 +54,21 @@ namespace _Project.Code.Gameplay.NewItemSystem
         protected override void ExecuteUsageLogic()
         {
             if (!IsOwner) return;
-            Vector3 shootDir = GetAimDirection();
-            ShootServerRpc(shootDir);
+            
+            if (_bulletSpawnPoint == null)
+            {
+                Debug.LogError("Bullet spawn point not assigned on TranqGunInventoryItem prefab!");
+                return;
+            }
+
+            Vector3 spawnPosition = _bulletSpawnPoint.position;
+            Quaternion spawnRotation = _bulletSpawnPoint.rotation;
+            Vector3 shootDir = GetAimDirection(spawnPosition);
+            
+            ShootServerRpc(spawnPosition, spawnRotation, shootDir);
         }
 
-        private Vector3 GetAimDirection()
+        private Vector3 GetAimDirection(Vector3 spawnPoint)
         {
             var cam = Camera.main;
             Vector3 shootDir;
@@ -69,7 +79,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
 
                 if (Physics.Raycast(ray, out RaycastHit hit, 100f))
-                    shootDir = (hit.point - _bulletSpawnPoint.position).normalized;
+                    shootDir = (hit.point - spawnPoint).normalized;
             }
             else
             {
@@ -80,17 +90,15 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
 
         [ServerRpc]
-        private void ShootServerRpc(Vector3 aimDir)
+        private void ShootServerRpc(Vector3 spawnPos, Quaternion spawnRot, Vector3 aimDir)
         {
             Debug.Log("shoot gun tranq");
             RequestDecreaseAmmoServerRpc();
 
       
-            var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position,
-                Quaternion.LookRotation(aimDir));
+            var dartObj = Instantiate(_bulletPrefab, spawnPos, spawnRot);
             var netObj = dartObj.GetComponent<NetworkObject>();
             netObj.Spawn();   
-            //var dartObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.LookRotation(transform.forward, Vector3.up));
             var dartScript = dartObj.GetComponent<TranqDartScript>();
             if (dartScript != null)
             {
