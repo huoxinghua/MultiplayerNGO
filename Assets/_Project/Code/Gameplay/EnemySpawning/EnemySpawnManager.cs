@@ -11,6 +11,7 @@ using _Project.Code.Network.RegisterNetObj;
 using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using Timer = _Project.Code.Utilities.Utility.Timer;
+using _Project.Code.Gameplay.Market.Quota;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
@@ -92,6 +93,8 @@ namespace _Project.Code.Gameplay.EnemySpawning
             SpawnAttemptTimer = new Timer(SpawnData.SpawnAttemptRate);
             SpawnAttemptTimer.Start();
             StartCoroutine(WaitForEnemySpawnPoint());
+            EventBus.Instance.Subscribe<OnEnterHubEvent>(this, DespawnAllEnemies);
+
         }
 
         private IEnumerator WaitForEnemySpawnPoint()
@@ -370,6 +373,31 @@ namespace _Project.Code.Gameplay.EnemySpawning
         }
 
         public void DespawnAllEnemies()
+        {
+            if (!IsServer) return;
+
+            foreach (var enemy in _aliveEnemies)
+            {
+                if (enemy != null && enemy.IsSpawned)
+                {
+                    enemy.Despawn(true);
+                }
+            }
+
+            _aliveEnemies.Clear();
+
+            foreach (var relatedObj in _aliveEnemiesRelatedObjs)
+            {
+                if (relatedObj != null && relatedObj.IsSpawned)
+                {
+                    relatedObj.Despawn(true);
+                }
+            }
+
+            _aliveEnemiesRelatedObjs.Clear();
+        }
+
+        public void DespawnAllEnemies(OnEnterHubEvent evt)
         {
             if (!IsServer) return;
 

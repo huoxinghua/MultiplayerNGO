@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using _Project.Code.Core.Patterns;
+using _Project.Code.Gameplay.EnemySpawning;
 using _Project.Code.Gameplay.Interactables.Network;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using _Project.Code.Gameplay.Player.MiscPlayer;
@@ -51,6 +52,7 @@ namespace _Project.Code.Network.GameManagers
 
                 GameFlowManager.Instance.ReturnToHub();
                 ClearEnemiesInHub();
+                EnemySpawnManager.Instance.DespawnAllEnemies();
                 EventBus.Instance?.Publish(new AllPlayerDiedEvent { });
             }
             else
