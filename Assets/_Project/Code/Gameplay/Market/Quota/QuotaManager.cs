@@ -16,7 +16,7 @@ namespace _Project.Code.Gameplay.Market.Quota
             NetworkVariableWritePermission.Server);
 
         //Current Quota Progress. (Player Progress)
-        private NetworkVariable<float> CurrentQuotaProgress = new(0);
+        private NetworkVariable<float> CurrentQuotaProgress = new();
 
         //How much players have progressed in a day. Only adds to progress if day is "successful"
         private NetworkVariable<float> DaysQuotaProgress = new (0);
@@ -36,6 +36,7 @@ namespace _Project.Code.Gameplay.Market.Quota
 
         //Gets the player progress as a percentage. Players only see progress this way
         public float QuotaProgressPercentage => CurrentQuotaProgress.Value / CurrentQuota.Value;
+        public float DayProgressPercentage => DaysQuotaProgress.Value / CurrentQuota.Value;
 
         //Gets total days. Current days of quota + days from previous quotas
         public int TotalDays => CurrentDayOfQuota.Value + (QuotasPassed.Value * (int)QuotaSO.DaysInAQuota);
@@ -148,6 +149,8 @@ namespace _Project.Code.Gameplay.Market.Quota
             if (BeforeNewRun.Value)
             {
                 HandleNewQuota(true);
+                CurrentQuotaProgress.Value = 100;
+                DaysQuotaProgress.Value = 25;
                 RequestChangeBeforeRunStateServerRpc(false);
                 return;
             }
@@ -190,18 +193,20 @@ namespace _Project.Code.Gameplay.Market.Quota
             if (!IsServer) return;
             //fails get a new quota from start. Publish the fail for other systems. 
             //Resets QuotasPassed
-            EventBus.Instance.Publish<QuotaFailedEvent>(new QuotaFailedEvent());
+            
             RequestResetQuotasPassedServerRpc();
             HandleNewQuota(true);
+            EventBus.Instance.Publish<QuotaFailedEvent>(new QuotaFailedEvent());
         }
 
         private void HandleSuccessfulQuota()
         {
             if (!IsServer) return;
             //Add to quota, and increment quotas passed, inform other systems
-            EventBus.Instance.Publish<QuotaSuccessEvent>(new QuotaSuccessEvent());
+            
             HandleNewQuota(false);
             RequestIncreaseQuotasPassedServerRpc();
+            EventBus.Instance.Publish<QuotaSuccessEvent>(new QuotaSuccessEvent());
         }
 
         private void QuotaTimeReached()
@@ -235,7 +240,7 @@ namespace _Project.Code.Gameplay.Market.Quota
         [ServerRpc(RequireOwnership = false)]
         public void RequestResetResearchProgressServerRpc()
         {
-            CurrentQuotaProgress.Value = 0;
+            CurrentQuotaProgress.Value = 100;
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -247,7 +252,7 @@ namespace _Project.Code.Gameplay.Market.Quota
         [ServerRpc(RequireOwnership = false)]
         public void RequestResetDayProgressServerRpc()
         {
-            DaysQuotaProgress.Value = 0;
+            DaysQuotaProgress.Value = 25;
         }
 
         #endregion
