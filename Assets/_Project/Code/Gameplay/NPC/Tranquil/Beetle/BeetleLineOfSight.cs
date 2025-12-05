@@ -1,6 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor;
+using _Project.Code.Utilities.Utility;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
@@ -16,50 +16,48 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         [SerializeField] BeetleHealth beetleHealthScript;
         public BeetleStateMachine StateMachine { get; private set; }
 
-        void Start()
-        {
-            StartCoroutine(PeriodicCheckFOV());
-        }
+        private Timer _fovCheckTimer;
+        private bool _isActive = true;
+
         public void Awake()
         {
             StateMachine = GetComponent<BeetleStateMachine>();
+            _fovCheckTimer = new Timer(fieldOfViewCheckFrequency);
+            _fovCheckTimer.Start();
+        }
+
+        private void Update()
+        {
+            if (!_isActive) return;
+
+            _fovCheckTimer.TimerUpdate(Time.deltaTime);
+            if (_fovCheckTimer.IsComplete)
+            {
+                _fovCheckTimer.Reset();
+                CheckFOV();
+            }
         }
 
         public void OnDeath()
         {
-            StopAllCoroutines();
+            _isActive = false;
         }
+
         public void OnKnockout()
         {
-            StopAllCoroutines();
+            _isActive = false;
         }
         public void AddPlayerInProximity(GameObject playerToAdd)
         {
-            bool playerAlreadyInList = false;
-            foreach (var player in players)
+            if (!players.Contains(playerToAdd))
             {
-                if (player == playerToAdd)
-                {
-                    playerAlreadyInList = true;
-                }
+                players.Add(playerToAdd);
             }
-            if (playerAlreadyInList) return;
-
-            players.Add(playerToAdd);
-
         }
+
         public void RemovePlayerFromProximity(GameObject playerToRemove)
         {
-            bool doRemove = false;
-            foreach (var player in players)
-            {
-                if (player == playerToRemove)
-                {
-                    doRemove = true;
-
-                }
-            }
-            if (doRemove) players.Remove(playerToRemove);
+            players.Remove(playerToRemove);
         }
             private void CheckFOV()
         {
@@ -94,14 +92,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             }
             return hasHostile;
         }
-        IEnumerator PeriodicCheckFOV()
-        {
-            while (true)
-            {
-                CheckFOV();
-                yield return new WaitForSeconds(fieldOfViewCheckFrequency);
-            }
-        }
+
         private bool InFOV(GameObject player)
         {
             Vector3 dirToTarget = ((player.transform.position + new Vector3(0, 0.5f, 0)) - transform.position).normalized;

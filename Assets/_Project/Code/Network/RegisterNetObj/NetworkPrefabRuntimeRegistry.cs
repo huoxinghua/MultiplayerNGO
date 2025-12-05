@@ -25,7 +25,6 @@ namespace _Project.Code.Network.RegisterNetObj
 
 
             networkPrefabs.Add(new NetworkPrefab { Prefab = prefab });
-            UnityEngine.Debug.Log($"[NetworkPrefabRuntimeRegistry] Registered {prefab.name} at runtime.");
         }
     }
 }

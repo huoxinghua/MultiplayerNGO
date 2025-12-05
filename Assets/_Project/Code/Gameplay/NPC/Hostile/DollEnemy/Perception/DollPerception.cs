@@ -17,6 +17,7 @@ public class DollPerception : NetworkBehaviour
     //Players
     private PlayerCamerasNetSingleton PlayerCameras => PlayerCamerasNetSingleton.Instance;
     private List<Transform> CameraTransforms = new List<Transform>();
+    private Dictionary<ulong, Transform> _cachedCameraTransforms = new Dictionary<ulong, Transform>();
     public Transform CurrentClosestPlayer { get; private set; }
     
     [field: Header("Doll Core")]
@@ -190,6 +191,16 @@ public class DollPerception : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // Clean up cache for removed players
+        if (networkListEvent.Type == NetworkListEvent<NetworkObjectReference>.EventType.Remove ||
+            networkListEvent.Type == NetworkListEvent<NetworkObjectReference>.EventType.RemoveAt)
+        {
+            if (networkListEvent.Value.TryGet(out NetworkObject removedObj))
+            {
+                _cachedCameraTransforms.Remove(removedObj.NetworkObjectId);
+            }
+        }
+
         if (PlayerCameras.PlayerCamerasNetList.Count <= 0 && DollStateMachine.GetCurrentState() != StateEnum.WanderState)
         {
             // Handles going back to wander state if no valid players remain.
@@ -201,44 +212,50 @@ public class DollPerception : NetworkBehaviour
 
     private bool RebuildCameraList()
     {
-        if(!IsServer) return false;
-    
-        // 1. Clear the old list
+        if (!IsServer) return false;
+
+        // 1. Clear the working list (not the cache)
         CameraTransforms.Clear();
-    
+
         // 2. Check the NetworkList count immediately
         if (PlayerCameras.PlayerCamerasNetList.Count <= 0)
         {
             return false;
         }
 
-        // 3. Iterate and safely retrieve transforms
+        // 3. Iterate and use cached transforms where possible
         foreach (NetworkObjectReference camRefs in PlayerCameras.PlayerCamerasNetList)
         {
             if (camRefs.TryGet(out NetworkObject camNetObj))
             {
-                Transform cameraTransform = camNetObj.GetComponentInChildren<Camera>()?.transform;
+                ulong netId = camNetObj.NetworkObjectId;
 
-                if (cameraTransform != null)
+                // Check if we already cached this camera transform
+                if (_cachedCameraTransforms.TryGetValue(netId, out Transform cachedTransform) && cachedTransform != null)
                 {
-                    CameraTransforms.Add(cameraTransform);
+                    CameraTransforms.Add(cachedTransform);
                 }
-                // If cameraTransform is null, the NetworkObject is there, but the Camera
-                // component hasn't initialized yet or is missing. We simply ignore this player for now.
+                else
+                {
+                    // Not cached yet - do the expensive GetComponentInChildren once
+                    Transform cameraTransform = camNetObj.GetComponentInChildren<Camera>()?.transform;
+                    if (cameraTransform != null)
+                    {
+                        _cachedCameraTransforms[netId] = cameraTransform;
+                        CameraTransforms.Add(cameraTransform);
+                    }
+                }
             }
-            // If TryGet fails, we skip this reference—it will be caught on a future check.
         }
 
         // 4. Final check and closest player logic
         if (CameraTransforms.Count <= 0)
         {
             DollStateMachine.SetHuntedPlayer(null);
-            // All objects failed TryGet or were missing the Camera component
             return false;
         }
 
-        // The logic is now safe to run because CameraTransforms is populated
-        CurrentClosestPlayer = GetClosestPlayer(); 
+        CurrentClosestPlayer = GetClosestPlayer();
         return true;
     }
 }

@@ -6,17 +6,23 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
     public class BruteHurtIdleState : BruteBaseState
     {
+        private const float ATTACK_CHECK_INTERVAL = 0.1f;
+
         private Timer _idleTimer;
+        private Timer _attackCheckTimer;
 
         public BruteHurtIdleState(BruteStateMachine stateController) : base(stateController)
         {
         }
+
         public override void OnEnter()
         {
             _idleTimer = new Timer(BruteSO.RandomIdleTime);
+            _idleTimer.Start();
+            _attackCheckTimer = new Timer(ATTACK_CHECK_INTERVAL);
+            _attackCheckTimer.Start();
             Animator.PlayInjured();
             Agent.SetDestination(StateController.gameObject.transform.position);
-            _idleTimer.Start();
         }
         public override void OnExit()
         {
@@ -34,11 +40,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public override void StateFixedUpdate()
         {
-            foreach (PlayerList player in PlayerList.AllPlayers)
+            _attackCheckTimer.TimerUpdate(Time.fixedDeltaTime);
+            if (_attackCheckTimer.IsComplete)
             {
-                if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+                _attackCheckTimer.Reset();
+                foreach (PlayerList player in PlayerList.AllPlayers)
                 {
-                    StateController.OnAttack(player.gameObject);
+                    if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+                    {
+                        StateController.OnAttack(player.gameObject);
+                    }
                 }
             }
         }

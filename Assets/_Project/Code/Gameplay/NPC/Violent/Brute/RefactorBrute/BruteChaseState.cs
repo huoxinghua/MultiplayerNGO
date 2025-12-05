@@ -6,15 +6,21 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 {
     public class BruteChaseState : BruteBaseState
     {
+        private const float ATTACK_CHECK_INTERVAL = 0.1f;
+
         public BruteChaseState(BruteStateMachine stateController) : base(stateController)
         {
             this.StateController = stateController;
         }
+
         private Timer _chaseTimer;
+        private Timer _attackCheckTimer;
         public override void OnEnter()
         {
             _chaseTimer = new Timer(BruteSO.LoseInterestTimeChase);
             _chaseTimer.Start();
+            _attackCheckTimer = new Timer(ATTACK_CHECK_INTERVAL);
+            _attackCheckTimer.Start();
             Animator.PlayAlert();
             Agent.speed = BruteSO.RunSpeed;
         }
@@ -34,21 +40,28 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public override void StateFixedUpdate()
         {
-            //add safe check when play was dead
             if (StateController.LastHeardPlayer == null)
             {
                 StateController.TransitionTo(StateController.IdleState);
                 return;
             }
-            
+
             Agent.SetDestination(StateController.LastHeardPlayer.transform.position);
-            foreach (PlayerList player in PlayerList.AllPlayers)
+
+            // Throttle attack distance checks to 10/sec instead of 50/sec
+            _attackCheckTimer.TimerUpdate(Time.fixedDeltaTime);
+            if (_attackCheckTimer.IsComplete)
             {
-                if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+                _attackCheckTimer.Reset();
+                foreach (PlayerList player in PlayerList.AllPlayers)
                 {
-                    StateController.OnAttack(player.gameObject);
+                    if (Vector3.Distance(player.transform.position, StateController.transform.position) < BruteSO.AttackDistance)
+                    {
+                        StateController.OnAttack(player.gameObject);
+                    }
                 }
             }
+
             Animator.PlayRun(Agent.velocity.magnitude, Agent.speed);
         }
         public override void OnHearPlayer()

@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Gameplay.Player.PlayerStateMachine;
+using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -12,29 +12,22 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
     public class BruteHearing : NetworkBehaviour
     {
         [SerializeField] BruteSO _bruteSO;
-        //  [SerializeField] BruteStateController _stateController;
-        //  [SerializeField] BruteMovement _bruteMovement;
-        /*private float _walkingHearDistance => _bruteSO.WalkHearingDistance;
-    private float _runningHearDistance => _bruteSO.RunHearingDistance;
-    private float _landingHearDistance => _bruteSO.LandingHearingDistance;
-    //private float _instantAggroDistance => _bruteSO.InstantAggroDistance;*/
         private float _hearingCooldownTime => _bruteSO.HearingCooldown;
         private bool _isOnHearingCooldown;
-        private int _timesAlerted = 0;
-        private int _maxTimesAlerted = 3;
-        //private HashSet<PlayerMovement> _subscribedPlayers = new();
+        private Timer _hearingCooldownTimer;
         private HashSet<PlayerStateMachine> _subscribedPlayers = new();
         [SerializeField] BruteStateMachine _stateMachine;
         public static readonly List<BruteHearing> AllBrutes = new();
         void OnEnable()
         {
             AllBrutes.Add(this);
+            _hearingCooldownTimer = new Timer(_hearingCooldownTime);
             PlayerStateMachine.OnPlayerAdded += HandlePlayerAdded;
             PlayerStateMachine.OnPlayerRemoved += HandlePlayerRemoved;
 
             foreach (var player in PlayerStateMachine.AllPlayers)
             {
-                HandlePlayerAdded(player); // centralize logic
+                HandlePlayerAdded(player);
             }
         }
         private void OnDestroy()
@@ -92,29 +85,27 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 HeardPlayer(player);
             }
         }
+        private void Update()
+        {
+            if (!_isOnHearingCooldown) return;
+
+            _hearingCooldownTimer.TimerUpdate(Time.deltaTime);
+            if (_hearingCooldownTimer.IsComplete)
+            {
+                _isOnHearingCooldown = false;
+            }
+        }
+
         public void HeardPlayer(GameObject player)
         {
-            if(player != null)
-            {
-            }
-            else
-            {
-                return;
-            }
+            if (player == null) return;
 
             if (!_isOnHearingCooldown)
             {
                 _stateMachine.OnHearPlayer(player);
-                //replace with timer later
-                StartCoroutine(HearingCooldown());
+                _isOnHearingCooldown = true;
+                _hearingCooldownTimer.Reset(_hearingCooldownTime);
             }
-        }
-
-        IEnumerator HearingCooldown()
-        {
-            _isOnHearingCooldown = true;
-            yield return new WaitForSeconds(_hearingCooldownTime);
-            _isOnHearingCooldown = false;
         }
         /// <summary>
         /// Server-side perception broadcast for all Brute instances.

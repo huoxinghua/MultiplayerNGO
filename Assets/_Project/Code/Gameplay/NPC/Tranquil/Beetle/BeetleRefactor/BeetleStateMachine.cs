@@ -121,15 +121,9 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
 
         public void HandleDeath()
         {
-            if (!IsServer)
-            {
-                RequestHandleDeathServerRPC();
-                return;
-            }
-            else
-            {
-                ApplyDeath();
-            }
+            // Death and knockout are functionally identical - both permanent.
+            // Use knockout path since it doesn't break pickup system.
+            HandleKnockedOut();
         }
 
         [ServerRpc(RequireOwnership = false)]

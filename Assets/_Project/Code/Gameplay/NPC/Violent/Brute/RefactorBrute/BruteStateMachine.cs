@@ -265,19 +265,14 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public void OnAttackConnects()
         {
-            if (PlayerToAttack == null)
-            {
-                return;
-            }
+            if (PlayerToAttack == null) return;
 
             var health = PlayerToAttack.GetComponent<IPlayerHealth>();
-            if (health == null)
+            if (health == null) return;
+
+            if (Vector3.Distance(transform.position, PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
             {
-                return;
-            }
-            if(Vector3.Distance(transform.position,PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
-            {
-                PlayerToAttack.GetComponent<IPlayerHealth>().TakeDamage(BruteSO.Damage);
+                health.TakeDamage(BruteSO.Damage);
             }
         }
         public virtual void TransitionTo(BruteBaseState newState)

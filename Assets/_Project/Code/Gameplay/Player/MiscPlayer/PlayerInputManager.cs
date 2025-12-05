@@ -64,7 +64,8 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
         }
         private void OnDisable()
         {
-            SwitchToSpectatorMode();
+            inputActions.Player.Disable();
+            inputActions.Spectator.Disable();
 
             inputActions.Player.Move.performed -= HandleMove;
             inputActions.Player.Move.canceled -= HandleMove;

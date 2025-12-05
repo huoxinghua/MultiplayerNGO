@@ -55,12 +55,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         private void UseTestTube()
         {
-
             // 1. Only Owner should Raycast
             if (!IsOwner) return;
 
+            var cam = Camera.main;
+            if (cam == null) return;
+
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance, lM))
+            if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, _detectDistance, lM))
             {
 
                 var sample = hit.transform.GetComponent<SampleObjTest>();
