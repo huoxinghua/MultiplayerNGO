@@ -149,8 +149,6 @@ namespace _Project.Code.Gameplay.Market.Quota
             if (BeforeNewRun.Value)
             {
                 HandleNewQuota(true);
-                CurrentQuotaProgress.Value = 100;
-                DaysQuotaProgress.Value = 25;
                 RequestChangeBeforeRunStateServerRpc(false);
                 return;
             }
@@ -240,7 +238,7 @@ namespace _Project.Code.Gameplay.Market.Quota
         [ServerRpc(RequireOwnership = false)]
         public void RequestResetResearchProgressServerRpc()
         {
-            CurrentQuotaProgress.Value = 100;
+            CurrentQuotaProgress.Value = 0;
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -252,7 +250,7 @@ namespace _Project.Code.Gameplay.Market.Quota
         [ServerRpc(RequireOwnership = false)]
         public void RequestResetDayProgressServerRpc()
         {
-            DaysQuotaProgress.Value = 25;
+            DaysQuotaProgress.Value = 0;
         }
 
         #endregion
