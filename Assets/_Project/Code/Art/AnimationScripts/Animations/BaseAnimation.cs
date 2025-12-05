@@ -18,7 +18,7 @@ namespace _Project.Code.Art.AnimationScripts.Animations
         protected float currentWalkRunType = (float)walkRunType.walk;
 
         protected int hSpeed = Animator.StringToHash("speed");
-        protected int hIsRunning = Animator.StringToHash("locomotionType");
+        protected int hIsRunning = Animator.StringToHash("locomoti");
         protected int hAttack = Animator.StringToHash("attack");
         protected int hAttackType = Animator.StringToHash("attackType");
         private float _animationBlend = 0f;
@@ -40,16 +40,42 @@ namespace _Project.Code.Art.AnimationScripts.Animations
 
         protected virtual void UpdateMovement(float currentSpeed, float maxSpeed, bool isRunning)
         {
+            // ---- fix the NaN in blend tree ----
+            if (float.IsNaN(currentSpeed) || float.IsInfinity(currentSpeed))
+                currentSpeed = 0f;
+
+            if (float.IsNaN(maxSpeed) || float.IsInfinity(maxSpeed) || maxSpeed <= 0f)
+                maxSpeed = 0.1f;
+            
+            float targetBlend = isRunning ? 1f : 0f;
+       
+            _animationBlend = Mathf.Lerp(_animationBlend, targetBlend, Time.fixedDeltaTime * _animationBlendWeight);
+
+            if (float.IsNaN(_animationBlend) || float.IsInfinity(_animationBlend))
+                _animationBlend = 0f;
+
+            anim.SetFloat(hIsRunning, _animationBlend);
+            
+            float normalizedSpeed = currentSpeed / maxSpeed;
+
+            if (float.IsNaN(normalizedSpeed) || float.IsInfinity(normalizedSpeed))
+                normalizedSpeed = 0f;
+
+            anim.SetFloat(hSpeed, normalizedSpeed);
+            
+            //the old code
+            /*Debug.Log($"PlayRun(): rawSpeed={currentSpeed}, maxSpeed={maxSpeed}");
+
             var speed = isRunning ? (float)walkRunType.Run : (float)walkRunType.walk;
             _animationBlend = Mathf.Lerp(_animationBlend, speed / maxSpeed,
                 Time.fixedDeltaTime * _animationBlendWeight);
-            if (Mathf.Abs(_animationBlend - currentSpeed) <= .001f)
-                return;
+            /*if (Mathf.Abs(_animationBlend - currentSpeed) <= .001f)
+                return;#1#
             anim.SetFloat(hIsRunning, _animationBlend);
             //Debug.Log($"My animation blend value is {_animationBlend}");
            // if (isRunning) StartCoroutine(SmoothWalkRun((float)walkRunType.Run));
           //  else StartCoroutine(SmoothWalkRun((float)walkRunType.walk));
-            anim.SetFloat(hSpeed, currentSpeed / maxSpeed);
+            anim.SetFloat(hSpeed, currentSpeed / maxSpeed);*/
         }
 
 
