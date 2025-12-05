@@ -48,13 +48,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 _violentValueNet.Value = Random.Range(0f, 1f);
                 _miscValueNet.Value = Random.Range(0f, 1f);
 
-                Debug.Log($"[Server] BrutePiece spawned with values T:{_tranquilValueNet.Value:F2} V:{_violentValueNet.Value:F2} M:{_miscValueNet.Value:F2}");
 
                 // Deparent from brute ragdoll if needed
                 // TryRemoveParent returns false if there's no parent, so it's safe to call
                 if (NetworkObject.TryRemoveParent())
                 {
-                    Debug.Log("[Server] BrutePiece deparented from brute ragdoll");
                 }
 
                 // Register with SellableItemManager for cleanup on hub entry

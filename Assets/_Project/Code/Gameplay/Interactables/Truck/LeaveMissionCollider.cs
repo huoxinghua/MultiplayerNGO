@@ -31,7 +31,6 @@ namespace _Project.Code.Gameplay.Interactables.Truck
 
                 if (timer.IsComplete)
                 {
-                    Debug.Log(_holdTimers.IndexOf(timer).ToString());
                     HandleLeave(_players[i]);
                 }
             }

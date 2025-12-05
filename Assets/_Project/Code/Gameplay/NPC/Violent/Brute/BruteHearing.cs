@@ -96,7 +96,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         {
             if(player != null)
             {
-                Debug.Log(player.name);
             }
             else
             {

@@ -48,7 +48,6 @@ namespace _Project.Code.Gameplay.Market.Sell
             if (!_trackedItems.ContainsKey(netObj))
             {
                 _trackedItems.Add(netObj, item);
-                Debug.Log($"[SellableItemManager] Registered item: {item.GetItemName()}");
             }
         }
 
@@ -62,7 +61,6 @@ namespace _Project.Code.Gameplay.Market.Sell
 
             if (_trackedItems.Remove(netObj))
             {
-                Debug.Log($"[SellableItemManager] Unregistered item");
             }
         }
 
@@ -99,11 +97,9 @@ namespace _Project.Code.Gameplay.Market.Sell
                 if (!item.IsCurrentlyHeld)
                 {
                     itemsToDespawn.Add(netObj);
-                    Debug.Log($"[SellableItemManager] Despawning unheld item: {item.GetItemName()}");
                 }
                 else
                 {
-                    Debug.Log($"[SellableItemManager] Keeping held item: {item.GetItemName()}");
                 }
             }
 
@@ -118,7 +114,6 @@ namespace _Project.Code.Gameplay.Market.Sell
                 }
             }
 
-            Debug.Log($"[SellableItemManager] Despawned {itemsToDespawn.Count} unheld items, {_trackedItems.Count} items remain");
         }
 
         /// <summary>

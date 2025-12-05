@@ -33,7 +33,6 @@ namespace _Project.Code.Core.Patterns
 
         private void InitializeServices()
         {
-            Debug.Log($"[GameInitializer] Starting service initialization. Found {_servicePrefabs.Count} prefabs");
 
             foreach (var servicePrefab in _servicePrefabs)
             {
@@ -43,11 +42,9 @@ namespace _Project.Code.Core.Patterns
                     continue;
                 }
 
-                Debug.Log($"[GameInitializer] Instantiating {servicePrefab.GetType().Name}");
                 var serviceInstance = Instantiate(servicePrefab, transform);
                 var serviceType = serviceInstance.GetType();
 
-                Debug.Log($"[GameInitializer] Service instance type: {serviceType.Name}");
 
                 // Use reflection to call ServiceLocator.Register<T>(instance)
                 var registerMethod = typeof(ServiceLocator)
@@ -56,10 +53,8 @@ namespace _Project.Code.Core.Patterns
 
                 registerMethod.Invoke(null, new object[] { serviceInstance });
 
-                Debug.Log($"[GameInitializer] Successfully registered {serviceType.Name}");
             }
 
-            Debug.Log("[GameInitializer] Service initialization complete");
         }
     }
 }

@@ -47,7 +47,6 @@ namespace _Project.Code.Gameplay.Interactables.Network
 
         public void OnInteract(GameObject interactingPlayer)
         {
-            Debug.Log("IsServer" + IsServer);
             if (!IsServer)
             {
                 RequestToggleServerRpc();

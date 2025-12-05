@@ -25,7 +25,6 @@ namespace _Project.Code.Network.GameManagers
 
             if (!AlivePlayers.Contains(cid))
                 AlivePlayers.Add(cid);
-            Debug.Log("RegisterPlayerObj after  alive count:" + AlivePlayers.Count);
 
         }
         
@@ -48,7 +47,6 @@ namespace _Project.Code.Network.GameManagers
 
             if (AlivePlayers.Count <= 0)
             {
-                Debug.Log("OnPlayerDied ReturnToHub :");
 
                 GameFlowManager.Instance.ReturnToHub();
                 ClearEnemiesInHub();
@@ -57,7 +55,6 @@ namespace _Project.Code.Network.GameManagers
             }
             else
             {
-                Debug.Log("Enter to spectator cam");
                 SendEnterSpectatorClientRpc(deadClientId);
             }
         }

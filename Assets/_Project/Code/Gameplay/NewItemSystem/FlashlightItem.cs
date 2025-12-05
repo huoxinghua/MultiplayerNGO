@@ -259,7 +259,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Can't turn on if no charge
             if (!FlashOnNetworkVariable.Value && !_hasCharge)
             {
-                Debug.Log("[FlashlightItem] No charge remaining");
                 return;
             }
 

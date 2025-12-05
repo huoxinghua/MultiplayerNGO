@@ -105,7 +105,6 @@ namespace _Project.Code.Gameplay.Market.Quota
 
         private void OnEnable()
         {
-            Debug.Log("Should subscribe");
             EventBus.Instance.Subscribe<DayStartEvent>(this, HandleDayStarted);
             EventBus.Instance.Subscribe<SuccessfulDayEvent>(this, HandleSuccessfulDay);
             EventBus.Instance.Subscribe<OnEnterHubEvent>(this, HandleEnterHub);
@@ -113,7 +112,6 @@ namespace _Project.Code.Gameplay.Market.Quota
 
         private void OnDisable()
         {
-            Debug.Log("Should unsubscribe");
             EventBus.Instance?.Unsubscribe<DayStartEvent>(this);
             EventBus.Instance?.Unsubscribe<SuccessfulDayEvent>(this);
             EventBus.Instance?.Unsubscribe<OnEnterHubEvent>(this);
@@ -126,7 +124,6 @@ namespace _Project.Code.Gameplay.Market.Quota
         public void HandleDayStarted(DayStartEvent dayStartEvent)
         {
             //Increase days elapsed
-            Debug.Log("Event work");
             if (!IsServer) return;
             RequestResetDayProgressServerRpc();
             RequestIncreaseDaysServerRpc();
@@ -135,7 +132,6 @@ namespace _Project.Code.Gameplay.Market.Quota
         public void HandleSuccessfulDay(SuccessfulDayEvent dayStartEvent)
         {
             //Add progress towards quota
-            Debug.Log("Event work");
             if (!IsServer) return;
             RequestAddResearchProgressServerRpc(DaysQuotaProgress.Value);
         }
@@ -144,7 +140,6 @@ namespace _Project.Code.Gameplay.Market.Quota
         {
             //When loading hub, should get if its before a new run (no quota started whatsoever)
             //maybe check days passed instead of passing through
-            Debug.Log("Event work");
             if (!IsServer) return;
             if (BeforeNewRun.Value)
             {

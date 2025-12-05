@@ -144,10 +144,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnNumPressed += OnNumPressedInput;
                 InputManager.OnChangeWeaponInput += OnChangeWeaponInput;
             }
-            else
-            {
-                Debug.Log("input manager is null ");
-            }
+            
 
             if (!AllPlayers.Contains(this))
                 AllPlayers.Add(this);
@@ -172,10 +169,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnNumPressed -= OnNumPressedInput;
                 InputManager.OnChangeWeaponInput -= OnChangeWeaponInput;
             }
-            else
-            {
-                Debug.Log("input manager is null ");
-            }
+            
 
             EventBus.Instance.Unsubscribe<PlayerChangeArea>(this);
             AllPlayers.Remove(this);

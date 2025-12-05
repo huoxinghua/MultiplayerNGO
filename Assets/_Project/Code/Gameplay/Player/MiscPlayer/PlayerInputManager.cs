@@ -123,7 +123,6 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
         }
         private void HandleJump(InputAction.CallbackContext context)
         {
-            Debug.Log($"Jump context is {context.performed}");
             OnJumpInput?.Invoke(new PlayerJumpEvent{IsPressed = context.performed});
         
         }

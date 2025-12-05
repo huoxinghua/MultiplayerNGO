@@ -92,7 +92,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [ServerRpc]
         private void ShootServerRpc(Vector3 spawnPos, Quaternion spawnRot, Vector3 aimDir)
         {
-            Debug.Log("shoot gun tranq");
             RequestDecreaseAmmoServerRpc();
 
       
@@ -103,7 +102,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             if (dartScript != null)
             {
                 dartScript.Owner = _owner;
-                Debug.Log("gun owner:" + dartScript.Owner);
                 dartScript.SetVelocity(aimDir);
             }
         }

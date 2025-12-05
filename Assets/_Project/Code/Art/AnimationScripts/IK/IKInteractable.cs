@@ -62,14 +62,12 @@ namespace _Project.Code.Art.AnimationScripts.IK
             // This prevents phantom hands when ownership changes between players
             if (isFPS && _currentFPSIKController != null && _currentFPSIKController != ikController)
             {
-                Debug.Log($"[{gameObject.name}] PickupAnimation clearing OLD FPS controller - Player: {_currentFPSIKController.transform.root.name}");
                 _currentFPSIKController.IkActive = false;
                 _currentFPSIKController.IKPos(null, null, null, null, null, null);
                 _currentFPSIKController = null;
             }
             else if (!isFPS && _currentTPSIKController != null && _currentTPSIKController != ikController)
             {
-                Debug.Log($"[{gameObject.name}] PickupAnimation clearing OLD TPS controller - Player: {_currentTPSIKController.transform.root.name}");
                 _currentTPSIKController.IkActive = false;
                 _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController = null;
@@ -98,7 +96,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             if (_currentFPSIKController != null)
             {
-                Debug.Log($"[{gameObject.name}] DropAnimation clearing FPS - Player: {_currentFPSIKController.transform.root.name}");
                 _currentFPSIKController.IkActive = false;
                 _currentFPSIKController.IKPos(null, null, null, null, null, null);
                 _currentFPSIKController =  null;
@@ -106,7 +103,6 @@ namespace _Project.Code.Art.AnimationScripts.IK
 
             if (_currentTPSIKController != null)
             {
-                Debug.Log($"[{gameObject.name}] DropAnimation clearing TPS - Player: {_currentTPSIKController.transform.root.name}");
                 _currentTPSIKController.IkActive = false;
                 _currentTPSIKController.IKPos(null, null, null, null, null, null);
                 _currentTPSIKController =  null;

@@ -29,7 +29,7 @@ namespace _Project.Code.Network.ProximityChat
         {
             if (_recorder.IsRecording)
             {
-                Debug.Log("Still recording voice...");
+                // Debug.Log("Still recording voice...");
             }
         }
 

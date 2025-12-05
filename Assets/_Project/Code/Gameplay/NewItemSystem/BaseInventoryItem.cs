@@ -181,15 +181,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 // Check if FPS animation is complete (owner sees FPS)
                 bool animComplete = _fpsHeldVisualScript?.HeldIKInteractable?.IsInteractComplete ?? true;
 
-                Debug.Log($"[{gameObject.name}] Cooldown complete, checking anim - IsInteractComplete:{animComplete}");
 
                 if (animComplete)
                 {
                     CompleteUsage();
-                }
-                else
-                {
-                    Debug.LogWarning($"[{gameObject.name}] Cooldown done but animation still playing - WAITING");
                 }
             }
         }
@@ -512,7 +507,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             if (_currentPlayerInventory == null)
             {
-                Debug.LogWarning($"[{gameObject.name}] CurrentPlayerInventory not set yet (waiting for ClientRpc)");
                 return;
             }
 
@@ -593,7 +587,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _queuedItemAnimState = DetermineAnimationFromMovement(isMoving, isRunning, isCrouching);
             if (_usageState == UsageState.InUse)
             {
-                Debug.Log($"[{gameObject.name}] Movement notification BLOCKED - item in use (preventing animation interruption)");
                 return;
             }
 
@@ -601,7 +594,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             if (CurrentAnimState.Value != _queuedItemAnimState)
             {
-                Debug.Log($"[{gameObject.name}] Movement changed animation: {CurrentAnimState.Value} -> {_queuedItemAnimState}");
                 CurrentAnimState.Value = _queuedItemAnimState;
             }
         }
@@ -638,7 +630,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected virtual void StartUsage()
         {
-            Debug.Log($"[{gameObject.name}] StartUsage - setting state to InUse, cooldown to {_itemSO.ItemCooldown}s");
             _usageState = UsageState.InUse;
             ItemCooldown.Reset(_itemSO.ItemCooldown);
 
@@ -653,7 +644,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected void CompleteUsage()
         {
-            Debug.Log($"[{gameObject.name}] Usage complete - cooldown finished, allowing movement updates");
             _usageState = UsageState.Idle;
             CurrentAnimState.Value = _queuedItemAnimState;
         }

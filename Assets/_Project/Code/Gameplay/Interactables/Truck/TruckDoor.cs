@@ -67,7 +67,6 @@ namespace _Project.Code.Gameplay.Interactables.Truck
         {
             if (!IsServer)
                 return;
-            Debug.Log("open Door");
 
             _openState.Value = !_openState.Value;
         }

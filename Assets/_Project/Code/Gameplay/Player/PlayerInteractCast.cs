@@ -111,12 +111,10 @@ namespace _Project.Code.Gameplay.Player
         }
         public void AttemptInteract()
         {
-                Debug.Log("[playerinteractCast]Try to hit");
             RaycastHit hit;
 
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
             {
-                Debug.Log("AttemptInteract:" + hit.collider.gameObject.name);
                 // Check for interfaces on hit object or parent (for nested colliders)
                 var interactable = hit.collider.GetComponent<IInteractable>()
                                    ?? hit.collider.GetComponentInParent<IInteractable>();
@@ -129,7 +127,6 @@ namespace _Project.Code.Gameplay.Player
                                      ?? hit.collider.GetComponentInParent<IHoldToInteract>();
                 if (holdToInteract != null)
                 {
-                    Debug.Log("WTF");
                     currentHold = holdToInteract;
                     holdToInteract.OnHold(playerObj);
                 }

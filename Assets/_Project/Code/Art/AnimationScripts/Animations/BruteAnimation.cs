@@ -22,7 +22,6 @@ namespace _Project.Code.Art.AnimationScripts.Animations
 
         public override void PlayRandomIdle(float currentIdleTime, float idleStart)
         {
-            Debug.Log("No random idle animation for brute!");
         }
 
         public void PlayNormal()

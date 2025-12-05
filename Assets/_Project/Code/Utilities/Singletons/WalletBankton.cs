@@ -22,7 +22,6 @@ namespace _Project.Code.Utilities.Singletons
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("WalletBankton.OnNetworkSpawn");
             TotalMoneyNW.OnValueChanged += HandleMoneyChange;
         }
         

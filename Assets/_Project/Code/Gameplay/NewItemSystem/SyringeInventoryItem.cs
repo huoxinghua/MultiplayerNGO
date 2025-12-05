@@ -80,7 +80,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Check if already used
             if (IsUsed.Value)
             {
-                Debug.Log("[SyringeInventoryItem] Syringe already used");
                 return false;
             }
 
@@ -118,8 +117,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // 2. Apply speed boost for EffectDuration
             // 3. Visual feedback (injection animation, particle effects)
 
-            // For now, just log
-            Debug.Log($"[Server] Syringe injected! Speed boost: {_syringeItemSO.SpeedBoostAmount} for {_syringeItemSO.EffectDuration}s");
 
             // TODO: Start coroutine or timer to remove effect after EffectDuration
             // TODO: Visual feedback via ClientRpc

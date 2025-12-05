@@ -52,7 +52,6 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             if(!IsServer)return;
             _currentHealth += healthChange;
 
-            Debug.Log(_currentHealth);
             if (_currentHealth < 0)
             {
                 OnDeath();

@@ -29,7 +29,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
            
             SawTimeAmount = new NetworkVariable<float>(_handSawItemSO.SawTimeAmount, NetworkVariableReadPermission.Everyone,
@@ -58,7 +57,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         private void UseSaw()
         {
-            Debug.Log("UseSaw");
             RequestChangeIsUsedServerRpc();
         }
 

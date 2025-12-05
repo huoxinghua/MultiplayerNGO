@@ -48,10 +48,8 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         {
             base.OnNetworkSpawn();
             if (!IsServer) return;
-            Debug.Log("OnNetworkSpawn");
             transform.parent = null;
             TransitionTo(WanderState);
-            Debug.Log(CurrentState);
         }
 
         void Update()
@@ -92,7 +90,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
 
         public void HandleKnockedOut()
         {
-            Debug.Log("HandleKnockedOut");
             if (!IsServer)
             {
                 RequestKnockedOutServerRPC();
@@ -124,7 +121,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
 
         public void HandleDeath()
         {
-            Debug.Log("BeetleStateMachine HandleDeath");
             if (!IsServer)
             {
                 RequestHandleDeathServerRPC();
@@ -139,12 +135,10 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         [ServerRpc(RequireOwnership = false)]
         private void RequestHandleDeathServerRPC()
         {
-            Debug.Log("BeetleStateMachine RequestHandleDeathServer");
         }
 
         private void ApplyDeath()
         {
-            Debug.Log("[BeetleStateMachine] ApplyDeath");
             BeetleDeadScript.enabled = true;
             transform.GetChild(1).parent = null;
             _ragdollScript.EnableRagdoll();
@@ -170,7 +164,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         
         private void ApplyDisableVisual()
         {   
-           Debug.Log("DisableVisualClientRPC");
             var mesh = GetComponent<MeshRenderer>();
             if (mesh != null)
                 mesh.enabled = false;
@@ -186,7 +179,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
             }
             else
             {
-                Debug.Log("IsServer:"+IsServer + "health sc is null");
             }
       
                 
@@ -226,7 +218,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         [ClientRpc]
         private void DetachRagdollClientRpc()
         {
-            Debug.Log("[CLIENT] Beetle DetachRagdollClientRpc received");
 
             if (this == null || transform == null)
             {
@@ -252,7 +243,6 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
         private void PlayRagdollClientRpc()
         {
             DisableVisualClientRPC();
-            Debug.Log("[BeetleStateMachine]PlayRagdollClientRpc");
             BeetleDeadScript.enabled = true;
             /*transform.GetChild(1).parent = null;
             _ragdollScript.EnableRagdoll();*/

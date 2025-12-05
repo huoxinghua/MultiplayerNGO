@@ -138,7 +138,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public void OnHearPlayer(GameObject playerObj)
         {
 
-            if (playerObj == null || IsHurt.Value){ Debug.Log("LeavingEarly"); return; }
+            if (playerObj == null || IsHurt.Value){ return; }
             LastHeardPlayer = playerObj;
             if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
             {

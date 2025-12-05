@@ -37,7 +37,6 @@ namespace _Project.Code.Network.GameManagers
         protected override void Awake()
         {
             base.Awake();
-            Debug.Log("Wake me up before you go go");
             
         }
         public void ShowLoadMenu()
@@ -88,7 +87,6 @@ namespace _Project.Code.Network.GameManagers
             var networkManager = NetworkManager.Singleton;
             if (networkManager == null || networkManager.SceneManager == null)
             {
-                Debug.Log("We did not get the network manager");
                 return;
             }
             networkManager.SceneManager.OnSceneEvent += OnSceneEvent;
@@ -114,7 +112,6 @@ namespace _Project.Code.Network.GameManagers
         }
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
-            Debug.Log("On Scene Event called");
             if (!IsServer)
             {
                 HideLoadMenu(); 
@@ -210,7 +207,6 @@ namespace _Project.Code.Network.GameManagers
         }
         private void SpawnHubPlayers()
         {
-            Debug.Log("mission faild spawn hub players");
             var clients = NetworkManager.Singleton.ConnectedClientsIds;
 
             foreach (var clientId in clients)
@@ -227,7 +223,6 @@ namespace _Project.Code.Network.GameManagers
         private void HandleHubPlayerPositions(ulong id)
         {
             var vanSpawner = FindAnyObjectByType<TruckSpawnPointsForPlayers>();
-            Debug.Log($"The amount of players from our van spawner is {vanSpawner.spawnPoints.Length}");
             if (vanSpawner != null)
                 truckSpawnPoints = vanSpawner.spawnPoints;
             var clients = NetworkManager.Singleton.ConnectedClientsIds;
