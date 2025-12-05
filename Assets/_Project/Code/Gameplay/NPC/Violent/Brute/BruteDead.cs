@@ -16,7 +16,8 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         bool _isInteracting;
         List<GameObject> playersInteracting = new List<GameObject>();
 
-        [SerializeField] GameObject _brutePiecesPrefab;
+        //[SerializeField] GameObject _brutePiecesPrefab;
+        [SerializeField] private List<GameObject> _brutePiecesList = new();
         [SerializeField] GameObject _destroy;
 
         [SerializeField] float heightOffset;
@@ -92,17 +93,23 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         private void SpawnBrutePiecesServer()
         {
             var spawnPos = _deathPosition + new Vector3(0, heightOffset, 0);
-            var obj = Instantiate(_brutePiecesPrefab, spawnPos, Quaternion.identity);
-            var netObj = obj.GetComponent<NetworkObject>();
+            foreach (GameObject brutePiece in _brutePiecesList)
+            {
+                var obj = Instantiate(brutePiece, spawnPos, Quaternion.identity);
+                obj.transform.parent = null;
+                var netObj = obj.GetComponent<NetworkObject>();
 
-            if (netObj != null)
-            {
-                netObj.Spawn(true);
+                if (netObj != null)
+                {
+                    netObj.Spawn(true);
+                }
+                else
+                {
+                    Debug.LogWarning($"{brutePiece.name} no NetworkObject comp！");
+                }
             }
-            else
-            {
-                Debug.LogWarning($"{_brutePiecesPrefab.name} no NetworkObject comp！");
-            }
+           
+            
         }
 
         [ServerRpc(RequireOwnership = false)]

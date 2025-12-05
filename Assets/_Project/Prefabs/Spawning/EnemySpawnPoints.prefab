@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8926596479089046296}
   - component: {fileID: -7081285154978574206}
-  - component: {fileID: 6491947294480370859}
+  - component: {fileID: 3149502970465915133}
   m_Layer: 0
-  m_Name: EnemySpawnManager
+  m_Name: EnemySpawnPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 423088108
+  GlobalObjectIdHash: 2124860247
   InScenePlacedSourceGlobalObjectIdHash: 423088108
   DeferredDespawnTick: 0
   Ownership: 1
@@ -58,7 +58,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &6491947294480370859
+--- !u!114 &3149502970465915133
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,13 +67,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2455792422272416170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2878d63749e4e048b4e49d5a9836300, type: 3}
+  m_Script: {fileID: 11500000, guid: ff4ba5d152b1a9e42bf1f74f50162249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   <PersistBetweenScenes>k__BackingField: 0
-  <EnemyPrefabs>k__BackingField: {fileID: 11400000, guid: 8c8ccde774bf9bb4a9c37b93c1ce9ed9, type: 2}
-  <SpawnData>k__BackingField: {fileID: 11400000, guid: 22b0758ad8b4a8c45ac46a2feda7c3c8, type: 2}
-  <TranquilSpawnSo>k__BackingField: {fileID: 11400000, guid: 1fbefc7f9c08740c8b00710bd3798921, type: 2}
-  <ViolentSpawnSo>k__BackingField: {fileID: 11400000, guid: 4e74f311c75d049d6a3af99e9865b495, type: 2}
-  <HorrorSpawnSo>k__BackingField: {fileID: 11400000, guid: 4d868b52ef0ce469285651dd4cd8e2b5, type: 2}
+  ActiveEnemySpawnPoints: []
