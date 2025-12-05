@@ -14,6 +14,7 @@ namespace _Project.Code.Gameplay.LeaveMission
         [SerializeField] private GameObject _truckCam;
         [SerializeField] private float _leaveTime = 5f;
         private Timer _leaveTimer;
+        private Timer _enableCamTimer;
         private bool _isLeaving = false;
         public override void OnNetworkSpawn()
         {
@@ -24,6 +25,7 @@ namespace _Project.Code.Gameplay.LeaveMission
         {
             EventBus.Instance.Subscribe<SuccessfulDayEvent>(this, HandleSuccessfulDayEvent);
             _leaveTimer =  new Timer(_leaveTime);
+            _enableCamTimer  = new Timer(_leaveTime/2);
         }
 
         private void OnDisable()
@@ -35,9 +37,16 @@ namespace _Project.Code.Gameplay.LeaveMission
         {
             if (!_isLeaving || !IsServer) return;
             _leaveTimer.TimerUpdate(Time.deltaTime);
+            _enableCamTimer.TimerUpdate(Time.deltaTime);
             if (_leaveTimer.IsComplete)
             {
+               
                 GameFlowManager.Instance.LoadScene(GameFlowManager.SceneName.HubScene);
+            }
+
+            if (_enableCamTimer.IsComplete)
+            {
+                EventBus.Instance.Publish<FinishLeavingEvent>(new FinishLeavingEvent());
             }
         }
 
@@ -50,6 +59,7 @@ namespace _Project.Code.Gameplay.LeaveMission
         {
         HandleCameraShiftClientRpc();
         _leaveTimer.Start();
+        _enableCamTimer.Start();
         }
         [ClientRpc(RequireOwnership = false)]
         public void HandleCameraShiftClientRpc()
@@ -63,5 +73,10 @@ namespace _Project.Code.Gameplay.LeaveMission
     public struct LeavingMissionEvent : IEvent
     {
     
+    }
+
+    public struct FinishLeavingEvent : IEvent
+    {
+        
     }
 }

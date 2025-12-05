@@ -9,10 +9,15 @@ public class CameraHider : MonoBehaviour
    private void Awake()
    {
       EventBus.Instance.Subscribe<LeavingMissionEvent>(this,HandleLeaveMission );
+      EventBus.Instance.Subscribe<FinishLeavingEvent>(this,HandleFinishLeavingMission );
    }
 
    private void HandleLeaveMission(LeavingMissionEvent e)
    {
       _playerCam.SetActive(false);
+   }
+   private void HandleFinishLeavingMission(FinishLeavingEvent e)
+   {
+      _playerCam.SetActive(true);
    }
 }
