@@ -73,8 +73,11 @@ namespace _Project.Code.Gameplay.Player
                 if (hitRoot != currentTarget)
                 {
                     currentTarget = hitRoot;
-                    currentInteractable = currentTarget.GetComponent<IInteractable>();
-                    currentHoldInteract = currentTarget.GetComponent<IHoldInteract>();
+                    // Check for interfaces on hit object or parent (for nested colliders like PickUpCollider)
+                    currentInteractable = currentTarget.GetComponent<IInteractable>()
+                                          ?? currentTarget.GetComponentInParent<IInteractable>();
+                    currentHoldInteract = currentTarget.GetComponent<IHoldInteract>()
+                                          ?? currentTarget.GetComponentInParent<IHoldInteract>();
                 }
 
                 bool hasInteractable = currentInteractable != null;
@@ -114,16 +117,21 @@ namespace _Project.Code.Gameplay.Player
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, interactDist, lM, QueryTriggerInteraction.Collide))
             {
                 Debug.Log("AttemptInteract:" + hit.collider.gameObject.name);
-                if (hit.collider.transform.gameObject.GetComponent<IInteractable>() != null)
+                // Check for interfaces on hit object or parent (for nested colliders)
+                var interactable = hit.collider.GetComponent<IInteractable>()
+                                   ?? hit.collider.GetComponentInParent<IInteractable>();
+                if (interactable != null)
                 {
                     lastInteracted = hit.transform.gameObject;
-                    hit.collider.transform.gameObject.GetComponent<IInteractable>().OnInteract(playerObj);
+                    interactable.OnInteract(playerObj);
                 }
-                if (hit.collider.transform.gameObject.GetComponent<IHoldToInteract>() != null)
+                var holdToInteract = hit.collider.GetComponent<IHoldToInteract>()
+                                     ?? hit.collider.GetComponentInParent<IHoldToInteract>();
+                if (holdToInteract != null)
                 {
                     Debug.Log("WTF");
-                    currentHold = hit.collider.transform.gameObject.GetComponent<IHoldToInteract>();
-                    hit.collider.transform.gameObject.GetComponent<IHoldToInteract>().OnHold(playerObj);
+                    currentHold = holdToInteract;
+                    holdToInteract.OnHold(playerObj);
                 }
             }
         }

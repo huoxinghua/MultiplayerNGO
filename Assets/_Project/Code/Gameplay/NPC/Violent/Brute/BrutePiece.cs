@@ -1,3 +1,4 @@
+using _Project.Code.Gameplay.Market.Sell;
 using _Project.Code.Gameplay.NewItemSystem;
 using Unity.Netcode;
 using UnityEngine;
@@ -55,6 +56,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 {
                     Debug.Log("[Server] BrutePiece deparented from brute ragdoll");
                 }
+
+                // Register with SellableItemManager for cleanup on hub entry
+                SellableItemManager.Instance?.RegisterItem(NetworkObject, this);
             }
 
             // All clients cache values locally for easy access
@@ -66,6 +70,15 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _tranquilValueNet.OnValueChanged += (oldVal, newVal) => _tranquilValue = newVal;
             _violentValueNet.OnValueChanged += (oldVal, newVal) => _violentValue = newVal;
             _miscValueNet.OnValueChanged += (oldVal, newVal) => _miscValue = newVal;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            if (IsServer)
+            {
+                SellableItemManager.Instance?.UnregisterItem(NetworkObject);
+            }
         }
 
         #endregion

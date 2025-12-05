@@ -114,9 +114,9 @@ namespace _Project.Code.Gameplay.Market.Quota
         private void OnDisable()
         {
             Debug.Log("Should unsubscribe");
-            EventBus.Instance.Unsubscribe<DayStartEvent>(this);
-            EventBus.Instance.Unsubscribe<SuccessfulDayEvent>(this);
-            EventBus.Instance.Unsubscribe<OnEnterHubEvent>(this);
+            EventBus.Instance?.Unsubscribe<DayStartEvent>(this);
+            EventBus.Instance?.Unsubscribe<SuccessfulDayEvent>(this);
+            EventBus.Instance?.Unsubscribe<OnEnterHubEvent>(this);
         }
 
         #endregion

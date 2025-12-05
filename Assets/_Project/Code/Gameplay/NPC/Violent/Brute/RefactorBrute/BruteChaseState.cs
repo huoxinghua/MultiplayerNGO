@@ -26,7 +26,8 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public override void StateUpdate()
         {
-            if (_chaseTimer.IsComplete || Vector3.Distance(StateController.LastHeardPlayer.transform.position,StateController.transform.position) >= BruteSO.LoseInterestDistanceChase)
+            if (StateController.LastHeardPlayer == null || _chaseTimer.IsComplete ||
+                Vector3.Distance(StateController.LastHeardPlayer.transform.position, StateController.transform.position) >= BruteSO.LoseInterestDistanceChase)
             {
                 StateController.TransitionTo(StateController.IdleState);
             }

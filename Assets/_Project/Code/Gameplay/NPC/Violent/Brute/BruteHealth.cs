@@ -70,13 +70,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         {
             DisableVisualClientRPC();
         }
+
         [ClientRpc]
         void DisableVisualClientRPC()
         {
             var mesh = GetComponent<MeshRenderer>();
             if (mesh != null)
                 mesh.enabled = false;
-
 
             var collider = GetComponent<Collider>();
             if (collider != null)
@@ -85,24 +85,29 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             var agent = GetComponent<NavMeshAgent>();
             if (agent != null)
             {
-                agent.ResetPath();       
+                agent.ResetPath();
                 agent.isStopped = true;
-                agent.enabled = false;   
+                agent.enabled = false;
             }
 
             var animator = GetComponent<Animator>();
             if (animator != null)
-                animator.enabled = false;     
-            
-            if (_stateMachine != null)
             {
                 animator.Rebind();
                 animator.enabled = false;
             }
-            _stateMachine.OnDeath();
-            _ragdoll.EnableRagdoll();
-           _stateMachine.enabled = false;
-           _bruteDead.enabled = true;
+
+            if (_stateMachine != null)
+            {
+                _stateMachine.OnDeath();
+                _stateMachine.enabled = false;
+            }
+
+            if (_ragdoll != null)
+                _ragdoll.EnableRagdoll();
+
+            if (_bruteDead != null)
+                _bruteDead.enabled = true;
         }
 
         [ServerRpc]

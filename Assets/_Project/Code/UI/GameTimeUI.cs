@@ -27,7 +27,7 @@ public class GameTimeUI : MonoBehaviour
 
     private void OnDisable()
     {
-        EventBus.Instance.Unsubscribe<GameTimeTickedEvent>(this);
+        EventBus.Instance?.Unsubscribe<GameTimeTickedEvent>(this);
     }
 
     public void SetGameTimeText(GameTimeTickedEvent gameTimeTickedEvent)

@@ -14,11 +14,16 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             //choose new pose for next looked at (with animator likely)
             //set speed to hunting speed
             //unfreeze anything nessesary
-            Debug.Log("Entering hunt");
             Agent.stoppingDistance = DollSO.StoppingDist;
             Agent.speed = DollSO.RunSpeed;
             Agent.isStopped = false;
             Animator.PlaySwitchPose();
+
+            if (StateMachine.CurrentPlayerToHunt == null)
+            {
+                StateMachine.TransitionTo(StateEnum.WanderState);
+                return;
+            }
             Agent.SetDestination(StateMachine.CurrentPlayerToHunt.position);
         }
 
@@ -30,6 +35,11 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         public override void StateFixedUpdate()
         {
             //update destination to be accurate to the currentHuntedPlayer
+            if (StateMachine.CurrentPlayerToHunt == null)
+            {
+                StateMachine.TransitionTo(StateEnum.WanderState);
+                return;
+            }
             Agent.SetDestination(StateMachine.CurrentPlayerToHunt.position);
         }
 

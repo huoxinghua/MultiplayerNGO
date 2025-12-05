@@ -30,7 +30,7 @@ namespace _Project.Code.Gameplay.LeaveMission
 
         private void OnDisable()
         {
-            EventBus.Instance.Unsubscribe<SuccessfulDayEvent>(this);
+            EventBus.Instance?.Unsubscribe<SuccessfulDayEvent>(this);
         }
 
         private void FixedUpdate()

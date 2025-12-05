@@ -26,6 +26,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 
         public void OnHold(GameObject player)
         {
+            Debug.Log($"[BruteDead] OnHold called by {player.name}");
             playersInteracting.Add(player);
             _isInteracting = true;
         }
@@ -55,14 +56,17 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
 
             if (_heldTime > _timeToHold && !_hasSpawned)
             {
+                Debug.Log($"[BruteDead] Hold threshold reached! heldTime={_heldTime:F2}, timeToHold={_timeToHold}, IsServer={IsServer}");
                 _hasSpawned = true;
 
                 if (IsServer)
                 {
+                    Debug.Log("[BruteDead] Server calling HandleBruteDeathServer");
                     HandleBruteDeathServer();
                 }
                 else
                 {
+                    Debug.Log("[BruteDead] Client calling RequestBruteDeathServerRpc");
                     RequestBruteDeathServerRpc();
                 }
             }
@@ -92,17 +96,49 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         private void SpawnBrutePiecesServer()
         {
             var spawnPos = _deathPosition + new Vector3(0, heightOffset, 0);
-            var obj = Instantiate(_brutePiecesPrefab, spawnPos, Quaternion.identity);
-            var netObj = obj.GetComponent<NetworkObject>();
+            Debug.Log($"[BruteDead] Spawning pieces at {spawnPos}");
+            
+            // Instantiate the pieces container locally to get child positions
+            var tempContainer = Instantiate(_brutePiecesPrefab, spawnPos, Quaternion.identity);
+            Debug.Log($"[BruteDead] Instantiated container with {tempContainer.transform.childCount} children");
+            
+            // Collect children first (can't modify collection while iterating)
+            var children = new List<Transform>();
+            foreach (Transform child in tempContainer.transform)
+            {
+                children.Add(child);
+                Debug.Log($"[BruteDead] Found child: {child.name}");
+            }
+            
+            // Spawn each child piece - NetworkObject may be on child or nested inside
+            foreach (var child in children)
+            {
+                // First check if NetworkObject is directly on the child
+                var childNetObj = child.GetComponent<NetworkObject>();
 
-            if (netObj != null)
-            {
-                netObj.Spawn(true);
+                // If not found, check if it's nested inside (first child with NetworkObject)
+                if (childNetObj == null)
+                {
+                    childNetObj = child.GetComponentInChildren<NetworkObject>();
+                }
+
+                if (childNetObj != null)
+                {
+                    Debug.Log($"[BruteDead] Spawning piece: {child.name} at {child.position}");
+                    // Detach the NetworkObject's transform before spawning
+                    childNetObj.transform.SetParent(null);
+                    childNetObj.transform.position = child.position;
+                    childNetObj.transform.rotation = child.rotation;
+                    childNetObj.Spawn(true);
+                }
+                else
+                {
+                    Debug.LogWarning($"[BruteDead] Child {child.name} has no NetworkObject (checked children too)!");
+                }
             }
-            else
-            {
-                Debug.LogWarning($"{_brutePiecesPrefab.name} no NetworkObject comp！");
-            }
+            
+            // Destroy the empty container (it was just used for positioning)
+            Destroy(tempContainer);
         }
 
         [ServerRpc(RequireOwnership = false)]

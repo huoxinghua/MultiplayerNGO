@@ -11,25 +11,20 @@ using Timer = _Project.Code.Utilities.Utility.Timer;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
-    /// <summary>
-    /// Clean Rewrite: Base class for all inventory items in multiplayer game.
-    /// Implements server-authoritative pickup/drop/equip with proper NetworkVariable patterns.
-    /// All visual/physics changes driven by NetworkVariable callbacks for perfect sync.
-    /// </summary>
     [RequireComponent(typeof(Outline))]
     public class BaseInventoryItem : NetworkBehaviour, IInteractable, IInventoryItem
     {
         #region Serialized Fields
 
         [Header("Item Configuration")]
-        [SerializeField] [Tooltip("ScriptableObject containing item data")]
+        [SerializeField] 
         protected BaseItemSO _itemSO;
 
         [Header("Visual Components - Pre-assigned Children")]
-        [SerializeField] [Tooltip("FPS held visual child GameObject (pre-assigned on item prefab)")]
+        [SerializeField] 
         protected GameObject _fpsHeldVisualChild;
 
-        [SerializeField] [Tooltip("TPS held visual child GameObject (pre-assigned on item prefab)")]
+        [SerializeField] 
         protected GameObject _tpsHeldVisualChild;
 
         protected BaseHeldVisual _fpsHeldVisualScript;
@@ -52,6 +47,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         private NetworkVariable<bool> IsPickedUp = new NetworkVariable<bool>(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        public bool IsCurrentlyHeld => IsPickedUp.Value;
+
 
 
         private NetworkVariable<bool> IsInHand = new NetworkVariable<bool>(
@@ -200,11 +198,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Position Update (Override in Child Classes)
 
-        /// <summary>
-        /// Override this in child classes to update item position when held.
-        /// Call this in Update() only if IsOwner.
-        /// Used to manually lock position to hand transform (alternative to parenting).
-        /// </summary>
         protected virtual void UpdateHeldPosition()
         {
             if (_currentHeldVisual == null || CurrentHeldPosition == null)
@@ -219,11 +212,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region IInteractable Implementation (Player Interaction)
 
-        /// <summary>
-        /// Called when player interacts with this item in the world.
-        /// Attempts to pick up the item if player has space.
-        /// </summary>
-        /// <param name="interactingPlayer">GameObject of player interacting</param>
         public virtual void OnInteract(GameObject interactingPlayer)
         {
             PlayerInventory inv = interactingPlayer.GetComponent<PlayerInventory>();
@@ -240,11 +228,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
-        /// <summary>
-        /// Called when player hovers over (looks at) this item.
-        /// Enables/disables outline effect for visual feedback.
-        /// </summary>
-        /// <param name="isHovering">True if player is looking at item</param>
         public virtual void HandleHover(bool isHovering)
         {
             if (OutlineEffect == null)
@@ -275,15 +258,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Server-Only Pickup Logic
 
-        /// <summary>
-        /// SERVER-ONLY: Executes pickup logic on server.
-        /// Sets ownership, updates network state, spawns dual held visuals.
-        /// Visual/physics changes handled by OnPickedUpStateChanged callback.
-        /// </summary>
-        /// <param name="player">GameObject of player picking up item</param>
-        /// <param name="fpsItemParent">Transform on FPS model where item is parented</param>
-        /// <param name="tpsItemParent">Transform on TPS model where item is parented</param>
-        /// <param name="networkObjectForPlayer">Player's NetworkObject for ownership transfer</param>
         public virtual void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent, NetworkObject networkObjectForPlayer)
         {
             // Guard: This method should ONLY run on server
@@ -312,11 +286,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             IsPickedUp.Value = true;
         }
 
-        /// <summary>
-        /// Distributes player inventory reference to all clients.
-        /// Needed so item can access IK data when equipped.
-        /// </summary>
-        /// <param name="playerObjRef">NetworkObjectReference to player</param>
         [ClientRpc(RequireOwnership = false)]
         private void DistributeHeldVisualReferenceClientRpc(NetworkObjectReference playerObjRef)
         {
@@ -333,11 +302,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
-        /// <summary>
-        /// Spawns FPS and TPS held visual instances on all clients.
-        /// Sets visibility based on ownership (FPS for owner, TPS for others).
-        /// </summary>
-        /// <param name="playerObjRef">NetworkObjectReference to player</param>
         private void SetupHeldVisualsServerSide(NetworkObject playerNetObj)
         {
             if (!IsServer) return;
@@ -431,12 +395,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Server-Only Drop Logic
 
-        /// <summary>
-        /// SERVER-ONLY: Executes drop logic on server.
-        /// Clears ownership, updates network state, destroys held visuals, spawns item in world.
-        /// Visual/physics changes handled by OnPickedUpStateChanged callback.
-        /// </summary>
-        /// <param name="dropPoint">Transform where item should be dropped</param>
         public virtual void DropItem(Vector3 dropPosition)
         {
             // Guard: This method should ONLY run on server
@@ -445,15 +403,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 Debug.LogError("[BaseInventoryItem] DropItem() called on client! This should only run on server.");
                 return;
             }
-            Debug.Log($"In the item we we are setting its position to {dropPosition}");
-
-            
             // Position item at drop point
-            // Unparent from player
-           // transform.SetParent(null);
             transform.position = dropPosition;
             _rb.position = dropPosition;
-            
+
             // Server-only logic
             _owner = null;
 
@@ -470,9 +423,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
 
 
-        /// <summary>
-        /// Reparents held visuals back to item and hides them.
-        /// </summary>
         private void ResetHeldVisualsServerSide()
         {
             if (!IsServer) return;
@@ -521,29 +471,16 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Server-Only Equip/Unequip Logic
 
-        /// <summary>
-        /// Equips this item (shows in hand, applies IK).
-        /// Sends ServerRpc to set IsInHand to true.
-        /// </summary>
         public virtual void EquipItem()
         {
             SetInHandServerRpc(true);
         }
 
-        /// <summary>
-        /// Unequips this item (hides from hand, removes IK).
-        /// Sends ServerRpc to set IsInHand to false.
-        /// </summary>
         public virtual void UnequipItem()
         {
             SetInHandServerRpc(false);
         }
 
-        /// <summary>
-        /// SERVER-ONLY: Sets IsInHand NetworkVariable.
-        /// NetworkVariable callback will handle visual/IK changes on all clients.
-        /// </summary>
-        /// <param name="inHand">True to equip, false to unequip</param>
         [ServerRpc(RequireOwnership = false)]
         private void SetInHandServerRpc(bool inHand)
         {
@@ -561,13 +498,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region NetworkVariable Callbacks (Visual/Physics Sync)
 
-        /// <summary>
-        /// Callback when IsPickedUp changes.
-        /// Enables/disables physics and rendering based on pickup state.
-        /// Runs on all clients for perfect sync.
-        /// </summary>
-        /// <param name="oldState">Previous pickup state</param>
-        /// <param name="newState">New pickup state</param>
         protected virtual void OnPickedUpStateChanged(bool oldState, bool newState)
         {
             // When picked up: disable collision, enable kinematic, hide renderer
@@ -578,13 +508,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
            // transform.position = new Vector3(0, 0, 0);
         }
 
-        /// <summary>
-        /// Callback when IsInHand changes.
-        /// Shows/hides FPS and TPS held visuals and applies/removes IK to each.
-        /// Runs on all clients for perfect sync.
-        /// </summary>
-        /// <param name="oldState">Previous equipped state</param>
-        /// <param name="newState">New equipped state</param>
         private void OnChangedInHandState(bool oldState, bool newState)
         {
             if (_currentPlayerInventory == null)
@@ -645,12 +568,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             }
         }
 
-        /// <summary>
-        /// Callback when CurrentAnimState changes (synced to all clients).
-        /// Tells both held visuals to play the corresponding animation.
-        /// </summary>
-        /// <param name="oldState">Previous animation state</param>
-        /// <param name="newState">New animation state</param>
         private void OnAnimStateChanged(IKAnimState oldState, IKAnimState newState)
         {
             if (newState == IKAnimState.None) return;
@@ -741,11 +658,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             CurrentAnimState.Value = _queuedItemAnimState;
         }
 
-        /// <summary>
-        /// Secondary use of item (hold/release pattern).
-        /// Override in child classes for item-specific behavior.
-        /// </summary>
-        /// <param name="isPerformed">True when button pressed, false when released</param>
         public virtual void SecondaryUse(bool isPerformed)
         {
             // Base implementation does nothing - override in child classes
@@ -784,10 +696,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         #region Selling Logic
 
-        /// <summary>
-        /// SERVER-ONLY: Called when item is sold.
-        /// Destroys held visual and item GameObject.
-        /// </summary>
         public virtual void WasSold()
         {
             if (_currentHeldVisual != null)
@@ -797,10 +705,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Destroy(gameObject);
         }
 
-        /// <summary>
-        /// Gets item's science values for selling.
-        /// </summary>
-        /// <returns>ScienceData struct with item values</returns>
         public virtual ScienceData GetValueStruct()
         {
             return new ScienceData

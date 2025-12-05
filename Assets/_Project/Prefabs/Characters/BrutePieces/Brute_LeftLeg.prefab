@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 4861974260886484313}
   - component: {fileID: 4083468023016792768}
   - component: {fileID: 3024258365877857134}
+  - component: {fileID: -4226690491463515475}
   - component: {fileID: 2741130947772567210}
   - component: {fileID: 9072146486065104216}
-  - component: {fileID: -4226690491463515475}
   - component: {fileID: -7044591405885038547}
   m_Layer: 12
   m_Name: Brute_LeftLeg
@@ -141,45 +141,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -3287490641749316021, guid: 3ca8fae53070d38478c83be0fe3eeaaa, type: 3}
---- !u!114 &2741130947772567210
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8226197664881664337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4301e7cdda8b6845b313be71f3010ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  _heldVisual: {fileID: 8226197664881664337, guid: 8eb3dc0bb0c6b2240906f17024c55c26, type: 3}
-  _itemSO: {fileID: 11400000, guid: ba34a96aa4b427b4abdd7f1e4cfca017, type: 2}
-  _rb: {fileID: 4083468023016792768}
-  _renderer: {fileID: 4861974260886484313}
-  _collider: {fileID: 3024258365877857134}
-  CurrentHeldPosition: {fileID: 0}
-  _currentHeldVisual: {fileID: 0}
-  OwnerID: 0
---- !u!114 &9072146486065104216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8226197664881664337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!114 &-4226690491463515475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,6 +166,48 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &2741130947772567210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8226197664881664337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4301e7cdda8b6845b313be71f3010ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _itemSO: {fileID: 11400000, guid: ba34a96aa4b427b4abdd7f1e4cfca017, type: 2}
+  _fpsHeldVisualChild: {fileID: 0}
+  _tpsHeldVisualChild: {fileID: 0}
+  _heldVisual: {fileID: 8226197664881664337, guid: 8eb3dc0bb0c6b2240906f17024c55c26, type: 3}
+  _rb: {fileID: 4083468023016792768}
+  _renderer: {fileID: 4861974260886484313}
+  _collider: {fileID: 3024258365877857134}
+  CurrentAnimState:
+    m_InternalValue: 0
+  AnimTime:
+    m_InternalValue: 0
+--- !u!114 &9072146486065104216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8226197664881664337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!114 &-7044591405885038547
 MonoBehaviour:
   m_ObjectHideFlags: 0

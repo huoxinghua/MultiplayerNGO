@@ -61,10 +61,12 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             }
             if (doRemove) players.Remove(playerToRemove);
         }
-        private void CheckFOV()
+            private void CheckFOV()
         {
             foreach (var player in players)
             {
+                if (player == null) continue;
+
                 if (InFOV(player) && HasLineOfSight(player))
                 {
                     if (beetleHealthScript.IsPlayerHostile(player))
