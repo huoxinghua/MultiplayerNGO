@@ -13,9 +13,9 @@ using Unity.Netcode;
 using Timer = _Project.Code.Utilities.Utility.Timer;
 using _Project.Code.Gameplay.Market.Quota;
 
-namespace _Project.Code.Gameplay.EnemySpawning
+namespace _Project.Code.Gameplay.EnemySpawning.Old
 {
-    public class EnemySpawnManager : NetworkSingleton<EnemySpawnManager>
+    public class EnemySpawnManagerOld : NetworkSingleton<EnemySpawnManager>
     {
         private Timer _enemySpawnDelay;
         [field: SerializeField] public EnemyPrefabsSO EnemyPrefabs { get; private set; }
@@ -58,14 +58,14 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private bool _hasSpawned = false;
         private float GetTrueSpawnChance(BaseSpawnSO spwnSO, int AttemptsSinceSpawn, int TotalSpawns)
         {
-            Debug.Log("GetTrueSpawnChance  spawn So"+ spwnSO.name);
+            Debug.Log("GetTrueSpawnChance  spawn So" + spwnSO.name);
             // 1. Chance to spawn plus additive change
             float incrementalChance = (spwnSO.BaseSpawnChance + (spwnSO.IncreaseByAttempts * AttemptsSinceSpawn));
 
             // 2. Multiplier for Spawn Chance
             float chanceMult = (spwnSO.MultAtZeroTime + (spwnSO.MultByTime * _totalAttempts));
 
-           // 3. Additive chance multiplied by the multipler (Step 1 *  Step 2)
+            // 3. Additive chance multiplied by the multipler (Step 1 *  Step 2)
             float positivesPercentChanceToSpawn = (incrementalChance * chanceMult);
 
 
@@ -89,7 +89,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             _hasSpawned = true;
             _enemySpawnDelay = new Timer(SpawnData.BaseRandomTimeBetweenSpawns);
             _enemySpawnDelay.Start();
-            
+
             SpawnAttemptTimer = new Timer(SpawnData.SpawnAttemptRate);
             SpawnAttemptTimer.Start();
             StartCoroutine(WaitForEnemySpawnPoint());
@@ -103,7 +103,13 @@ namespace _Project.Code.Gameplay.EnemySpawning
             yield return new WaitForSeconds(.2f);
             SpawnOnStart();
         }
-
+        /*protected override void Awake()
+        {
+            base.Awake();
+            if(!IsServer) return;
+            Debug.Log("Awaked");
+            EventBus.Instance.Subscribe<DungeonCompleteEvent>(this,SpawnOnStart);
+        }*/
 
         private void SpawnOnStart()
         {
@@ -154,7 +160,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private void Update()
         {
             if (!IsServer) return;
-   
+
             SpawnAttemptTimer.TimerUpdate(Time.deltaTime);
             if (SpawnAttemptTimer.IsComplete)
             {
@@ -162,10 +168,58 @@ namespace _Project.Code.Gameplay.EnemySpawning
                 SpawnAttemptTimer.Reset();
             }
 
-
+            if (_enemySpawnDelay == null) return;
+            _enemySpawnDelay.TimerUpdate(Time.deltaTime);
+            if (_enemySpawnDelay.IsComplete)
+            {
+                StartSpawn();
+                _enemySpawnDelay.Reset(
+                    Random.Range(SpawnData.BaseMinTimeBetweenSpawns,
+                        SpawnData.BaseMaxTimeBetweenSpawns));
+            }
         }
 
+        //currently just spawns tranquil. Fix and add random chance of each
+        public void StartSpawn()
+        {
+            if (!IsServer) return;
+            if (_aliveEnemies.Count >= SpawnData.MaxTotalEnemies)
+            {
+                Debug.Log("[EnemySpawnManager] Enemy cap reached.");
+                return;
+            }
 
+            var allPoints = EnemySpawnPoints.Instance.ActiveEnemySpawnPoints;
+
+            if (allPoints.Count == 0)
+            {
+                Debug.LogWarning("[EnemySpawnManager] No spawn points at all!");
+                return;
+            }
+
+            List<EnemySpawnPoint> candidates = new List<EnemySpawnPoint>();
+
+            foreach (var sp in allPoints)
+            {
+                if (IsPointSafe(sp))
+                    candidates.Add(sp);
+            }
+
+            if (candidates.Count == 0)
+            {
+                Debug.Log("[EnemySpawnManager] No valid spawn points near players.");
+                return;
+            }
+
+            int spawnCount = Random.Range(SpawnData.MinSpawnPerWave, SpawnData.MaxSpawnPerWave);
+
+            for (int i = 0; i < spawnCount; i++)
+            {
+                int idx = Random.Range(0, candidates.Count);
+
+                RandomEnemySelection(candidates[idx]);
+            }
+        }
 
         public void SpawnTranquil(EnemySpawnPoint spawnPoint)
         {
@@ -225,9 +279,13 @@ namespace _Project.Code.Gameplay.EnemySpawning
 
             netObj.Spawn();
             _aliveEnemies.Add(netObj);
-      
+            AddEnemyByType();
+            // handle the remove
         }
 
+        public void AddEnemyByType()
+        {
+        }
 
         private void HandleEnemySpawnChance()
         {
@@ -244,7 +302,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             float randomChance = Random.Range(0f, 100f);
             if (randomChance <= currentHorrorSpawnChance)
             {
-                
+
                 SpawnHorror(GetEnemySpawnPoint());
                 _currentHorrorAttempts = 0;
                 _HorrorsSpawned++;
@@ -260,7 +318,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             float randomChance = Random.Range(0f, 100f);
             if (randomChance <= currentViolentSpawnChance)
             {
-                
+
                 SpawnViolent(GetEnemySpawnPoint());
                 _currentViolentAttempts = 0;
                 _violentsSpawned++;
@@ -276,7 +334,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             float randomChance = Random.Range(0f, 100f);
             if (randomChance <= currentTranquilSpawnChance)
             {
-                
+
                 SpawnTranquil(GetEnemySpawnPoint());
 
                 //Reset _tranquilAttempts
@@ -379,6 +437,6 @@ namespace _Project.Code.Gameplay.EnemySpawning
 
     public struct DungeonCompleteEvent : IEvent
     {
-        
+
     }
 }
