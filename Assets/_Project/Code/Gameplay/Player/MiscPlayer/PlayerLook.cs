@@ -27,10 +27,7 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
 
                 inputManager.OnLookInput += Look;
             }
-            else
-            {
-                Debug.Log("input manager is null ");
-            }
+            
         }
         private void OnDisable()
         {
@@ -38,10 +35,7 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
             {
                 inputManager.OnLookInput -= Look;
             }
-            else
-            {
-                Debug.Log("input manager is null ");
-            }
+            
         }
         void Start()
         {

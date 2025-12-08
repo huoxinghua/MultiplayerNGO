@@ -38,10 +38,6 @@ namespace _Project.Code.Network.GameManagers
             {
                 _voiceNetworkSpectator.SetActive(false);
             }
-            else
-            {
-                Debug.Log("_voiceNetworkSpectator need set in inspector");
-            }
             
         }
 
@@ -70,8 +66,6 @@ namespace _Project.Code.Network.GameManagers
         private void OnAlivePlayersChanged(NetworkListEvent<ulong> changeEvent)
         {
             if (!mainCam.enabled) return; 
-
-            Debug.Log("[Spectator] Alive list changed → Rebuilding");
 
             StartCoroutine(RebuildDelayed());
         }
@@ -104,7 +98,6 @@ namespace _Project.Code.Network.GameManagers
                
                 _aliveHeads.Add(sm.transform);
 
-                Debug.Log($"[Spectator] Added alive player: {playerObj.name}, clientId={clientId}");
             }
            
             if (_aliveHeads.Count > 0)
@@ -143,7 +136,6 @@ namespace _Project.Code.Network.GameManagers
                
                 _aliveHeads.Add(sm.transform);
 
-                Debug.Log($"[Spectator] Added alive player: {playerObj.name}, clientId={clientId}");
             }
       
             _input.EnableSpectatorInput();
@@ -168,10 +160,6 @@ namespace _Project.Code.Network.GameManagers
             if (_voiceNetworkSpectator != null)
             {
                 _voiceNetworkSpectator.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("_voiceNetworkSpectator null ");
             }
         }
 

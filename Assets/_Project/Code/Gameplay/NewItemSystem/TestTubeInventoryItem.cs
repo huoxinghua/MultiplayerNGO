@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Gameplay.Market.Sell;
 using _Project.Code.Gameplay.NewItemSystem.SampleItem;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem;
 using QuickOutline.Scripts;
@@ -8,15 +9,24 @@ using UnityEngine;
 
 namespace _Project.Code.Gameplay.NewItemSystem
 {
+    public enum SampleType
+    {
+        NoSample,
+        BruteSample,
+        BeetleSample,
+        DollSample
+    }
     public class TestTubeInventoryItem : BaseInventoryItem
     {
         NetworkVariable<bool> HasCollected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        private NetworkVariable<SampleType> ThisSampleTypeNet = new NetworkVariable<SampleType>(SampleType.NoSample,
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);   
         private TestTubeItemSO _testTubeItemSO;
-        private Dictionary<string, List<SampleData>> samplesContainer = new Dictionary<string, List<SampleData>>();
         [SerializeField] private float _detectDistance = 50f;
         [SerializeField] private LayerMask lM;
+
         #region Setup + Update
 
         protected override void Awake()
@@ -32,8 +42,28 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             base.OnNetworkSpawn();
 
-            HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
+            HasCollected = new NetworkVariable<bool>(_testTubeItemSO.HasCollected,
+                NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
+            // SERVER ONLY: Generate random values on spawn
+            if (IsServer)
+            {
+                SellableItemManager.Instance?.RegisterItem(NetworkObject, this);
+            }
+
+            // Register callbacks to update local cache when values change
+            _tranquilValueNet.OnValueChanged += (oldVal, newVal) => _tranquilValue = newVal;
+            _violentValueNet.OnValueChanged += (oldVal, newVal) => _violentValue = newVal;
+            _miscValueNet.OnValueChanged += (oldVal, newVal) => _miscValue = newVal;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            if (IsServer)
+            {
+                SellableItemManager.Instance?.UnregisterItem(NetworkObject);
+            }
         }
 
         private void Update()
@@ -48,25 +78,23 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected override void ExecuteUsageLogic()
         {
-            Debug.Log("ExecuteUsageLogic text tub");
             if (IsOwner)
             {
-                Debug.Log("ExecuteUsageLogic text tub isowner?"+IsOwner);
                 UseTestTube();
             }
         }
+
         private void UseTestTube()
         {
-            Debug.Log("TestTube Use triggered");
-
             // 1. Only Owner should Raycast
             if (!IsOwner) return;
 
-            RaycastHit hit;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance, lM))
-            {
-                Debug.Log("Raycast hit: " + hit.transform.name);
+            var cam = Camera.main;
+            if (cam == null) return;
 
+            RaycastHit hit;
+            if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, _detectDistance, lM))
+            {
                 var sample = hit.transform.GetComponent<SampleObjTest>();
                 if (sample != null)
                 {
@@ -90,9 +118,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
                     return;
                 }
             }
-
-            Debug.Log("Raycast fail, no sample found");
         }
+
         [ServerRpc(RequireOwnership = false)]
         private void RequestCollectSampleServerRpc(NetworkObjectReference sampleObjRef)
         {
@@ -103,30 +130,62 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
             HasCollected.Value = true;
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void SetSampleValuesServerRpc(float newTranqVal, float newViolentVal,float newMiscVal, SampleType sampleType)
+        {
+            HasCollected.Value = true;
+            _tranquilValueNet.Value = newTranqVal;
+            _violentValueNet.Value = newViolentVal;
+            _miscValueNet.Value = newMiscVal;
+            ThisSampleTypeNet.Value = sampleType;
+        }
         public void CollectSample(SampleSO value)
         {
-            Debug.Log("Save sample:");
-            SampleData data = new SampleData(value.GetRandomMiscValue(),
-                value.GetRandomViolentValue(), value.GetRandomViolentValue());
-            if (!samplesContainer.ContainsKey(value.SampleType))
+            // SERVER ONLY: Generate random values on spawn
+            if (IsServer)
+            {
+                SetSampleValuesServerRpc(value.GetRandomTranquilValue(), value.GetRandomViolentValue(), 
+                    value.GetRandomMiscValue(), value.SampleType);
+
+            }
+
+            //!!!!! Critically bad. SampleData takes a tranquil, violent, than a misc in that order. This gives a misc and 
+            //two violents. Wrong order, missing tranquil
+            /*SampleData data = new SampleData(value.GetRandomMiscValue(),
+                value.GetRandomViolentValue(), value.GetRandomViolentValue());*/
+            //!! new way to do this. Wont use container. Single use item
+            /*if (!samplesContainer.ContainsKey(value.SampleType))
             {
                 samplesContainer[value.SampleType] = new List<SampleData>();
             }
-            samplesContainer[value.SampleType].Add(data);
-            Debug.Log("sample container:" + samplesContainer.Count);
-            Debug.Log(
-                $"Save sample: Tranquil={data.TranquilValue}, Violent={data.violentValue}, Misc={data.miscValue}"
-            );
+            samplesContainer[value.SampleType].Add(data);*/
         }
 
         [ServerRpc(RequireOwnership = false)]
         private void RequestChangeIsUsedServerRpc()
         {
             HasCollected.Value = true;
-         
         }
 
         #endregion
-    
+
+        #region Overrides
+
+        public override bool CanBeSold()
+        {
+            return HasCollected.Value;
+        }
+        public override ScienceData GetValueStruct()
+        {
+            return new ScienceData
+            {
+                RawTranquilValue = _tranquilValueNet.Value,
+                RawViolentValue = _violentValueNet.Value,
+                RawMiscValue = _miscValueNet.Value,
+                KeyName = ThisSampleTypeNet.Value.ToString()
+            };
+        }
+        #endregion
     }
 }

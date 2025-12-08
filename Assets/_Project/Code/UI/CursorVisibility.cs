@@ -9,7 +9,6 @@ namespace _Project.Code.UI
         {
             if (Input.GetKeyDown(KeyCode.I))
             {
-                Debug.Log("Working");
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }

@@ -28,7 +28,6 @@ namespace _Project.Code.Gameplay.Market.Buy
         {
             base.OnNetworkSpawn();
             Quantity.OnValueChanged += HandleQuantityChange;
-            Debug.Log("OnNetworkSpawn");
             HandleQuantityChange(0, 0);
             _hasInitialized = true;
         }
@@ -38,7 +37,6 @@ namespace _Project.Code.Gameplay.Market.Buy
             if (!_hasInitialized )
             {
                 Quantity.OnValueChanged += HandleQuantityChange;
-                Debug.Log("EnableHax");
                 _hasInitialized = true;
                 if (IsServer)
                 {
@@ -57,12 +55,10 @@ namespace _Project.Code.Gameplay.Market.Buy
                 Transform parentTransform = transform.parent;
                 int lastIndex = parentTransform.childCount - 1;
                 transform.SetSiblingIndex(lastIndex);
-                Debug.Log("WhyNoHide?");
             }
             else
             {
                 UIVisual.SetActive(true);
-                Debug.Log("WhyNoShow?");
                 QuantityText.SetText(newQuantity.ToString());
                 CartManager.UpdateTotalText();
             }

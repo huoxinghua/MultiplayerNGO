@@ -91,14 +91,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
         #endregion
 
-        #region Constants
-
-        /// <summary>
-        /// Maximum distance player can be from item to pick it up (meters).
-        /// </summary>
-        private const float MAX_PICKUP_RANGE = 3f;
-
-        #endregion
 
         #region Properties
 
@@ -287,15 +279,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
                 return;
             }
 
-            // Validate distance (prevent teleport pickup exploits)
-            float distance = Vector3.Distance(transform.position, itemNetObj.transform.position);
-            if (distance > MAX_PICKUP_RANGE)
-            {
-                Debug.LogWarning(
-                    $"[Server] Client {rpcParams.Receive.SenderClientId} tried to pickup item from {distance:F2}m away (max: {MAX_PICKUP_RANGE}m)");
-                return;
-            }
-
             if (isPocketSize)
             {
                 // Find available slot (prefer current slot, then first empty)
@@ -382,7 +365,6 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         [ServerRpc(RequireOwnership = false)]
         private void DropItemServerRpc(int slotIndex, Vector3 dropPosition, bool droppingBigItem)
         {
-            Debug.Log($"Dropped item at {dropPosition} from slot {slotIndex}");
             // Validate slot index
             if (slotIndex < 0 || slotIndex >= InventorySlots)
             {
@@ -664,10 +646,22 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             if (IsOwner)
             {
                 Debug.Log($"[Client] Item sold: {itemName} (T:{tranquilValue}, V:{violentValue}, M:{miscValue})");
-                EventBus.Instance.Publish<ItemSoldEvent>(new ItemSoldEvent { SoldItemData = data });
+               RequestPublishItemSoldEventServerRpc(data.RawTranquilValue, data.RawViolentValue, data.RawMiscValue, data.KeyName);
             }
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestPublishItemSoldEventServerRpc(float tranquilValue, float violentValue, float miscValue, string itemName)
+        {
+            ScienceData data = new ScienceData
+            {
+                RawTranquilValue = tranquilValue,
+                RawViolentValue = violentValue,
+                RawMiscValue = miscValue,
+                KeyName = itemName
+            };
+            EventBus.Instance.Publish<ItemSoldEvent>(new ItemSoldEvent { SoldItemData = data });
+        }
         #endregion
 
         #region R6: State Sync (NetworkVariable Callbacks)

@@ -40,12 +40,20 @@ public class QuotaCanvas : MonoBehaviour
 
     private void AdjustQuotaBar()
     {
+        float quotaProgress = QuotaManager.Instance.QuotaProgressPercentage;
+        if (float.IsNaN(quotaProgress))
+            quotaProgress = 0;
+
+        float dayProgress = QuotaManager.Instance.DayProgressPercentage;
+        if (float.IsNaN(dayProgress))
+            dayProgress = 0;
+        
         //confirmed Size
-        SetNewWidth(_confirmedQuotaBarRectTransform, Mathf.Clamp( QuotaManager.Instance.QuotaProgressPercentage * _fullBarWidth, 0, _fullBarWidth));
+        SetNewWidth(_confirmedQuotaBarRectTransform, Mathf.Clamp( quotaProgress * _fullBarWidth, 0, _fullBarWidth));
         
         //days size and pos
         SetNewPosition(_daysQuotaBarRectTransform, _confirmedQuotaBarRectTransform.sizeDelta.x);
-        SetNewWidth(_daysQuotaBarRectTransform,  Mathf.Clamp(QuotaManager.Instance.DayProgressPercentage * _fullBarWidth, 0, _fullBarWidth - _confirmedQuotaBarRectTransform.sizeDelta.x));
+        SetNewWidth(_daysQuotaBarRectTransform,  Mathf.Clamp(dayProgress * _fullBarWidth, 0, _fullBarWidth - _confirmedQuotaBarRectTransform.sizeDelta.x));
     }
     public void SetNewWidth(RectTransform barToChange, float targetWidth)
     {
@@ -55,8 +63,8 @@ public class QuotaCanvas : MonoBehaviour
     }
     public void SetNewPosition(RectTransform barToChange, float targetPosition)
     {
-        Vector2 currentPosition = barToChange.position;
+        Vector2 currentPosition = barToChange.anchoredPosition;
         currentPosition.x = targetPosition;
-        barToChange.position = currentPosition;
+        barToChange.anchoredPosition = currentPosition;
     }
 }

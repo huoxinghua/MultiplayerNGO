@@ -27,7 +27,8 @@ namespace _Project.Code.Optimization
 
             foreach (var light in allLights)
             {
-                _grid.AddLight(light);
+                if (light != null)
+                    _grid.AddLight(light);
             }
 
             StartCoroutine(CheckLightsRoutine());
@@ -41,9 +42,15 @@ namespace _Project.Code.Optimization
 
                 foreach (var player in _currentPlayers.PlayerGameObjects)
                 {
+                    if (player == null || player.transform == null)
+                        continue;
+                    
                     var nearby = _grid.GetNearbyLights(player.transform.position, Mathf.CeilToInt(ActiveRange / CellSize));
                     foreach (var light in nearby)
                     {
+                        if (light == null || light.transform == null || player == null || player.transform == null)
+                            continue;
+                        
                         if ((light.transform.position - player.transform.position).sqrMagnitude <= ActiveRange * ActiveRange)
                         {
                             lightsToEnable.Add(light);
@@ -53,7 +60,8 @@ namespace _Project.Code.Optimization
 
                 foreach (var light in allLights)
                 {
-                    light.SetActive(lightsToEnable.Contains(light));
+                    if (light != null)
+                        light.SetActive(lightsToEnable.Contains(light));
                 }
 
                 yield return new WaitForSeconds(CheckInterval);

@@ -80,13 +80,13 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             CurrentState.StateLookedAt();
         }
 
-        public void HandleLookAway()
+        public void HandleLookAway(Transform playerToHunt)
         {
             if(!IsServer) return;
             //always hunting when looking away
-          //  Debug.Log("HandleLookAway");
-
-            CurrentState.StateLookedAway();
+            //  Debug.Log("HandleLookAway");
+            SetHuntedPlayer(playerToHunt);
+            CurrentState.StateLookedAway(playerToHunt);
         }
 
         public void HandleNoValidPlayers()
@@ -118,17 +118,14 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         public void RequestKill(GameObject playerObj)
         {
             if(!IsServer) return;
-            Debug.Log("Trying to kill");
             if (playerObj == null)
             {
-                Debug.Log("Failed playerObj is null");
                 return;
             }
 
             var health = playerObj.GetComponent<IPlayerHealth>();
             if (health == null)
             {
-                Debug.Log("Failed health is null");
                 return;
             }
             //magically big number :)
@@ -179,7 +176,6 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             CurrentState?.OnExit();
             CurrentState = StateDictionary[newState];
             RequestChangeNetStateServerRpc(newState);
-            Debug.Log($"Current state is {CurrentState}");
             CurrentState.OnEnter();
         }
 

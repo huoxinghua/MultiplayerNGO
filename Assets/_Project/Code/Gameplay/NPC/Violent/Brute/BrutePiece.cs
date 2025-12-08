@@ -1,3 +1,4 @@
+using _Project.Code.Gameplay.Market.Sell;
 using _Project.Code.Gameplay.NewItemSystem;
 using Unity.Netcode;
 using UnityEngine;
@@ -17,21 +18,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         /// Server-authoritative: Tranquil research value (generated on server).
         /// NetworkVariable ensures all clients see the same value.
         /// </summary>
-        private NetworkVariable<float> _tranquilValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        /// <summary>
-        /// Server-authoritative: Violent research value (generated on server).
-        /// </summary>
-        private NetworkVariable<float> _violentValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        /// <summary>
-        /// Server-authoritative: Miscellaneous research value (generated on server).
-        /// </summary>
-        private NetworkVariable<float> _miscValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
+        
         #endregion
 
         #region Initialization
@@ -47,14 +34,15 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                 _violentValueNet.Value = Random.Range(0f, 1f);
                 _miscValueNet.Value = Random.Range(0f, 1f);
 
-                Debug.Log($"[Server] BrutePiece spawned with values T:{_tranquilValueNet.Value:F2} V:{_violentValueNet.Value:F2} M:{_miscValueNet.Value:F2}");
 
                 // Deparent from brute ragdoll if needed
                 // TryRemoveParent returns false if there's no parent, so it's safe to call
                 if (NetworkObject.TryRemoveParent())
                 {
-                    Debug.Log("[Server] BrutePiece deparented from brute ragdoll");
                 }
+
+                // Register with SellableItemManager for cleanup on hub entry
+                SellableItemManager.Instance?.RegisterItem(NetworkObject, this);
             }
 
             // All clients cache values locally for easy access
@@ -66,6 +54,15 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             _tranquilValueNet.OnValueChanged += (oldVal, newVal) => _tranquilValue = newVal;
             _violentValueNet.OnValueChanged += (oldVal, newVal) => _violentValue = newVal;
             _miscValueNet.OnValueChanged += (oldVal, newVal) => _miscValue = newVal;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            if (IsServer)
+            {
+                SellableItemManager.Instance?.UnregisterItem(NetworkObject);
+            }
         }
 
         #endregion

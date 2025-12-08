@@ -78,7 +78,6 @@ namespace _Project.Code.Network.UI
 
         private void Back()
         {
-            Debug.Log("back:" + _menuStack.Count);
             if (_menuStack.Count == 0)
                 return;
 

@@ -126,7 +126,7 @@ namespace _Project.Code.Utilities.EventBus
 
         private void OnDisable()
         {
-            Clear();
+           // Clear();
         }
 
         private void OnDestroy()

@@ -5,19 +5,45 @@ using UnityEngine;
 
 public class BeetlePickupRelay : MonoBehaviour, IInteractable
 {
-    private BeetleDead BeetleDeadScript;
+    [SerializeField] private BeetleDead BeetleDeadScript;
 
     private void Awake()
     {
-        BeetleDeadScript = GetComponentInParent<BeetleDead>();
+        if (BeetleDeadScript == null)
+        {
+            BeetleDeadScript = GetComponentInParent<BeetleDead>();
+        }
+    }
+
+    private BeetleDead GetBeetleDead()
+    {
+        // Re-fetch if null (parent hierarchy may have changed)
+        if (BeetleDeadScript == null)
+        {
+            BeetleDeadScript = GetComponentInParent<BeetleDead>();
+        }
+        return BeetleDeadScript;
     }
 
     public void OnInteract(GameObject interactingPlayer)
     {
-        BeetleDeadScript.OnInteract(interactingPlayer);
+        var beetle = GetBeetleDead();
+        if (beetle != null)
+        {
+            beetle.OnInteract(interactingPlayer);
+        }
+        else
+        {
+            Debug.LogError("[BeetlePickupRelay] BeetleDeadScript is null!");
+        }
     }
+
     public void HandleHover(bool isHovering)
     {
-        BeetleDeadScript.HandleHover(isHovering);
+        var beetle = GetBeetleDead();
+        if (beetle != null)
+        {
+            beetle.HandleHover(isHovering);
+        }
     }
 }

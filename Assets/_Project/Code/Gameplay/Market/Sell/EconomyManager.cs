@@ -36,7 +36,7 @@ namespace _Project.Code.Gameplay.Market.Sell
         public void SoldItem(SampleMarketValue values)
         {
             QuotaManager.Instance.RequestAddDayProgressServerRpc(values.TranquilMarketValue + values.ViolentMarketValue + values.MiscMarketValue);
-            WalletBankton.Instance.AddSubMoney((int)(values.TranquilMarketValue * _scienceToMoneySO.TranquilMoneyModifier +
+            WalletBankton.Instance.AddToDaysProgress((int)(values.TranquilMarketValue * _scienceToMoneySO.TranquilMoneyModifier +
                                   values.ViolentMarketValue * _scienceToMoneySO.ViolentMoneyModifier +
                                   values.MiscMarketValue * _scienceToMoneySO.MiscMoneyModifier));
         }
