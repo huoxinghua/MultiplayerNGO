@@ -7,22 +7,22 @@ namespace _Project.Code.Gameplay.NewItemSystem.SampleItem
     {
         [field: SerializeField] public SampleType SampleType { get; private set; }
 
-        public int GetRandomTranquilValue()
+        public float GetRandomTranquilValue()
         {
             float value = Random.Range(0f, 1f);
-            return Mathf.RoundToInt(value);  
+            return value;  
         }
 
 
-        public int GetRandomViolentValue()
+        public float GetRandomViolentValue()
         {
             float value = Random.Range(0f, 1f);
-            return Mathf.RoundToInt(value);
+            return value;
         }
-        public int GetRandomMiscValue()
+        public float GetRandomMiscValue()
         {
             float value = Random.Range(0f, 1f);
-            return Mathf.RoundToInt(value);
+            return value;
         }
     }
 }
