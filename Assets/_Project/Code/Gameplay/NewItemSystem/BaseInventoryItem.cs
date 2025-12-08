@@ -250,6 +250,30 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
 
         #endregion
+        
+        #region Network State - Synchronized Random Values
+
+        /// <summary>
+        /// Server-authoritative: Tranquil research value (generated on server).
+        /// NetworkVariable ensures all clients see the same value.
+        /// </summary>
+        protected NetworkVariable<float> _tranquilValueNet = new NetworkVariable<float>(
+            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        /// <summary>
+        /// Server-authoritative: Violent research value (generated on server).
+        /// </summary>
+        protected NetworkVariable<float> _violentValueNet = new NetworkVariable<float>(
+            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        /// <summary>
+        /// Server-authoritative: Miscellaneous research value (generated on server).
+        /// </summary>
+        protected NetworkVariable<float> _miscValueNet = new NetworkVariable<float>(
+            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        #endregion
+
 
         #region Server-Only Pickup Logic
 
@@ -699,9 +723,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             return new ScienceData
             {
-                RawTranquilValue = _tranquilValue,
-                RawViolentValue = _violentValue,
-                RawMiscValue = _miscValue,
+                RawTranquilValue = _tranquilValueNet.Value,
+                RawViolentValue = _violentValueNet.Value,
+                RawMiscValue = _miscValueNet.Value,
                 KeyName = GetItemName()
             };
         }

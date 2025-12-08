@@ -25,29 +25,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 
         #endregion
 
-        #region Network State - Synchronized Random Values
-
-        /// <summary>
-        /// Server-authoritative: Tranquil research value (generated on server).
-        /// NetworkVariable ensures all clients see the same value.
-        /// </summary>
-        private NetworkVariable<float> _tranquilValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        /// <summary>
-        /// Server-authoritative: Violent research value (generated on server).
-        /// </summary>
-        private NetworkVariable<float> _violentValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        /// <summary>
-        /// Server-authoritative: Miscellaneous research value (generated on server).
-        /// </summary>
-        private NetworkVariable<float> _miscValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        #endregion
-
+        
         #region Initialization
 
         public override void OnNetworkSpawn()
@@ -203,23 +181,5 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
 
         #endregion
 
-        #region Selling Override
-
-        /// <summary>
-        /// Override GetValueStruct to use NetworkVariable values.
-        /// This ensures sell values are consistent across all clients.
-        /// </summary>
-        public override ScienceData GetValueStruct()
-        {
-            return new ScienceData
-            {
-                RawTranquilValue = _tranquilValueNet.Value,
-                RawViolentValue = _violentValueNet.Value,
-                RawMiscValue = _miscValueNet.Value,
-                KeyName = GetItemName()
-            };
-        }
-
-        #endregion
     }
 }
