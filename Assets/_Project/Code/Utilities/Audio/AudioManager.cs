@@ -171,4 +171,11 @@ namespace _Project.Code.Utilities.Audio
 
         public void StopAmbient() => ambientSource?.Stop();
     }
+
+    public enum SoundIDs
+    {
+        NoSound,
+        EnemyBruteFootsteps,
+        EnemyBruteAlert
+    }
 }
