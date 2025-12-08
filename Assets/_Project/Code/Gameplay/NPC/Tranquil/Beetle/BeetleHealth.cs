@@ -16,7 +16,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         private float _currentHealth;
         private float _maxConsciousness;
         private float _currentConsciousness;
-       
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();

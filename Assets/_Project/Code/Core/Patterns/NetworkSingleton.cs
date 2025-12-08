@@ -18,7 +18,6 @@ namespace _Project.Code.Core.Patterns
         protected virtual bool AutoSpawn => true;
         protected virtual void Awake()
         {
-            Debug.Log($"[{typeof(T).Name}] Singleton wokeup");
             // Check if instance already exists
             if (Instance != null && Instance != this)
             {
@@ -61,7 +60,6 @@ namespace _Project.Code.Core.Patterns
 
         public override void OnNetworkSpawn()
         {
-            Debug.Log($"[{typeof(T).Name}] Singleton initialized");
             base.OnNetworkSpawn();
             if (IsServer)
             {
@@ -82,7 +80,6 @@ namespace _Project.Code.Core.Patterns
             if (Instance == this)
             {
                 Instance = null;
-                Debug.Log($"[{typeof(T).Name}] Singleton destroyed");
             }
         }
 

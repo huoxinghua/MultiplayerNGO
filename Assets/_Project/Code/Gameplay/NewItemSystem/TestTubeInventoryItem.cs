@@ -48,24 +48,22 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         protected override void ExecuteUsageLogic()
         {
-            Debug.Log("ExecuteUsageLogic text tub");
             if (IsOwner)
             {
-                Debug.Log("ExecuteUsageLogic text tub isowner?"+IsOwner);
                 UseTestTube();
             }
         }
         private void UseTestTube()
         {
-            Debug.Log("TestTube Use triggered");
-
             // 1. Only Owner should Raycast
             if (!IsOwner) return;
 
+            var cam = Camera.main;
+            if (cam == null) return;
+
             RaycastHit hit;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, _detectDistance, lM))
+            if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, _detectDistance, lM))
             {
-                Debug.Log("Raycast hit: " + hit.transform.name);
 
                 var sample = hit.transform.GetComponent<SampleObjTest>();
                 if (sample != null)
@@ -91,7 +89,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 }
             }
 
-            Debug.Log("Raycast fail, no sample found");
         }
         [ServerRpc(RequireOwnership = false)]
         private void RequestCollectSampleServerRpc(NetworkObjectReference sampleObjRef)
@@ -105,7 +102,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         public void CollectSample(SampleSO value)
         {
-            Debug.Log("Save sample:");
             SampleData data = new SampleData(value.GetRandomMiscValue(),
                 value.GetRandomViolentValue(), value.GetRandomViolentValue());
             if (!samplesContainer.ContainsKey(value.SampleType))
@@ -113,10 +109,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 samplesContainer[value.SampleType] = new List<SampleData>();
             }
             samplesContainer[value.SampleType].Add(data);
-            Debug.Log("sample container:" + samplesContainer.Count);
-            Debug.Log(
-                $"Save sample: Tranquil={data.TranquilValue}, Violent={data.violentValue}, Misc={data.miscValue}"
-            );
         }
 
         [ServerRpc(RequireOwnership = false)]

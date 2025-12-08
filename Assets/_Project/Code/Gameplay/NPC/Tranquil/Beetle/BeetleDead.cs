@@ -1,4 +1,5 @@
 using _Project.Code.Art.RagdollScripts;
+using _Project.Code.Gameplay.Market.Sell;
 using _Project.Code.Gameplay.NewItemSystem;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.BeetleSample;
 using Unity.Netcode;
@@ -20,7 +21,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         private Transform _ragdollRoot;
 
         [SerializeField] private BeetleItemSO _beetleSO;
-        [SerializeField] private Ragdoll _ragdoll;   
+        [SerializeField] private Ragdoll _ragdoll;
 
         #endregion
 
@@ -60,7 +61,8 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
                 _violentValueNet.Value = Random.Range(0f, 1f);
                 _miscValueNet.Value = Random.Range(0f, 1f);
 
-                Debug.Log($"[Server] BeetleDead spawned with values T:{_tranquilValueNet.Value:F2} V:{_violentValueNet.Value:F2} M:{_miscValueNet.Value:F2}");
+                // Register with SellableItemManager for cleanup on hub entry
+                SellableItemManager.Instance?.RegisterItem(NetworkObject, this);
             }
 
             // All clients cache values locally for easy access
@@ -72,6 +74,15 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
             _tranquilValueNet.OnValueChanged += (oldVal, newVal) => _tranquilValue = newVal;
             _violentValueNet.OnValueChanged += (oldVal, newVal) => _violentValue = newVal;
             _miscValueNet.OnValueChanged += (oldVal, newVal) => _miscValue = newVal;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            if (IsServer)
+            {
+                SellableItemManager.Instance?.UnregisterItem(NetworkObject);
+            }
         }
 
         private void OnEnable()
@@ -133,7 +144,7 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         }
 
         #endregion
-        
+
         #region Pickup Override
 
         public override void PickupItem(GameObject player, Transform fpsItemParent, Transform tpsItemParent,
@@ -141,23 +152,52 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle
         {
             _ragdoll.DisableAllRigidbodies();
             base.PickupItem(player, fpsItemParent, tpsItemParent, networkObjectForPlayer);
-            
         }
 
         #endregion
-        
+
         #region  Drop Override
 
         public override void DropItem(Vector3 dropPosition)
         {
-            _ragdoll.EnableRagdoll();
-            _ragdollRoot.position = dropPosition;
-            base.DropItem(dropPosition);
-            // Guard: This method should ONLY run on server
-            if (!IsServer)
+            // Set positions BEFORE base drop logic
+            transform.position = dropPosition;
+            if (_ragdollRoot != null)
             {
-                Debug.LogError("[BaseInventoryItem] DropItem() called on client! This should only run on server.");
-                return;
+                _ragdollRoot.position = dropPosition;
+            }
+
+            // Call base drop logic (this sets IsPickedUp = false, triggering callbacks)
+            base.DropItem(dropPosition);
+
+            // Enable ragdoll on all clients via ClientRpc
+            EnableRagdollClientRpc(dropPosition);
+        }
+
+        [ClientRpc]
+        private void EnableRagdollClientRpc(Vector3 dropPosition)
+        {
+            // Ensure positions are synced before enabling physics
+            transform.position = dropPosition;
+            if (_ragdollRoot != null)
+            {
+                _ragdollRoot.position = dropPosition;
+            }
+
+            // Reset all ragdoll bone velocities
+            foreach (var rb in _ragdollRoot.GetComponentsInChildren<Rigidbody>())
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            // Enable ragdoll physics
+            _ragdoll.EnableRagdoll();
+
+            // Re-enable pickup collider after ragdoll setup
+            if (_collider != null)
+            {
+                _collider.enabled = true;
             }
         }
 

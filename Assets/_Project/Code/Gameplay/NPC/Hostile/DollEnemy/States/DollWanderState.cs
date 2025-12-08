@@ -22,7 +22,6 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             //set agent speed to wander (done)
             //choose pose for nextLookedAt (with animator likely) (done)?
             //unfreeze as a precaution?
-            Debug.Log("Entering DollWanderState");
             Agent.stoppingDistance = DollSO.StoppingDist;
             Agent.speed = DollSO.WalkSpeed;
             Agent.isStopped = false;
@@ -56,6 +55,12 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         public override void StateLookedAt()
         {
             StateMachine.TransitionTo(StateEnum.LookedAtState);
+        }
+        
+        public override void StateLookedAway(Transform playerToHunt)
+        {
+            // This shouldn't be called from wander, but if it is, start hunting
+            StateMachine.TransitionTo(StateEnum.HuntingState);
         }
 
         public override void StateHuntTimerComplete()

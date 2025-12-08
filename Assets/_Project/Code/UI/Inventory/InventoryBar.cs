@@ -23,8 +23,8 @@ namespace _Project.Code.UI.Inventory
 
         private void OnDisable()
         {
-            EventBus.Instance.Unsubscribe<InventorySlotIndexChangedEvent>(this);
-            EventBus.Instance.Unsubscribe<InventoryListModifiedEvent>(this);
+            EventBus.Instance?.Unsubscribe<InventorySlotIndexChangedEvent>(this);
+            EventBus.Instance?.Unsubscribe<InventoryListModifiedEvent>(this);
         }
 
         #endregion
