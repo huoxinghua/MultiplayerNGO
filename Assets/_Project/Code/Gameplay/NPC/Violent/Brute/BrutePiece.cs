@@ -18,21 +18,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         /// Server-authoritative: Tranquil research value (generated on server).
         /// NetworkVariable ensures all clients see the same value.
         /// </summary>
-        private NetworkVariable<float> _tranquilValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        /// <summary>
-        /// Server-authoritative: Violent research value (generated on server).
-        /// </summary>
-        private NetworkVariable<float> _violentValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        /// <summary>
-        /// Server-authoritative: Miscellaneous research value (generated on server).
-        /// </summary>
-        private NetworkVariable<float> _miscValueNet = new NetworkVariable<float>(
-            0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
+        
         #endregion
 
         #region Initialization

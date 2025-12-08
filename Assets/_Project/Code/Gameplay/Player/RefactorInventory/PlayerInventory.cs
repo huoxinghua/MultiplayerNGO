@@ -646,10 +646,22 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             if (IsOwner)
             {
                 Debug.Log($"[Client] Item sold: {itemName} (T:{tranquilValue}, V:{violentValue}, M:{miscValue})");
-                EventBus.Instance.Publish<ItemSoldEvent>(new ItemSoldEvent { SoldItemData = data });
+               RequestPublishItemSoldEventServerRpc(data.RawTranquilValue, data.RawViolentValue, data.RawMiscValue, data.KeyName);
             }
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestPublishItemSoldEventServerRpc(float tranquilValue, float violentValue, float miscValue, string itemName)
+        {
+            ScienceData data = new ScienceData
+            {
+                RawTranquilValue = tranquilValue,
+                RawViolentValue = violentValue,
+                RawMiscValue = miscValue,
+                KeyName = itemName
+            };
+            EventBus.Instance.Publish<ItemSoldEvent>(new ItemSoldEvent { SoldItemData = data });
+        }
         #endregion
 
         #region R6: State Sync (NetworkVariable Callbacks)

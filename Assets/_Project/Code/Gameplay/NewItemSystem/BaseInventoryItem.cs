@@ -712,11 +712,30 @@ namespace _Project.Code.Gameplay.NewItemSystem
 
         public virtual void WasSold()
         {
-            if (_currentHeldVisual != null)
+            /*if (_currentHeldVisual != null)
             {
                 Destroy(_currentHeldVisual);
             }
-            Destroy(gameObject);
+            Destroy(gameObject);*/
+            RequestDeleteItemServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void RequestDeleteItemServerRpc()
+        {
+            DistributeDestroyHeldVisualsClientRpc();
+        }
+
+        [ClientRpc(RequireOwnership = false)]
+        private void DistributeDestroyHeldVisualsClientRpc()
+        {
+            if(_tpsHeldVisualChild != null) Destroy(_tpsHeldVisualChild);
+            if(_fpsHeldVisualChild != null) Destroy(_fpsHeldVisualChild);
+    
+            if (IsServer)
+            {
+                NetworkObject.Despawn(); 
+            }
         }
 
         public virtual ScienceData GetValueStruct()
