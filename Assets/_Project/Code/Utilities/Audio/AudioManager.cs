@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using _Project.Code.Gameplay.Player.MiscPlayer;
 using UnityEngine;
 
 namespace _Project.Code.Utilities.Audio
@@ -10,6 +12,7 @@ namespace _Project.Code.Utilities.Audio
         [Header("Audio Library")]
         [SerializeField] private List<AudioEntry> audioLibrary = new List<AudioEntry>();
         private Dictionary<string, AudioClip> audioClips = new Dictionary<string, AudioClip>();
+        private Dictionary<SoundIDs, AudioClip> _audioClipsEnum = new Dictionary<SoundIDs, AudioClip>();
 
         [Header("Pooling Settings")]
         [SerializeField] private int initialPoolSize = 20;
@@ -171,11 +174,135 @@ namespace _Project.Code.Utilities.Audio
 
         public void StopAmbient() => ambientSource?.Stop();
     }
+    [AttributeUsage(AttributeTargets.Field)]
+    public class NetworkAspectAttribute : Attribute
+    {
+        public enum SoundAspect
+        {
+            LocalOnly = 0,
+            Global = 1,
+            Conditional = 2,
+            Local2D = 3,
+            Global2D = 4,
+            Default,
+        }
 
+        public SoundAspect NetworkAspect { get; }
+
+        public NetworkAspectAttribute(SoundAspect aspect)
+        {
+            NetworkAspect = aspect;
+        }
+    }
     public enum SoundIDs
     {
         NoSound,
+        
+        #region  EnemySounds
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
         EnemyBruteFootsteps,
-        EnemyBruteAlert
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBruteAlert,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBruteAttack,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBruteIdleBreath,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBruteHurtIdleBreath,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyDollGiggle,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyDollFootsteps,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.LocalOnly)]
+        EnemyDollAlert,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBeetleFootsteps,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBeetleSqueak,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnemyBeetleBugNoise,
+        
+        #endregion
+        #region  PlayerSounds
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        PlayerFootsteps,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        PlayerHurt,
+        
+        #endregion
+        #region  ItemSounds
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemFlashlightClick,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemMeleeSwing,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemBaseballBatHit,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemSledgehammerSwing,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemMacheteSwing,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemTranqGunShot,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        ItemTranqGunHit,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.LocalOnly)]
+        ItemTestTubeCollect,
+        
+        #endregion
+        #region  EnviromentSounds
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnvironmentDoorSwing,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnvironmentFluorescentLightBuzz,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global2D)]
+        EnvironmentAmbientMusic,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnvironmentTruckDoorSwing,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        EnvironmentDeliveryTruckHorn,
+        
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.LocalOnly)]
+        EnvironmentItemCollect
+        
+        #endregion
+    }
+
+    public struct PlaySpatialSoundEvent : IEvent
+    {
+        public SoundIDs SoundID;
+        public Vector3 Position;
+        public float Volume;
+    }
+
+    public struct Play2DSoundEvent : IEvent
+    {
+        public SoundIDs SoundID;
+        public float Volume;
     }
 }
