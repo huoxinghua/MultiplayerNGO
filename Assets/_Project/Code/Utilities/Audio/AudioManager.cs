@@ -32,8 +32,8 @@ namespace _Project.Code.Utilities.Audio
             DontDestroyOnLoad(gameObject);
             foreach (var entry in audioLibrary)
             {
-                if (!audioClips.ContainsKey(entry.key) && entry.clip != null)
-                    audioClips.Add(entry.key, entry.clip);
+                if (!_audioClipsEnum.ContainsKey(entry.key) && entry.clip != null)
+                    _audioClipsEnum.Add(entry.key, entry.clip);
             }
             CreatePool();
         }
