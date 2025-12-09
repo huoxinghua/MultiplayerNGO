@@ -242,6 +242,9 @@ namespace _Project.Code.Utilities.Audio
         [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
         PlayerHurt,
         
+        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
+        PlayerLanding,
+        
         #endregion
         #region  ItemSounds
         
@@ -255,10 +258,10 @@ namespace _Project.Code.Utilities.Audio
         ItemBaseballBatHit,
         
         [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemSledgehammerSwing,
+        ItemSledgehammerHit,
         
         [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemMacheteSwing,
+        ItemMacheteHit,
         
         [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
         ItemTranqGunShot,
