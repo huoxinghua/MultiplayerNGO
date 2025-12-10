@@ -1,6 +1,8 @@
 using _Project.Code.Gameplay.Player.MiscPlayer;
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using UnityEngine;
+using UnityEngine.LightTransport;
 
 namespace _Project.Code.Utilities.EventBus
 {
@@ -54,50 +56,19 @@ namespace _Project.Code.Utilities.EventBus
     #endregion
     public class GameplayEvent : IEvent
     {
-        public SoundIDs EventSoundID;
-        public Vector3 EventPosition;
-        
-        //maybe replace with another attribute? Events probably do not need this. The sounds should know their own volume?
-        public float EventVolume;
+      public EventIDs EventID;
+      public Vector3 EventPosition;
 
-        public GameplayEvent(SoundIDs itemID = SoundIDs.NoSound, Vector3 Position = default(Vector3), float Volume = 1.0f)
-        {
-            EventSoundID = itemID;
-            EventPosition = Position;
-            EventVolume = Volume;
-        }
     }
 
     public class BaseballBatHitEvent : GameplayEvent
     {
-        //no arguments base with all defaults
-        public BaseballBatHitEvent() : base()
-        {
-        }
-
-        // The default values in the base class will fill in the blanks
-        public BaseballBatHitEvent(SoundIDs itemID = SoundIDs.NoSound,
-            Vector3 position = default(Vector3),
-            float volume = 1.0f)
-            : base(itemID, position, volume)
-        {
-        }
+       
     }
 
     public class DollAlertEvent : GameplayEvent
     {
-        //no arguments base with all defaults
-        public DollAlertEvent() : base()
-        {
-        }
-
-        // The default values in the base class will fill in the blanks
-        public DollAlertEvent(SoundIDs itemID = SoundIDs.NoSound,
-            Vector3 position = default(Vector3),
-            float volume = 1.0f)
-            : base(itemID, position, volume)
-        {
-        }
+      
     }
     
     #endregion
