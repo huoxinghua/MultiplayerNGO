@@ -29,7 +29,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Debug.Log("CustomNetworkSpawn called!");
             // Now add flashlight-specific network setup
       
             HasCollected = new NetworkVariable<bool>(_jarItemSO.HasCollected, NetworkVariableReadPermission.Everyone,
@@ -66,7 +65,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             /*_syringeItemSo.EffectDuration;
             _syringeItemSo.SpeedBoostAmount;*/
-            Debug.Log("UseJar");
             RequestChangeIsUsedServerRpc();
         }
 

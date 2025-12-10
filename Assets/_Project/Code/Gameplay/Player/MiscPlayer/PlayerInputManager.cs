@@ -33,6 +33,8 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
         public event Action OnNumFive;
         public event Action OnDropItem;
         public event Action OnInteract;
+        public event Action OnPauseOpen;
+        public event Action OnPauseClose;
         public Vector2 LookInput { get; private set; }
         private void Awake()
         {
@@ -61,10 +63,15 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
             inputActions.Player.SecondaryUse.performed += HandleSecondaryUse;
             inputActions.Player.SecondaryUse.canceled += HandleSecondaryUse;
             inputActions.Player.KeyPressed.performed += HandleKeyPressed;
+
+            //UI
+            inputActions.Player.PauseMenu.performed += HandlePauseOpen;
+            inputActions.UI.PauseMenu.performed += HandlePauseClose;//close
         }
         private void OnDisable()
         {
-            SwitchToSpectatorMode();
+            inputActions.Player.Disable();
+            inputActions.Spectator.Disable();
 
             inputActions.Player.Move.performed -= HandleMove;
             inputActions.Player.Move.canceled -= HandleMove;
@@ -85,17 +92,28 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
             inputActions.Player.SecondaryUse.performed -= HandleSecondaryUse;
             inputActions.Player.SecondaryUse.canceled -= HandleSecondaryUse;
             inputActions.Player.KeyPressed.performed -= HandleKeyPressed;
+            //ui
+            inputActions.Player.PauseMenu.performed -= HandlePauseOpen;//open
+            inputActions.UI.PauseMenu.performed -= HandlePauseClose;//close
         }
         public void SwitchToSpectatorMode()
         {
+            inputActions.UI.Disable();
             inputActions.Player.Disable();
             inputActions.Spectator.Enable();
         }
 
         public void SwitchToPlayerMode()
         {
+            inputActions.UI.Disable();
             inputActions.Spectator.Disable();
             inputActions.Player.Enable();
+        }
+        public void SwitchToUIMode()
+        {
+            inputActions.Spectator.Disable();
+            inputActions.Player.Disable();
+            inputActions.UI.Enable();
         }
         Vector2 moveInput;
         private void HandleMove(InputAction.CallbackContext context)
@@ -123,7 +141,6 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
         }
         private void HandleJump(InputAction.CallbackContext context)
         {
-            Debug.Log($"Jump context is {context.performed}");
             OnJumpInput?.Invoke(new PlayerJumpEvent{IsPressed = context.performed});
         
         }
@@ -172,5 +189,16 @@ namespace _Project.Code.Gameplay.Player.MiscPlayer
         {
             OnInteract?.Invoke();
         }
+        #region
+  
+        private void HandlePauseOpen(InputAction.CallbackContext ctx)
+        {
+            OnPauseOpen?.Invoke();
+        }
+        private void HandlePauseClose(InputAction.CallbackContext ctx)
+        {
+            OnPauseClose?.Invoke();
+        }
+        #endregion
     }
 }

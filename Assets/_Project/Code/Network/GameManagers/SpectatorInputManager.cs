@@ -11,7 +11,6 @@ namespace _Project.Code.Network.GameManagers
         public Vector2 LookInput { get; private set; }
         private void Awake()
         {
-            Debug.Log("SpectatorInputController awake");
             inputActions = new InputSystem_Actions();
         }
         private void OnEnable()

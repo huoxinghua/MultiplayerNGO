@@ -12,6 +12,7 @@ using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using Timer = _Project.Code.Utilities.Utility.Timer;
 using _Project.Code.Gameplay.Market.Quota;
+using _Project.Code.Gameplay.Market.Sell;
 
 namespace _Project.Code.Gameplay.EnemySpawning
 {
@@ -58,7 +59,6 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private bool _hasSpawned = false;
         private float GetTrueSpawnChance(BaseSpawnSO spwnSO, int AttemptsSinceSpawn, int TotalSpawns)
         {
-            Debug.Log("GetTrueSpawnChance  spawn So"+ spwnSO.name);
             // 1. Chance to spawn plus additive change
             float incrementalChance = (spwnSO.BaseSpawnChance + (spwnSO.IncreaseByAttempts * AttemptsSinceSpawn));
 
@@ -108,8 +108,6 @@ namespace _Project.Code.Gameplay.EnemySpawning
         private void SpawnOnStart()
         {
             if (!_hasSpawned) return;
-            Debug.Log("EventHurd");
-            Debug.Log("SpawnOnStart");
             var point = GetEnemySpawnPoint();
             SpawnViolent(point);
             point = GetEnemySpawnPoint();
@@ -336,7 +334,9 @@ namespace _Project.Code.Gameplay.EnemySpawning
                 }
             }
 
-            _aliveEnemiesRelatedObjs.Clear();
+
+            // Despawn unheld sellable items (dead beetles, brute pieces)
+            SellableItemManager.Instance?.DespawnUnheldItems();
         }
 
         public void DespawnAllEnemies(OnEnterHubEvent evt)
@@ -361,7 +361,9 @@ namespace _Project.Code.Gameplay.EnemySpawning
                 }
             }
 
-            _aliveEnemiesRelatedObjs.Clear();
+
+            // Despawn unheld sellable items (dead beetles, brute pieces)
+            SellableItemManager.Instance?.DespawnUnheldItems();
         }
 
         public void RegisterEnemyRelatedObject(NetworkObject netObject)
@@ -374,6 +376,24 @@ namespace _Project.Code.Gameplay.EnemySpawning
         {
             if (!IsServer || netObject == null) return;
             _aliveEnemiesRelatedObjs.Remove(netObject);
+        }
+        /// <summary>
+        /// Unregisters and despawns a dead enemy.
+        /// Called when an enemy dies to properly clean it up from the tracking system.
+        /// </summary>
+        public void UnregisterDeadEnemy(NetworkObject enemy)
+        {
+            if (!IsServer) return;
+
+            if (enemy != null && _aliveEnemies.Contains(enemy))
+            {
+                _aliveEnemies.Remove(enemy);
+            }
+
+            if (enemy != null && enemy.IsSpawned)
+            {
+                enemy.Despawn(true);
+            }
         }
     }
 

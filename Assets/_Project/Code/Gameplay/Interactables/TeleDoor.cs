@@ -35,7 +35,6 @@ namespace _Project.Code.Gameplay.Interactables
         
             if(linkDoorEvent.LinkIndex == indexForLink && linkDoorEvent.LinkPos != _thisDoor)
             {
-                Debug.Log("Door");
                 _linkedDoor = linkDoorEvent.LinkPos;
             }
         }
@@ -50,7 +49,6 @@ namespace _Project.Code.Gameplay.Interactables
 
                 if (timer.IsComplete)
                 {
-                    Debug.Log(_holdTimers.IndexOf(timer).ToString());
                     HandleTeleport(_players[i]);
                 }
             }
@@ -64,7 +62,7 @@ namespace _Project.Code.Gameplay.Interactables
         }
         public void HandleTeleport(GameObject playerTeleporting)
         {
-            if(_linkedDoor == null) { Debug.Log("NoLink"); return; }
+            if(_linkedDoor == null) { return; }
             CharacterController cc = playerTeleporting.GetComponent<CharacterController>();
             cc.enabled = false;
             playerTeleporting.transform.position = _linkedDoor.position;

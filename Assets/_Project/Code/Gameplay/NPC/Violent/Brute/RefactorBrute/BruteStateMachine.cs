@@ -41,11 +41,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         private Vector3 _originalLocation;
         private float _heartSafeDistance = 2f;
         private bool _isHeartSpawned;
+        private bool _isDead;
  
         public void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
             Animator = GetComponentInChildren<BruteAnimation>();
+            HeartPosition = transform;
             //HandleHeartSpawn();
             IdleState = new BruteIdleState(this);
             WanderState = new BruteWanderState(this);
@@ -69,7 +71,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
             }
             _spawnedHeart.GetComponent<BruteHeart>()?.SetStateController(this);
             _spawnedHeart.transform.SetParent(null);
-            HeartPosition = transform;
+            HeartPosition = _spawnedHeart.transform;
         }
         
         public override void OnNetworkSpawn()
@@ -113,13 +115,13 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
        
         void Update()
         {
-            if (!IsServer) return;
+            if (!IsServer || _isDead) return;
             CurrentState?.StateUpdate();
             
         }
         void FixedUpdate()
         {
-            if (!IsServer) return;
+            if (!IsServer || _isDead) return;
             CurrentState?.StateFixedUpdate();
 
             if (!IsServer || _isHeartSpawned)
@@ -136,7 +138,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         public void OnHearPlayer(GameObject playerObj)
         {
 
-            if (playerObj == null || IsHurt.Value){ Debug.Log("LeavingEarly"); return; }
+            if (playerObj == null || IsHurt.Value){ return; }
             LastHeardPlayer = playerObj;
             if (Vector3.Distance(playerObj.transform.position,transform.position) <= BruteSO.InstantAggroDistance)
             {
@@ -233,8 +235,16 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public void OnDeath()
         {
-
-        
+            _isDead = true;
+            
+            // Stop NavMeshAgent if still active
+            if (agent != null && agent.enabled && agent.isOnNavMesh)
+            {
+                agent.ResetPath();
+                agent.isStopped = true;
+            }
+            
+            TransitionTo(BruteDeadState);
         }
 
         public void TempAnimMove()
@@ -245,6 +255,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
 
         public void OnHeartDestroyed()
         {
+            if (_isDead) return; // Don't transition if already dead
             RequestChangeToIsHurtServerRpc();
             TransitionTo(BruteHurtIdleState);
         }
@@ -254,19 +265,14 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
         }
         public void OnAttackConnects()
         {
-            if (PlayerToAttack == null)
-            {
-                return;
-            }
+            if (PlayerToAttack == null) return;
 
             var health = PlayerToAttack.GetComponent<IPlayerHealth>();
-            if (health == null)
+            if (health == null) return;
+
+            if (Vector3.Distance(transform.position, PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
             {
-                return;
-            }
-            if(Vector3.Distance(transform.position,PlayerToAttack.transform.position) <= BruteSO.AttackDistance)
-            {
-                PlayerToAttack.GetComponent<IPlayerHealth>().TakeDamage(BruteSO.Damage);
+                health.TakeDamage(BruteSO.Damage);
             }
         }
         public virtual void TransitionTo(BruteBaseState newState)

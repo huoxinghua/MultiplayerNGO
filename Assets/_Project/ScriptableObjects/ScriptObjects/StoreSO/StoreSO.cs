@@ -45,6 +45,10 @@ namespace _Project.ScriptableObjects.ScriptObjects.StoreSO
     public enum ItemIds
     {
         Flashlight = 0,
-        BaseballBat = 1
+        BaseballBat = 1,
+        Machete = 2,
+        SledgeHammer = 3,
+        TestTube = 4,
+        TranqGun = 5
     }
 }
