@@ -20,7 +20,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         //[SerializeField] GameObject _brutePiecesPrefab;
        // [SerializeField] private List<GameObject> _brutePiecesList = new();
        [SerializeField] private BruteSO _bruteSo;
-      public List<GameObject> _brutePiecesList;
+       //public List<GameObject> _brutePiecesList;
         [SerializeField] GameObject _destroy;
 
         [SerializeField] float heightOffset;
