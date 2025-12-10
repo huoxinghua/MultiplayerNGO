@@ -1,4 +1,5 @@
 using System.Collections;
+using _Project.Code.Gameplay.NPC.Violent.Brute;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,8 +7,8 @@ namespace _Project.Code.Network.RegisterNetObj
 {
     public class NetworkPrefabAutoRegister : MonoBehaviour
     {
-        [Header("enemy pickable piceces Prefabs")] [SerializeField]
-        private GameObject[] _pickupPrefabs;
+        [Header("enemy pickable piceces Prefabs")] 
+        [SerializeField] private BruteSO _bruteSo;
 
         private IEnumerator Start()
         {
@@ -21,7 +22,7 @@ namespace _Project.Code.Network.RegisterNetObj
 
         private void RegisterPrefabs()
         {
-            foreach (var prefab in _pickupPrefabs)
+            foreach (var prefab in _bruteSo.BrutePiecePrefabs)
             {
                 var netObj = prefab.GetComponent<NetworkObject>();
                 if (netObj == null)
