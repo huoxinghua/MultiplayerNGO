@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using _Project.Code.Gameplay.NPC.Violent.Brute;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace _Project.Code.Network.RegisterNetObj
         [Header("enemy pickable piceces Prefabs")] 
         [SerializeField] private BruteSO _bruteSo;
 
+        private static readonly HashSet<GameObject> RegisteredPrefabs = new();
         private IEnumerator Start()
         {
             while (NetworkManager.Singleton == null)
@@ -30,6 +32,8 @@ namespace _Project.Code.Network.RegisterNetObj
                     continue;
                 }
 
+                if (RegisteredPrefabs.Contains(prefab))
+                    continue;
                 NetworkManager.Singleton.AddNetworkPrefab(prefab);
             }
         }
