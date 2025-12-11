@@ -102,12 +102,11 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             get
             {
                 // TryGet returns true if the reference is valid and the object is retrieved
-                if (InventoryNetworkBigItemRef.Value.TryGet(out Unity.Netcode.NetworkObject bigItemObj))
+                if (InventoryNetworkBigItemRef.Value.TryGet(out NetworkObject bigItemObj))
                 {
                     // Return true only if the retrieved object contains the component
                     return bigItemObj.GetComponentInChildren<BaseInventoryItem>() != null;
                 }
-
                 // Return false if the reference was invalid or the object wasn't found
                 return false;
             }
@@ -518,7 +517,15 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
         {
             if (_handsFull)
             {
-                return BigItemCarried != null && BigItemCarried.CanBeSold();
+                if (InventoryNetworkBigItemRef.Value.TryGet(out NetworkObject bigItemObj))
+                {
+                    // Return true only if the retrieved object contains the component
+                    return bigItemObj.GetComponentInChildren<BaseInventoryItem>() != null && bigItemObj.GetComponentInChildren<BaseInventoryItem>().CanBeSold();;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
@@ -565,23 +572,31 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
 
             if (sellingBigItem)
             {
-                // Validate big item exists
-                if (!InventoryNetworkBigItemRef.Value.TryGet(out NetworkObject bigItemObj))
+                BaseInventoryItem bigItem = default;
+                if (InventoryNetworkBigItemRef.Value.TryGet(out NetworkObject bigItemObj))
                 {
-                    Debug.LogWarning("[Server] No big item to sell");
-                    return;
+                    Debug.LogWarning("yes big item to sell");
+                    bigItem = bigItemObj.GetComponentInChildren<BaseInventoryItem>();
+                    
                 }
-
-                BaseInventoryItem bigItem = bigItemObj.GetComponent<BaseInventoryItem>();
+                else
+                {
+                    Debug.LogWarning("no big item to sell");
+                    return;  
+                }
                 if (bigItem == null || !bigItem.CanBeSold())
                 {
                     Debug.LogWarning("[Server] Big item cannot be sold");
                     return;
                 }
+                else
+                {
+                    Debug.Log("[Server] Big item can be sold");
+                }
 
                 // Get item values before destroying
                 data = bigItem.GetValueStruct();
-
+                Debug.Log($"{data.KeyName }, {data.RawMiscValue.ToString()}");
                 // Server handles sale (destroys item)
                 bigItem.WasSold();
 
