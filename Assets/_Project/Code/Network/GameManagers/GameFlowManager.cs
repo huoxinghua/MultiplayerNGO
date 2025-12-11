@@ -67,7 +67,7 @@ namespace _Project.Code.Network.GameManagers
             HideLoadMenuClientRpc();
         }
 
-        private void HideLoadMenuLocal()
+        public void HideLoadMenuLocal()
         {
             _loadMenu.SetActive(false);
         }
