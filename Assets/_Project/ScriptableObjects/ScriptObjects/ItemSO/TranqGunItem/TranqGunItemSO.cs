@@ -8,6 +8,9 @@ namespace _Project.ScriptableObjects.ScriptObjects.ItemSO.TranqGunItem
     {
         [field: Header("TranqGun Data")]
         [field: SerializeField] public int AmmoAmount { get; private set; }
+        [field: SerializeField] public float Damage { get; private set; }
+        [field: SerializeField] public float DartSpeed { get; private set; }
+
     }
 
 }
