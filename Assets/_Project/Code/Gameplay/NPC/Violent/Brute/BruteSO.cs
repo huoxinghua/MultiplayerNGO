@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
@@ -27,6 +28,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [field: Header("Scared To Delete")]
         //no idea whats this here
         [field: SerializeField] public float LandingCooldown { get; private set; } = 0f;
+        //brute pieces
+        [field: Header("Brute Drops")]
+        [field: SerializeField] public List<GameObject> BrutePiecePrefabs { get;
+            private set; }
+
     }
 }
 

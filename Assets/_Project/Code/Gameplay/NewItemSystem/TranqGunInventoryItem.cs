@@ -93,9 +93,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private void ShootServerRpc(Vector3 spawnPos, Quaternion spawnRot, Vector3 aimDir)
         {
             RequestDecreaseAmmoServerRpc();
-
+            Quaternion dartRot = Quaternion.LookRotation(aimDir, Vector3.up);
       
-            var dartObj = Instantiate(_bulletPrefab, spawnPos, spawnRot);
+            var dartObj = Instantiate(_bulletPrefab, spawnPos, dartRot);
             var netObj = dartObj.GetComponent<NetworkObject>();
             netObj.Spawn();   
             var dartScript = dartObj.GetComponent<TranqDartScript>();
