@@ -11,6 +11,8 @@ namespace _Project.Code.Network.RegisterNetObj
         [Header("enemy pickable piceces Prefabs")] 
         [SerializeField] private BruteSO _bruteSo;
 
+        private static bool _hasBrutePieceRegistered = false;
+
         private static readonly HashSet<GameObject> RegisteredPrefabs = new();
         private IEnumerator Start()
         {
@@ -19,7 +21,11 @@ namespace _Project.Code.Network.RegisterNetObj
                 yield return null;
             }
 
-            RegisterPrefabs();
+            if (!_hasBrutePieceRegistered)
+            {
+                RegisterPrefabs();
+            }
+            
         }
 
         private void RegisterPrefabs()
