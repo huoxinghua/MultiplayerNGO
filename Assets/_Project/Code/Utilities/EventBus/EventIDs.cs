@@ -11,6 +11,7 @@ using UnityEngine;
         EnemyBruteAttack,
         EnemyBruteIdleBreath,
         EnemyBruteHurtIdleBreath,
+        EnemyBruteHeartBeat,
         EnemyDollGiggle,
         EnemyDollFootsteps,
         EnemyDollAlert,

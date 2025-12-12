@@ -135,6 +135,7 @@ namespace _Project.Code.Gameplay.Market.Quota
             //Add progress towards quota
             if (!IsServer) return;
             RequestAddResearchProgressServerRpc(DaysQuotaProgress.Value);
+            RequestResetDayProgressServerRpc();
         }
 
         public void HandleEnterHub(OnEnterHubEvent onEnterHubEvent)
