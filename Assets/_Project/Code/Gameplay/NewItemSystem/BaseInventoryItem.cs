@@ -38,6 +38,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         [Header("Physics Components")]
         [SerializeField] protected Rigidbody _rb;
         [SerializeField] protected Renderer _renderer;
+        [SerializeField] protected Renderer[] _childRenderers;
         [SerializeField] protected Collider _collider;
         
         #endregion
@@ -524,9 +525,18 @@ namespace _Project.Code.Gameplay.NewItemSystem
             _collider.enabled = !newState;
             _rb.isKinematic = newState;
             _renderer.enabled = !newState;
-           // transform.position = new Vector3(0, 0, 0);
+            SetChildRenders(!newState); // transform.position = new Vector3(0, 0, 0);
         }
 
+        private void SetChildRenders(bool newState)
+        {
+            if(_childRenderers.Length < 1) return;
+            foreach (var child in _childRenderers)
+            {
+                if(child == null) continue;
+                child.enabled = newState;
+            }
+        }
         private void OnChangedInHandState(bool oldState, bool newState)
         {
             if (_currentPlayerInventory == null)
