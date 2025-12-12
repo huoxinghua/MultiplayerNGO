@@ -70,6 +70,438 @@ namespace _Project.Code.Utilities.EventBus
     {
       
     }
-    
+
+    public class BruteFootstepsEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BruteFootstepsEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BruteFootstepsEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BruteAlertEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BruteAlertEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BruteAlertEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BruteAttackEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BruteAttackEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BruteAttackEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BruteIdleBreathEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BruteIdleBreathEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BruteIdleBreathEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BruteHurtIdleBreathEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BruteHurtIdleBreathEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BruteHurtIdleBreathEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class DollGiggleEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public DollGiggleEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public DollGiggleEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class DollFootstepsEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public DollFootstepsEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public DollFootstepsEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BeetleFootstepsEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BeetleFootstepsEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BeetleFootstepsEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BeetleSqueakEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BeetleSqueakEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BeetleSqueakEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BeetleBugNoiseEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BeetleBugNoiseEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BeetleBugNoiseEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class PlayerFootstepsEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public PlayerFootstepsEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public PlayerFootstepsEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class PlayerHurtEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public PlayerHurtEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public PlayerHurtEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class PlayerLandingEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public PlayerLandingEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public PlayerLandingEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class FlashLightClickEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public FlashLightClickEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public FlashLightClickEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class MeleeSwingEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public MeleeSwingEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public MeleeSwingEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class BaseballHitEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public BaseballHitEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public BaseballHitEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class SledgeHammerHitEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public SledgeHammerHitEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public SledgeHammerHitEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class MacheteHitEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public MacheteHitEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public MacheteHitEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class TranqGunShotEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public TranqGunShotEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public TranqGunShotEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class TranqGunHitEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public TranqGunHitEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public TranqGunHitEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class TestTubeCollectEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public TestTubeCollectEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public TestTubeCollectEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class DoorSwingEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public DoorSwingEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public DoorSwingEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class FluorescentLightBuzzEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public FluorescentLightBuzzEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public FluorescentLightBuzzEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class AmbientMusicEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public AmbientMusicEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public AmbientMusicEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class TruckDoorSwingEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public TruckDoorSwingEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public TruckDoorSwingEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class DeliveryTruckHornEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public DeliveryTruckHornEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public DeliveryTruckHornEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
+    public class ItemCollectEvent : GameplayEvent
+    {
+        //no arguments base with all defaults
+        public ItemCollectEvent() : base()
+        {
+        }
+
+        // The default values in the base class will fill in the blanks
+        public ItemCollectEvent(SoundIDs itemID = SoundIDs.NoSound,
+            Vector3 position = default(Vector3),
+            float volume = 1.0f)
+            : base(itemID, position, volume)
+        {
+        }
+    }
+
     #endregion
 }
