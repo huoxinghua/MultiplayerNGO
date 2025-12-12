@@ -64,6 +64,8 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         //needs to be changed in children. Is this an acceptable way to do so?
         private float _targetCameraHeight;
+        //fall back cam
+        private PlayerCameraActivator playerCam;
 
         public float TargetCameraHeight
         {
@@ -144,10 +146,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnNumPressed += OnNumPressedInput;
                 InputManager.OnChangeWeaponInput += OnChangeWeaponInput;
             }
-            else
-            {
-                Debug.Log("input manager is null ");
-            }
+            
 
             if (!AllPlayers.Contains(this))
                 AllPlayers.Add(this);
@@ -172,10 +171,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
                 InputManager.OnNumPressed -= OnNumPressedInput;
                 InputManager.OnChangeWeaponInput -= OnChangeWeaponInput;
             }
-            else
-            {
-                Debug.Log("input manager is null ");
-            }
+            
 
             EventBus.Instance.Unsubscribe<PlayerChangeArea>(this);
             AllPlayers.Remove(this);
@@ -185,6 +181,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            playerCam = GetComponentInChildren<PlayerCameraActivator>();
             CharacterController = GetComponent<CharacterController>();
             if (IsServer) PlayerListManager.Instance.RegisterPlayerObj(this);
             //check the player safe y position
@@ -206,7 +203,11 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         {
             CharacterController.enabled = false;
             transform.SetPositionAndRotation(pos, rot);
-            GameFlowManager.Instance.HideLoadMenu();
+            if (playerCam)
+            {
+                GameFlowManager.Instance.HideLoadMenuLocal();
+            }
+       
             CharacterController.enabled = true;
             TransitionTo(IdleState);
             _safePositionY = transform.position.y;

@@ -166,14 +166,12 @@ namespace _Project.Code.Network.SteamWork
     
         public void CreateFriendOnlyLobby()
         {
-            Debug.Log("Creat friend only Lobby");
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, _maxMembers);
             _lastLobbyType = ELobbyType.k_ELobbyTypeFriendsOnly;
         }
 
         public void CreatePrivateLobby()
         {
-            Debug.Log("Creat private Lobby");
 
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePrivate, 1);
         }
@@ -263,7 +261,7 @@ namespace _Project.Code.Network.SteamWork
                 }
                 else
                 {
-                    Debug.Log("start host failed.");
+                    // Debug.Log("start host failed.");
                 }
             }
             else

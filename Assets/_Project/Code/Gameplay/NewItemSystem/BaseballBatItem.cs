@@ -1,5 +1,6 @@
 using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.BaseballBat;
 using UnityEngine;
 using Unity.Netcode;
@@ -84,7 +85,9 @@ namespace _Project.Code.Gameplay.NewItemSystem
             // Play hit sound if any enemies hit
             if (hitEnemies.Length > 0)
             {
-                AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
+                
+                EventBus.Instance.PublishGameplayEvent(new BaseballBatHitEvent{EventID = EventIDs.ItemBaseballBatHit,
+                    EventPosition = hitEnemies[0].gameObject.transform.position} );
             }
 
             // Get attacker NetworkObject reference for damage attribution

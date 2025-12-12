@@ -98,7 +98,85 @@ namespace _Project.Code.Utilities.EventBus
             _isPublishing = false;
             CleanupPendingRemovals();
         }
+        public void PublishGameplayEvent<T>(T eventData) where T :GameplayEvent, IEvent
+        {
+            Publish<T>(eventData);
+            var eventType = typeof(GameplayEvent);
+            if (!_subscriptions.TryGetValue(eventType, out var subscriptionList))
+                return;
 
+            _isPublishing = true;
+
+            for (int i = subscriptionList.Count - 1; i >= 0; i--)
+            {
+                var subscription = subscriptionList[i];
+
+                if (subscription.MarkedForRemoval)
+                    continue;
+
+                var target = subscription.TargetReference.Target;
+
+                if (target == null)
+                {
+                    subscription.MarkedForRemoval = true;
+                    _pendingRemovals.Add(subscription);
+                    continue;
+                }
+
+                try
+                {
+                    ((Action<GameplayEvent>)subscription.Callback).Invoke(eventData);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error publishing event {typeof(T).Name}: {e.Message}");
+                }
+            }
+
+            _isPublishing = false;
+            CleanupPendingRemovals();
+        }
+        public void PublishForType<TBase, TSpecific>(TSpecific eventData) 
+            where TBase : IEvent
+            where TSpecific : TBase
+        {
+            Publish<TSpecific>(eventData);
+            var eventType = typeof(TBase);
+            if (!_subscriptions.TryGetValue(eventType, out var subscriptionList))
+                return;
+
+            _isPublishing = true;
+
+            for (int i = subscriptionList.Count - 1; i >= 0; i--)
+            {
+                var subscription = subscriptionList[i];
+
+                if (subscription.MarkedForRemoval)
+                    continue;
+
+                var target = subscription.TargetReference.Target;
+
+                if (target == null)
+                {
+                    subscription.MarkedForRemoval = true;
+                    _pendingRemovals.Add(subscription);
+                    continue;
+                }
+
+                try
+                {
+                    ((Action<TBase>)subscription.Callback).Invoke(eventData);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error publishing event {typeof(TSpecific).Name} of type {typeof(TBase).Name} : {e.Message}");
+                }
+            }
+
+            _isPublishing = false;
+            CleanupPendingRemovals();
+        }
+        
         private void CleanupPendingRemovals()
         {
             if (_pendingRemovals.Count == 0)
@@ -126,7 +204,7 @@ namespace _Project.Code.Utilities.EventBus
 
         private void OnDisable()
         {
-            Clear();
+           // Clear();
         }
 
         private void OnDestroy()

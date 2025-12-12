@@ -1,5 +1,6 @@
 using _Project.Code.Art.AnimationScripts.Animations;
 using _Project.Code.Utilities.StateMachine;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
@@ -41,7 +42,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             
         }
 
-        public virtual void StateLookedAway()
+        public virtual void StateLookedAway(Transform playerToHunt)
         {
             
         }

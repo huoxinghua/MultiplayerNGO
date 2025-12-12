@@ -279,6 +279,7 @@ GameObject:
   - component: {fileID: 8621043828579305406}
   - component: {fileID: 3004923000084644161}
   - component: {fileID: 3804956348989302588}
+  - component: {fileID: 56665879150751553}
   m_Layer: 6
   m_Name: PlayerCharacter_NW
   m_TagString: Untagged
@@ -422,6 +423,8 @@ MonoBehaviour:
   <GroundCheckOffset>k__BackingField: 0
   <GroundCheckDistance>k__BackingField: 0.46
   VerticalVelocity: {x: 0, y: 0, z: 0}
+  fallOffset: 20
+  maxFallDamage: 1000000
 --- !u!143 &3914960539391674148
 CharacterController:
   m_ObjectHideFlags: 0
@@ -671,6 +674,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &56665879150751553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395632011506178275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d9d31cf5b7dbbd418b9d7a97f029c14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInput: {fileID: 4648013823145631565}
+  pauseMenuPrefab: {fileID: 9036520117285094572, guid: 0d8c0e15825817a4f824255cf8a7c8ca, type: 3}
 --- !u!1 &6101830775051530877
 GameObject:
   m_ObjectHideFlags: 0
@@ -715,6 +732,7 @@ GameObject:
   - component: {fileID: 216083172584337482}
   - component: {fileID: 3705161501214649991}
   - component: {fileID: 8312451703503928649}
+  - component: {fileID: 2841198051095521710}
   m_Layer: 6
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -775,7 +793,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 100
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -856,6 +874,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nonRigidbodyVelocity: 0
   attenuationObject: {fileID: 7793070681904133800}
+--- !u!114 &2841198051095521710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7793070681904133800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72e4d61e1dc6f435aa8d26b62e11675c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerCamera: {fileID: 2942978721585508682}
 --- !u!1 &8438133629293463998
 GameObject:
   m_ObjectHideFlags: 0

@@ -58,7 +58,6 @@ namespace _Project.Code.Gameplay.EnemySpawning.Old
         private bool _hasSpawned = false;
         private float GetTrueSpawnChance(BaseSpawnSO spwnSO, int AttemptsSinceSpawn, int TotalSpawns)
         {
-            Debug.Log("GetTrueSpawnChance  spawn So" + spwnSO.name);
             // 1. Chance to spawn plus additive change
             float incrementalChance = (spwnSO.BaseSpawnChance + (spwnSO.IncreaseByAttempts * AttemptsSinceSpawn));
 
@@ -114,8 +113,6 @@ namespace _Project.Code.Gameplay.EnemySpawning.Old
         private void SpawnOnStart()
         {
             if (!_hasSpawned) return;
-            Debug.Log("EventHurd");
-            Debug.Log("SpawnOnStart");
             var point = GetEnemySpawnPoint();
             SpawnViolent(point);
             point = GetEnemySpawnPoint();
@@ -185,7 +182,6 @@ namespace _Project.Code.Gameplay.EnemySpawning.Old
             if (!IsServer) return;
             if (_aliveEnemies.Count >= SpawnData.MaxTotalEnemies)
             {
-                Debug.Log("[EnemySpawnManager] Enemy cap reached.");
                 return;
             }
 
@@ -207,7 +203,6 @@ namespace _Project.Code.Gameplay.EnemySpawning.Old
 
             if (candidates.Count == 0)
             {
-                Debug.Log("[EnemySpawnManager] No valid spawn points near players.");
                 return;
             }
 

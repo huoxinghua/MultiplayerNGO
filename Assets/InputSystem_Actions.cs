@@ -199,6 +199,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PauseMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""77928af0-2eae-4b90-8ce6-cd5deb03a999"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -331,6 +340,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Joystick"",
                     ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""160bffef-75c2-427d-b60e-3bf2e616a705"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PauseMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -692,7 +712,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""Cancel"",
                     ""type"": ""Button"",
                     ""id"": ""15cef263-9014-4fd5-94d9-4e4a6234a6ef"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -756,6 +776,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""type"": ""PassThrough"",
                     ""id"": ""9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be"",
                     ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PauseMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""b71056ef-8d44-439d-bac3-9c0e4e50f878"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -1025,6 +1054,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eb8ab914-5758-4c4c-a656-57b661a5dd88"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PauseMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
@@ -1350,6 +1390,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_DropItem = m_Player.FindAction("DropItem", throwIfNotFound: true);
         m_Player_KeyPressed = m_Player.FindAction("KeyPressed", throwIfNotFound: true);
         m_Player_SecondaryUse = m_Player.FindAction("SecondaryUse", throwIfNotFound: true);
+        m_Player_PauseMenu = m_Player.FindAction("PauseMenu", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1362,6 +1403,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_UI_ScrollWheel = m_UI.FindAction("ScrollWheel", throwIfNotFound: true);
         m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
+        m_UI_PauseMenu = m_UI.FindAction("PauseMenu", throwIfNotFound: true);
         // Spectator
         m_Spectator = asset.FindActionMap("Spectator", throwIfNotFound: true);
         m_Spectator_Look = m_Spectator.FindAction("Look", throwIfNotFound: true);
@@ -1461,6 +1503,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_DropItem;
     private readonly InputAction m_Player_KeyPressed;
     private readonly InputAction m_Player_SecondaryUse;
+    private readonly InputAction m_Player_PauseMenu;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1520,6 +1563,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/SecondaryUse".
         /// </summary>
         public InputAction @SecondaryUse => m_Wrapper.m_Player_SecondaryUse;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PauseMenu".
+        /// </summary>
+        public InputAction @PauseMenu => m_Wrapper.m_Player_PauseMenu;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1582,6 +1629,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SecondaryUse.started += instance.OnSecondaryUse;
             @SecondaryUse.performed += instance.OnSecondaryUse;
             @SecondaryUse.canceled += instance.OnSecondaryUse;
+            @PauseMenu.started += instance.OnPauseMenu;
+            @PauseMenu.performed += instance.OnPauseMenu;
+            @PauseMenu.canceled += instance.OnPauseMenu;
         }
 
         /// <summary>
@@ -1629,6 +1679,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SecondaryUse.started -= instance.OnSecondaryUse;
             @SecondaryUse.performed -= instance.OnSecondaryUse;
             @SecondaryUse.canceled -= instance.OnSecondaryUse;
+            @PauseMenu.started -= instance.OnPauseMenu;
+            @PauseMenu.performed -= instance.OnPauseMenu;
+            @PauseMenu.canceled -= instance.OnPauseMenu;
         }
 
         /// <summary>
@@ -1676,6 +1729,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_ScrollWheel;
     private readonly InputAction m_UI_TrackedDevicePosition;
     private readonly InputAction m_UI_TrackedDeviceOrientation;
+    private readonly InputAction m_UI_PauseMenu;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -1727,6 +1781,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/TrackedDeviceOrientation".
         /// </summary>
         public InputAction @TrackedDeviceOrientation => m_Wrapper.m_UI_TrackedDeviceOrientation;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/PauseMenu".
+        /// </summary>
+        public InputAction @PauseMenu => m_Wrapper.m_UI_PauseMenu;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1783,6 +1841,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @TrackedDeviceOrientation.started += instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.performed += instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.canceled += instance.OnTrackedDeviceOrientation;
+            @PauseMenu.started += instance.OnPauseMenu;
+            @PauseMenu.performed += instance.OnPauseMenu;
+            @PauseMenu.canceled += instance.OnPauseMenu;
         }
 
         /// <summary>
@@ -1824,6 +1885,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @TrackedDeviceOrientation.started -= instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.performed -= instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.canceled -= instance.OnTrackedDeviceOrientation;
+            @PauseMenu.started -= instance.OnPauseMenu;
+            @PauseMenu.performed -= instance.OnPauseMenu;
+            @PauseMenu.canceled -= instance.OnPauseMenu;
         }
 
         /// <summary>
@@ -2131,6 +2195,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSecondaryUse(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PauseMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPauseMenu(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
@@ -2209,6 +2280,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PauseMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPauseMenu(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Spectator" which allows adding and removing callbacks.

@@ -1,4 +1,5 @@
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.SledgeHammerItem;
 using Unity.Netcode;
 using UnityEngine;
@@ -11,7 +12,6 @@ namespace _Project.Code.Gameplay.NewItemSystem
         {
             if (_itemSO is SledgeHammerItemSO _sledgehammerSO)
             {
-                //   Debug.Log("_itemSO is BaseballBatItemSO _baseballBatSO");
                 LayerMask enemyLayer = LayerMask.GetMask("Enemy");
 
                 var player = _owner;
@@ -26,13 +26,12 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 if (hitEnemies.Length > 0)
                 {
                     //play hit sound??
-                    //Debug.Log("?A?DA?");
-                    AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
+                    EventBus.Instance.PublishGameplayEvent(new SledgeHammerHitEvent{EventID = EventIDs.ItemSledgehammerHit,
+                        EventPosition = hitEnemies[0].gameObject.transform.position} );
                 }
 
                 foreach (Collider enemy in hitEnemies)
                 {
-                    Debug.Log("PerformMeleeAttack!");
                     /*enemy.gameObject.GetComponent<IHitable>()?.OnHit(_owner,
                     _baseballBatSO.Damage, _baseballBatSO.KnockoutPower);*/
 

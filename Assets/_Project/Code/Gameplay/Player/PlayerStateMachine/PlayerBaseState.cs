@@ -74,7 +74,6 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
 
         public virtual void OnDropItemInput()
         {
-            if (stateController.Inventory != null)
                 stateController.Inventory.DropItem();
         }
 
