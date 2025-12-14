@@ -1,6 +1,7 @@
 using System.Timers;
 using UnityEngine;
 using _Project.Code.Art.AnimationScripts.Animations;
+using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.StateMachine;
 using UnityEngine.AI;
 using Timer = _Project.Code.Utilities.Utility.Timer;
@@ -12,6 +13,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
     {
         private Timer PathControl = new Timer(1f);
         bool hasPath = false;
+        private Timer _dollFootstepTimer = new Timer(.25f);
         public DollWanderState(DollStateMachine stateMachine, StateEnum stateEnum) : base(stateMachine, stateEnum)
         {
         }
@@ -27,11 +29,17 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             Agent.isStopped = false;
             Animator.PlaySwitchPose();
             PathControl.Start();
+            _dollFootstepTimer.Start();
             OnWander();
         }
 
         public override void OnExit()
         {
+            _dollFootstepTimer.Stop();
+            EventBus.Instance.PublishGameplayEvent<DollAlertEvent>(new DollAlertEvent
+            {
+                EventID = EventIDs.EnemyDollAlert, EventPosition = StateMachine.transform.position
+            });
         }
 
         public override void StateFixedUpdate()
@@ -46,6 +54,15 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
                 OnWander();
             }
             PathControl.TimerUpdate(Time.deltaTime);
+            _dollFootstepTimer.TimerUpdate(Time.deltaTime);
+            if (_dollFootstepTimer.IsComplete)
+            {
+                EventBus.Instance.PublishGameplayEvent(new DollFootstepsEvent
+                {
+                    EventID = EventIDs.EnemyDollFootsteps, EventPosition = StateMachine.transform.position
+                });
+                _dollFootstepTimer.Reset();
+            }
             if (!hasPath && PathControl.IsComplete)
             {
                 OnWander();

@@ -1,4 +1,5 @@
 using _Project.Code.Network.GameManagers;
+using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace _Project.Code.Gameplay.Player.PlayerHealth
         {
             if (!IsServer) return;
             if (_isDead.Value) return;
-
+            EventBus.Instance.PublishGameplayEvent(new PlayerHurtEvent{EventID = EventIDs.PlayerHurt, EventPosition = transform.position});
             _currentHealth.Value -= damage;
             if (_currentHealth.Value <= 0f)
             {

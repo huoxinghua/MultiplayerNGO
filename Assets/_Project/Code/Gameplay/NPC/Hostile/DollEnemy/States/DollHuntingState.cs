@@ -1,3 +1,5 @@
+using _Project.Code.Utilities.EventBus;
+using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,6 +11,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
         {
         
         }
+        private Timer _dollFootstepTimer= new Timer(.25f);
         public override void OnEnter()
         {
             //choose new pose for next looked at (with animator likely)
@@ -18,7 +21,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
             Agent.speed = DollSO.RunSpeed;
             Agent.isStopped = false;
             Animator.PlaySwitchPose();
-
+            _dollFootstepTimer.Start();
             if (StateMachine.CurrentPlayerToHunt == null)
             {
                 StateMachine.TransitionTo(StateEnum.WanderState);
@@ -29,7 +32,7 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
 
         public override void OnExit()
         {
-        
+        _dollFootstepTimer.Stop();
         }
 
         public override void StateFixedUpdate()
@@ -41,6 +44,15 @@ namespace _Project.Code.Gameplay.NPC.Hostile.DollEnemy.States
                 return;
             }
             Agent.SetDestination(StateMachine.CurrentPlayerToHunt.position);
+            _dollFootstepTimer.TimerUpdate(Time.deltaTime);
+            if (_dollFootstepTimer.IsComplete)
+            {
+                EventBus.Instance.PublishGameplayEvent(new DollFootstepsEvent
+                {
+                    EventID = EventIDs.EnemyDollFootsteps, EventPosition = StateMachine.transform.position
+                });
+                _dollFootstepTimer.Reset();
+            }
         }
 
         public override void StateUpdate()

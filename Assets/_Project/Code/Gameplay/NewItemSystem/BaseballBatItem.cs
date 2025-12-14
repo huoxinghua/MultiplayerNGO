@@ -86,7 +86,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
             if (hitEnemies.Length > 0)
             {
                 
-                EventBus.Instance.PublishGameplayEvent(new BaseballBatHitEvent{EventID = EventIDs.ItemBaseballBatHit,
+                EventBus.Instance.PublishGameplayEvent(new BaseballHitEvent{EventID = EventIDs.ItemBaseballBatHit,
                     EventPosition = hitEnemies[0].gameObject.transform.position} );
             }
 

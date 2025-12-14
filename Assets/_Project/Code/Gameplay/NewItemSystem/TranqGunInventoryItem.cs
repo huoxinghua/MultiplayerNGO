@@ -1,4 +1,5 @@
 using System.Collections;
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.TranqGunItem;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -64,7 +65,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
             Vector3 spawnPosition = _bulletSpawnPoint.position;
             Quaternion spawnRotation = _bulletSpawnPoint.rotation;
             Vector3 shootDir = GetAimDirection(spawnPosition);
-            
+            EventBus.Instance.PublishGameplayEvent(new TranqGunShotEvent
+            {
+                EventID = EventIDs.ItemTranqGunShot, EventPosition = _fpsHeldVisualChild.transform.position
+            });
             ShootServerRpc(spawnPosition, spawnRotation, shootDir);
         }
 

@@ -237,12 +237,14 @@ namespace _Project.Code.Gameplay.Player.RefactorInventory
             if (item.NetworkObject != null)
             {
                 PickupItemServerRpc(new NetworkObjectReference(item.NetworkObject), item.IsPocketSize());
+                EventBus.Instance.PublishGameplayEvent(new ItemCollectEvent{EventID = EventIDs.EnvItemCollect});
             }
             else if (item.GetComponentInParent<NetworkObject>() != null)
             {
                 //Some object scripts are not on the root obj
                 PickupItemServerRpc(new NetworkObjectReference(item.GetComponentInParent<NetworkObject>()),
                     item.IsPocketSize());
+                EventBus.Instance.PublishGameplayEvent(new ItemCollectEvent{EventID = EventIDs.EnvItemCollect});
             }
             else
             {

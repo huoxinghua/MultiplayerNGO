@@ -1,3 +1,4 @@
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.Flashlight;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -247,6 +248,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         }
         protected override void StartUsage()
         {
+            EventBus.Instance.PublishGameplayEvent(new FlashLightClickEvent{EventID = EventIDs.ItemFlashlightToggle, EventPosition = _fpsHeldVisualChild.transform.position});
             ToggleFlashLight();
         }
 

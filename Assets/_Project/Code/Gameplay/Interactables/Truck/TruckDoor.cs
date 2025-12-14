@@ -1,4 +1,5 @@
 using _Project.Code.Network.GameManagers;
+using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -67,7 +68,7 @@ namespace _Project.Code.Gameplay.Interactables.Truck
         {
             if (!IsServer)
                 return;
-
+            EventBus.Instance.PublishGameplayEvent(new TruckDoorSwingEvent{EventID = EventIDs.EnvTruckDoorSwing, EventPosition = transform.position});
             _openState.Value = !_openState.Value;
         }
 

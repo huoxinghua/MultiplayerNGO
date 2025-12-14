@@ -1,3 +1,4 @@
+using _Project.Code.Utilities.EventBus;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.Player.PlayerStateMachine
@@ -21,6 +22,7 @@ namespace _Project.Code.Gameplay.Player.PlayerStateMachine
         public override void OnExit()
         {
         Animator.PlayLand();
+        EventBus.Instance.PublishGameplayEvent(new PlayerLandingEvent{EventID = EventIDs.PlayerLanding, EventPosition = stateController.transform.position});
         }
         void TryStand()
         {

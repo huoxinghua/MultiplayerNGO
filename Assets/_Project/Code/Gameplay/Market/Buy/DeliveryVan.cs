@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.StoreSO.VanSO;
 using Unity.Netcode;
 using UnityEngine;
@@ -21,6 +22,8 @@ namespace _Project.Code.Gameplay.Market.Buy
         private float _distanceBetweenSpawns => _vanSO.DistanceForDroppingItems/_itemsToSpawn.Count;
 
         private int _itemsDropped = 0;
+
+        private bool _hasUsedHorn = false;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         public override void OnNetworkSpawn()
         {
@@ -29,6 +32,7 @@ namespace _Project.Code.Gameplay.Market.Buy
             _vanSpawnedAtPos = transform.position;
             transform.position += _vanSO.VanSpawnPoint;
             _startPos = transform.position;
+            EventBus.Instance.PublishGameplayEvent(new DeliveryTruckSpawnEvent{EventID = EventIDs.EnvDeliveryTruckSpawn, EventPosition = transform.position});
         }
         public void AddBuyOrder(BuyOrder buyOrder)
         {
@@ -66,6 +70,11 @@ namespace _Project.Code.Gameplay.Market.Buy
             if (_itemsDropped >= _itemsToSpawn.Count) return;
             if (_distanceTraveled >= _vanSO.DistanceFromStartToDropItems && _distanceTraveled <= _vanSO.DistanceFromStartToStopDropping)
             {
+                if (!_hasUsedHorn)
+                {
+                    EventBus.Instance.PublishGameplayEvent(new DeliveryTruckHornEvent{EventID = EventIDs.EnvDeliveryTruckStartDropping, EventPosition = transform.position});
+                    _hasUsedHorn = true;
+                }
                 if (_distanceTraveled - _vanSO.DistanceFromStartToDropItems >= _distanceBetweenSpawns * _itemsDropped)
                 {
                    DropItem();

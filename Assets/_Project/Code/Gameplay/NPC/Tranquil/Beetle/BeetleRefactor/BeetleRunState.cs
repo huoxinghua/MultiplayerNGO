@@ -1,3 +1,4 @@
+using _Project.Code.Utilities.EventBus;
 using UnityEngine;
 using UnityEngine.AI;
 using Timer = _Project.Code.Utilities.Utility.Timer;
@@ -17,6 +18,10 @@ namespace _Project.Code.Gameplay.NPC.Tranquil.Beetle.BeetleRefactor
             _runAwayTimer.Start();
             Agent.speed = BeetleSO.RunSpeed;
             RunAwayLogic(StateController.PlayerToRunFrom);
+            EventBus.Instance.PublishGameplayEvent(new BeetleSqueakEvent
+            {
+                EventID = EventIDs.EnemyBeetleSqueak, EventPosition = StateController.transform.position
+            });
         }
         public override void OnExit()
         {

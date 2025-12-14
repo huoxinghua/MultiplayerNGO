@@ -69,6 +69,14 @@ namespace _Project.Code.Gameplay.Interactables
             cc.enabled = true;
             EventBus.Instance.Publish<TeleDoorEvent>(new TeleDoorEvent());
             EventBus.Instance.Publish(new PlayerChangeArea());
+            if (indexForLink == 0)
+            {
+                EventBus.Instance.PublishGameplayEvent(new EnteredIntEvent{EventID = EventIDs.EnvEnterInterior});
+            }
+            else
+            {
+                EventBus.Instance.PublishGameplayEvent(new ExitedIntEvent{EventID = EventIDs.EnvExitInterior});
+            }
             OnRelease(playerTeleporting);
         }
         public float GetTimeToOpen()

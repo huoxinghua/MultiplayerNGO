@@ -1,5 +1,6 @@
 using System;
 using _Project.Code.Gameplay.Interfaces;
+using _Project.Code.Utilities.EventBus;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -37,7 +38,10 @@ public class TranqDartScript : NetworkBehaviour
         {
             hitable.OnHit(Owner,_damage,_knockoutPower);
         }
-        
+        EventBus.Instance.PublishGameplayEvent(new TranqGunHitEvent()
+        {
+            EventID = EventIDs.ItemTranqGunHit, EventPosition = transform.position
+        });
         NetworkObject.Despawn();
     }
 }

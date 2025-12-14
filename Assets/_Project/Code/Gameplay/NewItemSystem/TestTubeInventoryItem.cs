@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using _Project.Code.Gameplay.Market.Sell;
 using _Project.Code.Gameplay.NewItemSystem.SampleItem;
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.TestTubeItem;
 using QuickOutline.Scripts;
 using Unity.Netcode;
@@ -109,6 +110,10 @@ namespace _Project.Code.Gameplay.NewItemSystem
                     if (netObj != null)
                     {
                         RequestCollectSampleServerRpc(new NetworkObjectReference(netObj));
+                        EventBus.Instance.PublishGameplayEvent(new TestTubeCollectEvent
+                        {
+                            EventID = EventIDs.ItemTestTubeCollect, EventPosition = _fpsHeldVisualChild.transform.position
+                        });
                     }
                     else
                     {

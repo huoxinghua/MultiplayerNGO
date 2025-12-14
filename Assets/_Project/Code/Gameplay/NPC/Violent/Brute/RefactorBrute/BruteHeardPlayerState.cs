@@ -1,3 +1,5 @@
+     using _Project.Code.Utilities.EventBus;
+
      namespace _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute
     {
         public class BruteHeardPlayerState : BruteBaseState
@@ -17,6 +19,10 @@
                 }
                 else
                 {
+                    EventBus.Instance.PublishGameplayEvent<BruteAlertEvent>(new BruteAlertEvent
+                    {
+                        EventID = EventIDs.EnemyBruteAlert, EventPosition = StateController.transform.position
+                    });
                     StateController.TransitionTo(StateController.BruteAlertState);
                 }
             }

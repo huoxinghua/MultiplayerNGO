@@ -60,11 +60,6 @@ namespace _Project.Code.Utilities.EventBus
 
     }
 
-    public class BaseballBatHitEvent : GameplayEvent
-    {
-       
-    }
-
     public class DollAlertEvent : GameplayEvent
     {
       
@@ -190,12 +185,25 @@ namespace _Project.Code.Utilities.EventBus
        
     }
 
+    public class EnteredIntEvent : GameplayEvent
+    {
+     
+    }
+    public class ExitedIntEvent : GameplayEvent
+    {
+     
+    }
+
     public class TruckDoorSwingEvent : GameplayEvent
     {
        
     }
 
     public class DeliveryTruckHornEvent : GameplayEvent
+    {
+        
+    }
+    public class DeliveryTruckSpawnEvent : GameplayEvent
     {
         
     }
