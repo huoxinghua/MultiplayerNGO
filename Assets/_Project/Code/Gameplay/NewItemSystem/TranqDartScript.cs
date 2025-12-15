@@ -5,10 +5,9 @@ using UnityEngine;
 
 public class TranqDartScript : NetworkBehaviour
 {
-    public float _dartSpeed = 1.0f;
     public BoxCollider _dartCollider;
     private Rigidbody _rb;
-    [SerializeField] private float _damage = 100f;
+    private float _damage = 0f;
     [SerializeField] private float _knockoutPower = 0f;
     public GameObject Owner { get; set; }
 
@@ -18,12 +17,17 @@ public class TranqDartScript : NetworkBehaviour
         _rb = GetComponent<Rigidbody>();
     }
     
-    public void SetVelocity(Vector3 direction)
+    public void SetVelocity(Vector3 direction, float speed)
     {
         if (_rb == null) _rb = GetComponent<Rigidbody>();
-        _rb.linearVelocity = direction * _dartSpeed;
+        _rb.linearVelocity = direction * speed;
     }
-    
+
+    public void SetDamage(float damage)
+    {
+        _damage = damage;
+    }
+
 
     private void OnCollisionEnter(Collision collision)
     {

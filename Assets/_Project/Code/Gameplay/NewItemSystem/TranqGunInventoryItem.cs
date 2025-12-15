@@ -93,7 +93,7 @@ namespace _Project.Code.Gameplay.NewItemSystem
         private void ShootServerRpc(Vector3 spawnPos, Quaternion spawnRot, Vector3 aimDir)
         {
             RequestDecreaseAmmoServerRpc();
-
+           
       
             var dartObj = Instantiate(_bulletPrefab, spawnPos, spawnRot);
             var netObj = dartObj.GetComponent<NetworkObject>();
@@ -101,8 +101,14 @@ namespace _Project.Code.Gameplay.NewItemSystem
             var dartScript = dartObj.GetComponent<TranqDartScript>();
             if (dartScript != null)
             {
+                if (_itemSO is not TranqGunItemSO tranqGunItemSO)
+                {
+                    Debug.LogWarning("This sucks");
+                    return;
+                }
                 dartScript.Owner = _owner;
-                dartScript.SetVelocity(aimDir);
+                dartScript.SetDamage(tranqGunItemSO.Damage);
+                dartScript.SetVelocity(aimDir, tranqGunItemSO.DartSpeed);
             }
         }
 

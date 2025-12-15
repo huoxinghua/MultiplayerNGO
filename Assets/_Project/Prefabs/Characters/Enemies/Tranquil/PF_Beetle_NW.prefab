@@ -2396,7 +2396,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 3.5
-  m_Acceleration: 8
+  m_Acceleration: 2
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 2.3
@@ -4038,6 +4038,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4face8416bca3c5479d01df856850432, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BeetleDeadScript: {fileID: 0}
 --- !u!1 &6517257806549438843
 GameObject:
   m_ObjectHideFlags: 0
@@ -5061,6 +5062,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   walkRunTransition: 0.3
+  _animationBlendWeight: 1
   idleIndex: 2
 --- !u!114 &8572189077025779284
 MonoBehaviour:
@@ -5074,7 +5076,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1329740f60ed864eb3a6b52ad288bee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
   ragdollRoot: {fileID: 8120362344941806730}
   RagdollEneble: 0
 --- !u!114 &2554594862036019778
