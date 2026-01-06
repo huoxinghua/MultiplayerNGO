@@ -67,7 +67,7 @@ namespace _Project.Code.Network.GameManagers
             HideLoadMenuClientRpc();
         }
 
-        private void HideLoadMenuLocal()
+        public void HideLoadMenuLocal()
         {
             _loadMenu.SetActive(false);
         }
@@ -181,13 +181,13 @@ namespace _Project.Code.Network.GameManagers
           }
         }
 
-        private void Update()
+        /*private void Update()
         {
             if (Input.GetKeyDown(KeyCode.L))
             {
                 RequestStartMission();
             }
-        }
+        }*/
 
         public void LoadScene(string sceneName)
         {

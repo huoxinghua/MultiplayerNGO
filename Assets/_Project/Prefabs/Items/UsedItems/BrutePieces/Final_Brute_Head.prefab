@@ -770,7 +770,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4096
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -844,6 +844,8 @@ MonoBehaviour:
   _heldVisual: {fileID: 6084157208081999709, guid: c122a9ff1191ed44497c4287dd41bf21, type: 3}
   _rb: {fileID: 7713653550213676438}
   _renderer: {fileID: 7107748983617441030}
+  _childRenderers:
+  - {fileID: 2658823567875551235}
   _collider: {fileID: 8050951210566477843}
   CurrentAnimState:
     m_InternalValue: 0
@@ -990,6 +992,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
+--- !u!23 &2658823567875551235 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 515923465668392466, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
+  m_PrefabInstance: {fileID: 2580250712765842961}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3191599815047378703 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1118074979020353822, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
@@ -1021,7 +1028,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 515923465668392466, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1118074979020353822, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1107,7 +1114,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 515923465668392466, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1118074979020353822, guid: 95d5607a2881a1b45ba75fca8dc5fd93, type: 3}
       propertyPath: m_LocalPosition.x

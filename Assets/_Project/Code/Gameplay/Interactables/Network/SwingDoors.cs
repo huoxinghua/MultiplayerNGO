@@ -1,5 +1,6 @@
 ﻿using _Project.Code.Network.RegisterNetObj;
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
 using UnityEngine;
@@ -78,7 +79,7 @@ namespace _Project.Code.Gameplay.Interactables.Network
                 return; 
             transform.localRotation = Quaternion.Euler(0f, _isOpen.Value ? 0f : 90f, 0f);
             _isOpen.Value = !_isOpen.Value;
-            AudioManager.Instance.PlayByKey3D("DoorOpen", transform.position);
+            EventBus.Instance.PublishGameplayEvent(new DoorSwingEvent{EventID = EventIDs.EnvDoorSwing});
         }
 
         // Update is called once per frame

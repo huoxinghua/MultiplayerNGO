@@ -1,8 +1,10 @@
+using System;
 using _Project.Code.Gameplay.Market.Quota;
 using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Utility;
 using UnityEngine;
 using UnityEngine.UI;
+using Debug = FMOD.Debug;
 
 public class QuotaCanvas : MonoBehaviour
 {
@@ -25,6 +27,11 @@ public class QuotaCanvas : MonoBehaviour
         _uiUpdateTimer.Start();
        // _handQuotaBarRectTransform  = _handQuotaBar.GetComponent<RectTransform>();
         
+    }
+   // Initialize the quota bar on scene load to avoid incorrect default UI values.
+    private void Start()
+    {
+        AdjustQuotaBar();
     }
 
     // Update is called once per frame

@@ -4,6 +4,7 @@ using _Project.Code.Gameplay.Interfaces;
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using _Project.Code.Gameplay.Player;
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using _Project.Code.Utilities.Utility;
 using Unity.Netcode;
 using UnityEngine;
@@ -56,7 +57,8 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
             if (_heartBeatTimer.IsComplete)
             {
                 _heartBeatTimer.Reset();
-                AudioManager.Instance.PlayByKey3D("BruteHeartBeat", transform.position);
+                EventBus.Instance.PublishGameplayEvent(new BruteHeartBeatEvent{EventID = EventIDs.EnemyBruteHeartBeat, EventPosition = transform.position
+            });
             }
 
             // Proximity check (server only)

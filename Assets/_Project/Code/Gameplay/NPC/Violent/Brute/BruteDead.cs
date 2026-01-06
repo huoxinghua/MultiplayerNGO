@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using _Project.Code.Art.RagdollScripts;
 using _Project.Code.Gameplay.Interactables;
@@ -17,13 +18,17 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         List<GameObject> playersInteracting = new List<GameObject>();
 
         //[SerializeField] GameObject _brutePiecesPrefab;
-        [SerializeField] private List<GameObject> _brutePiecesList = new();
+       // [SerializeField] private List<GameObject> _brutePiecesList = new();
+       [SerializeField] private BruteSO _bruteSo;
+       //public List<GameObject> _brutePiecesList;
         [SerializeField] GameObject _destroy;
 
         [SerializeField] float heightOffset;
         private ulong _parentId;
         private Vector3 _deathPosition;
         [SerializeField] private NetworkObject parentNetworkObject;
+
+       
 
         public void OnHold(GameObject player)
         {
@@ -93,7 +98,7 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         private void SpawnBrutePiecesServer()
         {
             var spawnPos = _deathPosition + new Vector3(0, heightOffset, 0);
-            foreach (GameObject brutePiece in _brutePiecesList)
+            foreach (GameObject brutePiece in _bruteSo.BrutePiecePrefabs)
             {
                 var obj = Instantiate(brutePiece, spawnPos, Quaternion.identity);
                 obj.transform.parent = null;
@@ -108,10 +113,9 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
                     Debug.LogWarning($"{brutePiece.name} no NetworkObject comp！");
                 }
             }
-           
             
         }
-
+     
         [ServerRpc(RequireOwnership = false)]
         private void SpawnBrutePiecesServerRpc()
         {

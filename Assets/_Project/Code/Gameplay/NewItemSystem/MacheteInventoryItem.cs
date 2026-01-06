@@ -1,4 +1,5 @@
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using _Project.ScriptableObjects.ScriptObjects.ItemSO.MacheteItem;
 using Unity.Netcode;
 using UnityEngine;
@@ -25,7 +26,8 @@ namespace _Project.Code.Gameplay.NewItemSystem
                 if (hitEnemies.Length > 0)
                 {
                     //play hit sound??
-                    AudioManager.Instance.PlayByKey3D("BaseBallBatHit", hitEnemies[0].transform.position);
+                    EventBus.Instance.PublishGameplayEvent(new MacheteHitEvent{EventID = EventIDs.ItemMacheteHit,
+                        EventPosition = hitEnemies[0].gameObject.transform.position} );
                 }
 
                 foreach (Collider enemy in hitEnemies)

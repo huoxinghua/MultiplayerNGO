@@ -10,10 +10,10 @@ namespace _Project.Code.Utilities.Audio
         public static AudioManager Instance;
 
         [Header("Audio Library")]
-        [SerializeField] private List<AudioEntry> audioLibrary = new List<AudioEntry>();
-        private Dictionary<string, AudioClip> audioClips = new Dictionary<string, AudioClip>();
-        private Dictionary<SoundIDs, AudioClip> _audioClipsEnum = new Dictionary<SoundIDs, AudioClip>();
-
+        [SerializeField] private AudioListSO _audioListSO;
+        // [SerializeField] private List<AudioEntry> audioLibrary = new List<AudioEntry>();
+        // private Dictionary<string, AudioClip> audioClips = new Dictionary<string, AudioClip>();
+        
         [Header("Pooling Settings")]
         [SerializeField] private int initialPoolSize = 20;
         [SerializeField] private AudioSource prefabSource; // A prefab with an AudioSource component
@@ -23,18 +23,13 @@ namespace _Project.Code.Utilities.Audio
 
         [Header("Ambient Audio")]
         [SerializeField] private AudioSource ambientSource; // Looping music/environment
-    
+      //  [SerializeField] private AudioListSO audioItemList;
 
         void Awake()
         {
             if (Instance != null) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            foreach (var entry in audioLibrary)
-            {
-                if (!_audioClipsEnum.ContainsKey(entry.key) && entry.clip != null)
-                    _audioClipsEnum.Add(entry.key, entry.clip);
-            }
             CreatePool();
         }
 
@@ -85,25 +80,25 @@ namespace _Project.Code.Utilities.Audio
         // ----------------- Public API -----------------
 
         /// <summary>Plays a 2D sound (UI, effects).</summary>
-        public void PlayByKey3D(string key, Vector3 position, float volume = 1f)
+        public void PlayByKey3D(EventIDs key, Vector3 position)
         {
-            if (audioClips.TryGetValue(key, out AudioClip clip))
-                Play3D(clip, position, volume);
+            if (_audioListSO.GetItem(key) != null)
+                Play3D(_audioListSO.GetItem(key).Clip, position, _audioListSO.GetItem(key).Volume);
             else
                 Debug.LogWarning($"Audio key not found: {key}");
         }
 
-        public void PlayByKey2D(string key, float volume = 1f)
+        public void PlayByKey2D(EventIDs key)
         {
-            if (audioClips.TryGetValue(key, out AudioClip clip))
-                Play2D(clip, volume);
+            if (_audioListSO.GetItem(key) != null)
+                Play2D(_audioListSO.GetItem(key).Clip, _audioListSO.GetItem(key).Volume);
             else
                 Debug.LogWarning($"Audio key not found: {key}");
         }
-        public void PlayByKeyAttached(string key, Transform attachedTransform, float volume = 1f)
+        public void PlayByKeyAttached(EventIDs key, Transform attachedTransform)
         {
-            if (audioClips.TryGetValue(key, out AudioClip clip))
-                PlayAttached(clip, attachedTransform, volume);
+            if (_audioListSO.GetItem(key) != null)
+                PlayAttached(_audioListSO.GetItem(key).Clip, attachedTransform, _audioListSO.GetItem(key).Volume);
             else
                 Debug.LogWarning($"Audio key not found: {key}");
         }
@@ -152,9 +147,9 @@ namespace _Project.Code.Utilities.Audio
         ambientSource.Play();
     }*/
 
-        public void PlayAmbient(string key, float volume = 1f)
+        public void PlayAmbient(EventIDs key)
         {
-            if (audioClips.TryGetValue(key, out AudioClip clip))
+            if (_audioListSO.GetItem(key) != null)
             {
                 if (ambientSource == null)
                 {
@@ -162,8 +157,8 @@ namespace _Project.Code.Utilities.Audio
                     ambientSource.loop = true;
                     ambientSource.spatialBlend = 0f;
                 }
-                ambientSource.clip = clip;
-                ambientSource.volume = volume;
+                ambientSource.clip = _audioListSO.GetItem(key).Clip;
+                ambientSource.volume = _audioListSO.GetItem(key).Volume;
                 ambientSource.Play();
             }
             else
@@ -174,138 +169,34 @@ namespace _Project.Code.Utilities.Audio
 
         public void StopAmbient() => ambientSource?.Stop();
     }
-    [AttributeUsage(AttributeTargets.Field)]
-    public class NetworkAspectAttribute : Attribute
-    {
-        public enum SoundAspect
-        {
-            LocalOnly = 0,
-            Global = 1,
-            Conditional = 2,
-            Local2D = 3,
-            Global2D = 4,
-            Default,
-        }
-
-        public SoundAspect NetworkAspect { get; }
-
-        public NetworkAspectAttribute(SoundAspect aspect)
-        {
-            NetworkAspect = aspect;
-        }
-    }
-    public enum SoundIDs
-    {
-        NoSound,
-        
-        #region  EnemySounds
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBruteFootsteps,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBruteAlert,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBruteAttack,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBruteIdleBreath,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBruteHurtIdleBreath,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyDollGiggle,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyDollFootsteps,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.LocalOnly)]
-        EnemyDollAlert,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBeetleFootsteps,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBeetleSqueak,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnemyBeetleBugNoise,
-        
-        #endregion
-        #region  PlayerSounds
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        PlayerFootsteps,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        PlayerHurt,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        PlayerLanding,
-        
-        #endregion
-        #region  ItemSounds
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemFlashlightClick,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemMeleeSwing,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemBaseballBatHit,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemSledgehammerHit,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemMacheteHit,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemTranqGunShot,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        ItemTranqGunHit,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.LocalOnly)]
-        ItemTestTubeCollect,
-        
-        #endregion
-        #region  EnviromentSounds
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnvironmentDoorSwing,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnvironmentFluorescentLightBuzz,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global2D)]
-        EnvironmentAmbientMusic,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnvironmentTruckDoorSwing,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.Global)]
-        EnvironmentDeliveryTruckHorn,
-        
-        [NetworkAspect(NetworkAspectAttribute.SoundAspect.LocalOnly)]
-        EnvironmentItemCollect
-        
-        #endregion
-    }
-
     public struct PlaySpatialSoundEvent : IEvent
     {
-        public SoundIDs SoundID;
+        public EventIDs Key;
         public Vector3 Position;
         public float Volume;
     }
 
     public struct Play2DSoundEvent : IEvent
     {
-        public SoundIDs SoundID;
+        public EventIDs Key;
         public float Volume;
+    }
+    [Serializable]
+    public class AudioPlayItem
+    {
+        public EventIDs Key;
+        public AudioClip Clip;
+        public bool IsLooping = false;
+        public SoundAspect Value;
+        [field:SerializeField, Range(0.01f, 1f)] public float Volume = .5f;
+    }
+    public enum SoundAspect
+    {
+        LocalOnly = 0,
+        Global = 1,
+        Conditional = 2,
+        Local2D = 3,
+        Global2D = 4,
+        Default,
     }
 }

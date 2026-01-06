@@ -113,7 +113,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             point = GetEnemySpawnPoint();
             SpawnTranquil(point);
             point = GetEnemySpawnPoint();
-            SpawnHorror(point);
+            //SpawnHorror(point);
         }
 
         private EnemySpawnPoint GetEnemySpawnPoint()
@@ -181,6 +181,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             DoSpawnEnemy(EnemyPrefabs.ViolentPrefabs[enemyIndex], spawnPoint);
         }
 
+        /*
         public void SpawnHorror(EnemySpawnPoint spawnPoint)
         {
             if (!IsServer) return;
@@ -188,6 +189,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             int enemyIndex = Random.Range(0, EnemyPrefabs.HorrorPrefabs.Count);
             DoSpawnEnemy(EnemyPrefabs.HorrorPrefabs[enemyIndex], spawnPoint);
         }
+        */
 
         private void DoSpawnEnemy(GameObject enemyPF, EnemySpawnPoint spawnPoint)
         {
@@ -243,7 +245,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
             if (randomChance <= currentHorrorSpawnChance)
             {
                 
-                SpawnHorror(GetEnemySpawnPoint());
+                //SpawnHorror(GetEnemySpawnPoint());
                 _currentHorrorAttempts = 0;
                 _HorrorsSpawned++;
             }
@@ -308,7 +310,7 @@ namespace _Project.Code.Gameplay.EnemySpawning
 
             else
             {
-                SpawnHorror(sp);
+              //  SpawnHorror(sp);
             }
         }
 

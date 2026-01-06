@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using _Project.Code.Gameplay.NPC.Violent.Brute;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,9 +8,12 @@ namespace _Project.Code.Network.RegisterNetObj
 {
     public class NetworkPrefabAutoRegister : MonoBehaviour
     {
-        [Header("enemy pickable piceces Prefabs")] [SerializeField]
-        private GameObject[] _pickupPrefabs;
+        [Header("enemy pickable piceces Prefabs")] 
+        [SerializeField] private BruteSO _bruteSo;
 
+        private static bool _hasBrutePieceRegistered = false;
+
+        private static readonly HashSet<GameObject> RegisteredPrefabs = new();
         private IEnumerator Start()
         {
             while (NetworkManager.Singleton == null)
@@ -16,12 +21,16 @@ namespace _Project.Code.Network.RegisterNetObj
                 yield return null;
             }
 
-            RegisterPrefabs();
+            if (!_hasBrutePieceRegistered)
+            {
+                RegisterPrefabs();
+            }
+            
         }
 
         private void RegisterPrefabs()
         {
-            foreach (var prefab in _pickupPrefabs)
+            foreach (var prefab in _bruteSo.BrutePiecePrefabs)
             {
                 var netObj = prefab.GetComponent<NetworkObject>();
                 if (netObj == null)
@@ -29,6 +38,8 @@ namespace _Project.Code.Network.RegisterNetObj
                     continue;
                 }
 
+                if (RegisteredPrefabs.Contains(prefab))
+                    continue;
                 NetworkManager.Singleton.AddNetworkPrefab(prefab);
             }
         }

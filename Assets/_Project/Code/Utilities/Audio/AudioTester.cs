@@ -7,7 +7,7 @@ namespace _Project.Code.Utilities.Audio
 
         void Start()
         {
-            AudioManager.Instance.PlayByKey3D("SampleCollected", transform.position);
+           // AudioManager.Instance.PlayByKey3D("SampleCollected", transform.position);
         }
 
         // Update is called once per frame

@@ -1,5 +1,6 @@
 using _Project.Code.Gameplay.NPC.Violent.Brute.RefactorBrute;
 using _Project.Code.Utilities.Audio;
+using _Project.Code.Utilities.EventBus;
 using UnityEngine;
 
 namespace _Project.Code.Gameplay.NPC.Violent.Brute
@@ -9,11 +10,11 @@ namespace _Project.Code.Gameplay.NPC.Violent.Brute
         [SerializeField] private BruteStateMachine _stateMachine;
         public void OnFootStep()
         {
-            AudioManager.Instance.PlayByKey3D("BruteFootStep", transform.position);
+            EventBus.Instance.PublishGameplayEvent(new BruteFootstepsEvent{EventID = EventIDs.EnemyBruteFootsteps, EventPosition = transform.position});
         }
         public void OnAttackNoise()
         {
-            AudioManager.Instance.PlayByKey3D("BruteAttack", transform.position);
+            EventBus.Instance.PublishGameplayEvent(new BruteAttackEvent{EventID = EventIDs.EnemyBruteAttack, EventPosition = transform.position});
         }
         public void OnAttackConnect()
         {
